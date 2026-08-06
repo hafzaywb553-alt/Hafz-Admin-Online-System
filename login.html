@@ -1,0 +1,421 @@
+<!DOCTYPE html><html lang="ps" dir="rtl"><head><meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<meta
+    name="theme-color"
+    content="#0B6B36"
+>
+
+<title>د ننوتلو پاڼه - Hafz Admin Online System</title>
+
+<link
+    rel="stylesheet"
+    href="style.css"
+>
+
+<link
+    href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+>
+
+</head><body><!-- ==========================================
+     Login Page
+     ========================================== -->
+
+<main class="login-page">
+
+
+    <section
+        class="login-card"
+        aria-labelledby="loginTitle"
+    >
+
+
+        <!-- System Logo -->
+
+        <div class="login-logo">
+            🔐
+        </div>
+
+
+        <!-- Title -->
+
+        <h1 id="loginTitle">
+            د Hafz Admin Online System
+        </h1>
+
+
+        <p class="login-description">
+            خپل حساب ته ننوتل
+        </p>
+
+
+        <!-- ======================================
+             Login Form
+             ====================================== -->
+
+        <form
+            id="loginForm"
+            novalidate
+        >
+
+
+            <!-- Email -->
+
+            <div class="form-group">
+
+                <label for="email">
+                    ایمیل
+                    <span class="required">
+                        *
+                    </span>
+                </label>
+
+                <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    autocomplete="username"
+                    placeholder="خپل ایمیل ولیکئ"
+                    required
+                >
+
+            </div>
+
+
+            <!-- Password -->
+
+            <div class="form-group">
+
+                <label for="password">
+                    پاسورډ
+                    <span class="required">
+                        *
+                    </span>
+                </label>
+
+                <input
+                    id="password"
+                    name="password"
+                    type="password"
+                    autocomplete="current-password"
+                    placeholder="خپل پاسورډ ولیکئ"
+                    required
+                >
+
+            </div>
+
+
+            <!-- Message -->
+
+            <div
+                id="loginMessage"
+                class="form-message"
+                role="alert"
+                aria-live="polite"
+                hidden
+            ></div>
+
+
+            <!-- Login Button -->
+
+            <button
+                id="loginButton"
+                type="submit"
+                class="btn btn-primary login-button"
+            >
+                🔐 ننوتل
+            </button>
+
+
+        </form>
+
+
+        <!-- ======================================
+             Password Reset
+             ====================================== -->
+
+        <button
+            id="forgotPasswordButton"
+            type="button"
+            class="forgot-password-button"
+        >
+            پاسورډ مو هېر کړی؟
+        </button>
+
+
+    </section>
+
+
+</main>
+
+
+<!-- ==========================================
+     Login JavaScript
+     ========================================== -->
+
+<script type="module">
+
+    import {
+        loginUser,
+        resetPassword
+    } from "./auth.js";
+
+
+    const loginForm =
+        document.getElementById("loginForm");
+
+    const emailInput =
+        document.getElementById("email");
+
+    const passwordInput =
+        document.getElementById("password");
+
+    const loginButton =
+        document.getElementById("loginButton");
+
+    const loginMessage =
+        document.getElementById("loginMessage");
+
+    const forgotPasswordButton =
+        document.getElementById(
+            "forgotPasswordButton"
+        );
+
+
+    // ==========================================
+    // Show Message
+    // ==========================================
+
+    function showMessage(
+        message,
+        type = "error"
+    ) {
+
+        loginMessage.textContent =
+            message;
+
+        loginMessage.className =
+            `form-message ${type}`;
+
+        loginMessage.hidden = false;
+
+    }
+
+
+    // ==========================================
+    // Hide Message
+    // ==========================================
+
+    function hideMessage() {
+
+        loginMessage.textContent = "";
+
+        loginMessage.hidden = true;
+
+    }
+
+
+    // ==========================================
+    // Login
+    // ==========================================
+
+    loginForm.addEventListener(
+        "submit",
+        async (event) => {
+
+            event.preventDefault();
+
+            hideMessage();
+
+
+            const email =
+                emailInput.value.trim();
+
+            const password =
+                passwordInput.value;
+
+
+            if (!email) {
+
+                showMessage(
+                    "ایمیل ولیکئ."
+                );
+
+                emailInput.focus();
+
+                return;
+            }
+
+
+            if (!password) {
+
+                showMessage(
+                    "پاسورډ ولیکئ."
+                );
+
+                passwordInput.focus();
+
+                return;
+            }
+
+
+            loginButton.disabled = true;
+
+            loginButton.textContent =
+                "⏳ د ننوتلو هڅه...";
+
+
+            try {
+
+                const result =
+                    await loginUser(
+                        email,
+                        password
+                    );
+
+
+                if (!result.success) {
+
+                    showMessage(
+                        result.message ||
+                        "ننوتل ترسره نه شول."
+                    );
+
+                    return;
+                }
+
+
+                showMessage(
+                    "په بریالیتوب سره داخل شو.",
+                    "success"
+                );
+
+
+                /*
+                 * تر دې ځایه Login د auth.js
+                 * له لارې بشپړ شو.
+                 *
+                 * Dashboard ته انتقال وروسته
+                 * د اصلي Dashboard فایل له
+                 * جوړېدو سره نښلول کېږي.
+                 */
+
+                window.location.href =
+                    "dashboard.html";
+
+
+            } catch (error) {
+
+                console.error(
+                    "Login Page Error:",
+                    error
+                );
+
+
+                showMessage(
+                    "د ننوتلو پر مهال ستونزه رامنځته شوه."
+                );
+
+            } finally {
+
+                loginButton.disabled = false;
+
+                loginButton.textContent =
+                    "🔐 ننوتل";
+
+            }
+
+        }
+    );
+
+
+    // ==========================================
+    // Password Reset
+    // ==========================================
+
+    forgotPasswordButton.addEventListener(
+        "click",
+        async () => {
+
+            hideMessage();
+
+
+            const email =
+                emailInput.value.trim();
+
+
+            if (!email) {
+
+                showMessage(
+                    "لومړی خپل ایمیل ولیکئ."
+                );
+
+                emailInput.focus();
+
+                return;
+            }
+
+
+            forgotPasswordButton.disabled =
+                true;
+
+            forgotPasswordButton.textContent =
+                "⏳ انتظار وکړئ...";
+
+
+            try {
+
+                const result =
+                    await resetPassword(
+                        email
+                    );
+
+
+                if (result.success) {
+
+                    showMessage(
+                        result.message,
+                        "success"
+                    );
+
+                } else {
+
+                    showMessage(
+                        result.message
+                    );
+
+                }
+
+            } catch (error) {
+
+                console.error(
+                    "Password Reset Page Error:",
+                    error
+                );
+
+
+                showMessage(
+                    "د پاسورډ د بدلولو ایمیل ونه لېږل شو."
+                );
+
+            } finally {
+
+                forgotPasswordButton.disabled =
+                    false;
+
+                forgotPasswordButton.textContent =
+                    "پاسورډ مو هېر کړی؟";
+
+            }
+
+        }
+    );
+
+</script>
+
+</body></html>

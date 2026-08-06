@@ -1,0 +1,1416 @@
+<!DOCTYPE html>
+<html lang="ps" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0B6B36">
+    <title>تنظیمات - Hafz Admin Online System</title>
+
+    <link rel="stylesheet" href="./style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <style>
+        html {
+            font-size: calc(16px * var(--font-scale, 1));
+        }
+
+        body[data-density="compact"] .card,
+        body[data-density="compact"] .section-card,
+        body[data-density="compact"] .panel,
+        body[data-density="compact"] .form-section {
+            padding: 14px;
+        }
+
+        body[data-density="spacious"] .card,
+        body[data-density="spacious"] .section-card,
+        body[data-density="spacious"] .panel,
+        body[data-density="spacious"] .form-section {
+            padding: 20px;
+        }
+
+        .settings-page-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
+        }
+
+        .settings-page-title {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 900;
+            line-height: 1.35;
+        }
+
+        .settings-page-description {
+            margin: 8px 0 0;
+            color: var(--muted-color);
+            font-size: 15px;
+            line-height: 1.9;
+            max-width: 860px;
+        }
+
+        .settings-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .settings-shell {
+            display: grid;
+            gap: 14px;
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: 1.25fr 0.95fr;
+            gap: 14px;
+            align-items: start;
+        }
+
+        .settings-card-title {
+            margin: 0 0 14px;
+            font-size: 20px;
+            font-weight: 900;
+            line-height: 1.45;
+        }
+
+        .settings-card-description {
+            margin: 4px 0 16px;
+            color: var(--muted-color);
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .settings-form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .settings-form-grid .full {
+            grid-column: 1 / -1;
+        }
+
+        .settings-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .settings-actions .btn {
+            min-width: 138px;
+        }
+
+        .color-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .color-swatch {
+            width: 56px;
+            height: 46px;
+            padding: 4px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            background: var(--surface-color);
+            cursor: pointer;
+            flex: 0 0 auto;
+        }
+
+        .color-text {
+            flex: 1;
+            min-width: 180px;
+        }
+
+        .current-settings-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .current-item {
+            padding: 13px;
+            background: var(--primary-light);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            min-width: 0;
+        }
+
+        .current-label {
+            color: var(--muted-color);
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+
+        .swatch-value {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .swatch-dot {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 1px solid rgba(0,0,0,0.14);
+            flex: 0 0 auto;
+        }
+
+        .preview-box {
+            display: grid;
+            gap: 12px;
+        }
+
+        .preview-hero {
+            padding: 18px;
+            border-radius: 16px;
+            background:
+                radial-gradient(circle at top right, rgba(11,107,54,0.12), transparent 34%),
+                linear-gradient(180deg, var(--surface-color), var(--surface-alt));
+            border: 1px solid var(--border-color);
+        }
+
+        .preview-title {
+            font-size: 20px;
+            font-weight: 900;
+            margin: 0 0 6px;
+        }
+
+        .preview-text {
+            color: var(--muted-color);
+            line-height: 1.9;
+            margin: 0;
+            font-size: 14px;
+        }
+
+        .preview-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .preview-chip {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            min-height: 30px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 900;
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+        }
+
+        .settings-note {
+            padding: 12px 14px;
+            border-radius: 12px;
+            background: rgba(11,107,54,0.08);
+            border: 1px solid rgba(11,107,54,0.14);
+            color: var(--text-color);
+            line-height: 1.9;
+            font-size: 13px;
+        }
+
+        .ltr-text {
+            direction: ltr;
+            unicode-bidi: plaintext;
+            text-align: start;
+        }
+
+        @media (max-width: 1100px) {
+            .settings-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 780px) {
+            .settings-form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .settings-page-title {
+                font-size: 24px;
+            }
+
+            .current-settings-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .settings-actions .btn {
+                min-width: 100%;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .settings-page-title {
+                font-size: 22px;
+            }
+
+            .settings-toolbar {
+                width: 100%;
+            }
+
+            .settings-toolbar .btn {
+                flex: 1 1 100%;
+            }
+
+            .preview-hero {
+                padding: 14px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="main-header">
+    <div class="header-brand">
+        <div class="header-logo">⚙️</div>
+        <div class="header-title" data-system-name>Hafz Admin Online System</div>
+    </div>
+
+    <div class="header-actions">
+        <button type="button" id="homeBtn" title="کور" aria-label="کور">🏠</button>
+        <button type="button" id="backBtn" title="شاته" aria-label="شاته">⬅️</button>
+        <button type="button" id="refreshBtn" title="ریفریش" aria-label="ریفریش">🔄</button>
+        <button type="button" id="logoutBtn" title="وتل" aria-label="وتل">🚪</button>
+    </div>
+</header>
+
+<div class="app-layout">
+    <aside class="sidebar">
+        <div class="sidebar-title" id="sidebarTitle">اصلي مینو</div>
+
+        <nav class="sidebar-menu">
+            <button type="button" id="dashboardMenuBtn">📊 Dashboard</button>
+            <button type="button" id="registerMenuBtn">📝 نوی ثبت</button>
+            <button type="button" id="searchMenuBtn">🔍 لټون</button>
+            <button type="button" id="reportsMenuBtn">📄 راپورونه</button>
+            <button type="button" id="adminMenuBtn">👥 Admin</button>
+            <button type="button" class="active" id="settingsMenuBtn">⚙️ تنظیمات</button>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <div class="page settings-shell">
+
+            <section class="settings-page-header">
+                <div>
+                    <h1 class="settings-page-title" id="pageTitle">⚙️ د سیستم تنظیمات</h1>
+                    <p class="settings-page-description" id="pageDescription">
+                        د سیستم نوم، ژبه، تقویم، بڼه، د لیک اندازه، او عمومي ښکلا تنظیم کړئ. دا بدلونونه د امکان تر حده د ټول سیستم لپاره همغږي ساتل کېږي.
+                    </p>
+                </div>
+
+                <div class="settings-toolbar">
+                    <button type="button" id="shareSettingsBtn" class="btn btn-secondary">📤 Share</button>
+                    <button type="button" id="copyLinkBtn" class="btn btn-secondary">🔗 لینک کاپي</button>
+                </div>
+            </section>
+
+            <div id="settingsMessage" class="alert" hidden role="alert" aria-live="polite"></div>
+
+            <div class="settings-grid">
+
+                <section class="card">
+                    <h2 class="settings-card-title" id="settingsCardTitle">🛠️ د اصلي تنظیماتو فورمه</h2>
+                    <p class="settings-card-description" id="settingsCardDescription">
+                        دلته د سیستم نوم، ژبه، تقویم، بڼه، رنګ، د لیک اندازه، او د فاصلې بڼه خوندي کېږي.
+                    </p>
+
+                    <form id="settingsForm" novalidate>
+                        <div class="settings-form-grid">
+                            <div class="form-group full">
+                                <label class="form-label" for="systemName" id="systemNameLabel">
+                                    د سیستم نوم <span class="required">*</span>
+                                </label>
+                                <input
+                                    id="systemName"
+                                    name="systemName"
+                                    type="text"
+                                    class="form-control"
+                                    maxlength="150"
+                                    autocomplete="off"
+                                    placeholder="د سیستم نوم ولیکئ"
+                                    required
+                                >
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="language" id="languageLabel">
+                                    ژبه <span class="required">*</span>
+                                </label>
+                                <select id="language" name="language" class="form-control" required>
+                                    <option value="ps">پښتو</option>
+                                    <option value="fa">دري</option>
+                                    <option value="en">English</option>
+                                    <option value="ur">اردو</option>
+                                    <option value="ar">العربية</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="calendar" id="calendarLabel">
+                                    تقویم <span class="required">*</span>
+                                </label>
+                                <select id="calendar" name="calendar" class="form-control" required>
+                                    <option value="solar">هجري شمسي</option>
+                                    <option value="lunar">هجري قمري</option>
+                                    <option value="gregorian">میلادي</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="theme" id="themeLabel">
+                                    د سیستم بڼه <span class="required">*</span>
+                                </label>
+                                <select id="theme" name="theme" class="form-control" required>
+                                    <option value="light">روښانه</option>
+                                    <option value="dark">تیاره</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="fontScale" id="fontScaleLabel">
+                                    د لیک اندازه <span class="required">*</span>
+                                </label>
+                                <select id="fontScale" name="fontScale" class="form-control" required>
+                                    <option value="small">کوچنی</option>
+                                    <option value="medium">منځنی</option>
+                                    <option value="large">لوی</option>
+                                    <option value="extraLarge">ډېر لوی</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="density" id="densityLabel">
+                                    د فاصلې حالت <span class="required">*</span>
+                                </label>
+                                <select id="density" name="density" class="form-control" required>
+                                    <option value="compact">کم فاصله</option>
+                                    <option value="comfortable">نورمال</option>
+                                    <option value="spacious">زیات فاصله</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group full">
+                                <label class="form-label" for="primaryColor" id="primaryColorLabel">
+                                    اصلي رنګ <span class="required">*</span>
+                                </label>
+
+                                <div class="color-row">
+                                    <input
+                                        id="primaryColor"
+                                        name="primaryColor"
+                                        type="color"
+                                        value="#0B6B36"
+                                        class="color-swatch"
+                                    >
+
+                                    <input
+                                        id="primaryColorText"
+                                        type="text"
+                                        class="form-control color-text ltr-text"
+                                        maxlength="7"
+                                        placeholder="#0B6B36"
+                                        autocomplete="off"
+                                    >
+                                </div>
+
+                                <div class="form-help" id="primaryColorHelp" style="margin-top:6px;">
+                                    د سیستم اصلي رنګ وټاکئ.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="settings-actions">
+                            <button type="submit" id="saveSettingsBtn" class="btn btn-primary">💾 تنظیمات خوندي کول</button>
+                            <button type="button" id="resetSettingsBtn" class="btn btn-warning">🔄 اصلي تنظیمات</button>
+                            <button type="button" id="cancelSettingsBtn" class="btn btn-secondary">↩️ شاته</button>
+                        </div>
+                    </form>
+
+                    <div class="settings-note" id="settingsNote" style="margin-top:16px;">
+                        د ژبې بدلون به د دې پاڼې متنونه هم سمدستي بدل کړي. د لیک اندازه او فاصلې حالت به د ممکنه حد پورې د ټول UI لپاره کار وکړي.
+                    </div>
+                </section>
+
+                <section class="card">
+                    <h2 class="settings-card-title" id="previewTitle">👁️ ژوندي مخکتنه</h2>
+                    <p class="settings-card-description" id="previewDescription">
+                        دلته به ستا د نننیو انتخابونو یوه فوري ښکاره بڼه ووینې.
+                    </p>
+
+                    <div class="preview-box">
+                        <div class="preview-hero">
+                            <div class="preview-title" id="previewSystemName">Hafz Admin Online System</div>
+                            <p class="preview-text" id="previewText">
+                                د سیستم تنظیمات به د Save وروسته په ټول حساب کې همغږي شي.
+                            </p>
+                        </div>
+
+                        <div class="preview-chips">
+                            <span class="preview-chip" id="previewLanguageChip">ژبه: پښتو</span>
+                            <span class="preview-chip" id="previewThemeChip">بڼه: روښانه</span>
+                            <span class="preview-chip" id="previewCalendarChip">تقویم: هجري شمسي</span>
+                            <span class="preview-chip" id="previewFontChip">خط: منځنی</span>
+                            <span class="preview-chip" id="previewDensityChip">فاصله: نورمال</span>
+                        </div>
+                    </div>
+
+                    <div class="settings-note" style="margin-top:16px;">
+                        <strong id="shareNoteTitle">Share:</strong>
+                        <span id="shareNoteText">د page لینک یا اوسني تنظیمات له نورو سره شریکولای شې.</span>
+                    </div>
+                </section>
+
+            </div>
+
+            <section class="card" style="margin-top:14px;">
+                <h2 class="settings-card-title" id="currentSettingsTitle">ℹ️ اوسني تنظیمات</h2>
+                <p class="settings-card-description" id="currentSettingsDescription">
+                    دا ارزښتونه د Firestore له system document څخه لوستل کېږي.
+                </p>
+
+                <div class="current-settings-grid">
+                    <div class="current-item">
+                        <div class="current-label" id="currentSystemNameLabel">سیستم</div>
+                        <strong id="currentSystemName">—</strong>
+                    </div>
+
+                    <div class="current-item">
+                        <div class="current-label" id="currentLanguageLabel">ژبه</div>
+                        <strong id="currentLanguage">—</strong>
+                    </div>
+
+                    <div class="current-item">
+                        <div class="current-label" id="currentCalendarLabel">تقویم</div>
+                        <strong id="currentCalendar">—</strong>
+                    </div>
+
+                    <div class="current-item">
+                        <div class="current-label" id="currentThemeLabel">بڼه</div>
+                        <strong id="currentTheme">—</strong>
+                    </div>
+
+                    <div class="current-item">
+                        <div class="current-label" id="currentFontScaleLabel">د لیک اندازه</div>
+                        <strong id="currentFontScale">—</strong>
+                    </div>
+
+                    <div class="current-item">
+                        <div class="current-label" id="currentDensityLabel">د فاصلې حالت</div>
+                        <strong id="currentDensity">—</strong>
+                    </div>
+
+                    <div class="current-item">
+                        <div class="current-label" id="currentPrimaryColorLabel">اصلي رنګ</div>
+                        <strong class="swatch-value">
+                            <span id="currentPrimaryColorSwatch" class="swatch-dot"></span>
+                            <span id="currentPrimaryColor" class="ltr-text">—</span>
+                        </strong>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+</div>
+
+<footer class="footer">
+    <span data-system-name>Hafz Admin Online System</span>
+</footer>
+
+<script type="module">
+    import { listenAuth, logoutUser } from "./auth.js";
+    import {
+        DEFAULT_SETTINGS,
+        LANGUAGES,
+        CALENDARS,
+        THEMES,
+        FONT_SCALES,
+        DENSITIES,
+        initializeSettings,
+        getSettings,
+        saveSettings,
+        resetSettings
+    } from "./settings.js";
+
+    const I18N = {
+        ps: {
+            sidebarTitle: "اصلي مینو",
+            dashboard: "ډشبورډ",
+            newRegister: "نوی ثبت",
+            search: "لټون",
+            reports: "راپورونه",
+            admin: "اداره",
+            settings: "تنظیمات",
+            pageTitle: "⚙️ د سیستم تنظیمات",
+            pageDescription: "د سیستم نوم، ژبه، تقویم، بڼه، د لیک اندازه، او عمومي ښکلا تنظیم کړئ. دا بدلونونه د امکان تر حده د ټول سیستم لپاره همغږي ساتل کېږي.",
+            settingsCardTitle: "🛠️ د اصلي تنظیماتو فورمه",
+            settingsCardDescription: "دلته د سیستم نوم، ژبه، تقویم، بڼه، رنګ، د لیک اندازه، او د فاصلې بڼه خوندي کېږي.",
+            systemNameLabel: "د سیستم نوم",
+            languageLabel: "ژبه",
+            calendarLabel: "تقویم",
+            themeLabel: "د سیستم بڼه",
+            fontScaleLabel: "د لیک اندازه",
+            densityLabel: "د فاصلې حالت",
+            primaryColorLabel: "اصلي رنګ",
+            primaryColorHelp: "د سیستم اصلي رنګ وټاکئ.",
+            saveBtn: "💾 تنظیمات خوندي کول",
+            resetBtn: "🔄 اصلي تنظیمات",
+            backBtn: "↩️ شاته",
+            shareBtn: "📤 Share",
+            copyBtn: "🔗 لینک کاپي",
+            previewTitle: "👁️ ژوندي مخکتنه",
+            previewDescription: "دلته به ستا د نننیو انتخابونو یوه فوري ښکاره بڼه ووینې.",
+            previewText: "د سیستم تنظیمات به د Save وروسته په ټول حساب کې همغږي شي.",
+            currentSettingsTitle: "ℹ️ اوسني تنظیمات",
+            currentSettingsDescription: "دا ارزښتونه د Firestore له system document څخه لوستل کېږي.",
+            currentSystemNameLabel: "سیستم",
+            currentLanguageLabel: "ژبه",
+            currentCalendarLabel: "تقویم",
+            currentThemeLabel: "بڼه",
+            currentFontScaleLabel: "د لیک اندازه",
+            currentDensityLabel: "د فاصلې حالت",
+            currentPrimaryColorLabel: "اصلي رنګ",
+            shareNoteTitle: "Share:",
+            shareNoteText: "د page لینک یا اوسني تنظیمات له نورو سره شریکولای شې.",
+            settingsNote: "د ژبې بدلون به د دې پاڼې متنونه هم سمدستي بدل کړي. د لیک اندازه او فاصلې حالت به د ممکنه حد پورې د ټول UI لپاره کار وکړي.",
+            systemName: "د سیستم نوم",
+            language: "ژبه",
+            calendar: "تقویم",
+            theme: "بڼه",
+            fontScale: "خط",
+            density: "فاصله",
+            welcome: "ښه راغلاست",
+            home: "کور",
+            back: "شاته",
+            refresh: "ریفریش",
+            logout: "وتل",
+            copied: "لینک کاپي شو.",
+            copyFailed: "لینک کاپي نه شو.",
+            shareFailed: "شریکول ترسره نه شو.",
+            saveSuccess: "تنظیمات په بریالیتوب خوندي شوې.",
+            resetSuccess: "اصلي تنظیمات په بریالیتوب بېرته فعال شول.",
+            systemNameRequired: "د سیستم نوم اجباري دی.",
+            invalidLanguage: "د ژبې انتخاب ناسم دی.",
+            invalidCalendar: "د تقویم انتخاب ناسم دی.",
+            invalidTheme: "د سیستم بڼه ناسم انتخاب شوې.",
+            invalidColor: "د رنګ بڼه باید داسې وي: #0B6B36",
+            saveFailed: "تنظیمات خوندي نه شوې.",
+            resetConfirm: "ایا غواړئ ټول تنظیمات اصلي حالت ته راوګرځوئ؟",
+            logoutFailed: "له سیستم څخه وتل ناکام شول."
+        },
+        fa: {
+            sidebarTitle: "منوی اصلی",
+            dashboard: "داشبورد",
+            newRegister: "ثبت جدید",
+            search: "جستجو",
+            reports: "گزارش‌ها",
+            admin: "اداره",
+            settings: "تنظیمات",
+            pageTitle: "⚙️ تنظیمات سیستم",
+            pageDescription: "نام سیستم، زبان، تقویم، حالت، اندازه متن و زیبایی عمومی را تنظیم کنید. این تغییرات تا حد امکان برای تمام سیستم همگام می‌ماند.",
+            settingsCardTitle: "🛠️ فرم تنظیمات اصلی",
+            settingsCardDescription: "در اینجا نام سیستم، زبان، تقویم، حالت، رنگ، اندازه متن و فاصله‌ها ذخیره می‌شود.",
+            systemNameLabel: "نام سیستم",
+            languageLabel: "زبان",
+            calendarLabel: "تقویم",
+            themeLabel: "حالت سیستم",
+            fontScaleLabel: "اندازه متن",
+            densityLabel: "حالت فاصله",
+            primaryColorLabel: "رنگ اصلی",
+            primaryColorHelp: "رنگ اصلی سیستم را انتخاب کنید.",
+            saveBtn: "💾 ذخیره تنظیمات",
+            resetBtn: "🔄 تنظیمات اصلی",
+            backBtn: "↩️ بازگشت",
+            shareBtn: "📤 اشتراک",
+            copyBtn: "🔗 کپی لینک",
+            previewTitle: "👁️ پیش‌نمایش زنده",
+            previewDescription: "اینجا یک نمای فوری از انتخاب‌های فعلی خود را می‌بینید.",
+            previewText: "تنظیمات سیستم پس از ذخیره در کل حساب همگام می‌شود.",
+            currentSettingsTitle: "ℹ️ تنظیمات فعلی",
+            currentSettingsDescription: "این مقادیر از سند system در Firestore خوانده می‌شوند.",
+            currentSystemNameLabel: "سیستم",
+            currentLanguageLabel: "زبان",
+            currentCalendarLabel: "تقویم",
+            currentThemeLabel: "حالت",
+            currentFontScaleLabel: "اندازه متن",
+            currentDensityLabel: "حالت فاصله",
+            currentPrimaryColorLabel: "رنگ اصلی",
+            shareNoteTitle: "اشتراک:",
+            shareNoteText: "می‌توانید لینک صفحه یا تنظیمات فعلی را با دیگران شریک شوید.",
+            settingsNote: "تغییر زبان متن‌های همین صفحه را فوراً عوض می‌کند. اندازه متن و فاصله‌ها تا حد ممکن برای کل UI کار می‌کند.",
+            systemName: "نام سیستم",
+            language: "زبان",
+            calendar: "تقویم",
+            theme: "حالت",
+            fontScale: "فونت",
+            density: "فاصله",
+            welcome: "خوش آمدید",
+            home: "خانه",
+            back: "بازگشت",
+            refresh: "نوسازی",
+            logout: "خروج",
+            copied: "لینک کپی شد.",
+            copyFailed: "لینک کپی نشد.",
+            shareFailed: "اشتراک‌گذاری انجام نشد.",
+            saveSuccess: "تنظیمات با موفقیت ذخیره شد.",
+            resetSuccess: "تنظیمات اصلی با موفقیت بازیابی شد.",
+            systemNameRequired: "نام سیستم اجباری است.",
+            invalidLanguage: "انتخاب زبان نادرست است.",
+            invalidCalendar: "انتخاب تقویم نادرست است.",
+            invalidTheme: "حالت سیستم نادرست انتخاب شده است.",
+            invalidColor: "فرمت رنگ باید این‌گونه باشد: #0B6B36",
+            saveFailed: "تنظیمات ذخیره نشد.",
+            resetConfirm: "آیا می‌خواهید همه تنظیمات به حالت اصلی برگردد؟",
+            logoutFailed: "خروج از سیستم ناکام شد."
+        },
+        en: {
+            sidebarTitle: "Main Menu",
+            dashboard: "Dashboard",
+            newRegister: "New Registration",
+            search: "Search",
+            reports: "Reports",
+            admin: "Administration",
+            settings: "Settings",
+            pageTitle: "⚙️ System Settings",
+            pageDescription: "Set the system name, language, calendar, appearance, font size, and overall UI comfort. These changes are kept in sync across the system as much as possible.",
+            settingsCardTitle: "🛠️ Main Settings Form",
+            settingsCardDescription: "Here you can save the system name, language, calendar, theme, color, font size, and spacing mode.",
+            systemNameLabel: "System name",
+            languageLabel: "Language",
+            calendarLabel: "Calendar",
+            themeLabel: "System theme",
+            fontScaleLabel: "Font size",
+            densityLabel: "Spacing mode",
+            primaryColorLabel: "Primary color",
+            primaryColorHelp: "Choose the main color of the system.",
+            saveBtn: "💾 Save settings",
+            resetBtn: "🔄 Default settings",
+            backBtn: "↩️ Back",
+            shareBtn: "📤 Share",
+            copyBtn: "🔗 Copy link",
+            previewTitle: "👁️ Live preview",
+            previewDescription: "Here you can see an instant preview of your current choices.",
+            previewText: "System settings will stay synchronized across the account after saving.",
+            currentSettingsTitle: "ℹ️ Current settings",
+            currentSettingsDescription: "These values are read from the system document in Firestore.",
+            currentSystemNameLabel: "System",
+            currentLanguageLabel: "Language",
+            currentCalendarLabel: "Calendar",
+            currentThemeLabel: "Theme",
+            currentFontScaleLabel: "Font size",
+            currentDensityLabel: "Spacing mode",
+            currentPrimaryColorLabel: "Primary color",
+            shareNoteTitle: "Share:",
+            shareNoteText: "You can share the page link or the current settings with others.",
+            settingsNote: "Changing the language updates this page's text instantly. Font size and spacing mode work as much as possible for the whole UI.",
+            systemName: "System name",
+            language: "Language",
+            calendar: "Calendar",
+            theme: "Theme",
+            fontScale: "Font",
+            density: "Spacing",
+            welcome: "Welcome",
+            home: "Home",
+            back: "Back",
+            refresh: "Refresh",
+            logout: "Logout",
+            copied: "Link copied.",
+            copyFailed: "Link could not be copied.",
+            shareFailed: "Sharing could not be completed.",
+            saveSuccess: "Settings saved successfully.",
+            resetSuccess: "Default settings restored successfully.",
+            systemNameRequired: "System name is required.",
+            invalidLanguage: "Invalid language selected.",
+            invalidCalendar: "Invalid calendar selected.",
+            invalidTheme: "Invalid theme selected.",
+            invalidColor: "Color format must look like this: #0B6B36",
+            saveFailed: "Settings could not be saved.",
+            resetConfirm: "Do you want to restore all settings to default?",
+            logoutFailed: "Logout failed."
+        },
+        ur: {
+            sidebarTitle: "مرکزی مینو",
+            dashboard: "ڈیش بورڈ",
+            newRegister: "نیا اندراج",
+            search: "تلاش",
+            reports: "رپورٹس",
+            admin: "انتظامیہ",
+            settings: "ترتیبات",
+            pageTitle: "⚙️ سسٹم کی ترتیبات",
+            pageDescription: "سسٹم کا نام، زبان، تقویم، ظاہری حالت، فونٹ سائز، اور مجموعی سہولت منتخب کریں۔ یہ تبدیلیاں ممکنہ حد تک پورے سسٹم میں ہم آہنگ رہتی ہیں۔",
+            settingsCardTitle: "🛠️ مرکزی ترتیبات فارم",
+            settingsCardDescription: "یہاں سسٹم نام، زبان، تقویم، تھیم، رنگ، فونٹ سائز، اور اسپیسنگ محفوظ ہوتی ہے۔",
+            systemNameLabel: "سسٹم نام",
+            languageLabel: "زبان",
+            calendarLabel: "تقویم",
+            themeLabel: "سسٹم موڈ",
+            fontScaleLabel: "فونٹ سائز",
+            densityLabel: "اسپیسنگ موڈ",
+            primaryColorLabel: "بنیادی رنگ",
+            primaryColorHelp: "سسٹم کا بنیادی رنگ منتخب کریں۔",
+            saveBtn: "💾 ترتیبات محفوظ کریں",
+            resetBtn: "🔄 اصل ترتیبات",
+            backBtn: "↩️ واپس",
+            shareBtn: "📤 شیئر",
+            copyBtn: "🔗 لنک کاپی",
+            previewTitle: "👁️ لائیو پیش منظر",
+            previewDescription: "یہاں آپ اپنی موجودہ پسند کا فوری منظر دیکھ سکتے ہیں۔",
+            previewText: "سیو کرنے کے بعد سسٹم کی ترتیبات پورے اکاؤنٹ میں ہم آہنگ رہیں گی۔",
+            currentSettingsTitle: "ℹ️ موجودہ ترتیبات",
+            currentSettingsDescription: "یہ قدریں Firestore کے system document سے پڑھی جاتی ہیں۔",
+            currentSystemNameLabel: "سسٹم",
+            currentLanguageLabel: "زبان",
+            currentCalendarLabel: "تقویم",
+            currentThemeLabel: "موڈ",
+            currentFontScaleLabel: "فونٹ سائز",
+            currentDensityLabel: "اسپیسنگ موڈ",
+            currentPrimaryColorLabel: "بنیادی رنگ",
+            shareNoteTitle: "شیئر:",
+            shareNoteText: "آپ صفحہ کا لنک یا موجودہ ترتیبات دوسروں کے ساتھ شیئر کر سکتے ہیں۔",
+            settingsNote: "زبان بدلنے سے اس صفحہ کے متن فوراً بدل جاتے ہیں۔ فونٹ سائز اور اسپیسنگ موڈ پورے UI کے لیے ممکنہ حد تک کام کرتے ہیں۔",
+            systemName: "سسٹم نام",
+            language: "زبان",
+            calendar: "تقویم",
+            theme: "موڈ",
+            fontScale: "خط",
+            density: "فاصلہ",
+            welcome: "خوش آمدید",
+            home: "ہوم",
+            back: "واپس",
+            refresh: "ریفریش",
+            logout: "لاگ آؤٹ",
+            copied: "لنک کاپی ہوگیا۔",
+            copyFailed: "لنک کاپی نہ ہوسکا۔",
+            shareFailed: "شیئرنگ مکمل نہ ہوسکی۔",
+            saveSuccess: "ترتیبات کامیابی سے محفوظ ہو گئیں۔",
+            resetSuccess: "اصل ترتیبات کامیابی سے بحال ہو گئیں۔",
+            systemNameRequired: "سسٹم نام لازمی ہے۔",
+            invalidLanguage: "زبان کا انتخاب درست نہیں۔",
+            invalidCalendar: "تقویم کا انتخاب درست نہیں۔",
+            invalidTheme: "سسٹم موڈ درست نہیں۔",
+            invalidColor: "رنگ کی شکل اس طرح ہونی چاہیے: #0B6B36",
+            saveFailed: "ترتیبات محفوظ نہ ہو سکیں۔",
+            resetConfirm: "کیا آپ تمام ترتیبات کو اصل حالت میں لانا چاہتے ہیں؟",
+            logoutFailed: "لاگ آؤٹ ناکام ہوگیا۔"
+        },
+        ar: {
+            sidebarTitle: "القائمة الرئيسية",
+            dashboard: "لوحة التحكم",
+            newRegister: "تسجيل جديد",
+            search: "بحث",
+            reports: "التقارير",
+            admin: "الإدارة",
+            settings: "الإعدادات",
+            pageTitle: "⚙️ إعدادات النظام",
+            pageDescription: "اضبط اسم النظام، اللغة، التقويم، المظهر، حجم الخط، وراحة الواجهة العامة. يتم إبقاء هذه التغييرات متزامنة عبر النظام قدر الإمكان.",
+            settingsCardTitle: "🛠️ نموذج الإعدادات الرئيسية",
+            settingsCardDescription: "هنا يمكنك حفظ اسم النظام، اللغة، التقويم، المظهر، اللون، حجم الخط، ووضع التباعد.",
+            systemNameLabel: "اسم النظام",
+            languageLabel: "اللغة",
+            calendarLabel: "التقويم",
+            themeLabel: "مظهر النظام",
+            fontScaleLabel: "حجم الخط",
+            densityLabel: "وضع التباعد",
+            primaryColorLabel: "اللون الرئيسي",
+            primaryColorHelp: "اختر اللون الرئيسي للنظام.",
+            saveBtn: "💾 حفظ الإعدادات",
+            resetBtn: "🔄 الإعدادات الأصلية",
+            backBtn: "↩️ رجوع",
+            shareBtn: "📤 مشاركة",
+            copyBtn: "🔗 نسخ الرابط",
+            previewTitle: "👁️ معاينة مباشرة",
+            previewDescription: "هنا سترى معاينة فورية لاختياراتك الحالية.",
+            previewText: "ستبقى إعدادات النظام متزامنة عبر الحساب بعد الحفظ.",
+            currentSettingsTitle: "ℹ️ الإعدادات الحالية",
+            currentSettingsDescription: "تُقرأ هذه القيم من مستند system في Firestore.",
+            currentSystemNameLabel: "النظام",
+            currentLanguageLabel: "اللغة",
+            currentCalendarLabel: "التقويم",
+            currentThemeLabel: "المظهر",
+            currentFontScaleLabel: "حجم الخط",
+            currentDensityLabel: "وضع التباعد",
+            currentPrimaryColorLabel: "اللون الرئيسي",
+            shareNoteTitle: "مشاركة:",
+            shareNoteText: "يمكنك مشاركة رابط الصفحة أو الإعدادات الحالية مع الآخرين.",
+            settingsNote: "تغيير اللغة يحدّث نصوص هذه الصفحة فورًا. يعمل حجم الخط ووضع التباعد على الواجهة العامة قدر الإمكان.",
+            systemName: "اسم النظام",
+            language: "اللغة",
+            calendar: "التقويم",
+            theme: "المظهر",
+            fontScale: "الخط",
+            density: "التباعد",
+            welcome: "مرحباً بك",
+            home: "الرئيسية",
+            back: "رجوع",
+            refresh: "تحديث",
+            logout: "تسجيل الخروج",
+            copied: "تم نسخ الرابط.",
+            copyFailed: "تعذّر نسخ الرابط.",
+            shareFailed: "تعذر إكمال المشاركة.",
+            saveSuccess: "تم حفظ الإعدادات بنجاح.",
+            resetSuccess: "تمت استعادة الإعدادات الأصلية بنجاح.",
+            systemNameRequired: "اسم النظام مطلوب.",
+            invalidLanguage: "اختيار اللغة غير صحيح.",
+            invalidCalendar: "اختيار التقويم غير صحيح.",
+            invalidTheme: "اختيار المظهر غير صحيح.",
+            invalidColor: "يجب أن يكون لونًا بهذا الشكل: #0B6B36",
+            saveFailed: "تعذّر حفظ الإعدادات.",
+            resetConfirm: "هل تريد استعادة جميع الإعدادات إلى الوضع الأصلي؟",
+            logoutFailed: "فشل تسجيل الخروج."
+        }
+    };
+
+    const els = {
+        sidebarTitle: document.getElementById("sidebarTitle"),
+        pageTitle: document.getElementById("pageTitle"),
+        pageDescription: document.getElementById("pageDescription"),
+        settingsCardTitle: document.getElementById("settingsCardTitle"),
+        settingsCardDescription: document.getElementById("settingsCardDescription"),
+        systemNameLabel: document.getElementById("systemNameLabel"),
+        languageLabel: document.getElementById("languageLabel"),
+        calendarLabel: document.getElementById("calendarLabel"),
+        themeLabel: document.getElementById("themeLabel"),
+        fontScaleLabel: document.getElementById("fontScaleLabel"),
+        densityLabel: document.getElementById("densityLabel"),
+        primaryColorLabel: document.getElementById("primaryColorLabel"),
+        primaryColorHelp: document.getElementById("primaryColorHelp"),
+        saveSettingsBtn: document.getElementById("saveSettingsBtn"),
+        resetSettingsBtn: document.getElementById("resetSettingsBtn"),
+        cancelSettingsBtn: document.getElementById("cancelSettingsBtn"),
+        shareSettingsBtn: document.getElementById("shareSettingsBtn"),
+        copyLinkBtn: document.getElementById("copyLinkBtn"),
+        previewTitle: document.getElementById("previewTitle"),
+        previewDescription: document.getElementById("previewDescription"),
+        previewSystemName: document.getElementById("previewSystemName"),
+        previewText: document.getElementById("previewText"),
+        previewLanguageChip: document.getElementById("previewLanguageChip"),
+        previewThemeChip: document.getElementById("previewThemeChip"),
+        previewCalendarChip: document.getElementById("previewCalendarChip"),
+        previewFontChip: document.getElementById("previewFontChip"),
+        previewDensityChip: document.getElementById("previewDensityChip"),
+        shareNoteTitle: document.getElementById("shareNoteTitle"),
+        shareNoteText: document.getElementById("shareNoteText"),
+        currentSettingsTitle: document.getElementById("currentSettingsTitle"),
+        currentSettingsDescription: document.getElementById("currentSettingsDescription"),
+        currentSystemNameLabel: document.getElementById("currentSystemNameLabel"),
+        currentLanguageLabel: document.getElementById("currentLanguageLabel"),
+        currentCalendarLabel: document.getElementById("currentCalendarLabel"),
+        currentThemeLabel: document.getElementById("currentThemeLabel"),
+        currentFontScaleLabel: document.getElementById("currentFontScaleLabel"),
+        currentDensityLabel: document.getElementById("currentDensityLabel"),
+        currentPrimaryColorLabel: document.getElementById("currentPrimaryColorLabel"),
+        currentSystemName: document.getElementById("currentSystemName"),
+        currentLanguage: document.getElementById("currentLanguage"),
+        currentCalendar: document.getElementById("currentCalendar"),
+        currentTheme: document.getElementById("currentTheme"),
+        currentFontScale: document.getElementById("currentFontScale"),
+        currentDensity: document.getElementById("currentDensity"),
+        currentPrimaryColor: document.getElementById("currentPrimaryColor"),
+        currentPrimaryColorSwatch: document.getElementById("currentPrimaryColorSwatch"),
+        settingsNote: document.getElementById("settingsNote"),
+        settingsMessage: document.getElementById("settingsMessage"),
+        settingsForm: document.getElementById("settingsForm"),
+        systemNameInput: document.getElementById("systemName"),
+        languageInput: document.getElementById("language"),
+        calendarInput: document.getElementById("calendar"),
+        themeInput: document.getElementById("theme"),
+        fontScaleInput: document.getElementById("fontScale"),
+        densityInput: document.getElementById("density"),
+        primaryColorInput: document.getElementById("primaryColor"),
+        primaryColorText: document.getElementById("primaryColorText"),
+        refreshBtn: document.getElementById("refreshBtn"),
+        logoutBtn: document.getElementById("logoutBtn"),
+        homeBtn: document.getElementById("homeBtn"),
+        backBtn: document.getElementById("backBtn"),
+        dashboardMenuBtn: document.getElementById("dashboardMenuBtn"),
+        registerMenuBtn: document.getElementById("registerMenuBtn"),
+        searchMenuBtn: document.getElementById("searchMenuBtn"),
+        reportsMenuBtn: document.getElementById("reportsMenuBtn"),
+        adminMenuBtn: document.getElementById("adminMenuBtn"),
+        settingsMenuBtn: document.getElementById("settingsMenuBtn")
+    };
+
+    let currentLanguage = "ps";
+
+    function t(key) {
+        var pack = I18N[currentLanguage] || I18N.ps;
+        return pack[key] || I18N.ps[key] || key;
+    }
+
+    function getLanguageName(code) {
+        return (LANGUAGES[code] && LANGUAGES[code].name) ? LANGUAGES[code].name : code || "—";
+    }
+
+    function getCalendarName(code) {
+        return (CALENDARS[code] && CALENDARS[code].name) ? CALENDARS[code].name : code || "—";
+    }
+
+    function getThemeName(code) {
+        return (THEMES[code] && THEMES[code].name) ? THEMES[code].name : code || "—";
+    }
+
+    function getFontScaleName(code) {
+        return (FONT_SCALES[code] && FONT_SCALES[code].name) ? FONT_SCALES[code].name : code || "—";
+    }
+
+    function getDensityName(code) {
+        return (DENSITIES[code] && DENSITIES[code].name) ? DENSITIES[code].name : code || "—";
+    }
+
+    function isValidHexColor(value) {
+        return /^#[0-9A-Fa-f]{6}$/.test(String(value || "").trim());
+    }
+
+    function showMessage(message, type) {
+        els.settingsMessage.textContent = message;
+        els.settingsMessage.className = "alert alert-" + type;
+        els.settingsMessage.hidden = false;
+    }
+
+    function hideMessage() {
+        els.settingsMessage.hidden = true;
+        els.settingsMessage.textContent = "";
+        els.settingsMessage.className = "alert";
+    }
+
+    function setPageDirection(language) {
+        var dir = (LANGUAGES[language] && LANGUAGES[language].direction) ? LANGUAGES[language].direction : "rtl";
+        document.documentElement.lang = language;
+        document.documentElement.dir = dir;
+        document.body.dir = dir;
+    }
+
+    function updateCurrentSettings(settings) {
+        var safe = settings || getSettings();
+
+        els.currentSystemName.textContent = safe.systemName || "—";
+        els.currentLanguage.textContent = getLanguageName(safe.language);
+        els.currentCalendar.textContent = getCalendarName(safe.calendar);
+        els.currentTheme.textContent = getThemeName(safe.theme);
+        els.currentFontScale.textContent = getFontScaleName(safe.fontScale);
+        els.currentDensity.textContent = getDensityName(safe.density);
+        els.currentPrimaryColor.textContent = safe.primaryColor || "—";
+        els.currentPrimaryColorSwatch.style.background = safe.primaryColor || DEFAULT_SETTINGS.primaryColor;
+    }
+
+    function updatePreview() {
+        var settings = {
+            systemName: els.systemNameInput.value.trim() || DEFAULT_SETTINGS.systemName,
+            language: els.languageInput.value,
+            calendar: els.calendarInput.value,
+            theme: els.themeInput.value,
+            fontScale: els.fontScaleInput.value,
+            density: els.densityInput.value,
+            primaryColor: els.primaryColorText.value.trim() || DEFAULT_SETTINGS.primaryColor
+        };
+
+        els.previewSystemName.textContent = settings.systemName;
+        els.previewText.textContent = t("previewText");
+
+        els.previewLanguageChip.textContent = t("language") + ": " + getLanguageName(settings.language);
+        els.previewThemeChip.textContent = t("theme") + ": " + getThemeName(settings.theme);
+        els.previewCalendarChip.textContent = t("calendar") + ": " + getCalendarName(settings.calendar);
+        els.previewFontChip.textContent = t("fontScale") + ": " + getFontScaleName(settings.fontScale);
+        els.previewDensityChip.textContent = t("density") + ": " + getDensityName(settings.density);
+
+        document.documentElement.style.setProperty("--primary-color", settings.primaryColor);
+        document.documentElement.style.setProperty("--font-scale", FONT_SCALES[settings.fontScale] ? FONT_SCALES[settings.fontScale].value : 1);
+        document.body.dataset.theme = settings.theme;
+        document.documentElement.dataset.theme = settings.theme;
+        document.body.dataset.density = settings.density;
+    }
+
+    function applyUiLanguage(language) {
+        var settings = getSettings();
+        currentLanguage = I18N[language] ? language : "ps";
+
+        setPageDirection(currentLanguage);
+
+        document.title = (settings.systemName || "Hafz Admin Online System") + " - " + t("settings");
+
+        els.sidebarTitle.textContent = t("sidebarTitle");
+        els.pageTitle.textContent = t("pageTitle");
+        els.pageDescription.textContent = t("pageDescription");
+
+        els.settingsCardTitle.textContent = t("settingsCardTitle");
+        els.settingsCardDescription.textContent = t("settingsCardDescription");
+        els.systemNameLabel.innerHTML = t("systemNameLabel") + ' <span class="required">*</span>';
+        els.languageLabel.innerHTML = t("languageLabel") + ' <span class="required">*</span>';
+        els.calendarLabel.innerHTML = t("calendarLabel") + ' <span class="required">*</span>';
+        els.themeLabel.innerHTML = t("themeLabel") + ' <span class="required">*</span>';
+        els.fontScaleLabel.innerHTML = t("fontScaleLabel") + ' <span class="required">*</span>';
+        els.densityLabel.innerHTML = t("densityLabel") + ' <span class="required">*</span>';
+        els.primaryColorLabel.innerHTML = t("primaryColorLabel") + ' <span class="required">*</span>';
+        els.primaryColorHelp.textContent = t("primaryColorHelp");
+
+        els.saveSettingsBtn.textContent = t("saveBtn");
+        els.resetSettingsBtn.textContent = t("resetBtn");
+        els.cancelSettingsBtn.textContent = t("backBtn");
+        els.shareSettingsBtn.textContent = t("shareBtn");
+        els.copyLinkBtn.textContent = t("copyBtn");
+
+        els.previewTitle.textContent = t("previewTitle");
+        els.previewDescription.textContent = t("previewDescription");
+        els.previewText.textContent = t("previewText");
+        els.shareNoteTitle.textContent = t("shareNoteTitle");
+        els.shareNoteText.textContent = t("shareNoteText");
+
+        els.currentSettingsTitle.textContent = t("currentSettingsTitle");
+        els.currentSettingsDescription.textContent = t("currentSettingsDescription");
+        els.currentSystemNameLabel.textContent = t("currentSystemNameLabel");
+        els.currentLanguageLabel.textContent = t("currentLanguageLabel");
+        els.currentCalendarLabel.textContent = t("currentCalendarLabel");
+        els.currentThemeLabel.textContent = t("currentThemeLabel");
+        els.currentFontScaleLabel.textContent = t("currentFontScaleLabel");
+        els.currentDensityLabel.textContent = t("currentDensityLabel");
+        els.currentPrimaryColorLabel.textContent = t("currentPrimaryColorLabel");
+
+        els.settingsNote.textContent = t("settingsNote");
+
+        els.dashboardMenuBtn.textContent = "📊 " + t("dashboard");
+        els.registerMenuBtn.textContent = "📝 " + t("newRegister");
+        els.searchMenuBtn.textContent = "🔍 " + t("search");
+        els.reportsMenuBtn.textContent = "📄 " + t("reports");
+        els.adminMenuBtn.textContent = "👥 " + t("admin");
+        els.settingsMenuBtn.textContent = "⚙️ " + t("settings");
+
+        els.refreshBtn.title = t("refresh");
+        els.refreshBtn.setAttribute("aria-label", t("refresh"));
+        els.logoutBtn.title = t("logout");
+        els.logoutBtn.setAttribute("aria-label", t("logout"));
+        els.homeBtn.title = t("home");
+        els.homeBtn.setAttribute("aria-label", t("home"));
+        els.backBtn.title = t("back");
+        els.backBtn.setAttribute("aria-label", t("back"));
+
+        updateCurrentSettings(getSettings());
+        updatePreview();
+    }
+
+    function fillForm(settings) {
+        var safe = settings || DEFAULT_SETTINGS;
+
+        els.systemNameInput.value = safe.systemName || DEFAULT_SETTINGS.systemName;
+        els.languageInput.value = safe.language || DEFAULT_SETTINGS.language;
+        els.calendarInput.value = safe.calendar || DEFAULT_SETTINGS.calendar;
+        els.themeInput.value = safe.theme || DEFAULT_SETTINGS.theme;
+        els.fontScaleInput.value = safe.fontScale || DEFAULT_SETTINGS.fontScale;
+        els.densityInput.value = safe.density || DEFAULT_SETTINGS.density;
+
+        var color = isValidHexColor(safe.primaryColor) ? safe.primaryColor : DEFAULT_SETTINGS.primaryColor;
+        els.primaryColorInput.value = color;
+        els.primaryColorText.value = color;
+
+        setPageDirection(els.languageInput.value);
+        applyUiLanguage(els.languageInput.value);
+        updatePreview();
+        updateCurrentSettings(safe);
+    }
+
+    function copyCurrentLink() {
+        var url = window.location.href;
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(url).then(function () {
+                showMessage(t("copied"), "success");
+            }).catch(function () {
+                fallbackCopy(url);
+            });
+            return;
+        }
+
+        fallbackCopy(url);
+    }
+
+    function fallbackCopy(text) {
+        var temp = document.createElement("textarea");
+        temp.value = text;
+        temp.setAttribute("readonly", "true");
+        temp.style.position = "fixed";
+        temp.style.top = "-9999px";
+        document.body.appendChild(temp);
+        temp.select();
+
+        try {
+            document.execCommand("copy");
+            showMessage(t("copied"), "success");
+        } catch (e) {
+            showMessage(t("copyFailed"), "danger");
+        }
+
+        document.body.removeChild(temp);
+    }
+
+    function shareSettings() {
+        var settings = getSettings();
+        var text =
+            settings.systemName + "\n" +
+            t("language") + ": " + getLanguageName(settings.language) + "\n" +
+            t("calendar") + ": " + getCalendarName(settings.calendar) + "\n" +
+            t("theme") + ": " + getThemeName(settings.theme) + "\n" +
+            t("fontScale") + ": " + getFontScaleName(settings.fontScale) + "\n" +
+            t("density") + ": " + getDensityName(settings.density) + "\n" +
+            window.location.href;
+
+        var payload = {
+            title: settings.systemName,
+            text: text,
+            url: window.location.href
+        };
+
+        if (navigator.share) {
+            navigator.share(payload).then(function () {
+                showMessage(t("copied"), "success");
+            }).catch(function () {
+                showMessage(t("shareFailed"), "danger");
+            });
+            return;
+        }
+
+        copyCurrentLink();
+    }
+
+    async function loadAndApplySettings() {
+        var settings = await initializeSettings();
+        fillForm(settings);
+        updateCurrentSettings(settings);
+        updatePreview();
+    }
+
+    els.languageInput.addEventListener("change", function () {
+        applyUiLanguage(els.languageInput.value);
+        updatePreview();
+    });
+
+    els.calendarInput.addEventListener("change", updatePreview);
+    els.themeInput.addEventListener("change", updatePreview);
+    els.fontScaleInput.addEventListener("change", updatePreview);
+    els.densityInput.addEventListener("change", updatePreview);
+
+    els.primaryColorInput.addEventListener("input", function () {
+        els.primaryColorText.value = els.primaryColorInput.value;
+        updatePreview();
+    });
+
+    els.primaryColorText.addEventListener("input", function () {
+        var value = els.primaryColorText.value.trim();
+        if (isValidHexColor(value)) {
+            els.primaryColorInput.value = value;
+            updatePreview();
+        }
+    });
+
+    els.settingsForm.addEventListener("submit", async function (event) {
+        event.preventDefault();
+        hideMessage();
+
+        var systemName = els.systemNameInput.value.trim();
+        var language = els.languageInput.value;
+        var calendar = els.calendarInput.value;
+        var theme = els.themeInput.value;
+        var fontScale = els.fontScaleInput.value;
+        var density = els.densityInput.value;
+        var primaryColor = els.primaryColorText.value.trim();
+
+        if (!systemName) {
+            showMessage(t("systemNameRequired"), "danger");
+            els.systemNameInput.focus();
+            return;
+        }
+
+        if (!LANGUAGES[language]) {
+            showMessage(t("invalidLanguage"), "danger");
+            return;
+        }
+
+        if (!CALENDARS[calendar]) {
+            showMessage(t("invalidCalendar"), "danger");
+            return;
+        }
+
+        if (!THEMES[theme]) {
+            showMessage(t("invalidTheme"), "danger");
+            return;
+        }
+
+        if (!FONT_SCALES[fontScale]) {
+            showMessage(t("invalidTheme"), "danger");
+            return;
+        }
+
+        if (!DENSITIES[density]) {
+            showMessage(t("invalidTheme"), "danger");
+            return;
+        }
+
+        if (!isValidHexColor(primaryColor)) {
+            showMessage(t("invalidColor"), "danger");
+            els.primaryColorText.focus();
+            return;
+        }
+
+        els.saveSettingsBtn.disabled = true;
+        els.resetSettingsBtn.disabled = true;
+        els.saveSettingsBtn.textContent = "⏳ خوندي کېږي...";
+
+        try {
+            var result = await saveSettings({
+                systemName: systemName,
+                language: language,
+                calendar: calendar,
+                theme: theme,
+                fontScale: fontScale,
+                density: density,
+                primaryColor: primaryColor
+            });
+
+            if (!result.success) {
+                showMessage(result.message || t("saveFailed"), "danger");
+                return;
+            }
+
+            fillForm(result.settings);
+            updateCurrentSettings(result.settings);
+            applyUiLanguage(result.settings.language);
+
+            showMessage(result.message || t("saveSuccess"), "success");
+        } catch (error) {
+            console.error("Save Settings Page Error:", error);
+            showMessage(t("saveFailed"), "danger");
+        } finally {
+            els.saveSettingsBtn.disabled = false;
+            els.resetSettingsBtn.disabled = false;
+            els.saveSettingsBtn.textContent = t("saveBtn");
+        }
+    });
+
+    els.resetSettingsBtn.addEventListener("click", async function () {
+        hideMessage();
+
+        var confirmed = window.confirm(t("resetConfirm"));
+        if (!confirmed) {
+            return;
+        }
+
+        els.resetSettingsBtn.disabled = true;
+        els.saveSettingsBtn.disabled = true;
+        els.resetSettingsBtn.textContent = "⏳ بېرته تنظیمېږي...";
+
+        try {
+            var result = await resetSettings();
+
+            if (!result.success) {
+                showMessage(result.message || t("saveFailed"), "danger");
+                return;
+            }
+
+            fillForm(result.settings);
+            updateCurrentSettings(result.settings);
+            applyUiLanguage(result.settings.language);
+
+            showMessage(t("resetSuccess"), "success");
+        } catch (error) {
+            console.error("Reset Settings Error:", error);
+            showMessage(t("saveFailed"), "danger");
+        } finally {
+            els.resetSettingsBtn.disabled = false;
+            els.saveSettingsBtn.disabled = false;
+            els.resetSettingsBtn.textContent = t("resetBtn");
+        }
+    });
+
+    els.cancelSettingsBtn.addEventListener("click", function () {
+        window.location.href = "./dashboard.html";
+    });
+
+    els.homeBtn.addEventListener("click", function () {
+        window.location.href = "./dashboard.html";
+    });
+
+    els.backBtn.addEventListener("click", function () {
+        history.back();
+    });
+
+    els.refreshBtn.addEventListener("click", function () {
+        window.location.reload();
+    });
+
+    els.logoutBtn.addEventListener("click", async function () {
+        els.logoutBtn.disabled = true;
+
+        try {
+            var result = await logoutUser();
+            if (result.success) {
+                window.location.href = "./index.html";
+                return;
+            }
+
+            showMessage(result.message || t("logoutFailed"), "danger");
+        } catch (error) {
+            console.error("Logout Error:", error);
+            showMessage(t("logoutFailed"), "danger");
+        }
+
+        els.logoutBtn.disabled = false;
+    });
+
+    els.shareSettingsBtn.addEventListener("click", shareSettings);
+    els.copyLinkBtn.addEventListener("click", copyCurrentLink);
+
+    els.dashboardMenuBtn.addEventListener("click", function () {
+        window.location.href = "./dashboard.html";
+    });
+
+    els.registerMenuBtn.addEventListener("click", function () {
+        window.location.href = "./register.html";
+    });
+
+    els.searchMenuBtn.addEventListener("click", function () {
+        window.location.href = "./search.html";
+    });
+
+    els.reportsMenuBtn.addEventListener("click", function () {
+        window.location.href = "./reports.html";
+    });
+
+    els.adminMenuBtn.addEventListener("click", function () {
+        window.location.href = "./admin.html";
+    });
+
+    els.settingsMenuBtn.addEventListener("click", function () {
+        window.location.href = "./settings.html";
+    });
+
+    listenAuth(async function (session) {
+        if (!session) {
+            window.location.href = "./index.html";
+            return;
+        }
+
+        try {
+            await loadAndApplySettings();
+        } catch (error) {
+            console.error("Settings Initialize Error:", error);
+            fillForm(getSettings());
+            updateCurrentSettings(getSettings());
+            applyUiLanguage(getSettings().language || "ps");
+            updatePreview();
+        }
+    });
+</script>
+
+</body>
+</html>

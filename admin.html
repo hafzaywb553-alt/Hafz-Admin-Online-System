@@ -1,0 +1,621 @@
+<!DOCTYPE html><html lang="ps" dir="rtl"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0B6B36">
+    <title>ادمین - Hafz Admin Online System</title><link rel="stylesheet" href="./style.css">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+    .admin-grid {
+        display: grid;
+        grid-template-columns: 1.1fr 1fr;
+        gap: 14px;
+        margin-top: 14px;
+    }
+
+    .admin-grid-full {
+        grid-column: 1 / -1;
+    }
+
+    .admin-table-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .admin-table-actions .btn {
+        min-height: 38px;
+        padding: 7px 11px;
+        font-size: 13px;
+    }
+
+    .admin-role-select {
+        min-width: 145px;
+    }
+
+    .admin-inline {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .admin-mini-note {
+        color: var(--muted-color);
+        font-size: 13px;
+        margin-top: 6px;
+    }
+
+    @media (max-width: 900px) {
+        .admin-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+</head><body><header class="main-header">
+    <div class="header-brand">
+        <div class="header-logo">👥</div>
+        <div class="header-title" data-system-name>Hafz Admin Online System</div>
+    </div><div class="header-actions">
+    <button type="button" id="dashboardBtn" title="کورپاڼه" aria-label="کورپاڼه">🏠</button>
+    <button type="button" id="refreshBtn" title="ریفریش" aria-label="ریفریش">🔄</button>
+    <button type="button" id="logoutBtn" title="وتل" aria-label="وتل">🚪</button>
+</div>
+
+</header><div class="app-layout">
+    <aside class="sidebar">
+        <div class="sidebar-title">اصلي مینو</div>    <nav class="sidebar-menu">
+        <button type="button" id="dashboardMenuBtn">📊 کورپاڼه</button>
+        <button type="button" id="registerMenuBtn">📝 نوی ثبت</button>
+        <button type="button" id="searchMenuBtn">🔍 لټون</button>
+        <button type="button" id="reportsMenuBtn">📄 راپورونه</button>
+        <button type="button" class="active" id="adminMenuBtn">👥 ادمین</button>
+        <button type="button" id="settingsMenuBtn">⚙️ تنظیمات</button>
+    </nav>
+</aside>
+
+<main class="main-content">
+    <div class="page">
+        <section class="page-header">
+            <h1 class="page-title">👥 د ادمین مدیریت</h1>
+            <p class="page-description">د کاروونکو نقش، حالت، او ادمین پروفایلونه مدیریت کړئ.</p>
+        </section>
+
+        <div id="adminMessage" class="alert" style="display:none;" role="alert" aria-live="polite"></div>
+
+        <section class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">ټول ادمین پروفایلونه</div>
+                <div class="stat-value" id="totalAdmins">0</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">فعال پروفایلونه</div>
+                <div class="stat-value" id="activeAdmins">0</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">ستر ادمینان</div>
+                <div class="stat-value" id="superAdmins">0</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">ادمینان</div>
+                <div class="stat-value" id="adminsCount">0</div>
+            </div>
+        </section>
+
+        <div class="admin-grid">
+            <section class="card">
+                <h2 style="font-size:20px;font-weight:800;margin-bottom:12px;">👤 زما معلومات</h2>
+
+                <div class="table-container">
+                    <table>
+                        <tbody>
+                            <tr>
+                                <th>UID</th>
+                                <td id="currentUid">—</td>
+                            </tr>
+                            <tr>
+                                <th>ایمیل</th>
+                                <td id="currentEmail">—</td>
+                            </tr>
+                            <tr>
+                                <th>نوم</th>
+                                <td id="currentName">—</td>
+                            </tr>
+                            <tr>
+                                <th>صلاحیت</th>
+                                <td id="currentRole">—</td>
+                            </tr>
+                            <tr>
+                                <th>حالت</th>
+                                <td id="currentStatus">—</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="admin-mini-note" id="permissionNote"></div>
+            </section>
+
+            <section class="card">
+                <h2 style="font-size:20px;font-weight:800;margin-bottom:12px;">➕ نوی ادمین پروفایل</h2>
+
+                <form id="createAdminForm" novalidate>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label" for="adminUid">
+                                UID <span class="required">*</span>
+                            </label>
+                            <input
+                                id="adminUid"
+                                type="text"
+                                class="form-control"
+                                placeholder="د Firebase Authentication UID"
+                                autocomplete="off"
+                                maxlength="120"
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="adminEmail">
+                                ایمیل <span class="required">*</span>
+                            </label>
+                            <input
+                                id="adminEmail"
+                                type="email"
+                                class="form-control"
+                                placeholder="admin@example.com"
+                                autocomplete="off"
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="adminName">
+                                نوم
+                            </label>
+                            <input
+                                id="adminName"
+                                type="text"
+                                class="form-control"
+                                placeholder="د کاروونکي نوم"
+                                autocomplete="off"
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="adminRole">
+                                صلاحیت <span class="required">*</span>
+                            </label>
+                            <select id="adminRole" class="form-control">
+                                <option value="user">کاروونکی</option>
+                                <option value="admin">ادمین</option>
+                                <option value="superadmin">ستر ادمین</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary" id="createAdminBtn">
+                            ➕ پروفایل جوړول
+                        </button>
+
+                        <button type="reset" class="btn btn-secondary" id="clearAdminFormBtn">
+                            🧹 پاکول
+                        </button>
+                    </div>
+                </form>
+
+                <div class="admin-mini-note">
+                    دا فورم د موجود Firebase Authentication کاروونکي لپاره یوازې Firestore profile جوړوي.
+                </div>
+            </section>
+
+            <section class="card admin-grid-full">
+                <div class="admin-inline" style="justify-content:space-between;margin-bottom:12px;">
+                    <div>
+                        <h2 style="font-size:20px;font-weight:800;">📋 د ادمین پروفایلونو لست</h2>
+                        <p style="color:var(--muted-color);font-size:13px;">صلاحیت بدلول، فعال/غیر فعال کول او حذف کول.</p>
+                    </div>
+
+                    <div class="badge badge-info" id="adminsBadge">چمتو</div>
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>نوم</th>
+                                <th>ایمیل</th>
+                                <th>UID</th>
+                                <th>صلاحیت</th>
+                                <th>حالت</th>
+                                <th>عملیات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminsTableBody">
+                            <tr>
+                                <td colspan="6" class="text-center">د معلوماتو د لوډ کېدو په تمه...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </div>
+</main>
+
+</div><footer class="footer">
+    Hafz Admin Online System
+</footer><script type="module">
+    import { listenAuth, logoutUser } from "./auth.js";
+    import {
+        getCurrentAdmin,
+        getAdmins,
+        createAdminProfile,
+        updateAdminRole,
+        setAdminStatus,
+        deleteAdminProfile,
+        isSuperAdmin
+    } from "./admin.js";
+    import { initializeSettings } from "./settings.js";
+
+    const adminMessage = document.getElementById("adminMessage");
+    const totalAdminsEl = document.getElementById("totalAdmins");
+    const activeAdminsEl = document.getElementById("activeAdmins");
+    const superAdminsEl = document.getElementById("superAdmins");
+    const adminsCountEl = document.getElementById("adminsCount");
+    const adminsTableBody = document.getElementById("adminsTableBody");
+    const adminsBadge = document.getElementById("adminsBadge");
+    const permissionNote = document.getElementById("permissionNote");
+
+    const currentUid = document.getElementById("currentUid");
+    const currentEmail = document.getElementById("currentEmail");
+    const currentName = document.getElementById("currentName");
+    const currentRole = document.getElementById("currentRole");
+    const currentStatus = document.getElementById("currentStatus");
+
+    const createAdminForm = document.getElementById("createAdminForm");
+    const adminUid = document.getElementById("adminUid");
+    const adminEmail = document.getElementById("adminEmail");
+    const adminName = document.getElementById("adminName");
+    const adminRole = document.getElementById("adminRole");
+    const createAdminBtn = document.getElementById("createAdminBtn");
+    const clearAdminFormBtn = document.getElementById("clearAdminFormBtn");
+
+    const refreshBtn = document.getElementById("refreshBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    let currentSessionAdmin = null;
+    let superAdminAllowed = false;
+
+    function escapeHtml(value) {
+        return String(value ?? "")
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+    }
+
+    function showMessage(message, type = "success") {
+        adminMessage.textContent = message;
+        adminMessage.className = "alert alert-" + type;
+        adminMessage.style.display = "block";
+    }
+
+    function hideMessage() {
+        adminMessage.textContent = "";
+        adminMessage.style.display = "none";
+    }
+
+    function normalizeRole(role) {
+        return String(role || "").toLowerCase();
+    }
+
+    function roleLabel(role) {
+        const value = normalizeRole(role);
+        if (value === "superadmin") return "ستر ادمین";
+        if (value === "admin") return "ادمین";
+        return "کاروونکی";
+    }
+
+    function roleBadgeClass(role) {
+        const value = normalizeRole(role);
+        if (value === "superadmin") return "badge-danger";
+        if (value === "admin") return "badge-warning";
+        return "badge-info";
+    }
+
+    function statusBadgeClass(active) {
+        return active ? "badge-success" : "badge-danger";
+    }
+
+    function updateMyInfo(admin) {
+        currentSessionAdmin = admin || null;
+
+        currentUid.textContent = admin?.uid || admin?.id || "—";
+        currentEmail.textContent = admin?.email || "—";
+        currentName.textContent = admin?.name || "—";
+        currentRole.textContent = roleLabel(admin?.role);
+        currentStatus.innerHTML = admin?.active === false
+            ? '<span class="badge badge-danger">غیر فعال</span>'
+            : '<span class="badge badge-success">فعال</span>';
+
+        permissionNote.textContent = superAdminAllowed
+            ? "تاسو ستر ادمین یاست؛ د ادمین مدیریت ټول امکانات فعال دي."
+            : "ستاسو حساب په ادمین لست کې شته، خو د بشپړ مدیریت اجازه یوازې ستر ادمین ته ورکول کېږي.";
+    }
+
+    function renderEmpty(message) {
+        adminsTableBody.innerHTML = `
+            <tr>
+                <td colspan="6" class="text-center">${escapeHtml(message)}</td>
+            </tr>
+        `;
+    }
+
+    function renderAdmins(admins) {
+        const list = Array.isArray(admins) ? admins : [];
+        totalAdminsEl.textContent = list.length;
+        activeAdminsEl.textContent = list.filter(a => a.active !== false).length;
+        superAdminsEl.textContent = list.filter(a => normalizeRole(a.role) === "superadmin").length;
+        adminsCountEl.textContent = list.filter(a => normalizeRole(a.role) === "admin").length;
+
+        adminsBadge.className = "badge badge-info";
+        adminsBadge.textContent = `${list.length} پروفایلونه`;
+
+        if (!list.length) {
+            renderEmpty("هیڅ ادمین پروفایل نه شته.");
+            return;
+        }
+
+        adminsTableBody.innerHTML = list.map(admin => {
+            const role = roleLabel(admin.role);
+            const active = admin.active !== false;
+            const canModify = superAdminAllowed;
+
+            const rowRoleSelect = `
+                <select class="form-control admin-role-select" data-action="role-select" data-uid="${escapeHtml(admin.uid || admin.id)}" ${canModify ? "" : "disabled"}>
+                    <option value="user" ${normalizeRole(admin.role) === "user" ? "selected" : ""}>کاروونکی</option>
+                    <option value="admin" ${normalizeRole(admin.role) === "admin" ? "selected" : ""}>ادمین</option>
+                    <option value="superadmin" ${normalizeRole(admin.role) === "superadmin" ? "selected" : ""}>ستر ادمین</option>
+                </select>
+            `;
+
+            return `
+                <tr>
+                    <td>${escapeHtml(admin.name || "—")}</td>
+                    <td>${escapeHtml(admin.email || "—")}</td>
+                    <td style="word-break:break-all;">${escapeHtml(admin.uid || admin.id || "—")}</td>
+                    <td>
+                        <span class="badge ${roleBadgeClass(admin.role)}">${escapeHtml(role)}</span>
+                    </td>
+                    <td>
+                        <span class="badge ${statusBadgeClass(active)}">${active ? "فعال" : "غیر فعال"}</span>
+                    </td>
+                    <td>
+                        <div class="admin-table-actions">
+                            ${rowRoleSelect}
+                            <button type="button" class="btn btn-secondary" data-action="update-role" data-uid="${escapeHtml(admin.uid || admin.id)}" ${canModify ? "" : "disabled"}>بدلول</button>
+                            <button type="button" class="btn btn-warning" data-action="toggle-active" data-uid="${escapeHtml(admin.uid || admin.id)}" data-active="${active ? "1" : "0"}" ${canModify ? "" : "disabled"}>
+                                ${active ? "غیرفعالول" : "فعالول"}
+                            </button>
+                            <button type="button" class="btn btn-danger" data-action="delete-admin" data-uid="${escapeHtml(admin.uid || admin.id)}" ${canModify ? "" : "disabled"}>حذف</button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join("");
+    }
+
+    async function loadAdmins() {
+        hideMessage();
+        try {
+            adminsBadge.textContent = "لوډېږي...";
+            const me = await getCurrentAdmin();
+            updateMyInfo(me);
+
+            superAdminAllowed = await isSuperAdmin();
+            if (!superAdminAllowed) {
+                renderEmpty("یوازې ستر ادمین د ادمین لست اداره کولی شي.");
+                adminsBadge.className = "badge badge-warning";
+                adminsBadge.textContent = "محدود";
+                return;
+            }
+
+            const result = await getAdmins();
+            if (!result.success) {
+                renderEmpty(result.message || "د ادمین لست ترلاسه نه شو.");
+                showMessage(result.message || "د ادمین لست ترلاسه نه شو.", "danger");
+                return;
+            }
+
+            renderAdmins(result.admins || []);
+        } catch (error) {
+            console.error("Load Admins Error:", error);
+            renderEmpty("د ادمین معلومات ترلاسه نه شول.");
+            showMessage("د ادمین معلومات ترلاسه نه شول.", "danger");
+        }
+    }
+
+    listenAuth(async (session) => {
+        if (!session) {
+            window.location.href = "./index.html";
+            return;
+        }
+
+        await initializeSettings();
+        await loadAdmins();
+    });
+
+    createAdminForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        hideMessage();
+
+        if (!superAdminAllowed) {
+            showMessage("یوازې ستر ادمین نوی پروفایل جوړولی شي.", "danger");
+            return;
+        }
+
+        const uid = adminUid.value.trim();
+        const email = adminEmail.value.trim();
+        const name = adminName.value.trim();
+        const role = adminRole.value;
+
+        if (!uid) {
+            showMessage("UID اجباري دی.", "danger");
+            adminUid.focus();
+            return;
+        }
+
+        if (!email) {
+            showMessage("ایمیل اجباري دی.", "danger");
+            adminEmail.focus();
+            return;
+        }
+
+        createAdminBtn.disabled = true;
+        createAdminBtn.textContent = "⏳ جوړېږي...";
+
+        try {
+            const result = await createAdminProfile({ uid, email, role, name });
+
+            if (!result.success) {
+                showMessage(result.message || "پروفایل جوړ نه شو.", "danger");
+                return;
+            }
+
+            showMessage(result.message || "ادمین پروفایل جوړ شو.", "success");
+            createAdminForm.reset();
+            adminRole.value = "user";
+            await loadAdmins();
+        } catch (error) {
+            console.error("Create Admin Error:", error);
+            showMessage("پروفایل جوړ نه شو.", "danger");
+        } finally {
+            createAdminBtn.disabled = false;
+            createAdminBtn.textContent = "➕ پروفایل جوړول";
+        }
+    });
+
+    clearAdminFormBtn.addEventListener("click", () => {
+        hideMessage();
+        createAdminForm.reset();
+        adminRole.value = "user";
+    });
+
+    adminsTableBody.addEventListener("click", async (event) => {
+        const button = event.target.closest("button[data-action]");
+        if (!button) return;
+
+        hideMessage();
+
+        if (!superAdminAllowed) {
+            showMessage("یوازې ستر ادمین دا عملیات ترسره کولی شي.", "danger");
+            return;
+        }
+
+        const action = button.dataset.action;
+        const uid = button.dataset.uid;
+        const row = button.closest("tr");
+
+        try {
+            if (action === "update-role") {
+                const select = row.querySelector('select[data-action="role-select"]');
+                const role = select?.value || "user";
+                button.disabled = true;
+                button.textContent = "⏳";
+                const result = await updateAdminRole(uid, role);
+                if (!result.success) {
+                    showMessage(result.message || "صلاحیت بدل نه شو.", "danger");
+                    return;
+                }
+                showMessage(result.message || "صلاحیت بدل شو.", "success");
+                await loadAdmins();
+            }
+
+            if (action === "toggle-active") {
+                const active = button.dataset.active === "1";
+                button.disabled = true;
+                button.textContent = "⏳";
+                const result = await setAdminStatus(uid, !active);
+                if (!result.success) {
+                    showMessage(result.message || "حالت بدل نه شو.", "danger");
+                    return;
+                }
+                showMessage(result.message || "حالت بدل شو.", "success");
+                await loadAdmins();
+            }
+
+            if (action === "delete-admin") {
+                const confirmed = window.confirm("ایا غواړې دا ادمین پروفایل حذف کړې؟");
+                if (!confirmed) return;
+
+                button.disabled = true;
+                button.textContent = "⏳";
+                const result = await deleteAdminProfile(uid);
+                if (!result.success) {
+                    showMessage(result.message || "پروفایل حذف نه شو.", "danger");
+                    return;
+                }
+                showMessage(result.message || "پروفایل حذف شو.", "success");
+                await loadAdmins();
+            }
+        } catch (error) {
+            console.error("Admin Action Error:", error);
+            showMessage("عملیات ترسره نه شو.", "danger");
+        } finally {
+            button.disabled = false;
+            if (action === "update-role") button.textContent = "بدلول";
+            if (action === "toggle-active") button.textContent = button.dataset.active === "1" ? "غیرفعالول" : "فعالول";
+            if (action === "delete-admin") button.textContent = "حذف";
+        }
+    });
+
+    refreshBtn.addEventListener("click", () => {
+        window.location.reload();
+    });
+
+    logoutBtn.addEventListener("click", async () => {
+        logoutBtn.disabled = true;
+        const result = await logoutUser();
+        if (result.success) {
+            window.location.href = "./index.html";
+            return;
+        }
+        showMessage(result.message || "له سیستم څخه وتل ناکام شول.", "danger");
+        logoutBtn.disabled = false;
+    });
+
+    document.getElementById("dashboardBtn").addEventListener("click", () => {
+        window.location.href = "./dashboard.html";
+    });
+
+    document.getElementById("dashboardMenuBtn").addEventListener("click", () => {
+        window.location.href = "./dashboard.html";
+    });
+
+    document.getElementById("registerMenuBtn").addEventListener("click", () => {
+        window.location.href = "./register.html";
+    });
+
+    document.getElementById("searchMenuBtn").addEventListener("click", () => {
+        window.location.href = "./search.html";
+    });
+
+    document.getElementById("reportsMenuBtn").addEventListener("click", () => {
+        window.location.href = "./reports.html";
+    });
+
+    document.getElementById("adminMenuBtn").addEventListener("click", () => {
+        window.location.href = "./admin.html";
+    });
+
+    document.getElementById("settingsMenuBtn").addEventListener("click", () => {
+        window.location.href = "./settings.html";
+    });
+</script></body>
+</html>

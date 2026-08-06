@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="ps" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0B6B36">
+    <title>Hafz Admin Online System | Dashboard</title>
+
+    <link rel="stylesheet" href="./style.css">
+
+    <style>
+        .dashboard-card {
+            margin-top: 14px;
+        }
+
+        .dashboard-card-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .dashboard-card-title {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 900;
+            line-height: 1.45;
+        }
+
+        .dashboard-card-description {
+            margin: 4px 0 0;
+            color: var(--muted-color);
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .dashboard-info-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .dashboard-info-item {
+            padding: 13px;
+            background: var(--primary-light);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            min-width: 0;
+        }
+
+        .dashboard-info-label {
+            color: var(--muted-color);
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+
+        .dashboard-info-value {
+            font-weight: 900;
+            overflow-wrap: anywhere;
+        }
+
+        .online-users-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .online-user {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            background: var(--surface-color);
+            transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+        }
+
+        .online-user:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .online-user-avatar {
+            width: 44px;
+            height: 44px;
+            flex: 0 0 44px;
+            border-radius: 50%;
+            background: var(--primary-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        .online-user-info {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .online-user-name {
+            font-weight: 900;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .online-user-email {
+            color: var(--muted-color);
+            font-size: 12px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            direction: ltr;
+            text-align: start;
+        }
+
+        .online-user-status {
+            flex: 0 0 auto;
+            text-align: end;
+        }
+
+        .online-user-time {
+            color: var(--muted-color);
+            font-size: 11px;
+            margin-top: 3px;
+        }
+
+        .ltr-text {
+            direction: ltr;
+            unicode-bidi: plaintext;
+            text-align: start;
+        }
+
+        @media (max-width: 780px) {
+            .dashboard-info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .dashboard-card-header {
+                align-items: flex-start;
+            }
+
+            .online-user {
+                padding: 10px;
+            }
+
+            .online-user-avatar {
+                width: 40px;
+                height: 40px;
+                flex-basis: 40px;
+            }
+        }
+
+        @media (max-width: 460px) {
+            .dashboard-card-header {
+                flex-direction: column;
+            }
+
+            .dashboard-card-header .badge {
+                align-self: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header class="main-header">
+    <div class="header-brand">
+        <div class="header-logo">🛡️</div>
+        <div class="header-title" data-system-name>Hafz Admin Online System</div>
+    </div>
+
+    <div class="header-actions">
+        <button type="button" id="homeBtn" title="کور" aria-label="کور">🏠</button>
+        <button type="button" id="backBtn" title="شاته" aria-label="شاته">⬅️</button>
+        <button type="button" id="refreshBtn" title="ریفریش" aria-label="ریفریش">🔄</button>
+        <button type="button" id="logoutBtn" title="وتل" aria-label="وتل">🚪</button>
+    </div>
+</header>
+
+<div class="app-layout">
+    <aside class="sidebar">
+        <div class="sidebar-title" id="sidebarTitle">اصلي مینو</div>
+
+        <nav class="sidebar-menu">
+            <button type="button" class="active" id="dashboardMenuBtn">📊 Dashboard</button>
+            <button type="button" id="registerMenuBtn">📝 نوی ثبت</button>
+            <button type="button" id="searchMenuBtn">🔍 لټون</button>
+            <button type="button" id="reportsMenuBtn">📄 راپورونه</button>
+            <button type="button" id="adminMenuBtn">👥 Admin</button>
+            <button type="button" id="settingsMenuBtn">⚙️ تنظیمات</button>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <div class="page">
+            <section class="page-header">
+                <h1 class="page-title" id="pageTitle">Dashboard</h1>
+                <p class="page-description" id="welcomeText">سیستم ته ښه راغلاست</p>
+            </section>
+
+            <div id="dashboardMessage" class="alert" hidden></div>
+
+            <section class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label" id="totalRecordsLabel">ټول ثبت شوي کسان</div>
+                    <div class="stat-value" id="recordsCount">0</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-label" id="onlineUsersLabel">اوس آنلاین کسان</div>
+                    <div class="stat-value" id="onlineUsersCount">0</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-label" id="myEmailLabel">زما ایمیل</div>
+                    <div class="dashboard-info-value ltr-text" id="currentUserEmail" style="margin-top:6px;">—</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-label" id="myStatusLabel">زما حالت</div>
+                    <div class="badge badge-success" id="myStatusBadge" style="margin-top:8px;">🟢 آنلاین</div>
+                </div>
+            </section>
+
+            <section class="card dashboard-card">
+                <div class="dashboard-card-header">
+                    <div>
+                        <h2 class="dashboard-card-title" id="onlinePeopleTitle">🟢 آنلاین کسان</h2>
+                        <p class="dashboard-card-description" id="onlinePeopleDescription">ټول هغه کسان چې اوس سیستم ته داخل دي</p>
+                    </div>
+
+                    <div class="badge badge-success" id="onlineUsersBadge">0 آنلاین</div>
+                </div>
+
+                <div id="onlineUsersList">
+                    <div class="search-empty" id="onlineUsersLoading">د آنلاین کسانو معلومات ترلاسه کېږي...</div>
+                </div>
+            </section>
+
+            <section class="card dashboard-card">
+                <h2 class="dashboard-card-title" id="systemInformationTitle">ℹ️ د سیستم معلومات</h2>
+
+                <div class="dashboard-info-grid" style="margin-top:12px;">
+                    <div class="dashboard-info-item">
+                        <div class="dashboard-info-label" id="systemLabel">سیستم</div>
+                        <strong data-system-name>Hafz Admin Online System</strong>
+                    </div>
+
+                    <div class="dashboard-info-item">
+                        <div class="dashboard-info-label" id="onlineUpdateLabel">د آنلاین کسانو تازه کول</div>
+                        <strong id="automaticLabel">اتومات</strong>
+                    </div>
+
+                    <div class="dashboard-info-item">
+                        <div class="dashboard-info-label" id="dataStatusLabel">د معلوماتو حالت</div>
+                        <strong>Firestore</strong>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+</div>
+
+<footer class="footer">
+    <span data-system-name>Hafz Admin Online System</span>
+</footer>
+
+<script type="module">
+    import { listenAuth, logoutUser } from "./auth.js";
+    import { getDashboardStats, getUserEmail } from "./dashboard.js";
+    import {
+        initializePresence,
+        listenOnlineUsers,
+        stopOnlineUsersListener
+    } from "./presence.js";
+    import { initializeSettings, getSettings } from "./settings.js";
+
+    const TRANSLATIONS = {
+        ps: {
+            sidebarTitle: "اصلي مینو",
+            dashboard: "ډشبورډ",
+            newRegister: "نوی ثبت",
+            search: "لټون",
+            reports: "راپورونه",
+            admin: "اداره",
+            settings: "تنظیمات",
+            totalRecords: "ټول ثبت شوي کسان",
+            onlineUsers: "اوس آنلاین کسان",
+            myEmail: "زما ایمیل",
+            myStatus: "زما حالت",
+            onlinePeopleTitle: "🟢 آنلاین کسان",
+            onlinePeopleDescription: "ټول هغه کسان چې اوس سیستم ته داخل دي",
+            loadingOnlineUsers: "د آنلاین کسانو معلومات ترلاسه کېږي...",
+            systemInformation: "ℹ️ د سیستم معلومات",
+            system: "سیستم",
+            onlineUpdate: "د آنلاین کسانو تازه کول",
+            automatic: "اتومات",
+            dataStatus: "د معلوماتو حالت",
+            online: "آنلاین",
+            now: "همدا اوس",
+            noOtherUsers: "اوس مهال بل آنلاین کاروونکی نشته.",
+            welcome: "سیستم ته ښه راغلاست",
+            welcomeUser: "ښه راغلاست، {name}",
+            dashboardLoadError: "د Dashboard معلومات ترلاسه نه شول.",
+            onlineUsersError: "د آنلاین کسانو معلومات ترلاسه نه شول.",
+            logoutError: "له سیستم څخه وتل ناکام شول.",
+            unknownUser: "نامعلوم کاروونکی",
+            refresh: "ریفریش",
+            logout: "وتل",
+            home: "کور",
+            back: "شاته"
+        },
+        fa: {
+            sidebarTitle: "منوی اصلی",
+            dashboard: "داشبورد",
+            newRegister: "ثبت جدید",
+            search: "جستجو",
+            reports: "گزارش‌ها",
+            admin: "اداره",
+            settings: "تنظیمات",
+            totalRecords: "مجموع افراد ثبت‌شده",
+            onlineUsers: "افراد آنلاین",
+            myEmail: "ایمیل من",
+            myStatus: "وضعیت من",
+            onlinePeopleTitle: "🟢 افراد آنلاین",
+            onlinePeopleDescription: "تمام افرادی که اکنون وارد سیستم هستند",
+            loadingOnlineUsers: "معلومات افراد آنلاین دریافت می‌شود...",
+            systemInformation: "ℹ️ معلومات سیستم",
+            system: "سیستم",
+            onlineUpdate: "به‌روزرسانی افراد آنلاین",
+            automatic: "خودکار",
+            dataStatus: "وضعیت معلومات",
+            online: "آنلاین",
+            now: "همین اکنون",
+            noOtherUsers: "در حال حاضر کاربر آنلاین دیگری وجود ندارد.",
+            welcome: "به سیستم خوش آمدید",
+            welcomeUser: "خوش آمدید، {name}",
+            dashboardLoadError: "معلومات داشبورد دریافت نشد.",
+            onlineUsersError: "معلومات افراد آنلاین دریافت نشد.",
+            logoutError: "خروج از سیستم ناکام شد.",
+            unknownUser: "کاربر نامعلوم",
+            refresh: "نوسازی",
+            logout: "خروج",
+            home: "خانه",
+            back: "بازگشت"
+        },
+        en: {
+            sidebarTitle: "Main Menu",
+            dashboard: "Dashboard",
+            newRegister: "New Registration",
+            search: "Search",
+            reports: "Reports",
+            admin: "Administration",
+            settings: "Settings",
+            totalRecords: "Total Registered People",
+            onlineUsers: "Online Users",
+            myEmail: "My Email",
+            myStatus: "My Status",
+            onlinePeopleTitle: "🟢 Online Users",
+            onlinePeopleDescription: "All users currently signed in to the system",
+            loadingOnlineUsers: "Loading online users...",
+            systemInformation: "ℹ️ System Information",
+            system: "System",
+            onlineUpdate: "Online Users Update",
+            automatic: "Automatic",
+            dataStatus: "Data Status",
+            online: "Online",
+            now: "Just now",
+            noOtherUsers: "There are currently no other online users.",
+            welcome: "Welcome to the system",
+            welcomeUser: "Welcome, {name}",
+            dashboardLoadError: "Dashboard information could not be loaded.",
+            onlineUsersError: "Online user information could not be loaded.",
+            logoutError: "Logout failed.",
+            unknownUser: "Unknown User",
+            refresh: "Refresh",
+            logout: "Logout",
+            home: "Home",
+            back: "Back"
+        },
+        ur: {
+            sidebarTitle: "مرکزی مینو",
+            dashboard: "ڈیش بورڈ",
+            newRegister: "نیا اندراج",
+            search: "تلاش",
+            reports: "رپورٹس",
+            admin: "انتظامیہ",
+            settings: "ترتیبات",
+            totalRecords: "کل رجسٹرڈ افراد",
+            onlineUsers: "آن لائن افراد",
+            myEmail: "میرا ای میل",
+            myStatus: "میری حالت",
+            onlinePeopleTitle: "🟢 آن لائن افراد",
+            onlinePeopleDescription: "تمام افراد جو اس وقت سسٹم میں داخل ہیں",
+            loadingOnlineUsers: "آن لائن افراد کی معلومات حاصل کی جا رہی ہیں...",
+            systemInformation: "ℹ️ سسٹم کی معلومات",
+            system: "سسٹم",
+            onlineUpdate: "آن لائن افراد کی تازہ کاری",
+            automatic: "خودکار",
+            dataStatus: "معلومات کی حالت",
+            online: "آن لائن",
+            now: "ابھی",
+            noOtherUsers: "اس وقت کوئی دوسرا صارف آن لائن نہیں ہے۔",
+            welcome: "سسٹم میں خوش آمدید",
+            welcomeUser: "خوش آمدید، {name}",
+            dashboardLoadError: "ڈیش بورڈ کی معلومات حاصل نہیں ہو سکیں۔",
+            onlineUsersError: "آن لائن افراد کی معلومات حاصل نہیں ہو سکیں۔",
+            logoutError: "سسٹم سے نکلنا ناکام ہوگیا۔",
+            unknownUser: "نامعلوم صارف",
+            refresh: "ریفریش",
+            logout: "لاگ آؤٹ",
+            home: "ہوم",
+            back: "واپس"
+        },
+        ar: {
+            sidebarTitle: "القائمة الرئيسية",
+            dashboard: "لوحة التحكم",
+            newRegister: "تسجيل جديد",
+            search: "بحث",
+            reports: "التقارير",
+            admin: "الإدارة",
+            settings: "الإعدادات",
+            totalRecords: "إجمالي الأشخاص المسجلين",
+            onlineUsers: "المستخدمون المتصلون",
+            myEmail: "بريدي الإلكتروني",
+            myStatus: "حالتي",
+            onlinePeopleTitle: "🟢 المستخدمون المتصلون",
+            onlinePeopleDescription: "جميع الأشخاص الموجودين حالياً داخل النظام",
+            loadingOnlineUsers: "جاري الحصول على معلومات المستخدمين المتصلين...",
+            systemInformation: "ℹ️ معلومات النظام",
+            system: "النظام",
+            onlineUpdate: "تحديث المستخدمين المتصلين",
+            automatic: "تلقائي",
+            dataStatus: "حالة البيانات",
+            online: "متصل",
+            now: "الآن",
+            noOtherUsers: "لا يوجد مستخدم آخر متصل حالياً.",
+            welcome: "مرحباً بك في النظام",
+            welcomeUser: "مرحباً، {name}",
+            dashboardLoadError: "تعذر الحصول على معلومات لوحة التحكم.",
+            onlineUsersError: "تعذر الحصول على معلومات المستخدمين المتصلين.",
+            logoutError: "فشل تسجيل الخروج.",
+            unknownUser: "مستخدم غير معروف",
+            refresh: "تحديث",
+            logout: "تسجيل الخروج",
+            home: "الرئيسية",
+            back: "رجوع"
+        }
+    };
+
+    const elements = {
+        sidebarTitle: document.getElementById("sidebarTitle"),
+        dashboardMenuBtn: document.getElementById("dashboardMenuBtn"),
+        registerMenuBtn: document.getElementById("registerMenuBtn"),
+        searchMenuBtn: document.getElementById("searchMenuBtn"),
+        reportsMenuBtn: document.getElementById("reportsMenuBtn"),
+        adminMenuBtn: document.getElementById("adminMenuBtn"),
+        settingsMenuBtn: document.getElementById("settingsMenuBtn"),
+        pageTitle: document.getElementById("pageTitle"),
+        welcomeText: document.getElementById("welcomeText"),
+        dashboardMessage: document.getElementById("dashboardMessage"),
+        recordsCount: document.getElementById("recordsCount"),
+        onlineUsersCount: document.getElementById("onlineUsersCount"),
+        onlineUsersBadge: document.getElementById("onlineUsersBadge"),
+        currentUserEmail: document.getElementById("currentUserEmail"),
+        myStatusBadge: document.getElementById("myStatusBadge"),
+        onlineUsersList: document.getElementById("onlineUsersList"),
+        onlineUsersLoading: document.getElementById("onlineUsersLoading"),
+        onlinePeopleTitle: document.getElementById("onlinePeopleTitle"),
+        onlinePeopleDescription: document.getElementById("onlinePeopleDescription"),
+        systemInformationTitle: document.getElementById("systemInformationTitle"),
+        systemLabel: document.getElementById("systemLabel"),
+        onlineUpdateLabel: document.getElementById("onlineUpdateLabel"),
+        automaticLabel: document.getElementById("automaticLabel"),
+        dataStatusLabel: document.getElementById("dataStatusLabel"),
+        refreshBtn: document.getElementById("refreshBtn"),
+        logoutBtn: document.getElementById("logoutBtn"),
+        homeBtn: document.getElementById("homeBtn"),
+        backBtn: document.getElementById("backBtn")
+    };
+
+    let currentLanguage = "ps";
+    let currentOnlineCount = 0;
+
+    function t(key, replacements = {}) {
+        const langPack = TRANSLATIONS[currentLanguage] || TRANSLATIONS.ps;
+        let text = langPack[key] ?? TRANSLATIONS.ps[key] ?? key;
+        for (const [name, value] of Object.entries(replacements)) {
+            text = text.replaceAll(`{${name}}`, String(value));
+        }
+        return text;
+    }
+
+    function escapeHtml(value) {
+        return String(value ?? "")
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+    }
+
+    function getLocaleForLanguage(language) {
+        switch (language) {
+            case "en": return "en-US";
+            case "fa": return "fa-AF";
+            case "ur": return "ur-PK";
+            case "ar": return "ar-AF";
+            default: return "ps-AF";
+        }
+    }
+
+    function formatLastSeen(timestamp) {
+        if (!timestamp || typeof timestamp.toDate !== "function") {
+            return t("now");
+        }
+
+        const date = timestamp.toDate();
+        return date.toLocaleTimeString(getLocaleForLanguage(currentLanguage), {
+            hour: "2-digit",
+            minute: "2-digit"
+        });
+    }
+
+    function showMessage(message, type = "success") {
+        elements.dashboardMessage.textContent = message;
+        elements.dashboardMessage.className = "alert alert-" + type;
+        elements.dashboardMessage.hidden = false;
+    }
+
+    function updateOnlineBadge(count) {
+        const safeCount = Number(count) || 0;
+        currentOnlineCount = safeCount;
+
+        elements.onlineUsersCount.textContent = String(safeCount);
+        elements.onlineUsersBadge.textContent = safeCount + " " + t("online");
+    }
+
+    function applyStaticText() {
+        const settings = getSettings();
+        currentLanguage = settings.language || "ps";
+        if (!TRANSLATIONS[currentLanguage]) {
+            currentLanguage = "ps";
+        }
+
+        document.title = (settings.systemName || "Hafz Admin Online System") + " | " + t("dashboard");
+
+        elements.sidebarTitle.textContent = t("sidebarTitle");
+        elements.dashboardMenuBtn.textContent = "📊 " + t("dashboard");
+        elements.registerMenuBtn.textContent = "📝 " + t("newRegister");
+        elements.searchMenuBtn.textContent = "🔍 " + t("search");
+        elements.reportsMenuBtn.textContent = "📄 " + t("reports");
+        elements.adminMenuBtn.textContent = "👥 " + t("admin");
+        elements.settingsMenuBtn.textContent = "⚙️ " + t("settings");
+
+        elements.pageTitle.textContent = t("dashboard");
+        elements.onlinePeopleTitle.textContent = t("onlinePeopleTitle");
+        elements.onlinePeopleDescription.textContent = t("onlinePeopleDescription");
+        elements.systemInformationTitle.textContent = t("systemInformation");
+        elements.systemLabel.textContent = t("system");
+        elements.onlineUpdateLabel.textContent = t("onlineUpdate");
+        elements.automaticLabel.textContent = t("automatic");
+        elements.dataStatusLabel.textContent = t("dataStatus");
+        elements.onlineUsersLoading.textContent = t("loadingOnlineUsers");
+        elements.myStatusBadge.textContent = "🟢 " + t("online");
+
+        elements.refreshBtn.title = t("refresh");
+        elements.refreshBtn.setAttribute("aria-label", t("refresh"));
+        elements.logoutBtn.title = t("logout");
+        elements.logoutBtn.setAttribute("aria-label", t("logout"));
+        elements.homeBtn.title = t("home");
+        elements.homeBtn.setAttribute("aria-label", t("home"));
+        elements.backBtn.title = t("back");
+        elements.backBtn.setAttribute("aria-label", t("back"));
+
+        updateOnlineBadge(currentOnlineCount);
+    }
+
+    function renderOnlineUsers(users) {
+        const safeUsers = Array.isArray(users) ? users : [];
+        updateOnlineBadge(safeUsers.length);
+
+        if (safeUsers.length === 0) {
+            elements.onlineUsersList.innerHTML = "<div class=\"search-empty\">" + escapeHtml(t("noOtherUsers")) + "</div>";
+            return;
+        }
+
+        let html = "<div class=\"online-users-list\">";
+        for (const user of safeUsers) {
+            const name = escapeHtml(user.displayName || user.email || t("unknownUser"));
+            const email = escapeHtml(user.email || "");
+            const time = escapeHtml(formatLastSeen(user.lastSeen));
+
+            html += `
+                <div class="online-user">
+                    <div class="online-user-avatar" aria-hidden="true">🟢</div>
+
+                    <div class="online-user-info">
+                        <div class="online-user-name">${name}</div>
+                        <div class="online-user-email">${email}</div>
+                    </div>
+
+                    <div class="online-user-status">
+                        <div class="badge badge-success">${escapeHtml(t("online"))}</div>
+                        <div class="online-user-time">${time}</div>
+                    </div>
+                </div>
+            `;
+        }
+        html += "</div>";
+
+        elements.onlineUsersList.innerHTML = html;
+    }
+
+    async function loadDashboard() {
+        try {
+            const stats = await getDashboardStats();
+            elements.recordsCount.textContent = String(stats.records ?? 0);
+            updateOnlineBadge(stats.onlineUsers ?? 0);
+            elements.currentUserEmail.textContent = getUserEmail() || "—";
+        } catch (error) {
+            console.error("Dashboard Load Error:", error);
+            showMessage(t("dashboardLoadError"), "danger");
+        }
+    }
+
+    async function boot() {
+        await initializeSettings();
+        applyStaticText();
+
+        listenAuth(async (session) => {
+            if (!session) {
+                window.location.href = "./index.html";
+                return;
+            }
+
+            await initializeSettings();
+            applyStaticText();
+
+            const displayName =
+                session.profile?.displayName ||
+                session.user.email ||
+                t("unknownUser");
+
+            elements.currentUserEmail.textContent = session.user.email || "—";
+            elements.welcomeText.textContent = t("welcomeUser", { name: displayName });
+
+            await loadDashboard();
+        });
+
+        initializePresence();
+
+        listenOnlineUsers((result) => {
+            if (!result.success) {
+                elements.onlineUsersList.innerHTML = `
+                    <div class="alert alert-danger">
+                        ${escapeHtml(result.message || t("onlineUsersError"))}
+                    </div>
+                `;
+                return;
+            }
+
+            renderOnlineUsers(result.users);
+        });
+
+        elements.refreshBtn.addEventListener("click", () => {
+            window.location.reload();
+        });
+
+        elements.homeBtn.addEventListener("click", () => {
+            window.location.href = "./dashboard.html";
+        });
+
+        elements.backBtn.addEventListener("click", () => {
+            history.back();
+        });
+
+        elements.logoutBtn.addEventListener("click", async () => {
+            elements.logoutBtn.disabled = true;
+
+            const result = await logoutUser();
+
+            if (result.success) {
+                window.location.href = "./index.html";
+                return;
+            }
+
+            elements.logoutBtn.disabled = false;
+            showMessage(result.message || t("logoutError"), "danger");
+        });
+
+        elements.dashboardMenuBtn.addEventListener("click", () => {
+            window.location.href = "./dashboard.html";
+        });
+
+        elements.registerMenuBtn.addEventListener("click", () => {
+            window.location.href = "./register.html";
+        });
+
+        elements.searchMenuBtn.addEventListener("click", () => {
+            window.location.href = "./search.html";
+        });
+
+        elements.reportsMenuBtn.addEventListener("click", () => {
+            window.location.href = "./reports.html";
+        });
+
+        elements.adminMenuBtn.addEventListener("click", () => {
+            window.location.href = "./admin.html";
+        });
+
+        elements.settingsMenuBtn.addEventListener("click", () => {
+            window.location.href = "./settings.html";
+        });
+
+        window.addEventListener("beforeunload", () => {
+            stopOnlineUsersListener();
+        });
+    }
+
+    boot();
+</script>
+
+</body>
+</html>

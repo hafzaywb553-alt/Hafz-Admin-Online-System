@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="ps" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0B6B36">
+    <title>ننوځه - Hafz Admin Online System</title>
+
+    <link rel="stylesheet" href="./style.css">
+
+    <style>
+        body {
+            min-height: 100vh;
+            background: linear-gradient(180deg, rgba(11,107,54,0.08), rgba(245,247,246,1));
+        }
+
+        .login-shell {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 440px;
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            box-shadow: 0 12px 36px rgba(0,0,0,0.10);
+            padding: 24px;
+        }
+
+        .profile-wrap {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 14px;
+        }
+
+        .profile-avatar {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            object-fit: cover;
+            object-position: center top;
+            border: 4px solid var(--primary-color);
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+            cursor: zoom-in;
+            background: #fff;
+        }
+
+        .login-title {
+            text-align: center;
+            font-size: 24px;
+            font-weight: 800;
+            margin-top: 8px;
+        }
+
+        .login-subtitle {
+            text-align: center;
+            color: var(--muted-color);
+            margin-top: 6px;
+            margin-bottom: 22px;
+            font-size: 14px;
+        }
+
+        .login-form {
+            display: grid;
+            gap: 14px;
+        }
+
+        .login-note {
+            margin-top: 14px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .form-message {
+            padding: 11px 14px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        .form-message.success {
+            background: #E8F5EE;
+            color: #11682F;
+            border: 1px solid #B8DEC6;
+        }
+
+        .form-message.error {
+            background: #FDECEC;
+            color: #8F1D15;
+            border: 1px solid #F3C4C0;
+        }
+
+        .login-button,
+        .forgot-password-button {
+            width: 100%;
+        }
+
+        .forgot-password-button {
+            min-height: 44px;
+            margin-top: 10px;
+            background: transparent;
+            color: var(--primary-color);
+            font-weight: 800;
+            border-radius: 10px;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
+        .footer-min {
+            text-align: center;
+            color: var(--muted-color);
+            font-size: 12px;
+            margin-top: 16px;
+        }
+
+        .image-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.88);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            padding: 18px;
+        }
+
+        .image-modal.show {
+            display: flex;
+        }
+
+        .image-modal-content {
+            max-width: min(92vw, 900px);
+            max-height: 88vh;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            border-radius: 18px;
+            box-shadow: 0 18px 44px rgba(0, 0, 0, 0.45);
+            background: #111;
+        }
+
+        .image-modal-close {
+            position: fixed;
+            top: 14px;
+            left: 14px;
+            width: 44px;
+            height: 44px;
+            border: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.12);
+            color: #fff;
+            font-size: 28px;
+            line-height: 1;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <main class="login-shell">
+        <section class="login-card">
+            <div class="profile-wrap">
+                <img
+                    src="./owner-photo.png"
+                    alt="Profile"
+                    class="profile-avatar"
+                    id="profileAvatar"
+                >
+            </div>
+
+            <h1 class="login-title" data-system-name>Hafz Admin Online System</h1>
+            <p class="login-subtitle">خپل حساب ته ننوځه</p>
+
+            <form id="loginForm" class="login-form" novalidate>
+                <div class="form-group">
+                    <label class="form-label" for="email">
+                        ایمیل <span class="required">*</span>
+                    </label>
+                    <input
+                        id="email"
+                        name="email"
+                        type="email"
+                        class="form-control"
+                        autocomplete="username"
+                        placeholder="خپل ایمیل ولیکئ"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="password">
+                        پاسورډ <span class="required">*</span>
+                    </label>
+                    <input
+                        id="password"
+                        name="password"
+                        type="password"
+                        class="form-control"
+                        autocomplete="current-password"
+                        placeholder="خپل پاسورډ ولیکئ"
+                        required
+                    >
+                </div>
+
+                <div id="loginMessage" class="form-message" style="display:none;" aria-live="polite"></div>
+
+                <button type="submit" class="btn btn-primary login-button" id="loginButton">
+                    🔐 ننوتل
+                </button>
+
+                <button type="button" class="forgot-password-button" id="forgotPasswordButton">
+                    پاسورډ مو هېر کړی؟
+                </button>
+            </form>
+
+            <div class="login-note">
+                د سیستم د ننوتلو لپاره باید ستاسو ایمیل د Admin لست کې موجود وي.
+            </div>
+
+            <div class="footer-min">
+                Hafz Admin Online System
+            </div>
+        </section>
+    </main>
+
+    <div id="imageModal" class="image-modal" aria-hidden="true">
+        <button type="button" class="image-modal-close" id="closeImageModal" aria-label="بندول">×</button>
+        <img src="./owner-photo.png" alt="Profile Large" class="image-modal-content">
+    </div>
+
+    <script type="module">
+        import { loginUser, resetPassword, listenAuth } from "./auth.js";
+        import { initializeSettings } from "./settings.js";
+
+        const loginForm = document.getElementById("loginForm");
+        const emailInput = document.getElementById("email");
+        const passwordInput = document.getElementById("password");
+        const loginButton = document.getElementById("loginButton");
+        const loginMessage = document.getElementById("loginMessage");
+        const forgotPasswordButton = document.getElementById("forgotPasswordButton");
+        const profileAvatar = document.getElementById("profileAvatar");
+        const imageModal = document.getElementById("imageModal");
+        const closeImageModal = document.getElementById("closeImageModal");
+
+        function showMessage(message, type = "error") {
+            loginMessage.textContent = message;
+            loginMessage.className = `form-message ${type}`;
+            loginMessage.style.display = "block";
+        }
+
+        function hideMessage() {
+            loginMessage.textContent = "";
+            loginMessage.style.display = "none";
+            loginMessage.className = "form-message";
+        }
+
+        function setLoading(isLoading) {
+            loginButton.disabled = isLoading;
+            loginButton.textContent = isLoading ? "⏳ د ننوتلو هڅه..." : "🔐 ننوتل";
+            forgotPasswordButton.disabled = isLoading;
+        }
+
+        await initializeSettings();
+
+        listenAuth((session) => {
+            if (session) {
+                window.location.href = "./dashboard.html";
+            }
+        });
+
+        loginForm.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            hideMessage();
+
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+
+            if (!email) {
+                showMessage("ایمیل ولیکئ.");
+                emailInput.focus();
+                return;
+            }
+
+            if (!password) {
+                showMessage("پاسورډ ولیکئ.");
+                passwordInput.focus();
+                return;
+            }
+
+            try {
+                setLoading(true);
+
+                const result = await loginUser(email, password);
+
+                if (!result.success) {
+                    showMessage(result.message || "ننوتل ترسره نه شول.");
+                    return;
+                }
+
+                window.location.href = "./dashboard.html";
+            } catch (error) {
+                console.error("Login Page Error:", error);
+                showMessage("د ننوتلو پر مهال ستونزه رامنځته شوه.");
+            } finally {
+                setLoading(false);
+            }
+        });
+
+        forgotPasswordButton.addEventListener("click", async () => {
+            hideMessage();
+
+            const email = emailInput.value.trim();
+
+            if (!email) {
+                showMessage("لومړی خپل ایمیل ولیکئ.");
+                emailInput.focus();
+                return;
+            }
+
+            try {
+                setLoading(true);
+
+                const result = await resetPassword(email);
+
+                if (result.success) {
+                    showMessage(result.message, "success");
+                } else {
+                    showMessage(result.message || "د پاسورډ د بدلولو ایمیل ونه لېږل شو.");
+                }
+            } catch (error) {
+                console.error("Password Reset Page Error:", error);
+                showMessage("د پاسورډ د بدلولو ایمیل ونه لېږل شو.");
+            } finally {
+                setLoading(false);
+            }
+        });
+
+        if (profileAvatar && imageModal && closeImageModal) {
+            profileAvatar.addEventListener("click", () => {
+                imageModal.classList.add("show");
+                imageModal.setAttribute("aria-hidden", "false");
+            });
+
+            closeImageModal.addEventListener("click", () => {
+                imageModal.classList.remove("show");
+                imageModal.setAttribute("aria-hidden", "true");
+            });
+
+            imageModal.addEventListener("click", (event) => {
+                if (event.target === imageModal) {
+                    imageModal.classList.remove("show");
+                    imageModal.setAttribute("aria-hidden", "true");
+                }
+            });
+
+            window.addEventListener("keydown", (event) => {
+                if (event.key === "Escape") {
+                    imageModal.classList.remove("show");
+                    imageModal.setAttribute("aria-hidden", "true");
+                }
+            });
+        }
+    </script>
+</body>
+</html>

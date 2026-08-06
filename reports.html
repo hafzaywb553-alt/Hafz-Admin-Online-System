@@ -1,0 +1,411 @@
+<!DOCTYPE html><html lang="ps" dir="rtl"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0B6B36">
+    <title>راپورونه - Hafz Admin Online System</title><link rel="stylesheet" href="./style.css">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+</head><body><header class="main-header">
+    <div class="header-brand">
+        <div class="header-logo">📄</div>
+        <div class="header-title" data-system-name>Hafz Admin Online System</div>
+    </div><div class="header-actions">
+    <button type="button" id="dashboardBtn" title="Dashboard" aria-label="Dashboard">🏠</button>
+    <button type="button" id="refreshBtn" title="ریفریش" aria-label="ریفریش">🔄</button>
+    <button type="button" id="logoutBtn" title="وتل" aria-label="وتل">🚪</button>
+</div>
+
+</header><div class="app-layout">
+    <aside class="sidebar">
+        <div class="sidebar-title">اصلي مینو</div>    <nav class="sidebar-menu">
+        <button type="button" id="dashboardMenuBtn">📊 Dashboard</button>
+        <button type="button" id="registerMenuBtn">📝 نوی ثبت</button>
+        <button type="button" id="searchMenuBtn">🔍 لټون</button>
+        <button type="button" class="active" id="reportsMenuBtn">📄 راپورونه</button>
+        <button type="button" id="adminMenuBtn">👥 Admin</button>
+        <button type="button" id="settingsMenuBtn">⚙️ تنظیمات</button>
+    </nav>
+</aside>
+
+<main class="main-content">
+    <div class="page">
+        <section class="page-header">
+            <h1 class="page-title">📄 راپورونه</h1>
+            <p class="page-description">د ثبت، فورم ډول، ولایت او وروستیو معلوماتو لنډ او بشپړ راپورونه.</p>
+        </section>
+
+        <div id="reportsMessage" class="alert" style="display:none;" role="alert" aria-live="polite"></div>
+
+        <section class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">ټول ثبت شوي کسان</div>
+                <div class="stat-value" id="totalRecords">0</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">د نن ثبتونه</div>
+                <div class="stat-value" id="todayRecords">0</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">جعلي فورمې</div>
+                <div class="stat-value" id="fraudRecords">0</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">فعال ثبتونه</div>
+                <div class="stat-value" id="activeRecords">0</div>
+            </div>
+        </section>
+
+        <section class="card" style="margin-top:14px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
+                <div>
+                    <h2 style="font-size:20px;font-weight:800;">📊 د فورم ډولونو راپور</h2>
+                    <p style="color:var(--muted-color);font-size:13px;">د هر ډول فورم شمېره</p>
+                </div>
+                <div class="badge badge-info" id="categoryBadge">چمتو</div>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>فورم ډول</th>
+                            <th>شمېره</th>
+                        </tr>
+                    </thead>
+                    <tbody id="categoryTableBody">
+                        <tr><td colspan="2" class="text-center">د معلوماتو د لوډ کېدو په تمه...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="card" style="margin-top:14px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
+                <div>
+                    <h2 style="font-size:20px;font-weight:800;">🗺️ د ولایتونو راپور</h2>
+                    <p style="color:var(--muted-color);font-size:13px;">د اصلي ځای ولایتونه</p>
+                </div>
+                <div class="badge badge-info" id="provinceBadge">چمتو</div>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ولایت</th>
+                            <th>شمېره</th>
+                        </tr>
+                    </thead>
+                    <tbody id="provinceTableBody">
+                        <tr><td colspan="2" class="text-center">د معلوماتو د لوډ کېدو په تمه...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="card" style="margin-top:14px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
+                <div>
+                    <h2 style="font-size:20px;font-weight:800;">🕒 وروستي ثبتونه</h2>
+                    <p style="color:var(--muted-color);font-size:13px;">وروستي 10 ثبت شوي کسان</p>
+                </div>
+                <div class="badge badge-info" id="recentBadge">چمتو</div>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>فورم نمبر</th>
+                            <th>نوم</th>
+                            <th>فورم ډول</th>
+                            <th>ولایت</th>
+                            <th>حالت</th>
+                            <th>نېټه</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recentTableBody">
+                        <tr><td colspan="6" class="text-center">د معلوماتو د لوډ کېدو په تمه...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+</main>
+
+</div><footer class="footer">
+    Hafz Admin Online System
+</footer><script type="module">
+    import { listenAuth, logoutUser } from "./auth.js";
+    import { initializeSettings } from "./settings.js";
+    import { db } from "./firebase.js";
+    import { collection, getDocs } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+
+    const reportsMessage = document.getElementById("reportsMessage");
+    const totalRecordsEl = document.getElementById("totalRecords");
+    const todayRecordsEl = document.getElementById("todayRecords");
+    const fraudRecordsEl = document.getElementById("fraudRecords");
+    const activeRecordsEl = document.getElementById("activeRecords");
+    const categoryTableBody = document.getElementById("categoryTableBody");
+    const provinceTableBody = document.getElementById("provinceTableBody");
+    const recentTableBody = document.getElementById("recentTableBody");
+    const categoryBadge = document.getElementById("categoryBadge");
+    const provinceBadge = document.getElementById("provinceBadge");
+    const recentBadge = document.getElementById("recentBadge");
+    const refreshBtn = document.getElementById("refreshBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    function showMessage(message, type = "success") {
+        reportsMessage.textContent = message;
+        reportsMessage.className = "alert alert-" + type;
+        reportsMessage.style.display = "block";
+    }
+
+    function hideMessage() {
+        reportsMessage.textContent = "";
+        reportsMessage.style.display = "none";
+    }
+
+    function escapeHtml(value) {
+        return String(value ?? "")
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+    }
+
+    function formatDate(value) {
+        if (!value) return "—";
+
+        if (typeof value.toDate === "function") {
+            const date = value.toDate();
+            return date.toLocaleDateString("ps-AF", {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit"
+            });
+        }
+
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return "—";
+
+        return date.toLocaleDateString("ps-AF", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit"
+        });
+    }
+
+    function getPersonName(record) {
+        const firstName = record?.person?.firstName || "";
+        const lastName = record?.person?.lastName || "";
+        return `${firstName} ${lastName}`.trim() || "—";
+    }
+
+    function normalizeText(value) {
+        return String(value ?? "").trim() || "—";
+    }
+
+    function renderCountRows(map, tbody, emptyText) {
+        const entries = Object.entries(map)
+            .sort((a, b) => b[1] - a[1])
+            .filter(([, count]) => count > 0);
+
+        if (entries.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="2" class="text-center">${escapeHtml(emptyText)}</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = entries.map(([key, count]) => `
+            <tr>
+                <td>${escapeHtml(key)}</td>
+                <td><strong>${count}</strong></td>
+            </tr>
+        `).join("");
+    }
+
+    function renderRecentRows(records) {
+        if (!records.length) {
+            recentTableBody.innerHTML = `<tr><td colspan="6" class="text-center">هیڅ ثبت نه شته.</td></tr>`;
+            return;
+        }
+
+        recentTableBody.innerHTML = records.map(record => {
+            const fraudulent = record.fraudulent === true;
+            const status = fraudulent ? "جعلي" : normalizeText(record.status || "active");
+            const statusBadge = fraudulent ? "badge-danger" : "badge-success";
+            const name = getPersonName(record);
+            const province = normalizeText(record?.originalLocation?.province);
+            const formType = normalizeText(record?.category);
+
+            return `
+                <tr>
+                    <td>${escapeHtml(record.formNumber || "—")}</td>
+                    <td>${escapeHtml(name)}</td>
+                    <td>${escapeHtml(formType)}</td>
+                    <td>${escapeHtml(province)}</td>
+                    <td><span class="badge ${statusBadge}">${escapeHtml(status)}</span></td>
+                    <td>${escapeHtml(formatDate(record.createdAt))}</td>
+                </tr>
+            `;
+        }).join("");
+    }
+
+    async function loadReports() {
+        try {
+            hideMessage();
+            categoryBadge.textContent = "لوډېږي...";
+            provinceBadge.textContent = "لوډېږي...";
+            recentBadge.textContent = "لوډېږي...";
+
+            const snapshot = await getDocs(collection(db, "records"));
+            const records = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+
+            const totalRecords = records.length;
+
+            let todayRecords = 0;
+            let fraudRecords = 0;
+            let activeRecords = 0;
+
+            const categories = {
+                "مجاهد": 0,
+                "همکار": 0,
+                "د شهید د کورنۍ غړی": 0,
+                "بعدالفتح": 0
+            };
+
+            const provinces = {};
+
+            const today = new Date();
+            const todayKey = today.toLocaleDateString("en-CA");
+
+            const normalizedRecords = records.slice().sort((a, b) => {
+                const at = a?.createdAt?.toDate ? a.createdAt.toDate().getTime() : 0;
+                const bt = b?.createdAt?.toDate ? b.createdAt.toDate().getTime() : 0;
+                return bt - at;
+            });
+
+            normalizedRecords.forEach(record => {
+                if (record.fraudulent === true) {
+                    fraudRecords += 1;
+                }
+
+                if (String(record.status || "").toLowerCase() === "active") {
+                    activeRecords += 1;
+                }
+
+                const category = String(record.category || "").trim();
+                if (categories.hasOwnProperty(category)) {
+                    categories[category] += 1;
+                } else if (category) {
+                    categories[category] = 1;
+                }
+
+                const province = String(record?.originalLocation?.province || "").trim();
+                if (province) {
+                    provinces[province] = (provinces[province] || 0) + 1;
+                }
+
+                if (record.createdAt && typeof record.createdAt.toDate === "function") {
+                    const recordDate = record.createdAt.toDate();
+                    const recordKey = recordDate.toLocaleDateString("en-CA");
+                    if (recordKey === todayKey) {
+                        todayRecords += 1;
+                    }
+                }
+            });
+
+            totalRecordsEl.textContent = totalRecords;
+            todayRecordsEl.textContent = todayRecords;
+            fraudRecordsEl.textContent = fraudRecords;
+            activeRecordsEl.textContent = activeRecords;
+
+            renderCountRows(categories, categoryTableBody, "د فورم ډولونو راپور نشته.");
+            renderCountRows(provinces, provinceTableBody, "د ولایتونو راپور نشته.");
+            renderRecentRows(normalizedRecords.slice(0, 10));
+
+            categoryBadge.textContent = `${Object.values(categories).reduce((a, b) => a + b, 0)} راپور`;
+            provinceBadge.textContent = `${Object.values(provinces).reduce((a, b) => a + b, 0)} راپور`;
+            recentBadge.textContent = `${Math.min(normalizedRecords.length, 10)} وروستي`;
+
+        } catch (error) {
+            console.error("Reports Load Error:", error);
+
+            totalRecordsEl.textContent = "0";
+            todayRecordsEl.textContent = "0";
+            fraudRecordsEl.textContent = "0";
+            activeRecordsEl.textContent = "0";
+
+            categoryTableBody.innerHTML = `<tr><td colspan="2" class="text-center">راپورونه ترلاسه نه شول.</td></tr>`;
+            provinceTableBody.innerHTML = `<tr><td colspan="2" class="text-center">راپورونه ترلاسه نه شول.</td></tr>`;
+            recentTableBody.innerHTML = `<tr><td colspan="6" class="text-center">راپورونه ترلاسه نه شول.</td></tr>`;
+
+            categoryBadge.textContent = "تېروتنه";
+            provinceBadge.textContent = "تېروتنه";
+            recentBadge.textContent = "تېروتنه";
+
+            showMessage("د راپورونو د لوډ کېدو پر مهال ستونزه رامنځته شوه.", "danger");
+        }
+    }
+
+    listenAuth(async (session) => {
+        if (!session) {
+            window.location.href = "./index.html";
+            return;
+        }
+
+        await initializeSettings();
+        await loadReports();
+    });
+
+    refreshBtn.addEventListener("click", () => {
+        window.location.reload();
+    });
+
+    logoutBtn.addEventListener("click", async () => {
+        logoutBtn.disabled = true;
+        const result = await logoutUser();
+        if (result.success) {
+            window.location.href = "./index.html";
+            return;
+        }
+        showMessage(result.message || "له سیستم څخه وتل ناکام شول.", "danger");
+        logoutBtn.disabled = false;
+    });
+
+    document.getElementById("dashboardBtn").addEventListener("click", () => {
+        window.location.href = "./dashboard.html";
+    });
+
+    document.getElementById("dashboardMenuBtn").addEventListener("click", () => {
+        window.location.href = "./dashboard.html";
+    });
+
+    document.getElementById("registerMenuBtn").addEventListener("click", () => {
+        window.location.href = "./register.html";
+    });
+
+    document.getElementById("searchMenuBtn").addEventListener("click", () => {
+        window.location.href = "./search.html";
+    });
+
+    document.getElementById("reportsMenuBtn").addEventListener("click", () => {
+        window.location.href = "./reports.html";
+    });
+
+    document.getElementById("adminMenuBtn").addEventListener("click", () => {
+        window.location.href = "./admin.html";
+    });
+
+    document.getElementById("settingsMenuBtn").addEventListener("click", () => {
+        window.location.href = "./settings.html";
+    });
+</script></body>
+</html>
