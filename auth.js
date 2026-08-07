@@ -14,10 +14,8 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
 
 import {
-    collection,
-    query,
-    where,
-    getDocs
+    doc,
+    getDoc
 } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
 
@@ -51,12 +49,35 @@ function redirectToLogin() {
 
 
 // ==========================================
+// Normalize Helpers
+// ==========================================
+
+function normalizeText(value) {
+    return String(value || "").trim();
+}
+
+function normalizeRole(role) {
+    return normalizeText(role).toLowerCase();
+}
+
+function isValidRole(role) {
+    return ALLOWED_ROLES.includes(normalizeRole(role));
+}
+
+
+// ==========================================
 // Get Admin Profile By UID
 // ==========================================
 //
-// ټول Admin Profileونه د UID له مخې پیدا کېږي.
-// دا جوړښت د admin.js سره همغږی دی.
+// مهم:
+// دا function اوس مستقیم doc read کوي:
+// admins/{user.uid}
 //
+/* If a legacy document still exists at:
+   admins/superadmin
+   and it contains uid == current user.uid,
+   we also try it as fallback.
+*/
 // ==========================================
 
 export async function getAdminProfile(user) {
@@ -65,65 +86,78 @@ export async function getAdminProfile(user) {
             return null;
         }
 
-        const adminsRef = collection(
+        const currentUid = normalizeText(user.uid);
+
+        // --------------------------------------
+        // 1) Direct UID-based document
+        // --------------------------------------
+        const uidDocRef = doc(
             db,
-            ADMINS_COLLECTION
+            ADMINS_COLLECTION,
+            currentUid
         );
 
-        const q = query(
-            adminsRef,
-            where("uid", "==", user.uid)
-        );
+        let snapshot = await getDoc(uidDocRef);
 
-        const snapshot = await getDocs(q);
+        // --------------------------------------
+        // 2) Legacy fallback: admins/superadmin
+        // --------------------------------------
+        if (!snapshot.exists()) {
+            const legacyRef = doc(
+                db,
+                ADMINS_COLLECTION,
+                "superadmin"
+            );
+            snapshot = await getDoc(legacyRef);
+        }
 
-        if (snapshot.empty) {
+        if (!snapshot.exists()) {
             return null;
         }
 
-        const adminDoc = snapshot.docs[0];
-        const data = adminDoc.data() || {};
+        const data = snapshot.data() || {};
+
+        const storedUid = normalizeText(data.uid);
+        const storedEmail = normalizeText(data.email).toLowerCase();
+        const currentEmail = normalizeText(user.email).toLowerCase();
 
         // --------------------------------------
         // UID Verification
         // --------------------------------------
-
-        if (
-            String(data.uid || "").trim() !==
-            String(user.uid || "").trim()
-        ) {
+        if (storedUid && storedUid !== currentUid) {
             return null;
         }
 
         // --------------------------------------
-        // Role Verification
+        // Optional email sanity check
         // --------------------------------------
-
-        const role = String(
-            data.role || ""
-        )
-            .trim()
-            .toLowerCase();
-
-        if (!ALLOWED_ROLES.includes(role)) {
+        if (storedEmail && currentEmail && storedEmail !== currentEmail) {
             return null;
         }
 
         // --------------------------------------
         // Active Status
         // --------------------------------------
+        if (data.active !== true) {
+            return null;
+        }
 
-        if (data.active === false) {
+        // --------------------------------------
+        // Role Verification
+        // --------------------------------------
+        const role = normalizeRole(data.role);
+
+        if (!isValidRole(role)) {
             return null;
         }
 
         return {
-            id: adminDoc.id,
-            uid: data.uid,
-            email: data.email || user.email || "",
-            name: data.name || "",
+            id: snapshot.id,
+            uid: storedUid || currentUid,
+            email: storedEmail || currentEmail || "",
+            name: normalizeText(data.name || ""),
             role,
-            active: data.active !== false,
+            active: true,
             ...data
         };
     } catch (error) {
@@ -145,7 +179,6 @@ export async function loginUser(email, password) {
         // --------------------------------------
         // Email Validation
         // --------------------------------------
-
         if (!email) {
             return {
                 success: false,
@@ -156,7 +189,6 @@ export async function loginUser(email, password) {
         // --------------------------------------
         // Password Validation
         // --------------------------------------
-
         if (!password) {
             return {
                 success: false,
@@ -167,7 +199,6 @@ export async function loginUser(email, password) {
         // --------------------------------------
         // Firebase Authentication Login
         // --------------------------------------
-
         const result = await signInWithEmailAndPassword(
             auth,
             email,
@@ -179,13 +210,11 @@ export async function loginUser(email, password) {
         // --------------------------------------
         // Find Firestore Admin Profile
         // --------------------------------------
-
         const profile = await getAdminProfile(user);
 
         // --------------------------------------
         // Profile Not Found
         // --------------------------------------
-
         if (!profile) {
             await signOut(auth);
             return {
@@ -195,10 +224,9 @@ export async function loginUser(email, password) {
         }
 
         // --------------------------------------
-        // Account Inactive
+        // Active Check
         // --------------------------------------
-
-        if (profile.active === false) {
+        if (profile.active !== true) {
             await signOut(auth);
             return {
                 success: false,
@@ -209,7 +237,6 @@ export async function loginUser(email, password) {
         // --------------------------------------
         // Role Verification
         // --------------------------------------
-
         if (!ALLOWED_ROLES.includes(profile.role)) {
             await signOut(auth);
             return {
@@ -407,25 +434,13 @@ export function listenAuth(callback) {
     }
 
     return onAuthStateChanged(auth, async (user) => {
-        // ----------------------------------
-        // No Firebase User
-        // ----------------------------------
-
         if (!user) {
             callback(null);
             return;
         }
 
         try {
-            // ------------------------------
-            // Get Firestore Profile
-            // ------------------------------
-
             const profile = await getAdminProfile(user);
-
-            // ------------------------------
-            // Profile Missing
-            // ------------------------------
 
             if (!profile) {
                 await signOut(auth);
@@ -433,19 +448,11 @@ export function listenAuth(callback) {
                 return;
             }
 
-            // ------------------------------
-            // Inactive Account
-            // ------------------------------
-
-            if (profile.active === false) {
+            if (profile.active !== true) {
                 await signOut(auth);
                 callback(null);
                 return;
             }
-
-            // ------------------------------
-            // Return Session
-            // ------------------------------
 
             callback({
                 user,
@@ -487,15 +494,14 @@ export async function hasRole(allowedRoles = []) {
         return false;
     }
 
-    const role = String(
-        session.profile?.role || ""
-    )
+    const role = String(session.profile?.role || "")
         .trim()
         .toLowerCase();
 
-    return allowedRoles
-        .map(value => String(value).trim().toLowerCase())
-        .includes(role);
+    const normalizedAllowedRoles = allowedRoles
+        .map(value => String(value).trim().toLowerCase());
+
+    return normalizedAllowedRoles.includes(role);
 }
 
 
