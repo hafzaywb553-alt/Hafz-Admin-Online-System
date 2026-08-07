@@ -991,3 +991,14 @@ td {
         background: #FFFFFF;
     }
 }
+
+/* ==========================================
+   Pashto System Name Font
+   ========================================== */
+
+[data-system-name] {
+    font-family: "Noto Naskh Arabic", "Noto Sans Arabic", serif;
+    font-weight: 800;
+    letter-spacing: 0;
+    line-height: 1.9;
+}
