@@ -270,8 +270,17 @@
 </footer>
 
 <script type="module">
-    import { listenAuth, logoutUser } from "./auth.js";
-    import { getDashboardStats, getUserEmail } from "./dashboard.js";
+    import { auth } from "./firebase.js";
+    import {
+        onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+
+    import {
+        getCurrentSession,
+        logoutUser
+    } from "./auth.js";
+
+    import { getDashboardStats } from "./dashboard.js";
     import {
         initializePresence,
         listenOnlineUsers,
@@ -616,25 +625,80 @@
         elements.onlineUsersList.innerHTML = html;
     }
 
-    async function loadDashboard() {
+    async function loadDashboard(session) {
         try {
             const stats = await getDashboardStats();
             elements.recordsCount.textContent = String(stats.records ?? 0);
             updateOnlineBadge(stats.onlineUsers ?? 0);
-            elements.currentUserEmail.textContent = getUserEmail() || "—";
+            elements.currentUserEmail.textContent = session?.user?.email || session?.profile?.email || "—";
         } catch (error) {
             console.error("Dashboard Load Error:", error);
             showMessage(t("dashboardLoadError"), "danger");
         }
     }
 
-    async function boot() {
-        await initializeSettings();
-        applyStaticText();
+    function waitForAuthUser(timeoutMs = 5000) {
+        return new Promise((resolve) => {
+            let settled = false;
+            let intervalId = null;
+            let unsubscribe = () => {};
+            const startedAt = Date.now();
 
-        listenAuth(async (session) => {
+            const finish = (user) => {
+                if (settled) {
+                    return;
+                }
+
+                settled = true;
+
+                if (intervalId) {
+                    clearInterval(intervalId);
+                }
+
+                try {
+                    unsubscribe();
+                } catch (error) {
+                    console.error("Auth wait unsubscribe error:", error);
+                }
+
+                resolve(user || null);
+            };
+
+            unsubscribe = onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    finish(user);
+                }
+            });
+
+            intervalId = setInterval(() => {
+                if (auth.currentUser) {
+                    finish(auth.currentUser);
+                    return;
+                }
+
+                if (Date.now() - startedAt >= timeoutMs) {
+                    finish(null);
+                }
+            }, 120);
+        });
+    }
+
+    async function boot() {
+        try {
+            await initializeSettings();
+            applyStaticText();
+
+            const authUser = await waitForAuthUser();
+
+            if (!authUser) {
+                window.location.replace("./index.html");
+                return;
+            }
+
+            const session = await getCurrentSession();
+
             if (!session) {
-                window.location.href = "./index.html";
+                window.location.replace("./index.html");
                 return;
             }
 
@@ -642,84 +706,89 @@
             applyStaticText();
 
             const displayName =
+                session.profile?.name ||
                 session.profile?.displayName ||
+                session.user.displayName ||
                 session.user.email ||
                 t("unknownUser");
 
-            elements.currentUserEmail.textContent = session.user.email || "—";
+            elements.currentUserEmail.textContent = session.user.email || session.profile?.email || "—";
             elements.welcomeText.textContent = t("welcomeUser", { name: displayName });
 
-            await loadDashboard();
-        });
+            initializePresence();
 
-        initializePresence();
+            listenOnlineUsers((result) => {
+                if (!result.success) {
+                    elements.onlineUsersList.innerHTML = `
+                        <div class="alert alert-danger">
+                            ${escapeHtml(result.message || t("onlineUsersError"))}
+                        </div>
+                    `;
+                    return;
+                }
 
-        listenOnlineUsers((result) => {
-            if (!result.success) {
-                elements.onlineUsersList.innerHTML = `
-                    <div class="alert alert-danger">
-                        ${escapeHtml(result.message || t("onlineUsersError"))}
-                    </div>
-                `;
-                return;
-            }
+                renderOnlineUsers(result.users);
+            });
 
-            renderOnlineUsers(result.users);
-        });
+            await loadDashboard(session);
 
-        elements.refreshBtn.addEventListener("click", () => {
-            window.location.reload();
-        });
+            elements.refreshBtn.addEventListener("click", () => {
+                window.location.reload();
+            });
 
-        elements.homeBtn.addEventListener("click", () => {
-            window.location.href = "./dashboard.html";
-        });
+            elements.homeBtn.addEventListener("click", () => {
+                window.location.href = "./dashboard.html";
+            });
 
-        elements.backBtn.addEventListener("click", () => {
-            history.back();
-        });
+            elements.backBtn.addEventListener("click", () => {
+                history.back();
+            });
 
-        elements.logoutBtn.addEventListener("click", async () => {
-            elements.logoutBtn.disabled = true;
+            elements.logoutBtn.addEventListener("click", async () => {
+                elements.logoutBtn.disabled = true;
 
-            const result = await logoutUser();
+                const result = await logoutUser();
 
-            if (result.success) {
-                window.location.href = "./index.html";
-                return;
-            }
+                if (result.success) {
+                    window.location.href = "./index.html";
+                    return;
+                }
 
-            elements.logoutBtn.disabled = false;
-            showMessage(result.message || t("logoutError"), "danger");
-        });
+                elements.logoutBtn.disabled = false;
+                showMessage(result.message || t("logoutError"), "danger");
+            });
 
-        elements.dashboardMenuBtn.addEventListener("click", () => {
-            window.location.href = "./dashboard.html";
-        });
+            elements.dashboardMenuBtn.addEventListener("click", () => {
+                window.location.href = "./dashboard.html";
+            });
 
-        elements.registerMenuBtn.addEventListener("click", () => {
-            window.location.href = "./register.html";
-        });
+            elements.registerMenuBtn.addEventListener("click", () => {
+                window.location.href = "./register.html";
+            });
 
-        elements.searchMenuBtn.addEventListener("click", () => {
-            window.location.href = "./search.html";
-        });
+            elements.searchMenuBtn.addEventListener("click", () => {
+                window.location.href = "./search.html";
+            });
 
-        elements.reportsMenuBtn.addEventListener("click", () => {
-            window.location.href = "./reports.html";
-        });
+            elements.reportsMenuBtn.addEventListener("click", () => {
+                window.location.href = "./reports.html";
+            });
 
-        elements.adminMenuBtn.addEventListener("click", () => {
-            window.location.href = "./admin.html";
-        });
+            elements.adminMenuBtn.addEventListener("click", () => {
+                window.location.href = "./admin.html";
+            });
 
-        elements.settingsMenuBtn.addEventListener("click", () => {
-            window.location.href = "./settings.html";
-        });
+            elements.settingsMenuBtn.addEventListener("click", () => {
+                window.location.href = "./settings.html";
+            });
 
-        window.addEventListener("beforeunload", () => {
-            stopOnlineUsersListener();
-        });
+            window.addEventListener("beforeunload", () => {
+                stopOnlineUsersListener();
+            });
+        } catch (error) {
+            console.error("Dashboard Boot Error:", error);
+            showMessage(error?.message || t("dashboardLoadError"), "danger");
+        }
     }
 
     boot();
