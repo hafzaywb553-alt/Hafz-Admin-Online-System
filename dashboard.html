@@ -1,275 +1,263 @@
-<!DOCTYPE html>
-<html lang="ps" dir="rtl">
+<!DOCTYPE html><html lang="ps" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#0B6B36">
-    <title>د افغانستان اسلامي امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس | Dashboard</title>
+    <title>د افغانستان اسلامي امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس | Dashboard</title><link rel="stylesheet" href="./style.css">
 
-    <link rel="stylesheet" href="./style.css">
+<style>
+    .dashboard-card {
+        margin-top: 14px;
+    }
 
-    <style>
-        .dashboard-card {
-            margin-top: 14px;
+    .dashboard-card-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 14px;
+    }
+
+    .dashboard-card-title {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 900;
+        line-height: 1.45;
+    }
+
+    .dashboard-card-description {
+        margin: 4px 0 0;
+        color: var(--muted-color);
+        font-size: 13px;
+        line-height: 1.8;
+    }
+
+    .dashboard-info-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .dashboard-info-item {
+        padding: 13px;
+        background: var(--primary-light);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        min-width: 0;
+    }
+
+    .dashboard-info-label {
+        color: var(--muted-color);
+        font-size: 13px;
+        margin-bottom: 4px;
+    }
+
+    .dashboard-info-value {
+        font-weight: 900;
+        overflow-wrap: anywhere;
+    }
+
+    .online-users-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .online-user {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px;
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        background: var(--surface-color);
+        transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    }
+
+    .online-user:hover {
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .online-user-avatar {
+        width: 44px;
+        height: 44px;
+        flex: 0 0 44px;
+        border-radius: 50%;
+        background: var(--primary-light);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        border: 1px solid var(--border-color);
+    }
+
+    .online-user-info {
+        min-width: 0;
+        flex: 1;
+    }
+
+    .online-user-name {
+        font-weight: 900;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .online-user-email {
+        color: var(--muted-color);
+        font-size: 12px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        direction: ltr;
+        text-align: start;
+    }
+
+    .online-user-status {
+        flex: 0 0 auto;
+        text-align: end;
+    }
+
+    .online-user-time {
+        color: var(--muted-color);
+        font-size: 11px;
+        margin-top: 3px;
+    }
+
+    .ltr-text {
+        direction: ltr;
+        unicode-bidi: plaintext;
+        text-align: start;
+    }
+
+    @media (max-width: 780px) {
+        .dashboard-info-grid {
+            grid-template-columns: 1fr;
         }
 
         .dashboard-card-header {
-            display: flex;
             align-items: flex-start;
-            justify-content: space-between;
-            gap: 12px;
-            margin-bottom: 14px;
-        }
-
-        .dashboard-card-title {
-            margin: 0;
-            font-size: 20px;
-            font-weight: 900;
-            line-height: 1.45;
-        }
-
-        .dashboard-card-description {
-            margin: 4px 0 0;
-            color: var(--muted-color);
-            font-size: 13px;
-            line-height: 1.8;
-        }
-
-        .dashboard-info-grid {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 10px;
-        }
-
-        .dashboard-info-item {
-            padding: 13px;
-            background: var(--primary-light);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            min-width: 0;
-        }
-
-        .dashboard-info-label {
-            color: var(--muted-color);
-            font-size: 13px;
-            margin-bottom: 4px;
-        }
-
-        .dashboard-info-value {
-            font-weight: 900;
-            overflow-wrap: anywhere;
-        }
-
-        .online-users-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
         }
 
         .online-user {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            background: var(--surface-color);
-            transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
-        }
-
-        .online-user:hover {
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-sm);
+            padding: 10px;
         }
 
         .online-user-avatar {
-            width: 44px;
-            height: 44px;
-            flex: 0 0 44px;
-            border-radius: 50%;
-            background: var(--primary-light);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            border: 1px solid var(--border-color);
+            width: 40px;
+            height: 40px;
+            flex-basis: 40px;
+        }
+    }
+
+    @media (max-width: 460px) {
+        .dashboard-card-header {
+            flex-direction: column;
         }
 
-        .online-user-info {
-            min-width: 0;
-            flex: 1;
+        .dashboard-card-header .badge {
+            align-self: flex-start;
         }
+    }
+</style>
 
-        .online-user-name {
-            font-weight: 900;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .online-user-email {
-            color: var(--muted-color);
-            font-size: 12px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            direction: ltr;
-            text-align: start;
-        }
-
-        .online-user-status {
-            flex: 0 0 auto;
-            text-align: end;
-        }
-
-        .online-user-time {
-            color: var(--muted-color);
-            font-size: 11px;
-            margin-top: 3px;
-        }
-
-        .ltr-text {
-            direction: ltr;
-            unicode-bidi: plaintext;
-            text-align: start;
-        }
-
-        @media (max-width: 780px) {
-            .dashboard-info-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .dashboard-card-header {
-                align-items: flex-start;
-            }
-
-            .online-user {
-                padding: 10px;
-            }
-
-            .online-user-avatar {
-                width: 40px;
-                height: 40px;
-                flex-basis: 40px;
-            }
-        }
-
-        @media (max-width: 460px) {
-            .dashboard-card-header {
-                flex-direction: column;
-            }
-
-            .dashboard-card-header .badge {
-                align-self: flex-start;
-            }
-        }
-    </style>
 </head>
-<body>
-
-<header class="main-header">
+<body><header class="main-header">
     <div class="header-brand">
         <div class="header-logo">🛡️</div>
-        <div class="header-title" data-system-name>Hafz Admin Online System</div>
-    </div>
-
-    <div class="header-actions">
-        <button type="button" id="homeBtn" title="کور" aria-label="کور">🏠</button>
-        <button type="button" id="backBtn" title="شاته" aria-label="شاته">⬅️</button>
-        <button type="button" id="refreshBtn" title="ریفریش" aria-label="ریفریش">🔄</button>
-        <button type="button" id="logoutBtn" title="وتل" aria-label="وتل">🚪</button>
-    </div>
-</header>
-
-<div class="app-layout">
-    <aside class="sidebar">
-        <div class="sidebar-title" id="sidebarTitle">اصلي مینو</div>
-
-        <nav class="sidebar-menu">
-            <button type="button" class="active" id="dashboardMenuBtn">📊 Dashboard</button>
-            <button type="button" id="registerMenuBtn">📝 نوی ثبت</button>
-            <button type="button" id="searchMenuBtn">🔍 لټون</button>
-            <button type="button" id="reportsMenuBtn">📄 راپورونه</button>
-            <button type="button" id="adminMenuBtn">👥 Admin</button>
-            <button type="button" id="settingsMenuBtn">⚙️ تنظیمات</button>
-        </nav>
-    </aside>
-
-    <main class="main-content">
-        <div class="page">
-            <section class="page-header">
-                <h1 class="page-title" id="pageTitle">Dashboard</h1>
-                <p class="page-description" id="welcomeText">سیستم ته ښه راغلاست</p>
-            </section>
-
-            <div id="dashboardMessage" class="alert" hidden></div>
-
-            <section class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-label" id="totalRecordsLabel">ټول ثبت شوي کسان</div>
-                    <div class="stat-value" id="recordsCount">0</div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-label" id="onlineUsersLabel">اوس آنلاین کسان</div>
-                    <div class="stat-value" id="onlineUsersCount">0</div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-label" id="myEmailLabel">زما ایمیل</div>
-                    <div class="dashboard-info-value ltr-text" id="currentUserEmail" style="margin-top:6px;">—</div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-label" id="myStatusLabel">زما حالت</div>
-                    <div class="badge badge-success" id="myStatusBadge" style="margin-top:8px;">🟢 آنلاین</div>
-                </div>
-            </section>
-
-            <section class="card dashboard-card">
-                <div class="dashboard-card-header">
-                    <div>
-                        <h2 class="dashboard-card-title" id="onlinePeopleTitle">🟢 آنلاین کسان</h2>
-                        <p class="dashboard-card-description" id="onlinePeopleDescription">ټول هغه کسان چې اوس سیستم ته داخل دي</p>
-                    </div>
-
-                    <div class="badge badge-success" id="onlineUsersBadge">0 آنلاین</div>
-                </div>
-
-                <div id="onlineUsersList">
-                    <div class="search-empty" id="onlineUsersLoading">د آنلاین کسانو معلومات ترلاسه کېږي...</div>
-                </div>
-            </section>
-
-            <section class="card dashboard-card">
-                <h2 class="dashboard-card-title" id="systemInformationTitle">ℹ️ د سیستم معلومات</h2>
-
-                <div class="dashboard-info-grid" style="margin-top:12px;">
-                    <div class="dashboard-info-item">
-                        <div class="dashboard-info-label" id="systemLabel">سیستم</div>
-                        <strong data-system-name>Hafz Admin Online System</strong>
-                    </div>
-
-                    <div class="dashboard-info-item">
-                        <div class="dashboard-info-label" id="onlineUpdateLabel">د آنلاین کسانو تازه کول</div>
-                        <strong id="automaticLabel">اتومات</strong>
-                    </div>
-
-                    <div class="dashboard-info-item">
-                        <div class="dashboard-info-label" id="dataStatusLabel">د معلوماتو حالت</div>
-                        <strong>Firestore</strong>
-                    </div>
-                </div>
-            </section>
-        </div>
-    </main>
+        <div class="header-title" data-system-name>د افغانستان اسلامي امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس</div>
+    </div><div class="header-actions">
+    <button type="button" id="homeBtn" title="کور" aria-label="کور">🏠</button>
+    <button type="button" id="backBtn" title="شاته" aria-label="شاته">⬅️</button>
+    <button type="button" id="refreshBtn" title="ریفریش" aria-label="ریفریش">🔄</button>
+    <button type="button" id="logoutBtn" title="وتل" aria-label="وتل">🚪</button>
 </div>
 
-<footer class="footer">
-    <span data-system-name>Hafz Admin Online System</span>
-</footer>
+</header><div class="app-layout">
+    <aside class="sidebar">
+        <div class="sidebar-title" id="sidebarTitle">اصلي مینو</div>    <nav class="sidebar-menu">
+        <button type="button" class="active" id="dashboardMenuBtn">📊 Dashboard</button>
+        <button type="button" id="registerMenuBtn">📝 نوی ثبت</button>
+        <button type="button" id="searchMenuBtn">🔍 لټون</button>
+        <button type="button" id="reportsMenuBtn">📄 راپورونه</button>
+        <button type="button" id="adminMenuBtn">👥 Admin</button>
+        <button type="button" id="settingsMenuBtn">⚙️ تنظیمات</button>
+    </nav>
+</aside>
 
-<script type="module">
+<main class="main-content">
+    <div class="page">
+        <section class="page-header">
+            <h1 class="page-title" id="pageTitle">Dashboard</h1>
+            <p class="page-description" id="welcomeText">سیستم ته ښه راغلاست</p>
+        </section>
+
+        <div id="dashboardMessage" class="alert" hidden></div>
+
+        <section class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label" id="totalRecordsLabel">ټول ثبت شوي کسان</div>
+                <div class="stat-value" id="recordsCount">0</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label" id="onlineUsersLabel">اوس آنلاین کسان</div>
+                <div class="stat-value" id="onlineUsersCount">0</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label" id="myEmailLabel">زما ایمیل</div>
+                <div class="dashboard-info-value ltr-text" id="currentUserEmail" style="margin-top:6px;">—</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label" id="myStatusLabel">زما حالت</div>
+                <div class="badge badge-success" id="myStatusBadge" style="margin-top:8px;">🟢 آنلاین</div>
+            </div>
+        </section>
+
+        <section class="card dashboard-card">
+            <div class="dashboard-card-header">
+                <div>
+                    <h2 class="dashboard-card-title" id="onlinePeopleTitle">🟢 آنلاین کسان</h2>
+                    <p class="dashboard-card-description" id="onlinePeopleDescription">ټول هغه کسان چې اوس سیستم ته داخل دي</p>
+                </div>
+
+                <div class="badge badge-success" id="onlineUsersBadge">0 آنلاین</div>
+            </div>
+
+            <div id="onlineUsersList">
+                <div class="search-empty" id="onlineUsersLoading">د آنلاین کسانو معلومات ترلاسه کېږي...</div>
+            </div>
+        </section>
+
+        <section class="card dashboard-card">
+            <h2 class="dashboard-card-title" id="systemInformationTitle">ℹ️ د سیستم معلومات</h2>
+
+            <div class="dashboard-info-grid" style="margin-top:12px;">
+                <div class="dashboard-info-item">
+                    <div class="dashboard-info-label" id="systemLabel">سیستم</div>
+                    <strong data-system-name>د افغانستان اسلامي امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس</strong>
+                </div>
+
+                <div class="dashboard-info-item">
+                    <div class="dashboard-info-label" id="onlineUpdateLabel">د آنلاین کسانو تازه کول</div>
+                    <strong id="automaticLabel">اتومات</strong>
+                </div>
+
+                <div class="dashboard-info-item">
+                    <div class="dashboard-info-label" id="dataStatusLabel">د معلوماتو حالت</div>
+                    <strong>Firestore</strong>
+                </div>
+            </div>
+        </section>
+    </div>
+</main>
+
+</div><footer class="footer">
+    <span data-system-name>د افغانستان اسلامي امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس</span>
+</footer><script type="module">
     import { auth } from "./firebase.js";
     import {
         onAuthStateChanged
@@ -556,7 +544,7 @@
             currentLanguage = "ps";
         }
 
-        document.title = (settings.systemName || "Hafz Admin Online System") + " | " + t("dashboard");
+        document.title = (settings.systemName || "د افغانستان اسلامي امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس") + " | " + t("dashboard");
 
         elements.sidebarTitle.textContent = t("sidebarTitle");
         elements.dashboardMenuBtn.textContent = "📊 " + t("dashboard");
@@ -792,7 +780,5 @@
     }
 
     boot();
-</script>
-
-</body>
+</script></body>
 </html>
