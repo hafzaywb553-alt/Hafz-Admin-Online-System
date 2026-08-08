@@ -13,62 +13,45 @@ import {
     where
 } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
-import {
-    initializeLocationTracking,
-    isLocationTrackingActive,
-    getCurrentLocation
-} from "./location-tracking.js";
-
 
 // ==========================================
 // State
 // ==========================================
 
-let dashboardLocationTrackingInitialized = false;
+let dashboardInitialized = false;
 
 
 // ==========================================
-// Location Tracking Bootstrap
+// Location API Stubs (Disabled)
+// ==========================================
+//
+// Location غوښتنه په بشپړ ډول لرې شوې ده.
+// دا stubs یوازې د backward compatibility لپاره دي
+// څو که بل فایل یې import کوي، system error ورنه کړي.
 // ==========================================
 
 export function initializeDashboardLocationTracking() {
-    if (dashboardLocationTrackingInitialized) {
-        return {
-            success: true,
-            message: "Location tracking already initialized."
-        };
-    }
-
-    dashboardLocationTrackingInitialized = true;
-
-    try {
-        initializeLocationTracking();
-
-        return {
-            success: true,
-            message: "Location tracking initialized."
-        };
-    } catch (error) {
-        console.error("Initialize Dashboard Location Tracking Error:", error);
-
-        dashboardLocationTrackingInitialized = false;
-
-        return {
-            success: false,
-            message: error.message || "Location tracking initialize نه شو."
-        };
-    }
+    return {
+        success: true,
+        enabled: false,
+        message: "Location tracking disabled."
+    };
 }
 
 export function getDashboardLocationState() {
     return {
-        initialized: dashboardLocationTrackingInitialized,
-        active: isLocationTrackingActive()
+        initialized: dashboardInitialized,
+        active: false,
+        enabled: false
     };
 }
 
 export async function requestCurrentLocation() {
-    return getCurrentLocation();
+    return {
+        success: false,
+        enabled: false,
+        message: "Location tracking disabled."
+    };
 }
 
 
@@ -93,7 +76,6 @@ export function getDashboardUser() {
 
 export function getUserEmail() {
     const user = getDashboardUser();
-
     return user ? user.email : "";
 }
 
@@ -105,7 +87,6 @@ export function getUserEmail() {
 export async function getRecordsCount() {
     try {
         const recordsRef = collection(db, "records");
-
         const snapshot = await getCountFromServer(recordsRef);
 
         return {
@@ -130,7 +111,7 @@ export async function getRecordsCount() {
 //
 // د حقیقي آنلاین کسانو سیستم
 // presence.js کې مدیریت کېږي.
-//
+// ==========================================
 
 export async function getOnlineUsersCount() {
     try {
@@ -170,7 +151,23 @@ export async function getDashboardStats() {
     return {
         records: records.success ? records.count : 0,
         onlineUsers: online.success ? online.count : 0,
-        locationTrackingActive: isLocationTrackingActive()
+        locationTrackingActive: false
+    };
+}
+
+
+// ==========================================
+// Initialize Dashboard
+// ==========================================
+//
+// د backward compatibility لپاره یوازې یو flag.
+// ==========================================
+
+export function initializeDashboard() {
+    dashboardInitialized = true;
+    return {
+        success: true,
+        message: "Dashboard initialized."
     };
 }
 
@@ -180,6 +177,7 @@ export async function getDashboardStats() {
 // ==========================================
 
 export default {
+    initializeDashboard,
     initializeDashboardLocationTracking,
     getDashboardLocationState,
     requestCurrentLocation,
