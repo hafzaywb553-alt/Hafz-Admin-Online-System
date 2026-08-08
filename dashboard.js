@@ -21,10 +21,15 @@ import {
 
 
 // ==========================================
-// Location Tracking Bootstrap
+// State
 // ==========================================
 
 let dashboardLocationTrackingInitialized = false;
+
+
+// ==========================================
+// Location Tracking Bootstrap
+// ==========================================
 
 export function initializeDashboardLocationTracking() {
     if (dashboardLocationTrackingInitialized) {
@@ -72,7 +77,6 @@ export async function requestCurrentLocation() {
 // ==========================================
 
 export function getDashboardUser() {
-
     const user = auth.currentUser;
 
     if (!user) {
@@ -88,7 +92,6 @@ export function getDashboardUser() {
 // ==========================================
 
 export function getUserEmail() {
-
     const user = getDashboardUser();
 
     return user ? user.email : "";
@@ -100,26 +103,17 @@ export function getUserEmail() {
 // ==========================================
 
 export async function getRecordsCount() {
-
     try {
+        const recordsRef = collection(db, "records");
 
-        const recordsRef =
-            collection(db, "records");
-
-        const snapshot =
-            await getCountFromServer(recordsRef);
+        const snapshot = await getCountFromServer(recordsRef);
 
         return {
             success: true,
             count: snapshot.data().count
         };
-
     } catch (error) {
-
-        console.error(
-            "Records Count Error:",
-            error
-        );
+        console.error("Records Count Error:", error);
 
         return {
             success: false,
@@ -139,33 +133,22 @@ export async function getRecordsCount() {
 //
 
 export async function getOnlineUsersCount() {
-
     try {
-
-        const presenceRef =
-            collection(db, "presence");
+        const presenceRef = collection(db, "presence");
 
         const onlineQuery = query(
             presenceRef,
             where("online", "==", true)
         );
 
-        const snapshot =
-            await getCountFromServer(
-                onlineQuery
-            );
+        const snapshot = await getCountFromServer(onlineQuery);
 
         return {
             success: true,
             count: snapshot.data().count
         };
-
     } catch (error) {
-
-        console.error(
-            "Online Users Count Error:",
-            error
-        );
+        console.error("Online Users Count Error:", error);
 
         return {
             success: false,
@@ -181,42 +164,28 @@ export async function getOnlineUsersCount() {
 // ==========================================
 
 export async function getDashboardStats() {
-
-    const records =
-        await getRecordsCount();
-
-    const online =
-        await getOnlineUsersCount();
+    const records = await getRecordsCount();
+    const online = await getOnlineUsersCount();
 
     return {
-
-        records: records.success ?
-            records.count :
-            0,
-
-        onlineUsers: online.success ?
-            online.count :
-            0,
-
-        locationTrackingActive:
-            isLocationTrackingActive()
-
+        records: records.success ? records.count : 0,
+        onlineUsers: online.success ? online.count : 0,
+        locationTrackingActive: isLocationTrackingActive()
     };
 }
 
 
 // ==========================================
-// Auto Initialize Location Tracking
-// ==========================================
-//
-// دا یوازې د dashboard.js لپاره دی.
-// که dashboard.html دا module load کړي,
-// location tracking به همغږی پیل شي.
+// Export Default
 // ==========================================
 
-if (
-    typeof window !== "undefined" &&
-    typeof document !== "undefined"
-) {
-    initializeDashboardLocationTracking();
-}
+export default {
+    initializeDashboardLocationTracking,
+    getDashboardLocationState,
+    requestCurrentLocation,
+    getDashboardUser,
+    getUserEmail,
+    getRecordsCount,
+    getOnlineUsersCount,
+    getDashboardStats
+};
