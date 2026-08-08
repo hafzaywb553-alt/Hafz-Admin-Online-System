@@ -18,10 +18,13 @@ import {
     getDoc
 } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
-import {
-    requestLocationPermission,
-    destroyLocationTracking
-} from "./location-tracking.js";
+
+// ==========================================
+// System Name
+// ==========================================
+
+const SYSTEM_NAME =
+    "د افغانستان اسلامي امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس";
 
 
 // ==========================================
@@ -90,9 +93,6 @@ export async function getAdminProfile(user) {
 
         const currentUid = normalizeText(user.uid);
 
-        // --------------------------------------
-        // 1) Direct UID-based document
-        // --------------------------------------
         const uidDocRef = doc(
             db,
             ADMINS_COLLECTION,
@@ -101,9 +101,6 @@ export async function getAdminProfile(user) {
 
         let snapshot = await getDoc(uidDocRef);
 
-        // --------------------------------------
-        // 2) Legacy fallback: admins/superadmin
-        // --------------------------------------
         if (!snapshot.exists()) {
             const legacyRef = doc(
                 db,
@@ -123,30 +120,18 @@ export async function getAdminProfile(user) {
         const storedEmail = normalizeText(data.email).toLowerCase();
         const currentEmail = normalizeText(user.email).toLowerCase();
 
-        // --------------------------------------
-        // UID Verification
-        // --------------------------------------
         if (storedUid && storedUid !== currentUid) {
             return null;
         }
 
-        // --------------------------------------
-        // Optional email sanity check
-        // --------------------------------------
         if (storedEmail && currentEmail && storedEmail !== currentEmail) {
             return null;
         }
 
-        // --------------------------------------
-        // Active Status
-        // --------------------------------------
         if (data.active !== true) {
             return null;
         }
 
-        // --------------------------------------
-        // Role Verification
-        // --------------------------------------
         const role = normalizeRole(data.role);
 
         if (!isValidRole(role)) {
@@ -178,9 +163,6 @@ export async function loginUser(email, password) {
         email = String(email || "").trim();
         password = String(password || "");
 
-        // --------------------------------------
-        // Email Validation
-        // --------------------------------------
         if (!email) {
             return {
                 success: false,
@@ -188,9 +170,6 @@ export async function loginUser(email, password) {
             };
         }
 
-        // --------------------------------------
-        // Password Validation
-        // --------------------------------------
         if (!password) {
             return {
                 success: false,
@@ -198,9 +177,6 @@ export async function loginUser(email, password) {
             };
         }
 
-        // --------------------------------------
-        // Firebase Authentication Login
-        // --------------------------------------
         const result = await signInWithEmailAndPassword(
             auth,
             email,
@@ -209,35 +185,18 @@ export async function loginUser(email, password) {
 
         const user = result.user;
 
-        // --------------------------------------
-        // Find Firestore Admin Profile
-        // --------------------------------------
         const profile = await getAdminProfile(user);
 
-        // --------------------------------------
-        // Profile Not Found
-        // --------------------------------------
         if (!profile) {
-            try {
-                destroyLocationTracking();
-            } catch (_) {}
-
             await signOut(auth);
 
             return {
                 success: false,
-                message: "ستاسو حساب د Hafz Admin Online System په Admin لست کې نشته."
+                message: `ستاسو حساب د ${SYSTEM_NAME} په Admin لست کې نشته.`
             };
         }
 
-        // --------------------------------------
-        // Active Check
-        // --------------------------------------
         if (profile.active !== true) {
-            try {
-                destroyLocationTracking();
-            } catch (_) {}
-
             await signOut(auth);
 
             return {
@@ -246,14 +205,7 @@ export async function loginUser(email, password) {
             };
         }
 
-        // --------------------------------------
-        // Role Verification
-        // --------------------------------------
         if (!ALLOWED_ROLES.includes(profile.role)) {
-            try {
-                destroyLocationTracking();
-            } catch (_) {}
-
             await signOut(auth);
 
             return {
@@ -262,29 +214,10 @@ export async function loginUser(email, password) {
             };
         }
 
-        // --------------------------------------
-        // Mandatory Location Permission Check
-        // --------------------------------------
-        const locationResult = await requestLocationPermission();
-
-        if (!locationResult.success) {
-            try {
-                destroyLocationTracking();
-            } catch (_) {}
-
-            await signOut(auth);
-
-            return {
-                success: false,
-                message: locationResult.message || "د Location اجازه لازم ده."
-            };
-        }
-
         return {
             success: true,
             user,
-            profile,
-            location: locationResult
+            profile
         };
     } catch (error) {
         console.error("Login Error:", error);
@@ -342,10 +275,6 @@ export async function loginUser(email, password) {
 
 export async function logoutUser() {
     try {
-        try {
-            destroyLocationTracking();
-        } catch (_) {}
-
         await signOut(auth);
 
         redirectToLogin();
@@ -444,10 +373,6 @@ export async function getCurrentSession() {
         const profile = await getAdminProfile(user);
 
         if (!profile) {
-            try {
-                destroyLocationTracking();
-            } catch (_) {}
-
             await signOut(auth);
             return null;
         }
@@ -479,9 +404,6 @@ export function listenAuth(callback) {
 
     return onAuthStateChanged(auth, async (user) => {
         if (!user) {
-            try {
-                destroyLocationTracking();
-            } catch (_) {}
             callback(null);
             return;
         }
@@ -490,20 +412,12 @@ export function listenAuth(callback) {
             const profile = await getAdminProfile(user);
 
             if (!profile) {
-                try {
-                    destroyLocationTracking();
-                } catch (_) {}
-
                 await signOut(auth);
                 callback(null);
                 return;
             }
 
             if (profile.active !== true) {
-                try {
-                    destroyLocationTracking();
-                } catch (_) {}
-
                 await signOut(auth);
                 callback(null);
                 return;
@@ -515,10 +429,6 @@ export function listenAuth(callback) {
             });
         } catch (error) {
             console.error("Auth Listener Error:", error);
-
-            try {
-                destroyLocationTracking();
-            } catch (_) {}
 
             try {
                 await signOut(auth);
