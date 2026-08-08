@@ -39,6 +39,7 @@ const LOCATION_COLLECTION = "user_locations";
 let locationWatcherId = null;
 let authUnsubscribe = null;
 let currentUser = null;
+let isInitializing = false;
 
 
 // ==========================================
@@ -112,23 +113,15 @@ async function saveUserLocation(user, position) {
 // Request Location Permission
 // ==========================================
 //
-// Browser خپله د Location اجازه غواړي.
-// د کاروونکي له خوا Allow/Block پرېکړه
-// په Browser کې ترسره کېږي.
+// مهم:
+// - که user موجود وي، Location به Firestore ته هم ثبت شي.
+// - که user موجود نه وي، یوازې Permission prompt به ښکاره شي
+//   (دا د login page لپاره اړین دی).
 // ==========================================
 
-export function requestLocationPermission() {
+export function requestLocationPermission(user = null) {
     return new Promise((resolve) => {
-        const user = getAuthenticatedUser();
-
-        if (!user) {
-            resolve({
-                success: false,
-                permission: "not-authenticated",
-                message: "لومړی سیستم ته Login وکړئ."
-            });
-            return;
-        }
+        const activeUser = user || getAuthenticatedUser();
 
         if (!isGeolocationSupported()) {
             resolve({
@@ -142,15 +135,18 @@ export function requestLocationPermission() {
         navigator.geolocation.getCurrentPosition(
             async (position) => {
                 try {
-                    const result = await saveUserLocation(user, position);
+                    // که کاروونکی login وي، Location هم Firestore ته ثبت کړه
+                    if (activeUser) {
+                        const result = await saveUserLocation(activeUser, position);
 
-                    if (!result.success) {
-                        resolve({
-                            success: false,
-                            permission: "denied",
-                            message: result.message
-                        });
-                        return;
+                        if (!result.success) {
+                            resolve({
+                                success: false,
+                                permission: "denied",
+                                message: result.message
+                            });
+                            return;
+                        }
                     }
 
                     resolve({
@@ -158,7 +154,8 @@ export function requestLocationPermission() {
                         permission: "granted",
                         latitude: position.coords.latitude,
                         longitude: position.coords.longitude,
-                        accuracy: position.coords.accuracy
+                        accuracy: position.coords.accuracy,
+                        saved: Boolean(activeUser)
                     });
                 } catch (error) {
                     console.error("Save Location Error:", error);
@@ -259,7 +256,7 @@ export function startLocationTracking() {
 // ==========================================
 
 export function stopLocationTracking() {
-    if (locationWatcherId !== null) {
+    if (locationWatcherId !== null && navigator?.geolocation?.clearWatch) {
         navigator.geolocation.clearWatch(locationWatcherId);
         locationWatcherId = null;
     }
@@ -269,8 +266,18 @@ export function stopLocationTracking() {
 // ==========================================
 // Initialize Location System
 // ==========================================
+//
+// دا function د login وروسته اتومات watch پیلوي
+// او که کاروونکی مخکې login کړی وي، موقعیت ثبتوي.
+// ==========================================
 
 export function initializeLocationTracking() {
+    if (isInitializing) {
+        return authUnsubscribe;
+    }
+
+    isInitializing = true;
+
     if (authUnsubscribe) {
         authUnsubscribe();
         authUnsubscribe = null;
@@ -284,14 +291,19 @@ export function initializeLocationTracking() {
             return;
         }
 
-        // Browser permission باید کاروونکی خپله Allow کړي.
-        const result = await requestLocationPermission();
+        try {
+            // د login وروسته د current user لپاره location ثبت کړه
+            const result = await requestLocationPermission(user);
 
-        if (result.success) {
-            startLocationTracking();
+            if (result.success) {
+                startLocationTracking();
+            }
+        } catch (error) {
+            console.error("Initialize Location Tracking Error:", error);
         }
     });
 
+    isInitializing = false;
     return authUnsubscribe;
 }
 
@@ -310,7 +322,7 @@ export function isLocationTrackingActive() {
 // ==========================================
 
 export function getCurrentLocation() {
-    return requestLocationPermission();
+    return requestLocationPermission(getAuthenticatedUser());
 }
 
 
