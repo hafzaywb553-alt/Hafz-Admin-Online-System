@@ -7,24 +7,24 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    function adminPath() {
+    function adminDocPath() {
       return /databases/$(database)/documents/admins/$(request.auth.uid);
     }
 
     function currentUserExists() {
-      return signedIn() && exists(adminPath());
+      return signedIn() && exists(adminDocPath());
     }
 
-    function currentUserDoc() {
-      return get(adminPath());
+    function currentUserData() {
+      return get(adminDocPath()).data;
     }
 
     function currentUserActive() {
-      return currentUserExists() && currentUserDoc().data.active == true;
+      return currentUserExists() && currentUserData().active == true;
     }
 
     function currentUserRole() {
-      return currentUserDoc().data.role;
+      return currentUserData().role;
     }
 
     function isSuperAdmin() {
@@ -49,14 +49,15 @@ service cloud.firestore {
       allow create, update, delete: if isSuperAdmin();
     }
 
-    match /settings/{docId} {
+    match /settings/system {
       allow read: if isMember();
       allow write: if isAdmin();
     }
 
     match /presence/{uid} {
       allow read: if isMember();
-      allow create, update, delete: if signedIn() && request.auth.uid == uid;
+      allow create, update: if signedIn() && request.auth.uid == uid;
+      allow delete: if signedIn() && request.auth.uid == uid;
     }
 
     match /records/{recordId} {
