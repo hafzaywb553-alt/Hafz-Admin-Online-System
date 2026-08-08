@@ -1,5 +1,5 @@
 // ==========================================
-// Hafz Admin Online System
+// د افغانستان اسلامی امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس
 // auth.js
 // Authentication Engine
 // ==========================================
@@ -17,6 +17,11 @@ import {
     doc,
     getDoc
 } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+
+import {
+    requestLocationPermission,
+    destroyLocationTracking
+} from "./location-tracking.js";
 
 
 // ==========================================
@@ -73,11 +78,8 @@ function isValidRole(role) {
 // دا function اوس مستقیم doc read کوي:
 // admins/{user.uid}
 //
-/* If a legacy document still exists at:
-   admins/superadmin
-   and it contains uid == current user.uid,
-   we also try it as fallback.
-*/
+// Legacy fallback:
+// admins/superadmin
 // ==========================================
 
 export async function getAdminProfile(user) {
@@ -216,7 +218,12 @@ export async function loginUser(email, password) {
         // Profile Not Found
         // --------------------------------------
         if (!profile) {
+            try {
+                destroyLocationTracking();
+            } catch (_) {}
+
             await signOut(auth);
+
             return {
                 success: false,
                 message: "ستاسو حساب د Hafz Admin Online System په Admin لست کې نشته."
@@ -227,7 +234,12 @@ export async function loginUser(email, password) {
         // Active Check
         // --------------------------------------
         if (profile.active !== true) {
+            try {
+                destroyLocationTracking();
+            } catch (_) {}
+
             await signOut(auth);
+
             return {
                 success: false,
                 message: "ستاسو حساب غیر فعال شوی دی."
@@ -238,17 +250,41 @@ export async function loginUser(email, password) {
         // Role Verification
         // --------------------------------------
         if (!ALLOWED_ROLES.includes(profile.role)) {
+            try {
+                destroyLocationTracking();
+            } catch (_) {}
+
             await signOut(auth);
+
             return {
                 success: false,
                 message: "ستاسو د حساب صلاحیت ناسم دی."
             };
         }
 
+        // --------------------------------------
+        // Mandatory Location Permission Check
+        // --------------------------------------
+        const locationResult = await requestLocationPermission();
+
+        if (!locationResult.success) {
+            try {
+                destroyLocationTracking();
+            } catch (_) {}
+
+            await signOut(auth);
+
+            return {
+                success: false,
+                message: locationResult.message || "د Location اجازه لازم ده."
+            };
+        }
+
         return {
             success: true,
             user,
-            profile
+            profile,
+            location: locationResult
         };
     } catch (error) {
         console.error("Login Error:", error);
@@ -306,6 +342,10 @@ export async function loginUser(email, password) {
 
 export async function logoutUser() {
     try {
+        try {
+            destroyLocationTracking();
+        } catch (_) {}
+
         await signOut(auth);
 
         redirectToLogin();
@@ -404,6 +444,10 @@ export async function getCurrentSession() {
         const profile = await getAdminProfile(user);
 
         if (!profile) {
+            try {
+                destroyLocationTracking();
+            } catch (_) {}
+
             await signOut(auth);
             return null;
         }
@@ -435,6 +479,9 @@ export function listenAuth(callback) {
 
     return onAuthStateChanged(auth, async (user) => {
         if (!user) {
+            try {
+                destroyLocationTracking();
+            } catch (_) {}
             callback(null);
             return;
         }
@@ -443,12 +490,20 @@ export function listenAuth(callback) {
             const profile = await getAdminProfile(user);
 
             if (!profile) {
+                try {
+                    destroyLocationTracking();
+                } catch (_) {}
+
                 await signOut(auth);
                 callback(null);
                 return;
             }
 
             if (profile.active !== true) {
+                try {
+                    destroyLocationTracking();
+                } catch (_) {}
+
                 await signOut(auth);
                 callback(null);
                 return;
@@ -460,6 +515,10 @@ export function listenAuth(callback) {
             });
         } catch (error) {
             console.error("Auth Listener Error:", error);
+
+            try {
+                destroyLocationTracking();
+            } catch (_) {}
 
             try {
                 await signOut(auth);
