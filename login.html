@@ -7,7 +7,7 @@
     <title>د ننوتلو پاڼه - د افغانستان اسلامي امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس</title>
 
     <link rel="stylesheet" href="./style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <style>
         body {
@@ -54,7 +54,7 @@
         .login-title {
             text-align: center;
             font-size: 24px;
-            font-weight: 800;
+            font-weight: 900;
             margin-top: 8px;
             line-height: 1.5;
         }
@@ -117,8 +117,19 @@
         }
 
         .login-button,
-        .forgot-password-button {
+        .forgot-password-button,
+        .location-button {
             width: 100%;
+        }
+
+        .location-button {
+            min-height: 44px;
+            margin-top: 10px;
+            background: transparent;
+            color: #175CD3;
+            font-weight: 800;
+            border-radius: 10px;
+            border: 1px solid rgba(46, 144, 250, 0.28);
         }
 
         .forgot-password-button {
@@ -230,6 +241,10 @@
 
                 <div id="loginMessage" class="form-message" style="display:none;" aria-live="polite"></div>
 
+                <button type="button" class="location-button" id="locationButton">
+                    📍 د Location اجازه ورکړه
+                </button>
+
                 <button type="submit" class="btn btn-primary login-button" id="loginButton">
                     🔐 ننوتل
                 </button>
@@ -240,7 +255,7 @@
             </form>
 
             <div class="location-note" id="locationNote">
-                د ننوتلو پر وخت به براوزر د Location اجازه وغواړي. که <strong>Allow</strong> وټاکل شي، سیستم به له ننوتلو وروسته ستا موقعیت ثبت کړي.
+                د Location اجازه باید د براوزر له لوري ورکړل شي. که <strong>Allow</strong> وټاکل شي، سیستم به ستا موقعیت ثبت کړي.
             </div>
 
             <div class="login-note">
@@ -266,11 +281,14 @@
         const emailInput = document.getElementById("email");
         const passwordInput = document.getElementById("password");
         const loginButton = document.getElementById("loginButton");
+        const locationButton = document.getElementById("locationButton");
         const loginMessage = document.getElementById("loginMessage");
         const forgotPasswordButton = document.getElementById("forgotPasswordButton");
         const profileAvatar = document.getElementById("profileAvatar");
         const imageModal = document.getElementById("imageModal");
         const closeImageModal = document.getElementById("closeImageModal");
+
+        let locationAllowed = false;
 
         function showMessage(message, type = "error") {
             loginMessage.textContent = message;
@@ -286,8 +304,9 @@
 
         function setLoading(isLoading) {
             loginButton.disabled = isLoading;
-            loginButton.textContent = isLoading ? "⏳ د ننوتلو هڅه..." : "🔐 ننوتل";
             forgotPasswordButton.disabled = isLoading;
+            locationButton.disabled = isLoading;
+            loginButton.textContent = isLoading ? "⏳ د ننوتلو هڅه..." : "🔐 ننوتل";
         }
 
         function requestBrowserLocationPermission() {
@@ -302,6 +321,7 @@
 
                 navigator.geolocation.getCurrentPosition(
                     () => {
+                        locationAllowed = true;
                         resolve({
                             success: true
                         });
@@ -339,7 +359,29 @@
 
         listenAuth((session) => {
             if (session) {
-                window.location.href = "./dashboard.html";
+                window.location.replace("./dashboard.html");
+            }
+        });
+
+        locationButton.addEventListener("click", async () => {
+            hideMessage();
+            locationButton.disabled = true;
+            locationButton.textContent = "⏳ Location غوښتل کېږي...";
+
+            try {
+                const result = await requestBrowserLocationPermission();
+
+                if (result.success) {
+                    showMessage("د Location اجازه ومنل شوه.", "success");
+                } else {
+                    showMessage(result.message || "د Location اجازه ترلاسه نه شوه.", "error");
+                }
+            } catch (error) {
+                console.error("Location Request Error:", error);
+                showMessage("د Location غوښتنه ترسره نه شوه.", "error");
+            } finally {
+                locationButton.disabled = false;
+                locationButton.textContent = "📍 د Location اجازه ورکړه";
             }
         });
 
@@ -362,12 +404,11 @@
                 return;
             }
 
-            loginButton.disabled = true;
-            forgotPasswordButton.disabled = true;
+            setLoading(true);
             loginButton.textContent = "⏳ لومړی د Location اجازه...";
 
             try {
-                const locationCheck = await requestBrowserLocationPermission();
+                let locationCheck = locationAllowed ? { success: true } : await requestBrowserLocationPermission();
 
                 if (!locationCheck.success) {
                     showMessage(locationCheck.message || "د Location اجازه اړینه ده.", "error");
@@ -383,13 +424,12 @@
                     return;
                 }
 
-                window.location.href = "./dashboard.html";
+                window.location.replace("./dashboard.html");
             } catch (error) {
                 console.error("Login Page Error:", error);
                 showMessage("د ننوتلو پر مهال ستونزه رامنځته شوه.");
             } finally {
-                loginButton.disabled = false;
-                forgotPasswordButton.disabled = false;
+                setLoading(false);
                 loginButton.textContent = "🔐 ننوتل";
             }
         });
