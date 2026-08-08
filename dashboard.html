@@ -37,7 +37,7 @@
 
         .dashboard-info-grid {
             display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
+            grid-template-columns: repeat(4, minmax(0, 1fr));
             gap: 10px;
         }
 
@@ -134,9 +134,16 @@
             text-align: start;
         }
 
+        .clock-box {
+            direction: ltr;
+            unicode-bidi: plaintext;
+            text-align: start;
+            font-weight: 900;
+        }
+
         @media (max-width: 780px) {
             .dashboard-info-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: 1fr 1fr;
             }
 
             .dashboard-card-header {
@@ -161,6 +168,10 @@
 
             .dashboard-card-header .badge {
                 align-self: flex-start;
+            }
+
+            .dashboard-info-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -259,6 +270,11 @@
                         <div class="dashboard-info-label" id="dataStatusLabel">د معلوماتو حالت</div>
                         <strong>Firestore</strong>
                     </div>
+
+                    <div class="dashboard-info-item">
+                        <div class="dashboard-info-label" id="dateTimeLabel">اوسنی تاریخ او ساعت</div>
+                        <strong class="clock-box" id="currentDateTime">—</strong>
+                    </div>
                 </div>
             </section>
         </div>
@@ -309,6 +325,7 @@
             onlineUpdate: "د آنلاین کسانو تازه کول",
             automatic: "اتومات",
             dataStatus: "د معلوماتو حالت",
+            dateTime: "اوسنی تاریخ او ساعت",
             online: "آنلاین",
             now: "همدا اوس",
             noOtherUsers: "اوس مهال بل آنلاین کاروونکی نشته.",
@@ -343,6 +360,7 @@
             onlineUpdate: "به‌روزرسانی افراد آنلاین",
             automatic: "خودکار",
             dataStatus: "وضعیت معلومات",
+            dateTime: "تاریخ و ساعت فعلی",
             online: "آنلاین",
             now: "همین اکنون",
             noOtherUsers: "در حال حاضر کاربر آنلاین دیگری وجود ندارد.",
@@ -377,6 +395,7 @@
             onlineUpdate: "Online Users Update",
             automatic: "Automatic",
             dataStatus: "Data Status",
+            dateTime: "Current Date & Time",
             online: "Online",
             now: "Just now",
             noOtherUsers: "There are currently no other online users.",
@@ -411,6 +430,7 @@
             onlineUpdate: "آن لائن افراد کی تازہ کاری",
             automatic: "خودکار",
             dataStatus: "معلومات کی حالت",
+            dateTime: "موجودہ تاریخ اور وقت",
             online: "آن لائن",
             now: "ابھی",
             noOtherUsers: "اس وقت کوئی دوسرا صارف آن لائن نہیں ہے۔",
@@ -445,6 +465,7 @@
             onlineUpdate: "تحديث المستخدمين المتصلين",
             automatic: "تلقائي",
             dataStatus: "حالة البيانات",
+            dateTime: "التاريخ والوقت الحالي",
             online: "متصل",
             now: "الآن",
             noOtherUsers: "لا يوجد مستخدم آخر متصل حالياً.",
@@ -486,6 +507,8 @@
         onlineUpdateLabel: document.getElementById("onlineUpdateLabel"),
         automaticLabel: document.getElementById("automaticLabel"),
         dataStatusLabel: document.getElementById("dataStatusLabel"),
+        dateTimeLabel: document.getElementById("dateTimeLabel"),
+        currentDateTime: document.getElementById("currentDateTime"),
         refreshBtn: document.getElementById("refreshBtn"),
         logoutBtn: document.getElementById("logoutBtn"),
         homeBtn: document.getElementById("homeBtn"),
@@ -494,6 +517,7 @@
 
     let currentLanguage = "ps";
     let currentOnlineCount = 0;
+    let clockTimer = null;
 
     function t(key, replacements = {}) {
         const langPack = TRANSLATIONS[currentLanguage] || TRANSLATIONS.ps;
@@ -549,6 +573,42 @@
         elements.onlineUsersBadge.textContent = safeCount + " " + t("online");
     }
 
+    function formatCurrentDateTime() {
+        const settings = getSettings();
+        const locale = getLocaleForLanguage(settings.language || currentLanguage || "ps");
+        const now = new Date();
+
+        const dateText = new Intl.DateTimeFormat(locale, {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit"
+        }).format(now);
+
+        const timeText = new Intl.DateTimeFormat(locale, {
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+            hour12: true
+        }).format(now);
+
+        return `${dateText} | ${timeText}`;
+    }
+
+    function startClock() {
+        if (clockTimer) {
+            clearInterval(clockTimer);
+        }
+
+        const updateClock = () => {
+            if (elements.currentDateTime) {
+                elements.currentDateTime.textContent = formatCurrentDateTime();
+            }
+        };
+
+        updateClock();
+        clockTimer = setInterval(updateClock, 1000);
+    }
+
     function applyStaticText() {
         const settings = getSettings();
         currentLanguage = settings.language || "ps";
@@ -574,6 +634,7 @@
         elements.onlineUpdateLabel.textContent = t("onlineUpdate");
         elements.automaticLabel.textContent = t("automatic");
         elements.dataStatusLabel.textContent = t("dataStatus");
+        elements.dateTimeLabel.textContent = t("dateTime");
         elements.onlineUsersLoading.textContent = t("loadingOnlineUsers");
         elements.myStatusBadge.textContent = "🟢 " + t("online");
 
@@ -587,6 +648,7 @@
         elements.backBtn.setAttribute("aria-label", t("back"));
 
         updateOnlineBadge(currentOnlineCount);
+        startClock();
     }
 
     function renderOnlineUsers(users) {
@@ -784,6 +846,10 @@
 
             window.addEventListener("beforeunload", () => {
                 stopOnlineUsersListener();
+                if (clockTimer) {
+                    clearInterval(clockTimer);
+                    clockTimer = null;
+                }
             });
         } catch (error) {
             console.error("Dashboard Boot Error:", error);
