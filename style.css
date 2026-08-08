@@ -45,12 +45,14 @@
 
     --font-scale: 1;
     --ui-density: comfortable;
+    --app-font-family: "Noto Naskh Arabic", "Segoe UI", Tahoma, Arial, sans-serif;
 }
 
 html {
     scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
+    font-size: calc(16px * var(--font-scale));
 }
 
 html,
@@ -72,7 +74,7 @@ html[data-font-scale="extraLarge"],
 body[data-font-scale="extraLarge"] { --font-scale: 1.15; }
 
 body {
-    font-family: "Noto Naskh Arabic", "Segoe UI", Tahoma, Arial, sans-serif;
+    font-family: var(--app-font-family);
     background:
         radial-gradient(circle at top right, var(--electric-1) 0%, transparent 30%),
         radial-gradient(circle at bottom left, var(--electric-2) 0%, transparent 28%),
@@ -83,6 +85,9 @@ body {
     overflow-x: hidden;
     position: relative;
     font-size: calc(16px * var(--font-scale));
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 /* subtle electric rays / waves */
@@ -117,6 +122,7 @@ body::after {
 *::before,
 *::after {
     box-sizing: border-box;
+    font-family: inherit;
 }
 
 img {
@@ -221,7 +227,7 @@ body[data-density="spacious"] .login-card {
     justify-content: space-between;
     gap: 16px;
     padding: 0 16px;
-    background: rgba(255, 255, 255, 0.88);
+    background: rgba(255, 255, 255, 0.92);
     backdrop-filter: blur(14px);
     border-bottom: 1px solid var(--border-color);
     box-shadow: var(--shadow-sm);
@@ -229,7 +235,7 @@ body[data-density="spacious"] .login-card {
 
 html[data-theme="dark"] .main-header,
 body[data-theme="dark"] .main-header {
-    background: rgba(18, 24, 23, 0.88);
+    background: rgba(18, 24, 23, 0.92);
 }
 
 .header-brand {
@@ -298,7 +304,7 @@ body[data-theme="dark"] .main-header {
     top: var(--header-height);
     height: calc(100vh - var(--header-height));
     padding: 16px;
-    background: rgba(255, 255, 255, 0.70);
+    background: rgba(255, 255, 255, 0.74);
     border-inline-end: 1px solid var(--border-color);
     overflow-y: auto;
     backdrop-filter: blur(12px);
@@ -306,7 +312,7 @@ body[data-theme="dark"] .main-header {
 
 html[data-theme="dark"] .sidebar,
 body[data-theme="dark"] .sidebar {
-    background: rgba(18, 24, 23, 0.72);
+    background: rgba(18, 24, 23, 0.76);
 }
 
 .sidebar-title {
@@ -388,6 +394,7 @@ body[data-theme="dark"] .sidebar {
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-sm);
+    color: var(--text-color);
 }
 
 .card,
@@ -423,6 +430,7 @@ body[data-theme="dark"] .sidebar {
     font-size: 30px;
     font-weight: 900;
     line-height: 1.2;
+    color: var(--text-color);
 }
 
 /* ---------- Forms ---------- */
@@ -461,7 +469,7 @@ select.form-control {
     background: var(--surface-color);
     color: var(--text-color);
     outline: none;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28);
     transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
 }
 
@@ -472,13 +480,14 @@ textarea.form-control {
 
 .form-control::placeholder,
 textarea.form-control::placeholder {
-    color: color-mix(in srgb, var(--muted-color) 88%, transparent);
+    color: var(--muted-color);
+    opacity: 0.82;
 }
 
 .form-control:focus,
 textarea.form-control:focus,
 select.form-control:focus {
-    border-color: rgba(11, 107, 54, 0.55);
+    border-color: rgba(11, 107, 54, 0.65);
     box-shadow: var(--focus-ring);
 }
 
@@ -660,6 +669,7 @@ tbody td {
     vertical-align: top;
     font-size: 14px;
     line-height: 1.7;
+    color: var(--text-color);
 }
 
 tbody tr:hover {
@@ -706,6 +716,8 @@ td {
     font-size: 24px;
     font-weight: 900;
     margin-top: 8px;
+    line-height: 1.5;
+    color: var(--text-color);
 }
 
 .login-subtitle {
@@ -877,9 +889,41 @@ td {
     text-align: start;
 }
 
+.clock-box {
+    direction: ltr;
+    unicode-bidi: plaintext;
+    text-align: start;
+    font-weight: 900;
+}
+
 .center-page {
     max-width: 1300px;
     margin: 0 auto;
+}
+
+/* ---------- System Name / Strong Font ---------- */
+[data-system-name] {
+    font-family: var(--app-font-family);
+    font-weight: 900;
+    letter-spacing: 0;
+    line-height: 1.9;
+}
+
+/* ---------- Better readability everywhere ---------- */
+h1, h2, h3, h4, h5, h6,
+strong, b,
+label, .stat-value, .header-title, .sidebar-title {
+    color: var(--text-color);
+}
+
+p, span, div, li, td, th, input, select, textarea, button {
+    color: inherit;
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: var(--muted-color);
+    opacity: 0.85;
 }
 
 /* ---------- Responsive ---------- */
@@ -990,15 +1034,4 @@ td {
     body {
         background: #FFFFFF;
     }
-}
-
-/* ==========================================
-   Pashto System Name Font
-   ========================================== */
-
-[data-system-name] {
-    font-family: "Noto Naskh Arabic", "Noto Sans Arabic", serif;
-    font-weight: 800;
-    letter-spacing: 0;
-    line-height: 1.9;
 }
