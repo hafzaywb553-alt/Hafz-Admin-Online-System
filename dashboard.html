@@ -170,7 +170,7 @@
 <header class="main-header">
     <div class="header-brand">
         <div class="header-logo">🛡️</div>
-        <div class="header-title" data-system-name>Hafz Admin Online System</div>
+        <div class="header-title" data-system-name>د افغانستان اسلامي امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس</div>
     </div>
 
     <div class="header-actions">
@@ -247,7 +247,7 @@
                 <div class="dashboard-info-grid" style="margin-top:12px;">
                     <div class="dashboard-info-item">
                         <div class="dashboard-info-label" id="systemLabel">سیستم</div>
-                        <strong data-system-name>Hafz Admin Online System</strong>
+                        <strong data-system-name>د افغانستان اسلامي امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس</strong>
                     </div>
 
                     <div class="dashboard-info-item">
@@ -266,14 +266,12 @@
 </div>
 
 <footer class="footer">
-    <span data-system-name>Hafz Admin Online System</span>
+    <span data-system-name>د افغانستان اسلامي امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس</span>
 </footer>
 
 <script type="module">
     import { auth } from "./firebase.js";
-    import {
-        onAuthStateChanged
-    } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
 
     import {
         getCurrentSession,
@@ -281,11 +279,13 @@
     } from "./auth.js";
 
     import { getDashboardStats } from "./dashboard.js";
+
     import {
         initializePresence,
         listenOnlineUsers,
         stopOnlineUsersListener
     } from "./presence.js";
+
     import { initializeSettings, getSettings } from "./settings.js";
 
     const TRANSLATIONS = {
@@ -556,7 +556,7 @@
             currentLanguage = "ps";
         }
 
-        document.title = (settings.systemName || "Hafz Admin Online System") + " | " + t("dashboard");
+        document.title = (settings.systemName || "د افغانستان اسلامي امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس") + " | " + t("dashboard");
 
         elements.sidebarTitle.textContent = t("sidebarTitle");
         elements.dashboardMenuBtn.textContent = "📊 " + t("dashboard");
