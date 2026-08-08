@@ -1,5 +1,5 @@
 // ==========================================
-// Hafz Admin Online System
+// د افغانستان اسلامی امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس
 // dashboard.js
 // Dashboard Engine
 // ==========================================
@@ -12,6 +12,59 @@ import {
     query,
     where
 } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+
+import {
+    initializeLocationTracking,
+    isLocationTrackingActive,
+    getCurrentLocation
+} from "./location-tracking.js";
+
+
+// ==========================================
+// Location Tracking Bootstrap
+// ==========================================
+
+let dashboardLocationTrackingInitialized = false;
+
+export function initializeDashboardLocationTracking() {
+    if (dashboardLocationTrackingInitialized) {
+        return {
+            success: true,
+            message: "Location tracking already initialized."
+        };
+    }
+
+    dashboardLocationTrackingInitialized = true;
+
+    try {
+        initializeLocationTracking();
+
+        return {
+            success: true,
+            message: "Location tracking initialized."
+        };
+    } catch (error) {
+        console.error("Initialize Dashboard Location Tracking Error:", error);
+
+        dashboardLocationTrackingInitialized = false;
+
+        return {
+            success: false,
+            message: error.message || "Location tracking initialize نه شو."
+        };
+    }
+}
+
+export function getDashboardLocationState() {
+    return {
+        initialized: dashboardLocationTrackingInitialized,
+        active: isLocationTrackingActive()
+    };
+}
+
+export async function requestCurrentLocation() {
+    return getCurrentLocation();
+}
 
 
 // ==========================================
@@ -143,7 +196,27 @@ export async function getDashboardStats() {
 
         onlineUsers: online.success ?
             online.count :
-            0
+            0,
+
+        locationTrackingActive:
+            isLocationTrackingActive()
 
     };
+}
+
+
+// ==========================================
+// Auto Initialize Location Tracking
+// ==========================================
+//
+// دا یوازې د dashboard.js لپاره دی.
+// که dashboard.html دا module load کړي,
+// location tracking به همغږی پیل شي.
+// ==========================================
+
+if (
+    typeof window !== "undefined" &&
+    typeof document !== "undefined"
+) {
+    initializeDashboardLocationTracking();
 }
