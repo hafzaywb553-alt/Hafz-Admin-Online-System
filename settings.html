@@ -307,7 +307,7 @@
                 <div>
                     <h1 class="settings-page-title" id="pageTitle">⚙️ د سیستم تنظیمات</h1>
                     <p class="settings-page-description" id="pageDescription">
-                        د سیستم نوم، ژبه، تقویم، بڼه، د لیک اندازه، او عمومي ښکلا تنظیم کړئ. دا بدلونونه د امکان تر حده د ټول سیستم لپاره همغږي ساتل کېږي.
+                        د سیستم نوم، ژبه، تقویم، بڼه، د لیک اندازه، فونټ، او عمومي ښکلا تنظیم کړئ. دا بدلونونه د امکان تر حده د ټول سیستم لپاره همغږي ساتل کېږي.
                     </p>
                 </div>
 
@@ -324,7 +324,7 @@
                 <section class="card">
                     <h2 class="settings-card-title" id="settingsCardTitle">🛠️ د اصلي تنظیماتو فورمه</h2>
                     <p class="settings-card-description" id="settingsCardDescription">
-                        دلته د سیستم نوم، ژبه، تقویم، بڼه، رنګ، د لیک اندازه، او د فاصلې بڼه خوندي کېږي.
+                        دلته د سیستم نوم، ژبه، تقویم، بڼه، رنګ، د لیک اندازه، فونټ او د فاصلې بڼه خوندي کېږي.
                     </p>
 
                     <form id="settingsForm" novalidate>
@@ -402,6 +402,22 @@
                                 </select>
                             </div>
 
+                            <div class="form-group">
+                                <label class="form-label" for="fontFamily" id="fontFamilyLabel">
+                                    فونټ <span class="required">*</span>
+                                </label>
+                                <select id="fontFamily" name="fontFamily" class="form-control" required>
+                                    <option value="naskh">Noto Naskh Arabic</option>
+                                    <option value="arabic">Arabic</option>
+                                    <option value="pashto">Pashto</option>
+                                    <option value="urdu">Urdu</option>
+                                    <option value="sans">System Sans</option>
+                                </select>
+                                <div class="form-help" id="fontFamilyHelp" style="margin-top:6px;">
+                                    د پښتو، عربي او اردو لپاره مناسب فونټ وټاکئ.
+                                </div>
+                            </div>
+
                             <div class="form-group full">
                                 <label class="form-label" for="primaryColor" id="primaryColorLabel">
                                     اصلي رنګ <span class="required">*</span>
@@ -440,7 +456,7 @@
                     </form>
 
                     <div class="settings-note" id="settingsNote" style="margin-top:16px;">
-                        د ژبې بدلون به د دې پاڼې متنونه هم سمدستي بدل کړي. د لیک اندازه او فاصلې حالت به د ممکنه حد پورې د ټول UI لپاره کار وکړي.
+                        د ژبې بدلون به د دې پاڼې متنونه هم سمدستي بدل کړي. د لیک اندازه، فونټ، او فاصلې حالت به د ممکنه حد پورې د ټول UI لپاره کار وکړي.
                     </div>
                 </section>
 
@@ -464,6 +480,7 @@
                             <span class="preview-chip" id="previewCalendarChip">تقویم: هجري شمسي</span>
                             <span class="preview-chip" id="previewFontChip">خط: منځنی</span>
                             <span class="preview-chip" id="previewDensityChip">فاصله: نورمال</span>
+                            <span class="preview-chip" id="previewFontFamilyChip">فونټ: Noto Naskh Arabic</span>
                         </div>
                     </div>
 
@@ -513,6 +530,11 @@
                     </div>
 
                     <div class="current-item">
+                        <div class="current-label" id="currentFontFamilyLabel">فونټ</div>
+                        <strong id="currentFontFamily">—</strong>
+                    </div>
+
+                    <div class="current-item">
                         <div class="current-label" id="currentPrimaryColorLabel">اصلي رنګ</div>
                         <strong class="swatch-value">
                             <span id="currentPrimaryColorSwatch" class="swatch-dot"></span>
@@ -539,6 +561,7 @@
         THEMES,
         FONT_SCALES,
         DENSITIES,
+        FONT_FAMILIES,
         initializeSettings,
         getSettings,
         saveSettings,
@@ -555,17 +578,19 @@
             admin: "اداره",
             settings: "تنظیمات",
             pageTitle: "⚙️ د سیستم تنظیمات",
-            pageDescription: "د سیستم نوم، ژبه، تقویم، بڼه، د لیک اندازه، او عمومي ښکلا تنظیم کړئ. دا بدلونونه د امکان تر حده د ټول سیستم لپاره همغږي ساتل کېږي.",
+            pageDescription: "د سیستم نوم، ژبه، تقویم، بڼه، د لیک اندازه، فونټ، او عمومي ښکلا تنظیم کړئ. دا بدلونونه د امکان تر حده د ټول سیستم لپاره همغږي ساتل کېږي.",
             settingsCardTitle: "🛠️ د اصلي تنظیماتو فورمه",
-            settingsCardDescription: "دلته د سیستم نوم، ژبه، تقویم، بڼه، رنګ، د لیک اندازه، او د فاصلې بڼه خوندي کېږي.",
+            settingsCardDescription: "دلته د سیستم نوم، ژبه، تقویم، بڼه، رنګ، د لیک اندازه، فونټ او د فاصلې بڼه خوندي کېږي.",
             systemNameLabel: "د سیستم نوم",
             languageLabel: "ژبه",
             calendarLabel: "تقویم",
             themeLabel: "د سیستم بڼه",
             fontScaleLabel: "د لیک اندازه",
             densityLabel: "د فاصلې حالت",
+            fontFamilyLabel: "فونټ",
             primaryColorLabel: "اصلي رنګ",
             primaryColorHelp: "د سیستم اصلي رنګ وټاکئ.",
+            fontFamilyHelp: "د پښتو، عربي او اردو لپاره مناسب فونټ وټاکئ.",
             saveBtn: "💾 تنظیمات خوندي کول",
             resetBtn: "🔄 اصلي تنظیمات",
             backBtn: "↩️ شاته",
@@ -582,16 +607,18 @@
             currentThemeLabel: "بڼه",
             currentFontScaleLabel: "د لیک اندازه",
             currentDensityLabel: "د فاصلې حالت",
+            currentFontFamilyLabel: "فونټ",
             currentPrimaryColorLabel: "اصلي رنګ",
             shareNoteTitle: "Share:",
             shareNoteText: "د page لینک یا اوسني تنظیمات له نورو سره شریکولای شې.",
-            settingsNote: "د ژبې بدلون به د دې پاڼې متنونه هم سمدستي بدل کړي. د لیک اندازه او فاصلې حالت به د ممکنه حد پورې د ټول UI لپاره کار وکړي.",
+            settingsNote: "د ژبې بدلون به د دې پاڼې متنونه هم سمدستي بدل کړي. د لیک اندازه، فونټ، او فاصلې حالت به د ممکنه حد پورې د ټول UI لپاره کار وکړي.",
             systemName: "د سیستم نوم",
             language: "ژبه",
             calendar: "تقویم",
             theme: "بڼه",
             fontScale: "خط",
             density: "فاصله",
+            fontFamily: "فونټ",
             welcome: "ښه راغلاست",
             home: "کور",
             back: "شاته",
@@ -607,6 +634,7 @@
             invalidCalendar: "د تقویم انتخاب ناسم دی.",
             invalidTheme: "د سیستم بڼه ناسم انتخاب شوې.",
             invalidColor: "د رنګ بڼه باید داسې وي: #0B6B36",
+            invalidFontFamily: "د فونټ انتخاب ناسم دی.",
             saveFailed: "تنظیمات خوندي نه شوې.",
             resetConfirm: "ایا غواړئ ټول تنظیمات اصلي حالت ته راوګرځوئ؟",
             logoutFailed: "له سیستم څخه وتل ناکام شول."
@@ -620,17 +648,19 @@
             admin: "اداره",
             settings: "تنظیمات",
             pageTitle: "⚙️ تنظیمات سیستم",
-            pageDescription: "نام سیستم، زبان، تقویم، حالت، اندازه متن و زیبایی عمومی را تنظیم کنید. این تغییرات تا حد امکان برای تمام سیستم همگام می‌ماند.",
+            pageDescription: "نام سیستم، زبان، تقویم، حالت، اندازه متن، فونت، و زیبایی عمومی را تنظیم کنید. این تغییرات تا حد امکان برای تمام سیستم همگام می‌ماند.",
             settingsCardTitle: "🛠️ فرم تنظیمات اصلی",
-            settingsCardDescription: "در اینجا نام سیستم، زبان، تقویم، حالت، رنگ، اندازه متن و فاصله‌ها ذخیره می‌شود.",
+            settingsCardDescription: "در اینجا نام سیستم، زبان، تقویم، حالت، رنگ، اندازه متن، فونت و فاصله‌ها ذخیره می‌شود.",
             systemNameLabel: "نام سیستم",
             languageLabel: "زبان",
             calendarLabel: "تقویم",
             themeLabel: "حالت سیستم",
             fontScaleLabel: "اندازه متن",
             densityLabel: "حالت فاصله",
+            fontFamilyLabel: "فونت",
             primaryColorLabel: "رنگ اصلی",
             primaryColorHelp: "رنگ اصلی سیستم را انتخاب کنید.",
+            fontFamilyHelp: "فونت مناسب برای فارسی، عربی و اردو را انتخاب کنید.",
             saveBtn: "💾 ذخیره تنظیمات",
             resetBtn: "🔄 تنظیمات اصلی",
             backBtn: "↩️ بازگشت",
@@ -647,16 +677,18 @@
             currentThemeLabel: "حالت",
             currentFontScaleLabel: "اندازه متن",
             currentDensityLabel: "حالت فاصله",
+            currentFontFamilyLabel: "فونت",
             currentPrimaryColorLabel: "رنگ اصلی",
             shareNoteTitle: "اشتراک:",
             shareNoteText: "می‌توانید لینک صفحه یا تنظیمات فعلی را با دیگران شریک شوید.",
-            settingsNote: "تغییر زبان متن‌های همین صفحه را فوراً عوض می‌کند. اندازه متن و فاصله‌ها تا حد ممکن برای کل UI کار می‌کند.",
+            settingsNote: "تغییر زبان متن‌های همین صفحه را فوراً عوض می‌کند. اندازه متن، فونت، و فاصله‌ها تا حد امکان برای کل UI کار می‌کند.",
             systemName: "نام سیستم",
             language: "زبان",
             calendar: "تقویم",
             theme: "حالت",
             fontScale: "فونت",
             density: "فاصله",
+            fontFamily: "فونت",
             welcome: "خوش آمدید",
             home: "خانه",
             back: "بازگشت",
@@ -672,6 +704,7 @@
             invalidCalendar: "انتخاب تقویم نادرست است.",
             invalidTheme: "حالت سیستم نادرست انتخاب شده است.",
             invalidColor: "فرمت رنگ باید این‌گونه باشد: #0B6B36",
+            invalidFontFamily: "انتخاب فونت نادرست است.",
             saveFailed: "تنظیمات ذخیره نشد.",
             resetConfirm: "آیا می‌خواهید همه تنظیمات به حالت اصلی برگردد؟",
             logoutFailed: "خروج از سیستم ناکام شد."
@@ -685,17 +718,19 @@
             admin: "Administration",
             settings: "Settings",
             pageTitle: "⚙️ System Settings",
-            pageDescription: "Set the system name, language, calendar, appearance, font size, and overall UI comfort. These changes are kept in sync across the system as much as possible.",
+            pageDescription: "Set the system name, language, calendar, appearance, font size, font, and overall UI comfort. These changes are kept in sync across the system as much as possible.",
             settingsCardTitle: "🛠️ Main Settings Form",
-            settingsCardDescription: "Here you can save the system name, language, calendar, theme, color, font size, and spacing mode.",
+            settingsCardDescription: "Here you can save the system name, language, calendar, theme, color, font size, font, and spacing mode.",
             systemNameLabel: "System name",
             languageLabel: "Language",
             calendarLabel: "Calendar",
             themeLabel: "System theme",
             fontScaleLabel: "Font size",
             densityLabel: "Spacing mode",
+            fontFamilyLabel: "Font",
             primaryColorLabel: "Primary color",
             primaryColorHelp: "Choose the main color of the system.",
+            fontFamilyHelp: "Choose a font suitable for Pashto, Arabic, and Urdu.",
             saveBtn: "💾 Save settings",
             resetBtn: "🔄 Default settings",
             backBtn: "↩️ Back",
@@ -712,16 +747,18 @@
             currentThemeLabel: "Theme",
             currentFontScaleLabel: "Font size",
             currentDensityLabel: "Spacing mode",
+            currentFontFamilyLabel: "Font",
             currentPrimaryColorLabel: "Primary color",
             shareNoteTitle: "Share:",
             shareNoteText: "You can share the page link or the current settings with others.",
-            settingsNote: "Changing the language updates this page's text instantly. Font size and spacing mode work as much as possible for the whole UI.",
+            settingsNote: "Changing the language updates this page's text instantly. Font size, font, and spacing mode work as much as possible for the whole UI.",
             systemName: "System name",
             language: "Language",
             calendar: "Calendar",
             theme: "Theme",
             fontScale: "Font",
             density: "Spacing",
+            fontFamily: "Font",
             welcome: "Welcome",
             home: "Home",
             back: "Back",
@@ -737,6 +774,7 @@
             invalidCalendar: "Invalid calendar selected.",
             invalidTheme: "Invalid theme selected.",
             invalidColor: "Color format must look like this: #0B6B36",
+            invalidFontFamily: "Invalid font selected.",
             saveFailed: "Settings could not be saved.",
             resetConfirm: "Do you want to restore all settings to default?",
             logoutFailed: "Logout failed."
@@ -750,17 +788,19 @@
             admin: "انتظامیہ",
             settings: "ترتیبات",
             pageTitle: "⚙️ سسٹم کی ترتیبات",
-            pageDescription: "سسٹم کا نام، زبان، تقویم، ظاہری حالت، فونٹ سائز، اور مجموعی سہولت منتخب کریں۔ یہ تبدیلیاں ممکنہ حد تک پورے سسٹم میں ہم آہنگ رہتی ہیں۔",
+            pageDescription: "سسٹم کا نام، زبان، تقویم، ظاہری حالت، فونٹ سائز، فونٹ، اور مجموعی سہولت منتخب کریں۔ یہ تبدیلیاں ممکنہ حد تک پورے سسٹم میں ہم آہنگ رہتی ہیں۔",
             settingsCardTitle: "🛠️ مرکزی ترتیبات فارم",
-            settingsCardDescription: "یہاں سسٹم نام، زبان، تقویم، تھیم، رنگ، فونٹ سائز، اور اسپیسنگ محفوظ ہوتی ہے۔",
+            settingsCardDescription: "یہاں سسٹم نام، زبان، تقویم، تھیم، رنگ، فونٹ سائز، فونٹ، اور اسپیسنگ محفوظ ہوتی ہے۔",
             systemNameLabel: "سسٹم نام",
             languageLabel: "زبان",
             calendarLabel: "تقویم",
             themeLabel: "سسٹم موڈ",
             fontScaleLabel: "فونٹ سائز",
             densityLabel: "اسپیسنگ موڈ",
+            fontFamilyLabel: "فونٹ",
             primaryColorLabel: "بنیادی رنگ",
             primaryColorHelp: "سسٹم کا بنیادی رنگ منتخب کریں۔",
+            fontFamilyHelp: "پشتو، عربی اور اردو کے لیے مناسب فونٹ منتخب کریں۔",
             saveBtn: "💾 ترتیبات محفوظ کریں",
             resetBtn: "🔄 اصل ترتیبات",
             backBtn: "↩️ واپس",
@@ -777,16 +817,18 @@
             currentThemeLabel: "موڈ",
             currentFontScaleLabel: "فونٹ سائز",
             currentDensityLabel: "اسپیسنگ موڈ",
+            currentFontFamilyLabel: "فونٹ",
             currentPrimaryColorLabel: "بنیادی رنگ",
             shareNoteTitle: "شیئر:",
             shareNoteText: "آپ صفحہ کا لنک یا موجودہ ترتیبات دوسروں کے ساتھ شیئر کر سکتے ہیں۔",
-            settingsNote: "زبان بدلنے سے اس صفحہ کے متن فوراً بدل جاتے ہیں۔ فونٹ سائز اور اسپیسنگ موڈ پورے UI کے لیے ممکنہ حد تک کام کرتے ہیں۔",
+            settingsNote: "زبان بدلنے سے اس صفحہ کے متن فوراً بدل جاتے ہیں۔ فونٹ سائز، فونٹ، اور اسپیسنگ موڈ پورے UI کے لیے ممکنہ حد تک کام کرتے ہیں۔",
             systemName: "سسٹم نام",
             language: "زبان",
             calendar: "تقویم",
             theme: "موڈ",
             fontScale: "خط",
             density: "فاصلہ",
+            fontFamily: "فونٹ",
             welcome: "خوش آمدید",
             home: "ہوم",
             back: "واپس",
@@ -802,6 +844,7 @@
             invalidCalendar: "تقویم کا انتخاب درست نہیں۔",
             invalidTheme: "سسٹم موڈ درست نہیں۔",
             invalidColor: "رنگ کی شکل اس طرح ہونی چاہیے: #0B6B36",
+            invalidFontFamily: "فونٹ کا انتخاب درست نہیں۔",
             saveFailed: "ترتیبات محفوظ نہ ہو سکیں۔",
             resetConfirm: "کیا آپ تمام ترتیبات کو اصل حالت میں لانا چاہتے ہیں؟",
             logoutFailed: "لاگ آؤٹ ناکام ہوگیا۔"
@@ -815,17 +858,19 @@
             admin: "الإدارة",
             settings: "الإعدادات",
             pageTitle: "⚙️ إعدادات النظام",
-            pageDescription: "اضبط اسم النظام، اللغة، التقويم، المظهر، حجم الخط، وراحة الواجهة العامة. يتم إبقاء هذه التغييرات متزامنة عبر النظام قدر الإمكان.",
+            pageDescription: "اضبط اسم النظام، اللغة، التقويم، المظهر، حجم الخط، الخط، وراحة الواجهة العامة. يتم إبقاء هذه التغييرات متزامنة عبر النظام قدر الإمكان.",
             settingsCardTitle: "🛠️ نموذج الإعدادات الرئيسية",
-            settingsCardDescription: "هنا يمكنك حفظ اسم النظام، اللغة، التقويم، المظهر، اللون، حجم الخط، ووضع التباعد.",
+            settingsCardDescription: "هنا يمكنك حفظ اسم النظام، اللغة، التقويم، المظهر، اللون، حجم الخط، الخط، ووضع التباعد.",
             systemNameLabel: "اسم النظام",
             languageLabel: "اللغة",
             calendarLabel: "التقويم",
             themeLabel: "مظهر النظام",
             fontScaleLabel: "حجم الخط",
             densityLabel: "وضع التباعد",
+            fontFamilyLabel: "الخط",
             primaryColorLabel: "اللون الرئيسي",
             primaryColorHelp: "اختر اللون الرئيسي للنظام.",
+            fontFamilyHelp: "اختر خطًا مناسبًا للبشتو والعربية والأردو.",
             saveBtn: "💾 حفظ الإعدادات",
             resetBtn: "🔄 الإعدادات الأصلية",
             backBtn: "↩️ رجوع",
@@ -842,16 +887,18 @@
             currentThemeLabel: "المظهر",
             currentFontScaleLabel: "حجم الخط",
             currentDensityLabel: "وضع التباعد",
+            currentFontFamilyLabel: "الخط",
             currentPrimaryColorLabel: "اللون الرئيسي",
             shareNoteTitle: "مشاركة:",
             shareNoteText: "يمكنك مشاركة رابط الصفحة أو الإعدادات الحالية مع الآخرين.",
-            settingsNote: "تغيير اللغة يحدّث نصوص هذه الصفحة فورًا. يعمل حجم الخط ووضع التباعد على الواجهة العامة قدر الإمكان.",
+            settingsNote: "تغيير اللغة يحدّث نصوص هذه الصفحة فورًا. يعمل حجم الخط والخط ووضع التباعد على الواجهة العامة قدر الإمكان.",
             systemName: "اسم النظام",
             language: "اللغة",
             calendar: "التقويم",
             theme: "المظهر",
             fontScale: "الخط",
             density: "التباعد",
+            fontFamily: "الخط",
             welcome: "مرحباً بك",
             home: "الرئيسية",
             back: "رجوع",
@@ -867,6 +914,7 @@
             invalidCalendar: "اختيار التقويم غير صحيح.",
             invalidTheme: "اختيار المظهر غير صحيح.",
             invalidColor: "يجب أن يكون لونًا بهذا الشكل: #0B6B36",
+            invalidFontFamily: "اختيار الخط غير صحيح.",
             saveFailed: "تعذّر حفظ الإعدادات.",
             resetConfirm: "هل تريد استعادة جميع الإعدادات إلى الوضع الأصلي؟",
             logoutFailed: "فشل تسجيل الخروج."
@@ -885,8 +933,10 @@
         themeLabel: document.getElementById("themeLabel"),
         fontScaleLabel: document.getElementById("fontScaleLabel"),
         densityLabel: document.getElementById("densityLabel"),
+        fontFamilyLabel: document.getElementById("fontFamilyLabel"),
         primaryColorLabel: document.getElementById("primaryColorLabel"),
         primaryColorHelp: document.getElementById("primaryColorHelp"),
+        fontFamilyHelp: document.getElementById("fontFamilyHelp"),
         saveSettingsBtn: document.getElementById("saveSettingsBtn"),
         resetSettingsBtn: document.getElementById("resetSettingsBtn"),
         cancelSettingsBtn: document.getElementById("cancelSettingsBtn"),
@@ -901,6 +951,7 @@
         previewCalendarChip: document.getElementById("previewCalendarChip"),
         previewFontChip: document.getElementById("previewFontChip"),
         previewDensityChip: document.getElementById("previewDensityChip"),
+        previewFontFamilyChip: document.getElementById("previewFontFamilyChip"),
         shareNoteTitle: document.getElementById("shareNoteTitle"),
         shareNoteText: document.getElementById("shareNoteText"),
         currentSettingsTitle: document.getElementById("currentSettingsTitle"),
@@ -911,6 +962,7 @@
         currentThemeLabel: document.getElementById("currentThemeLabel"),
         currentFontScaleLabel: document.getElementById("currentFontScaleLabel"),
         currentDensityLabel: document.getElementById("currentDensityLabel"),
+        currentFontFamilyLabel: document.getElementById("currentFontFamilyLabel"),
         currentPrimaryColorLabel: document.getElementById("currentPrimaryColorLabel"),
         currentSystemName: document.getElementById("currentSystemName"),
         currentLanguage: document.getElementById("currentLanguage"),
@@ -918,6 +970,7 @@
         currentTheme: document.getElementById("currentTheme"),
         currentFontScale: document.getElementById("currentFontScale"),
         currentDensity: document.getElementById("currentDensity"),
+        currentFontFamily: document.getElementById("currentFontFamily"),
         currentPrimaryColor: document.getElementById("currentPrimaryColor"),
         currentPrimaryColorSwatch: document.getElementById("currentPrimaryColorSwatch"),
         settingsNote: document.getElementById("settingsNote"),
@@ -929,6 +982,7 @@
         themeInput: document.getElementById("theme"),
         fontScaleInput: document.getElementById("fontScale"),
         densityInput: document.getElementById("density"),
+        fontFamilyInput: document.getElementById("fontFamily"),
         primaryColorInput: document.getElementById("primaryColor"),
         primaryColorText: document.getElementById("primaryColorText"),
         refreshBtn: document.getElementById("refreshBtn"),
@@ -946,7 +1000,7 @@
     let currentLanguage = "ps";
 
     function t(key) {
-        var pack = I18N[currentLanguage] || I18N.ps;
+        const pack = I18N[currentLanguage] || I18N.ps;
         return pack[key] || I18N.ps[key] || key;
     }
 
@@ -970,6 +1024,10 @@
         return (DENSITIES[code] && DENSITIES[code].name) ? DENSITIES[code].name : code || "—";
     }
 
+    function getFontFamilyName(code) {
+        return (FONT_FAMILIES[code] && FONT_FAMILIES[code].name) ? FONT_FAMILIES[code].name : code || "—";
+    }
+
     function isValidHexColor(value) {
         return /^#[0-9A-Fa-f]{6}$/.test(String(value || "").trim());
     }
@@ -987,14 +1045,14 @@
     }
 
     function setPageDirection(language) {
-        var dir = (LANGUAGES[language] && LANGUAGES[language].direction) ? LANGUAGES[language].direction : "rtl";
+        const dir = (LANGUAGES[language] && LANGUAGES[language].direction) ? LANGUAGES[language].direction : "rtl";
         document.documentElement.lang = language;
         document.documentElement.dir = dir;
         document.body.dir = dir;
     }
 
     function updateCurrentSettings(settings) {
-        var safe = settings || getSettings();
+        const safe = settings || getSettings();
 
         els.currentSystemName.textContent = safe.systemName || "—";
         els.currentLanguage.textContent = getLanguageName(safe.language);
@@ -1002,18 +1060,20 @@
         els.currentTheme.textContent = getThemeName(safe.theme);
         els.currentFontScale.textContent = getFontScaleName(safe.fontScale);
         els.currentDensity.textContent = getDensityName(safe.density);
+        els.currentFontFamily.textContent = getFontFamilyName(safe.fontFamily);
         els.currentPrimaryColor.textContent = safe.primaryColor || "—";
         els.currentPrimaryColorSwatch.style.background = safe.primaryColor || DEFAULT_SETTINGS.primaryColor;
     }
 
     function updatePreview() {
-        var settings = {
+        const settings = {
             systemName: els.systemNameInput.value.trim() || DEFAULT_SETTINGS.systemName,
             language: els.languageInput.value,
             calendar: els.calendarInput.value,
             theme: els.themeInput.value,
             fontScale: els.fontScaleInput.value,
             density: els.densityInput.value,
+            fontFamily: els.fontFamilyInput.value,
             primaryColor: els.primaryColorText.value.trim() || DEFAULT_SETTINGS.primaryColor
         };
 
@@ -1025,16 +1085,20 @@
         els.previewCalendarChip.textContent = t("calendar") + ": " + getCalendarName(settings.calendar);
         els.previewFontChip.textContent = t("fontScale") + ": " + getFontScaleName(settings.fontScale);
         els.previewDensityChip.textContent = t("density") + ": " + getDensityName(settings.density);
+        els.previewFontFamilyChip.textContent = t("fontFamily") + ": " + getFontFamilyName(settings.fontFamily);
 
         document.documentElement.style.setProperty("--primary-color", settings.primaryColor);
         document.documentElement.style.setProperty("--font-scale", FONT_SCALES[settings.fontScale] ? FONT_SCALES[settings.fontScale].value : 1);
+        document.documentElement.style.setProperty("--app-font-family", FONT_FAMILIES[settings.fontFamily] ? FONT_FAMILIES[settings.fontFamily].value : FONT_FAMILIES.naskh.value);
+        document.body.style.fontFamily = FONT_FAMILIES[settings.fontFamily] ? FONT_FAMILIES[settings.fontFamily].value : FONT_FAMILIES.naskh.value;
+
         document.body.dataset.theme = settings.theme;
         document.documentElement.dataset.theme = settings.theme;
         document.body.dataset.density = settings.density;
     }
 
     function applyUiLanguage(language) {
-        var settings = getSettings();
+        const settings = getSettings();
         currentLanguage = I18N[language] ? language : "ps";
 
         setPageDirection(currentLanguage);
@@ -1053,8 +1117,11 @@
         els.themeLabel.innerHTML = t("themeLabel") + ' <span class="required">*</span>';
         els.fontScaleLabel.innerHTML = t("fontScaleLabel") + ' <span class="required">*</span>';
         els.densityLabel.innerHTML = t("densityLabel") + ' <span class="required">*</span>';
+        els.fontFamilyLabel.innerHTML = t("fontFamilyLabel") + ' <span class="required">*</span>';
         els.primaryColorLabel.innerHTML = t("primaryColorLabel") + ' <span class="required">*</span>';
+
         els.primaryColorHelp.textContent = t("primaryColorHelp");
+        els.fontFamilyHelp.textContent = t("fontFamilyHelp");
 
         els.saveSettingsBtn.textContent = t("saveBtn");
         els.resetSettingsBtn.textContent = t("resetBtn");
@@ -1076,6 +1143,7 @@
         els.currentThemeLabel.textContent = t("currentThemeLabel");
         els.currentFontScaleLabel.textContent = t("currentFontScaleLabel");
         els.currentDensityLabel.textContent = t("currentDensityLabel");
+        els.currentFontFamilyLabel.textContent = t("currentFontFamilyLabel");
         els.currentPrimaryColorLabel.textContent = t("currentPrimaryColorLabel");
 
         els.settingsNote.textContent = t("settingsNote");
@@ -1101,7 +1169,7 @@
     }
 
     function fillForm(settings) {
-        var safe = settings || DEFAULT_SETTINGS;
+        const safe = settings || DEFAULT_SETTINGS;
 
         els.systemNameInput.value = safe.systemName || DEFAULT_SETTINGS.systemName;
         els.languageInput.value = safe.language || DEFAULT_SETTINGS.language;
@@ -1109,8 +1177,9 @@
         els.themeInput.value = safe.theme || DEFAULT_SETTINGS.theme;
         els.fontScaleInput.value = safe.fontScale || DEFAULT_SETTINGS.fontScale;
         els.densityInput.value = safe.density || DEFAULT_SETTINGS.density;
+        els.fontFamilyInput.value = safe.fontFamily || DEFAULT_SETTINGS.fontFamily;
 
-        var color = isValidHexColor(safe.primaryColor) ? safe.primaryColor : DEFAULT_SETTINGS.primaryColor;
+        const color = isValidHexColor(safe.primaryColor) ? safe.primaryColor : DEFAULT_SETTINGS.primaryColor;
         els.primaryColorInput.value = color;
         els.primaryColorText.value = color;
 
@@ -1121,7 +1190,7 @@
     }
 
     function copyCurrentLink() {
-        var url = window.location.href;
+        const url = window.location.href;
 
         if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(url).then(function () {
@@ -1136,7 +1205,7 @@
     }
 
     function fallbackCopy(text) {
-        var temp = document.createElement("textarea");
+        const temp = document.createElement("textarea");
         temp.value = text;
         temp.setAttribute("readonly", "true");
         temp.style.position = "fixed";
@@ -1155,19 +1224,20 @@
     }
 
     function shareSettings() {
-        var settings = getSettings();
-        var text =
+        const settings = getSettings();
+        const text =
             settings.systemName + "\n" +
             t("language") + ": " + getLanguageName(settings.language) + "\n" +
             t("calendar") + ": " + getCalendarName(settings.calendar) + "\n" +
             t("theme") + ": " + getThemeName(settings.theme) + "\n" +
             t("fontScale") + ": " + getFontScaleName(settings.fontScale) + "\n" +
             t("density") + ": " + getDensityName(settings.density) + "\n" +
+            t("fontFamily") + ": " + getFontFamilyName(settings.fontFamily) + "\n" +
             window.location.href;
 
-        var payload = {
+        const payload = {
             title: settings.systemName,
-            text: text,
+            text,
             url: window.location.href
         };
 
@@ -1184,7 +1254,7 @@
     }
 
     async function loadAndApplySettings() {
-        var settings = await initializeSettings();
+        const settings = await initializeSettings();
         fillForm(settings);
         updateCurrentSettings(settings);
         updatePreview();
@@ -1199,6 +1269,7 @@
     els.themeInput.addEventListener("change", updatePreview);
     els.fontScaleInput.addEventListener("change", updatePreview);
     els.densityInput.addEventListener("change", updatePreview);
+    els.fontFamilyInput.addEventListener("change", updatePreview);
 
     els.primaryColorInput.addEventListener("input", function () {
         els.primaryColorText.value = els.primaryColorInput.value;
@@ -1206,7 +1277,7 @@
     });
 
     els.primaryColorText.addEventListener("input", function () {
-        var value = els.primaryColorText.value.trim();
+        const value = els.primaryColorText.value.trim();
         if (isValidHexColor(value)) {
             els.primaryColorInput.value = value;
             updatePreview();
@@ -1217,13 +1288,14 @@
         event.preventDefault();
         hideMessage();
 
-        var systemName = els.systemNameInput.value.trim();
-        var language = els.languageInput.value;
-        var calendar = els.calendarInput.value;
-        var theme = els.themeInput.value;
-        var fontScale = els.fontScaleInput.value;
-        var density = els.densityInput.value;
-        var primaryColor = els.primaryColorText.value.trim();
+        const systemName = els.systemNameInput.value.trim();
+        const language = els.languageInput.value;
+        const calendar = els.calendarInput.value;
+        const theme = els.themeInput.value;
+        const fontScale = els.fontScaleInput.value;
+        const density = els.densityInput.value;
+        const fontFamily = els.fontFamilyInput.value;
+        const primaryColor = els.primaryColorText.value.trim();
 
         if (!systemName) {
             showMessage(t("systemNameRequired"), "danger");
@@ -1256,6 +1328,11 @@
             return;
         }
 
+        if (!FONT_FAMILIES[fontFamily]) {
+            showMessage(t("invalidFontFamily"), "danger");
+            return;
+        }
+
         if (!isValidHexColor(primaryColor)) {
             showMessage(t("invalidColor"), "danger");
             els.primaryColorText.focus();
@@ -1267,14 +1344,15 @@
         els.saveSettingsBtn.textContent = "⏳ خوندي کېږي...";
 
         try {
-            var result = await saveSettings({
-                systemName: systemName,
-                language: language,
-                calendar: calendar,
-                theme: theme,
-                fontScale: fontScale,
-                density: density,
-                primaryColor: primaryColor
+            const result = await saveSettings({
+                systemName,
+                language,
+                calendar,
+                theme,
+                fontScale,
+                density,
+                fontFamily,
+                primaryColor
             });
 
             if (!result.success) {
@@ -1300,7 +1378,7 @@
     els.resetSettingsBtn.addEventListener("click", async function () {
         hideMessage();
 
-        var confirmed = window.confirm(t("resetConfirm"));
+        const confirmed = window.confirm(t("resetConfirm"));
         if (!confirmed) {
             return;
         }
@@ -1310,7 +1388,7 @@
         els.resetSettingsBtn.textContent = "⏳ بېرته تنظیمېږي...";
 
         try {
-            var result = await resetSettings();
+            const result = await resetSettings();
 
             if (!result.success) {
                 showMessage(result.message || t("saveFailed"), "danger");
@@ -1352,7 +1430,7 @@
         els.logoutBtn.disabled = true;
 
         try {
-            var result = await logoutUser();
+            const result = await logoutUser();
             if (result.success) {
                 window.location.href = "./index.html";
                 return;
