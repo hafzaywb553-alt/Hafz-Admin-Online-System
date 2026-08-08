@@ -578,7 +578,19 @@
         const locale = getLocaleForLanguage(settings.language || currentLanguage || "ps");
         const now = new Date();
 
-        const dateText = new Intl.DateTimeFormat(locale, {
+        const solar = new Intl.DateTimeFormat("fa-AF-u-ca-persian", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit"
+        }).format(now);
+
+        const lunar = new Intl.DateTimeFormat("ar-AF-u-ca-islamic", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit"
+        }).format(now);
+
+        const gregorian = new Intl.DateTimeFormat("en-GB", {
             year: "numeric",
             month: "2-digit",
             day: "2-digit"
@@ -591,7 +603,7 @@
             hour12: true
         }).format(now);
 
-        return `${dateText} | ${timeText}`;
+        return `هجری شمسی: ${solar} | هجری قمری: ${lunar} | عیسوی میلادی: ${gregorian} | ساعت: ${timeText}`;
     }
 
     function startClock() {
