@@ -29,36 +29,17 @@
         </div>
 
         <div class="header-actions">
-            <button
-                type="button"
-                id="dashboardBtn"
-                title="Dashboard"
-            >🏠</button>
-
-            <button
-                type="button"
-                id="refreshBtn"
-                title="ریفریش"
-            >🔄</button>
-
-            <button
-                type="button"
-                id="logoutBtn"
-                title="وتل"
-            >🚪</button>
+            <button type="button" id="dashboardBtn" title="Dashboard">🏠</button>
+            <button type="button" id="refreshBtn" title="ریفریش">🔄</button>
+            <button type="button" id="logoutBtn" title="وتل">🚪</button>
         </div>
 
     </header>
 
 
-    <!-- ==========================================
-         Application Layout
-         ========================================== -->
     <div class="app-layout">
 
-        <!-- ======================================
-             Sidebar
-             ====================================== -->
+        <!-- Sidebar -->
         <aside class="sidebar">
 
             <div class="sidebar-title">
@@ -67,46 +48,27 @@
 
             <nav class="sidebar-menu">
 
-                <button
-                    type="button"
-                    id="dashboardMenuBtn"
-                >
+                <button type="button" id="dashboardMenuBtn">
                     📊 Dashboard
                 </button>
 
-                <button
-                    type="button"
-                    class="active"
-                    id="registerMenuBtn"
-                >
+                <button type="button" class="active" id="registerMenuBtn">
                     📝 نوی ثبت
                 </button>
 
-                <button
-                    type="button"
-                    id="searchMenuBtn"
-                >
+                <button type="button" id="searchMenuBtn">
                     🔍 لټون
                 </button>
 
-                <button
-                    type="button"
-                    id="reportsMenuBtn"
-                >
+                <button type="button" id="reportsMenuBtn">
                     📄 راپورونه
                 </button>
 
-                <button
-                    type="button"
-                    id="adminMenuBtn"
-                >
+                <button type="button" id="adminMenuBtn">
                     👥 Admin
                 </button>
 
-                <button
-                    type="button"
-                    id="settingsMenuBtn"
-                >
+                <button type="button" id="settingsMenuBtn">
                     ⚙️ تنظیمات
                 </button>
 
@@ -115,9 +77,7 @@
         </aside>
 
 
-        <!-- ======================================
-             Main Content
-             ====================================== -->
+        <!-- Main Content -->
         <main class="main-content">
 
             <div class="page">
@@ -148,7 +108,6 @@
                     novalidate
                 >
 
-                    <!-- Hidden edit state -->
                     <input
                         type="hidden"
                         id="recordId"
@@ -188,8 +147,11 @@
                                     name="formNumber"
                                     type="text"
                                     class="form-control"
-                                    placeholder="د فورمي نمبر ولیکئ"
+                                    placeholder="یوازې ارقام ولیکئ"
                                     maxlength="100"
+                                    inputmode="numeric"
+                                    autocomplete="off"
+                                    dir="ltr"
                                     required
                                 >
 
@@ -252,8 +214,6 @@
 
                     <!-- ==================================
                          Personal Information
-                         اصلي Pashto خانې په خپل ځای
-                         + یوازې څلور نوې English خانې
                          ================================== -->
                     <section class="form-section">
 
@@ -263,7 +223,7 @@
 
                         <div class="form-grid">
 
-                            <!-- اصلي خانه: نوم -->
+                            <!-- نوم -->
                             <div class="form-group">
 
                                 <label
@@ -292,7 +252,7 @@
                             </div>
 
 
-                            <!-- نوې خانه: Name -->
+                            <!-- Name -->
                             <div class="form-group">
 
                                 <label
@@ -321,7 +281,7 @@
                             </div>
 
 
-                            <!-- اصلي خانه: تخلص -->
+                            <!-- تخلص -->
                             <div class="form-group">
 
                                 <label
@@ -348,7 +308,7 @@
                             </div>
 
 
-                            <!-- نوې خانه: Last Name -->
+                            <!-- Last Name -->
                             <div class="form-group">
 
                                 <label
@@ -377,7 +337,7 @@
                             </div>
 
 
-                            <!-- اصلي خانه: د پلار نوم -->
+                            <!-- د پلار نوم -->
                             <div class="form-group">
 
                                 <label
@@ -406,7 +366,7 @@
                             </div>
 
 
-                            <!-- نوې خانه: Father Name -->
+                            <!-- Father Name -->
                             <div class="form-group">
 
                                 <label
@@ -435,7 +395,7 @@
                             </div>
 
 
-                            <!-- اصلي خانه: د نیکه نوم -->
+                            <!-- د نیکه نوم -->
                             <div class="form-group">
 
                                 <label
@@ -464,7 +424,40 @@
                             </div>
 
 
-                            <!-- نوې خانه: Grandfather Name -->
+                            <!-- ==================================
+                                 د تذکرې نمبر
+                                 د نیکه نوم لاندې سمدستي
+                                 ================================== -->
+                            <div class="form-group">
+
+                                <label
+                                    class="form-label"
+                                    for="tazkira"
+                                >
+                                    د تذکرې نمبر
+                                </label>
+
+                                <input
+                                    id="tazkira"
+                                    name="tazkira"
+                                    type="text"
+                                    class="form-control"
+                                    placeholder="0000-0000-00000"
+                                    maxlength="15"
+                                    inputmode="numeric"
+                                    autocomplete="off"
+                                    dir="ltr"
+                                >
+
+                                <div
+                                    class="form-error"
+                                    id="tazkiraError"
+                                ></div>
+
+                            </div>
+
+
+                            <!-- Grandfather Name -->
                             <div class="form-group">
 
                                 <label
@@ -493,7 +486,7 @@
                             </div>
 
 
-                            <!-- اصلي خانه: د زېږون نېټه -->
+                            <!-- د زېږون نېټه -->
                             <div class="form-group">
 
                                 <label
@@ -523,7 +516,7 @@
                             </div>
 
 
-                            <!-- اصلي خانه: عمر -->
+                            <!-- عمر -->
                             <div class="form-group">
 
                                 <label
@@ -554,7 +547,7 @@
                             </div>
 
 
-                            <!-- اصلي خانه: تلیفون -->
+                            <!-- تلیفون -->
                             <div class="form-group">
 
                                 <label
@@ -582,7 +575,6 @@
 
                     <!-- ==================================
                          Tazkira Type
-                         پخوانی ترتیب په بشپړ ډول ساتل شوی
                          ================================== -->
                     <section class="form-section">
 
@@ -646,36 +638,14 @@
                             </div>
 
 
-                            <!-- برقي تذکره -->
+                            <!-- برقي تذکره
+                                 نمبر خانه پورته د شخص معلوماتو کې ده -->
+
                             <div
                                 class="form-group"
                                 id="electronicTazkiraGroup"
+                                style="display:none;"
                             >
-
-                                <label
-                                    class="form-label"
-                                    for="tazkira"
-                                >
-                                    د تذکرې نمبر
-                                </label>
-
-                                <input
-                                    id="tazkira"
-                                    name="tazkira"
-                                    type="text"
-                                    class="form-control"
-                                    placeholder="0000-0000-00000"
-                                    maxlength="15"
-                                    inputmode="numeric"
-                                    autocomplete="off"
-                                    dir="ltr"
-                                >
-
-                                <div
-                                    class="form-error"
-                                    id="tazkiraError"
-                                ></div>
-
                             </div>
 
 
@@ -782,9 +752,7 @@
                     </section>
 
 
-                    <!-- ==================================
-                         Original Location
-                         ================================== -->
+                    <!-- Original Location -->
                     <section class="form-section">
 
                         <div class="form-section-title">
@@ -887,9 +855,7 @@
                     </section>
 
 
-                    <!-- ==================================
-                         Current Location
-                         ================================== -->
+                    <!-- Current Location -->
                     <section class="form-section">
 
                         <div class="form-section-title">
@@ -992,9 +958,7 @@
                     </section>
 
 
-                    <!-- ==================================
-                         Work Information
-                         ================================== -->
+                    <!-- Work Information -->
                     <section class="form-section">
 
                         <div class="form-section-title">
@@ -1094,9 +1058,7 @@
                     </section>
 
 
-                    <!-- ==================================
-                         PDF Information
-                         ================================== -->
+                    <!-- PDF Information -->
                     <section class="form-section">
 
                         <div class="form-section-title">
@@ -1135,9 +1097,7 @@
                     </section>
 
 
-                    <!-- ==================================
-                         Form Actions
-                         ================================== -->
+                    <!-- Form Actions -->
                     <section class="form-section">
 
                         <div class="form-actions">
