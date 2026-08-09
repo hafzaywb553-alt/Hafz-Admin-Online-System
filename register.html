@@ -1,1877 +1,551 @@
-<!DOCTYPE html><html lang="ps" dir="rtl"><head><meta charset="UTF-8">
-
-<meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
->
-
-<title>
-    نوی ثبت - د افغانستان اسلامي امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس
-</title>
-
-<link
-    rel="stylesheet"
-    href="./style.css"
->
-
-</head><body><!-- ==========================================
-     Header
-     ========================================== --><header class="main-header"><div class="header-brand">
-
-    <div class="header-logo">
-        🛡️
-    </div>
-
-    <div>
-
-        <div
-            class="header-title"
-            data-system-name
-        >
-            Hafz Admin Online System
+<!DOCTYPE html>
+<html lang="ps" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        نوی ثبت - د افغانستان اسلامي امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس
+    </title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <!-- ==========================================
+         Header
+         ========================================== -->
+    <header class="main-header">
+        <div class="header-brand">
+            <div class="header-logo">🛡️</div>
+            <div>
+                <div class="header-title" data-system-name>
+                    Hafz Admin Online System
+                </div>
+            </div>
         </div>
 
+        <div class="header-actions">
+            <button type="button" id="dashboardBtn" title="Dashboard">🏠</button>
+            <button type="button" id="refreshBtn" title="ریفریش">🔄</button>
+            <button type="button" id="logoutBtn" title="وتل">🚪</button>
+        </div>
+    </header>
+
+    <!-- ==========================================
+         Application Layout
+         ========================================== -->
+    <div class="app-layout">
+        <!-- ======================================
+             Sidebar
+             ====================================== -->
+        <aside class="sidebar">
+            <div class="sidebar-title">اصلي مینو</div>
+
+            <nav class="sidebar-menu">
+                <button type="button" id="dashboardMenuBtn">📊 Dashboard</button>
+                <button type="button" class="active" id="registerMenuBtn">📝 نوی ثبت</button>
+                <button type="button" id="searchMenuBtn">🔍 لټون</button>
+                <button type="button" id="reportsMenuBtn">📄 راپورونه</button>
+                <button type="button" id="adminMenuBtn">👥 Admin</button>
+                <button type="button" id="settingsMenuBtn">⚙️ تنظیمات</button>
+            </nav>
+        </aside>
+
+        <!-- ======================================
+             Main Content
+             ====================================== -->
+        <main class="main-content">
+            <div class="page">
+                <section class="page-header">
+                    <h1 class="page-title">📝 نوی ثبت</h1>
+                    <p class="page-description">د نوي شخص او فورم معلومات ثبت کړئ.</p>
+                </section>
+
+                <div id="formMessage" class="alert" style="display:none;"></div>
+
+                <form id="registrationForm" class="form" novalidate>
+                    <!-- Hidden edit state -->
+                    <input type="hidden" id="recordId" value="">
+                    <input type="hidden" id="editMode" value="0">
+
+                    <!-- ==================================
+                         Basic Form Information
+                         ================================== -->
+                    <section class="form-section">
+                        <div class="form-section-title">📋 د فورم معلومات</div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label" for="formNumber">
+                                    د کره کمیسیون د فورمي نمبر
+                                    <span class="required">*</span>
+                                </label>
+                                <input
+                                    id="formNumber"
+                                    name="formNumber"
+                                    type="text"
+                                    class="form-control"
+                                    placeholder="د فورمي نمبر ولیکئ"
+                                    maxlength="100"
+                                    required
+                                >
+                                <div class="form-error" id="formNumberError"></div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="category">
+                                    کټګوري
+                                    <span class="required">*</span>
+                                </label>
+                                <select id="category" name="category" class="form-control" required>
+                                    <option value="">کټګوري انتخاب کړئ</option>
+                                    <option value="مجاهد">مجاهد</option>
+                                    <option value="همکار">همکار</option>
+                                    <option value="د شهید د کورنۍ غړی">د شهید د کورنۍ غړی</option>
+                                    <option value="بعدالفتح">بعدالفتح</option>
+                                </select>
+                                <div class="form-error" id="categoryError"></div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- ==================================
+                         Tazkira Type
+                         ================================== -->
+                    <section class="form-section">
+                        <div class="form-section-title">🪪 د تذکرې معلومات</div>
+
+                        <div class="form-grid">
+                            <div class="form-group full">
+                                <label class="form-label">
+                                    د تذکرې ډول
+                                    <span class="required">*</span>
+                                </label>
+
+                                <div style="display:flex;gap:14px;flex-wrap:wrap;">
+                                    <label class="form-control" style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                                        <input type="radio" name="tazkiraType" id="tazkiraTypeElectronic" value="electronic" checked>
+                                        <span>برقي تذکره</span>
+                                    </label>
+
+                                    <label class="form-control" style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                                        <input type="radio" name="tazkiraType" id="tazkiraTypePaper" value="paper">
+                                        <span>کاغذي تذکره</span>
+                                    </label>
+                                </div>
+
+                                <div class="form-help">
+                                    برقي تذکره: 0000-0000-00000
+                                </div>
+                            </div>
+
+                            <div class="form-group" id="electronicTazkiraGroup">
+                                <label class="form-label" for="tazkira">
+                                    د تذکرې نمبر
+                                </label>
+                                <input
+                                    id="tazkira"
+                                    name="tazkira"
+                                    type="text"
+                                    class="form-control"
+                                    placeholder="0000-0000-00000"
+                                    maxlength="15"
+                                    inputmode="numeric"
+                                    autocomplete="off"
+                                    dir="ltr"
+                                >
+                                <div class="form-help">بڼه: 0000-0000-00000</div>
+                                <div class="form-error" id="tazkiraError"></div>
+                            </div>
+
+                            <div class="form-group" id="paperJildGroup" style="display:none;">
+                                <label class="form-label" for="paperTazkiraVolume">
+                                    جلد
+                                    <span class="required">*</span>
+                                </label>
+                                <input
+                                    id="paperTazkiraVolume"
+                                    name="paperTazkiraVolume"
+                                    type="text"
+                                    class="form-control"
+                                    placeholder="جلد"
+                                    inputmode="numeric"
+                                    maxlength="20"
+                                >
+                                <div class="form-error" id="paperTazkiraVolumeError"></div>
+                            </div>
+
+                            <div class="form-group" id="paperSafhaGroup" style="display:none;">
+                                <label class="form-label" for="paperTazkiraPage">
+                                    صفحه
+                                    <span class="required">*</span>
+                                </label>
+                                <input
+                                    id="paperTazkiraPage"
+                                    name="paperTazkiraPage"
+                                    type="text"
+                                    class="form-control"
+                                    placeholder="صفحه"
+                                    inputmode="numeric"
+                                    maxlength="20"
+                                >
+                                <div class="form-error" id="paperTazkiraPageError"></div>
+                            </div>
+
+                            <div class="form-group" id="paperGanaGroup" style="display:none;">
+                                <label class="form-label" for="paperTazkiraNumber">
+                                    ګڼه
+                                    <span class="required">*</span>
+                                </label>
+                                <input
+                                    id="paperTazkiraNumber"
+                                    name="paperTazkiraNumber"
+                                    type="text"
+                                    class="form-control"
+                                    placeholder="ګڼه"
+                                    inputmode="numeric"
+                                    maxlength="20"
+                                >
+                                <div class="form-error" id="paperTazkiraNumberError"></div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- ==================================
+                         Personal Information
+                         ================================== -->
+                    <section class="form-section">
+                        <div class="form-section-title">👤 د شخص معلومات</div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label" for="firstName">
+                                    نوم
+                                    <span class="required">*</span>
+                                </label>
+                                <input
+                                    id="firstName"
+                                    name="firstName"
+                                    type="text"
+                                    class="form-control"
+                                    placeholder="نوم ولیکئ"
+                                    maxlength="100"
+                                    required
+                                >
+                                <div class="form-error" id="firstNameError"></div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="lastName">تخلص</label>
+                                <input
+                                    id="lastName"
+                                    name="lastName"
+                                    type="text"
+                                    class="form-control"
+                                    placeholder="تخلص ولیکئ"
+                                    maxlength="200"
+                                >
+                                <div class="form-error" id="lastNameError"></div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="fatherName">
+                                    د پلار نوم
+                                    <span class="required">*</span>
+                                </label>
+                                <input
+                                    id="fatherName"
+                                    name="fatherName"
+                                    type="text"
+                                    class="form-control"
+                                    placeholder="د پلار نوم ولیکئ"
+                                    maxlength="100"
+                                    required
+                                >
+                                <div class="form-error" id="fatherNameError"></div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="grandfatherName">
+                                    د نیکه نوم
+                                    <span class="required">*</span>
+                                </label>
+                                <input
+                                    id="grandfatherName"
+                                    name="grandfatherName"
+                                    type="text"
+                                    class="form-control"
+                                    placeholder="د نیکه نوم ولیکئ"
+                                    maxlength="100"
+                                    required
+                                >
+                                <div class="form-error" id="grandfatherNameError"></div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="birthDate">د زېږون نېټه</label>
+                                <input
+                                    id="birthDate"
+                                    name="birthDate"
+                                    type="text"
+                                    class="form-control"
+                                    placeholder="0000/00/00"
+                                    maxlength="10"
+                                    inputmode="numeric"
+                                    autocomplete="off"
+                                    dir="ltr"
+                                >
+                                <div class="form-error" id="birthDateError"></div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="age">
+                                    عمر
+                                    <span class="required">*</span>
+                                </label>
+                                <input
+                                    id="age"
+                                    name="age"
+                                    type="number"
+                                    class="form-control"
+                                    placeholder="عمر"
+                                    min="1"
+                                    max="150"
+                                    inputmode="numeric"
+                                    required
+                                >
+                                <div class="form-error" id="ageError"></div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="phone">د تلیفون شمېره</label>
+                                <input
+                                    id="phone"
+                                    name="phone"
+                                    type="tel"
+                                    class="form-control"
+                                    placeholder="د تلیفون شمېره"
+                                    inputmode="tel"
+                                >
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- ==================================
+                         Original Location
+                         ================================== -->
+                    <section class="form-section">
+                        <div class="form-section-title">📍 اصلي ځای</div>
+
+                        <div class="location-box">
+                            <div class="location-title">د اصلي اوسېدنې معلومات</div>
+
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label" for="originalProvince">
+                                        ولایت
+                                        <span class="required">*</span>
+                                    </label>
+                                    <select id="originalProvince" class="form-control" required>
+                                        <option value="">ولایت انتخاب کړئ</option>
+                                    </select>
+                                    <div class="form-error" id="originalProvinceError"></div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label" for="originalDistrict">
+                                        ولسوالۍ
+                                        <span class="required">*</span>
+                                    </label>
+                                    <input
+                                        id="originalDistrict"
+                                        type="text"
+                                        class="form-control"
+                                        placeholder="ولسوالۍ په لاس ولیکئ"
+                                        maxlength="150"
+                                        required
+                                    >
+                                    <div class="form-error" id="originalDistrictError"></div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label" for="originalVillage">
+                                        کلی
+                                        <span class="required">*</span>
+                                    </label>
+                                    <input
+                                        id="originalVillage"
+                                        type="text"
+                                        class="form-control"
+                                        placeholder="کلی په لاس ولیکئ"
+                                        maxlength="150"
+                                        required
+                                    >
+                                    <div class="form-error" id="originalVillageError"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- ==================================
+                         Current Location
+                         ================================== -->
+                    <section class="form-section">
+                        <div class="form-section-title">📍 فعلي ځای</div>
+
+                        <div class="location-box">
+                            <div class="location-title">د اوسني اوسېدنې معلومات</div>
+
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label" for="currentProvince">
+                                        ولایت
+                                        <span class="required">*</span>
+                                    </label>
+                                    <select id="currentProvince" class="form-control" required>
+                                        <option value="">ولایت انتخاب کړئ</option>
+                                    </select>
+                                    <div class="form-error" id="currentProvinceError"></div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label" for="currentDistrict">
+                                        ولسوالۍ
+                                        <span class="required">*</span>
+                                    </label>
+                                    <input
+                                        id="currentDistrict"
+                                        type="text"
+                                        class="form-control"
+                                        placeholder="ولسوالۍ په لاس ولیکئ"
+                                        maxlength="150"
+                                        required
+                                    >
+                                    <div class="form-error" id="currentDistrictError"></div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label" for="currentVillage">
+                                        کلی
+                                        <span class="required">*</span>
+                                    </label>
+                                    <input
+                                        id="currentVillage"
+                                        type="text"
+                                        class="form-control"
+                                        placeholder="کلی په لاس ولیکئ"
+                                        maxlength="150"
+                                        required
+                                    >
+                                    <div class="form-error" id="currentVillageError"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- ==================================
+                         Work Information
+                         ================================== -->
+                    <section class="form-section">
+                        <div class="form-section-title">💼 د کار او اړوند معلومات</div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label" for="currentJob">اوسنی دنده</label>
+                                <input
+                                    id="currentJob"
+                                    name="currentJob"
+                                    type="text"
+                                    class="form-control"
+                                    placeholder="اوسنی دنده ولیکئ"
+                                    maxlength="200"
+                                >
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="groupLeader">
+                                    اړوند دلګی مشر نوم او تخلص
+                                    <span class="required">*</span>
+                                </label>
+                                <input
+                                    id="groupLeader"
+                                    name="groupLeader"
+                                    type="text"
+                                    class="form-control"
+                                    placeholder="نوم او تخلص ولیکئ"
+                                    maxlength="150"
+                                    required
+                                >
+                                <div class="form-error" id="groupLeaderError"></div>
+                            </div>
+
+                            <div class="form-group full" id="jihadiHistoryGroup">
+                                <label class="form-label" for="jihadiHistory">
+                                    جهادي سابقه
+                                    <span class="required" id="jihadiRequired" style="display:none;">*</span>
+                                </label>
+                                <textarea
+                                    id="jihadiHistory"
+                                    name="jihadiHistory"
+                                    class="form-control"
+                                    placeholder="د جهادي سابقې معلومات ولیکئ"
+                                    maxlength="1000"
+                                ></textarea>
+                                <div class="form-help">د «مجاهد» کټګورۍ لپاره اجباري ده.</div>
+                                <div class="form-error" id="jihadiHistoryError"></div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- ==================================
+                         PDF Information
+                         ================================== -->
+                    <section class="form-section">
+                        <div class="form-section-title">📄 د PDF معلومات</div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label" for="pdfCreationDate">
+                                    د PDF د جوړېدو نېټه
+                                    <span class="required">*</span>
+                                </label>
+                                <input
+                                    id="pdfCreationDate"
+                                    name="pdfCreationDate"
+                                    type="date"
+                                    class="form-control"
+                                    required
+                                >
+                                <div class="form-error" id="pdfCreationDateError"></div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- ==================================
+                         Form Actions
+                         ================================== -->
+                    <section class="form-section">
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary" id="saveBtn">
+                                💾 فورمه ثبت کړئ
+                            </button>
+
+                            <button type="reset" class="btn btn-secondary" id="resetBtn">
+                                🧹 پاکول
+                            </button>
+
+                            <button type="button" class="btn btn-secondary" id="backBtn">
+                                ⬅ شاته
+                            </button>
+                        </div>
+                    </section>
+                </form>
+            </div>
+        </main>
     </div>
 
-</div>
-
-
-<div class="header-actions">
-
-    <button
-        type="button"
-        id="dashboardBtn"
-        title="Dashboard"
-    >
-        🏠
-    </button>
-
-    <button
-        type="button"
-        id="refreshBtn"
-        title="ریفریش"
-    >
-        🔄
-    </button>
-
-    <button
-        type="button"
-        id="logoutBtn"
-        title="وتل"
-    >
-        🚪
-    </button>
-
-</div>
-
-</header><!-- ==========================================
-     Application Layout
-     ========================================== --><div class="app-layout"><!-- ======================================
-     Sidebar
-     ====================================== -->
-
-<aside class="sidebar">
-
-    <div class="sidebar-title">
-        اصلي مینو
-    </div>
-
-
-    <nav class="sidebar-menu">
-
-        <button
-            type="button"
-            id="dashboardMenuBtn"
-        >
-            📊 Dashboard
-        </button>
-
-
-        <button
-            type="button"
-            class="active"
-            id="registerMenuBtn"
-        >
-            📝 نوی ثبت
-        </button>
-
-
-        <button
-            type="button"
-            id="searchMenuBtn"
-        >
-            🔍 لټون
-        </button>
-
-
-        <button
-            type="button"
-            id="reportsMenuBtn"
-        >
-            📄 راپورونه
-        </button>
-
-
-        <button
-            type="button"
-            id="adminMenuBtn"
-        >
-            👥 Admin
-        </button>
-
-
-        <button
-            type="button"
-            id="settingsMenuBtn"
-        >
-            ⚙️ تنظیمات
-        </button>
-
-    </nav>
-
-</aside>
-
-
-
-<!-- ======================================
-     Main Content
-     ====================================== -->
-
-<main class="main-content">
-
-    <div class="page">
-
-
-        <!-- ==================================
-             Page Header
-             ================================== -->
-
-        <section class="page-header">
-
-            <h1 class="page-title">
-                📝 نوی ثبت
-            </h1>
-
-            <p class="page-description">
-                د نوي شخص او فورم معلومات ثبت کړئ.
-            </p>
-
-        </section>
-
-
-
-        <!-- ==================================
-             Message
-             ================================== -->
-
-        <div
-            id="formMessage"
-            class="alert"
-            style="display:none;"
-        ></div>
-
-
-
-        <!-- ==================================
-             Registration Form
-             ================================== -->
-
-        <form
-            id="registrationForm"
-            class="form"
-            novalidate
-        >
-
-
-            <!-- ==================================
-                 Basic Form Information
-                 ================================== -->
-
-            <section class="form-section">
-
-                <div class="form-section-title">
-                    📋 د فورم معلومات
-                </div>
-
-
-                <div class="form-grid">
-
-
-                    <!-- Form Number -->
-
-                    <div class="form-group">
-
-                        <label
-                            class="form-label"
-                            for="formNumber"
-                        >
-                            د کره کمیسیون د فورمي نمبر
-                            <span class="required">*</span>
-                        </label>
-
-                        <input
-                            id="formNumber"
-                            name="formNumber"
-                            type="text"
-                            class="form-control"
-                            placeholder="د فورمي نمبر ولیکئ"
-                            maxlength="100"
-                            required
-                        >
-
-                        <div
-                            class="form-error"
-                            id="formNumberError"
-                        ></div>
-
-                    </div>
-
-
-
-                    <!-- Category -->
-
-                    <div class="form-group">
-
-                        <label
-                            class="form-label"
-                            for="category"
-                        >
-                            کټګوري
-                            <span class="required">*</span>
-                        </label>
-
-                        <select
-                            id="category"
-                            name="category"
-                            class="form-control"
-                            required
-                        >
-
-                            <option value="">
-                                کټګوري انتخاب کړئ
-                            </option>
-
-                            <option value="مجاهد">
-                                مجاهد
-                            </option>
-
-                            <option value="همکار">
-                                همکار
-                            </option>
-
-                            <option value="د شهید د کورنۍ غړی">
-                                د شهید د کورنۍ غړی
-                            </option>
-
-                            <option value="بعدالفتح">
-                                بعدالفتح
-                            </option>
-
-                        </select>
-
-                        <div
-                            class="form-error"
-                            id="categoryError"
-                        ></div>
-
-                    </div>
-
-
-                </div>
-
-            </section>
-
-
-
-            <!-- ==================================
-                 Personal Information
-                 ================================== -->
-
-            <section class="form-section">
-
-                <div class="form-section-title">
-                    👤 د شخص معلومات
-                </div>
-
-
-                <div class="form-grid">
-
-
-                    <!-- First Name -->
-
-                    <div class="form-group">
-
-                        <label
-                            class="form-label"
-                            for="firstName"
-                        >
-                            نوم
-                            <span class="required">*</span>
-                        </label>
-
-                        <input
-                            id="firstName"
-                            name="firstName"
-                            type="text"
-                            class="form-control"
-                            placeholder="نوم ولیکئ"
-                            maxlength="100"
-                            required
-                        >
-
-                        <div
-                            class="form-error"
-                            id="firstNameError"
-                        ></div>
-
-                    </div>
-
-
-
-                    <!-- Last Name -->
-
-                    <div class="form-group">
-
-                        <label
-                            class="form-label"
-                            for="lastName"
-                        >
-                            تخلص
-                        </label>
-
-                        <input
-                            id="lastName"
-                            name="lastName"
-                            type="text"
-                            class="form-control"
-                            placeholder="تخلص ولیکئ"
-                            maxlength="200"
-                        >
-
-                        <div
-                            class="form-error"
-                            id="lastNameError"
-                        ></div>
-
-                    </div>
-
-
-
-                    <!-- Father Name -->
-
-                    <div class="form-group">
-
-                        <label
-                            class="form-label"
-                            for="fatherName"
-                        >
-                            د پلار نوم
-                            <span class="required">*</span>
-                        </label>
-
-                        <input
-                            id="fatherName"
-                            name="fatherName"
-                            type="text"
-                            class="form-control"
-                            placeholder="د پلار نوم ولیکئ"
-                            maxlength="100"
-                            required
-                        >
-
-                        <div
-                            class="form-error"
-                            id="fatherNameError"
-                        ></div>
-
-                    </div>
-
-
-
-                    <!-- Grandfather Name -->
-
-                    <div class="form-group">
-
-                        <label
-                            class="form-label"
-                            for="grandfatherName"
-                        >
-                            د نیکه نوم
-                            <span class="required">*</span>
-                        </label>
-
-                        <input
-                            id="grandfatherName"
-                            name="grandfatherName"
-                            type="text"
-                            class="form-control"
-                            placeholder="د نیکه نوم ولیکئ"
-                            maxlength="100"
-                            required
-                        >
-
-                        <div
-                            class="form-error"
-                            id="grandfatherNameError"
-                        ></div>
-
-                    </div>
-
-
-
-                    <!-- Birth Date - Solar Hijri -->
-
-                    <div class="form-group">
-
-                        <label
-                            class="form-label"
-                            for="birthDate"
-                        >
-                            د زېږون نېټه
-                        </label>
-
-                        <input
-                            id="birthDate"
-                            name="birthDate"
-                            type="text"
-                            class="form-control"
-                            placeholder="0000/00/00"
-                            maxlength="10"
-                            inputmode="numeric"
-                            autocomplete="off"
-                            dir="ltr"
-                        >
-
-                        <div
-                            class="form-error"
-                            id="birthDateError"
-                        ></div>
-
-                    </div>
-
-
-
-                    <!-- Age -->
-
-                    <div class="form-group">
-
-                        <label
-                            class="form-label"
-                            for="age"
-                        >
-                            عمر
-                            <span class="required">*</span>
-                        </label>
-
-                        <input
-                            id="age"
-                            name="age"
-                            type="number"
-                            class="form-control"
-                            placeholder="عمر"
-                            min="1"
-                            max="150"
-                            inputmode="numeric"
-                            required
-                        >
-
-                        <div
-                            class="form-error"
-                            id="ageError"
-                        ></div>
-
-                    </div>
-
-
-
-                    <!-- Tazkira -->
-
-                    <div class="form-group">
-
-                        <label
-                            class="form-label"
-                            for="tazkira"
-                        >
-                            د تذکرې نمبر
-                        </label>
-
-                        <input
-                            id="tazkira"
-                            name="tazkira"
-                            type="text"
-                            class="form-control"
-                            placeholder="0000-0000-00000"
-                            maxlength="15"
-                            inputmode="numeric"
-                        >
-
-                        <div class="form-help">
-                            بڼه: 0000-0000-00000
-                        </div>
-
-                        <div
-                            class="form-error"
-                            id="tazkiraError"
-                        ></div>
-
-                    </div>
-
-
-
-                    <!-- Phone -->
-
-                    <div class="form-group">
-
-                        <label
-                            class="form-label"
-                            for="phone"
-                        >
-                            د تلیفون شمېره
-                        </label>
-
-                        <input
-                            id="phone"
-                            name="phone"
-                            type="tel"
-                            class="form-control"
-                            placeholder="د تلیفون شمېره"
-                            inputmode="tel"
-                        >
-
-                    </div>
-
-
-                </div>
-
-            </section>
-
-
-
-            <!-- ==================================
-                 Original Location
-                 ================================== -->
-
-            <section class="form-section">
-
-                <div class="form-section-title">
-                    📍 اصلي ځای
-                </div>
-
-
-                <div class="location-box">
-
-                    <div class="location-title">
-                        د اصلي اوسېدنې معلومات
-                    </div>
-
-
-                    <div class="form-grid">
-
-
-                        <!-- Province -->
-
-                        <div class="form-group">
-
-                            <label
-                                class="form-label"
-                                for="originalProvince"
-                            >
-                                ولایت
-                                <span class="required">*</span>
-                            </label>
-
-                            <select
-                                id="originalProvince"
-                                class="form-control"
-                                required
-                            >
-
-                                <option value="">
-                                    ولایت انتخاب کړئ
-                                </option>
-
-                            </select>
-
-                        </div>
-
-
-
-                        <!-- District -->
-
-                        <div class="form-group">
-
-                            <label
-                                class="form-label"
-                                for="originalDistrict"
-                            >
-                                ولسوالۍ
-                                <span class="required">*</span>
-                            </label>
-
-                            <input
-                                id="originalDistrict"
-                                type="text"
-                                class="form-control"
-                                placeholder="ولسوالۍ په لاس ولیکئ"
-                                maxlength="150"
-                                required
-                            >
-
-                        </div>
-
-
-
-                        <!-- Village -->
-
-                        <div class="form-group">
-
-                            <label
-                                class="form-label"
-                                for="originalVillage"
-                            >
-                                کلی
-                                <span class="required">*</span>
-                            </label>
-
-                            <input
-                                id="originalVillage"
-                                type="text"
-                                class="form-control"
-                                placeholder="کلی په لاس ولیکئ"
-                                maxlength="150"
-                                required
-                            >
-
-                        </div>
-
-
-                    </div>
-
-                </div>
-
-            </section>
-
-
-
-            <!-- ==================================
-                 Current Location
-                 ================================== -->
-
-            <section class="form-section">
-
-                <div class="form-section-title">
-                    📍 فعلي ځای
-                </div>
-
-
-                <div class="location-box">
-
-                    <div class="location-title">
-                        د اوسني اوسېدنې معلومات
-                    </div>
-
-
-                    <div class="form-grid">
-
-
-                        <!-- Province -->
-
-                        <div class="form-group">
-
-                            <label
-                                class="form-label"
-                                for="currentProvince"
-                            >
-                                ولایت
-                                <span class="required">*</span>
-                            </label>
-
-                            <select
-                                id="currentProvince"
-                                class="form-control"
-                                required
-                            >
-
-                                <option value="">
-                                    ولایت انتخاب کړئ
-                                </option>
-
-                            </select>
-
-                        </div>
-
-
-
-                        <!-- District -->
-
-                        <div class="form-group">
-
-                            <label
-                                class="form-label"
-                                for="currentDistrict"
-                            >
-                                ولسوالۍ
-                                <span class="required">*</span>
-                            </label>
-
-                            <input
-                                id="currentDistrict"
-                                type="text"
-                                class="form-control"
-                                placeholder="ولسوالۍ په لاس ولیکئ"
-                                maxlength="150"
-                                required
-                            >
-
-                        </div>
-
-
-
-                        <!-- Village -->
-
-                        <div class="form-group">
-
-                            <label
-                                class="form-label"
-                                for="currentVillage"
-                            >
-                                کلی
-                                <span class="required">*</span>
-                            </label>
-
-                            <input
-                                id="currentVillage"
-                                type="text"
-                                class="form-control"
-                                placeholder="کلی په لاس ولیکئ"
-                                maxlength="150"
-                                required
-                            >
-
-                        </div>
-
-
-                    </div>
-
-                </div>
-
-            </section>
-
-
-
-            <!-- ==================================
-                 Work Information
-                 ================================== -->
-
-            <section class="form-section">
-
-                <div class="form-section-title">
-                    💼 د کار او اړوند معلومات
-                </div>
-
-
-                <div class="form-grid">
-
-
-                    <!-- Current Job -->
-
-                    <div class="form-group">
-
-                        <label
-                            class="form-label"
-                            for="currentJob"
-                        >
-                            اوسنی دنده
-                        </label>
-
-                        <input
-                            id="currentJob"
-                            name="currentJob"
-                            type="text"
-                            class="form-control"
-                            placeholder="اوسنی دنده ولیکئ"
-                            maxlength="200"
-                        >
-
-                    </div>
-
-
-
-                    <!-- Group Leader -->
-
-                    <div class="form-group">
-
-                        <label
-                            class="form-label"
-                            for="groupLeader"
-                        >
-                            اړوند دلګی مشر نوم او تخلص
-                            <span class="required">*</span>
-                        </label>
-
-                        <input
-                            id="groupLeader"
-                            name="groupLeader"
-                            type="text"
-                            class="form-control"
-                            placeholder="نوم او تخلص ولیکئ"
-                            maxlength="150"
-                            required
-                        >
-
-                        <div
-                            class="form-error"
-                            id="groupLeaderError"
-                        ></div>
-
-                    </div>
-
-
-
-                    <!-- Jihadi History -->
-
-                    <div
-                        class="form-group full"
-                        id="jihadiHistoryGroup"
-                    >
-
-                        <label
-                            class="form-label"
-                            for="jihadiHistory"
-                        >
-                            جهادي سابقه
-                            <span
-                                class="required"
-                                id="jihadiRequired"
-                                style="display:none;"
-                            >
-                                *
-                            </span>
-                        </label>
-
-                        <textarea
-                            id="jihadiHistory"
-                            name="jihadiHistory"
-                            class="form-control"
-                            placeholder="د جهادي سابقې معلومات ولیکئ"
-                            maxlength="1000"
-                        ></textarea>
-
-                        <div class="form-help">
-                            د «مجاهد» کټګورۍ لپاره اجباري ده.
-                        </div>
-
-                    </div>
-
-
-                </div>
-
-            </section>
-
-
-
-            <!-- ==================================
-                 PDF Information
-                 ================================== -->
-
-            <section class="form-section">
-
-                <div class="form-section-title">
-                    📄 د PDF معلومات
-                </div>
-
-
-                <div class="form-grid">
-
-
-                    <div class="form-group">
-
-                        <label
-                            class="form-label"
-                            for="pdfCreationDate"
-                        >
-                            د PDF د جوړېدو نېټه
-                            <span class="required">*</span>
-                        </label>
-
-                        <input
-                            id="pdfCreationDate"
-                            name="pdfCreationDate"
-                            type="date"
-                            class="form-control"
-                            required
-                        >
-
-                        <div
-                            class="form-error"
-                            id="pdfCreationDateError"
-                        ></div>
-
-                    </div>
-
-
-                </div>
-
-            </section>
-
-
-
-            <!-- ==================================
-                 Form Actions
-                 ================================== -->
-
-            <section class="form-section">
-
-                <div class="form-actions">
-
-                    <button
-                        type="submit"
-                        class="btn btn-primary"
-                        id="saveBtn"
-                    >
-                        💾 فورمه ثبت کړئ
-                    </button>
-
-
-                    <button
-                        type="reset"
-                        class="btn btn-secondary"
-                        id="resetBtn"
-                    >
-                        🧹 پاکول
-                    </button>
-
-
-                    <button
-                        type="button"
-                        class="btn btn-secondary"
-                        id="backBtn"
-                    >
-                        ⬅ شاته
-                    </button>
-
-                </div>
-
-            </section>
-
-
-        </form>
-
-    </div>
-
-</main>
-
-</div><!-- ==========================================
-     Footer
-     ========================================== --><footer class="footer">Hafz Admin Online System
-
-</footer><!-- ==========================================
-     Registration JavaScript
-     ========================================== --><script type="module">
-
-    import {
-        registerPerson
-    } from "./register.js";
-
-
-    import {
-        listenAuth,
-        logoutUser
-    } from "./auth.js";
-
-
-    import {
-        getProvinces
-    } from "./locations.js";
-
-
-    import {
-        initializeSettings
-    } from "./settings.js";
-
-
-    // ==========================================
-    // Elements
-    // ==========================================
-
-    const form =
-        document.getElementById(
-            "registrationForm"
-        );
-
-
-    const saveBtn =
-        document.getElementById(
-            "saveBtn"
-        );
-
-
-    const category =
-        document.getElementById(
-            "category"
-        );
-
-
-    const jihadiHistory =
-        document.getElementById(
-            "jihadiHistory"
-        );
-
-
-    const jihadiRequired =
-        document.getElementById(
-            "jihadiRequired"
-        );
-
-
-    const originalProvince =
-        document.getElementById(
-            "originalProvince"
-        );
-
-
-    const currentProvince =
-        document.getElementById(
-            "currentProvince"
-        );
-
-
-    const formMessage =
-        document.getElementById(
-            "formMessage"
-        );
-
-
-    // ==========================================
-    // Show Message
-    // ==========================================
-
-    function showMessage(
-        message,
-        type = "success"
-    ) {
-
-        formMessage.textContent =
-            message;
-
-        formMessage.className =
-            "alert alert-" + type;
-
-        formMessage.style.display =
-            "block";
-
-
-        window.scrollTo({
-            top: 0,
-            behavior: "smooth"
-        });
-
-    }
-
-
-    // ==========================================
-    // Hide Message
-    // ==========================================
-
-    function hideMessage() {
-
-        formMessage.style.display =
-            "none";
-
-        formMessage.textContent =
-            "";
-
-    }
-
-
-    // ==========================================
-    // Load Provinces
-    // ==========================================
-
-    function loadProvinces() {
-
-        const provinces =
-            getProvinces();
-
-
-        provinces.forEach(
-            province => {
-
-                const option =
-                    document.createElement(
-                        "option"
-                    );
-
-                option.value =
-                    province;
-
-                option.textContent =
-                    province;
-
-
-                originalProvince.appendChild(
-                    option
-                );
-
-
-                currentProvince.appendChild(
-                    option.cloneNode(true)
-                );
-
-            }
-        );
-
-    }
-
-
-    // ==========================================
-    // Jihadi History Control
-    // ==========================================
-
-    function updateJihadiHistory() {
-
-        const isMujahid =
-            category.value === "مجاهد";
-
-
-        jihadiHistory.required =
-            isMujahid;
-
-
-        jihadiRequired.style.display =
-            isMujahid
-                ? "inline"
-                : "none";
-
-
-        if (!isMujahid) {
-
-            jihadiHistory.value =
-                "";
-
-        }
-
-    }
-
-
-    category.addEventListener(
-        "change",
-        updateJihadiHistory
-    );
-
-
-    // ==========================================
-    // Birth Date - Solar Hijri Formatting
-    // ==========================================
-
-    const birthDate =
-        document.getElementById(
-            "birthDate"
-        );
-
-
-    birthDate.addEventListener(
-        "input",
-        () => {
-
-            let value =
-                birthDate.value.replace(
-                    /[^0-9]/g,
-                    ""
-                );
-
-
-            if (value.length > 8) {
-
-                value =
-                    value.substring(
-                        0,
-                        8
-                    );
-
-            }
-
-
-            if (value.length > 6) {
-
-                value =
-                    value.substring(0, 4) +
-                    "/" +
-                    value.substring(4, 6) +
-                    "/" +
-                    value.substring(6);
-
-            }
-
-            else if (value.length > 4) {
-
-                value =
-                    value.substring(0, 4) +
-                    "/" +
-                    value.substring(4);
-
-            }
-
-
-            birthDate.value =
-                value;
-
-        }
-    );
-
-
-    // ==========================================
-    // Tazkira Formatting
-    // ==========================================
-
-    const tazkira =
-        document.getElementById(
-            "tazkira"
-        );
-
-
-    tazkira.addEventListener(
-        "input",
-        () => {
-
-            let value =
-                tazkira.value.replace(
-                    /[^0-9]/g,
-                    ""
-                );
-
-
-            if (value.length > 13) {
-
-                value =
-                    value.substring(
-                        0,
-                        13
-                    );
-
-            }
-
-
-            if (value.length > 8) {
-
-                value =
-                    value.substring(0, 4) +
-                    "-" +
-                    value.substring(4, 8) +
-                    "-" +
-                    value.substring(8);
-
-            }
-
-            else if (value.length > 4) {
-
-                value =
-                    value.substring(0, 4) +
-                    "-" +
-                    value.substring(4);
-
-            }
-
-
-            tazkira.value =
-                value;
-
-        }
-    );
-
-
-    // ==========================================
-    // Clear Errors
-    // ==========================================
-
-    function clearErrors() {
-
-        document
-            .querySelectorAll(
-                ".form-error"
-            )
-            .forEach(
-                element => {
-
-                    element.textContent =
-                        "";
-
-                }
-            );
-
-
-        document
-            .querySelectorAll(
-                ".form-control"
-            )
-            .forEach(
-                element => {
-
-                    element.classList.remove(
-                        "error"
-                    );
-
-                }
-            );
-
-    }
-
-
-    // ==========================================
-    // Display Errors
-    // ==========================================
-
-    function displayErrors(
-        errors
-    ) {
-
-        if (
-            !Array.isArray(errors) ||
-            errors.length === 0
-        ) {
-
-            return;
-
-        }
-
-
-        showMessage(
-            errors.join(" "),
-            "danger"
-        );
-
-    }
-
-
-    // ==========================================
-    // Collect Form Data
-    // ==========================================
-
-    function collectFormData() {
-
-        return {
-
-            formNumber:
-                document
-                    .getElementById(
-                        "formNumber"
-                    )
-                    .value,
-
-            category:
-                category.value,
-
-            firstName:
-                document
-                    .getElementById(
-                        "firstName"
-                    )
-                    .value,
-
-            lastName:
-                document
-                    .getElementById(
-                        "lastName"
-                    )
-                    .value,
-
-            fatherName:
-                document
-                    .getElementById(
-                        "fatherName"
-                    )
-                    .value,
-
-            grandfatherName:
-                document
-                    .getElementById(
-                        "grandfatherName"
-                    )
-                    .value,
-
-            birthDate:
-                birthDate.value,
-
-            age:
-                document
-                    .getElementById(
-                        "age"
-                    )
-                    .value,
-
-            tazkira:
-                tazkira.value,
-
-            phone:
-                document
-                    .getElementById(
-                        "phone"
-                    )
-                    .value,
-
-            originalLocation: {
-
-                province:
-                    originalProvince.value,
-
-                district:
-                    document
-                        .getElementById(
-                            "originalDistrict"
-                        )
-                        .value,
-
-                village:
-                    document
-                        .getElementById(
-                            "originalVillage"
-                        )
-                        .value
-
-            },
-
-            currentLocation: {
-
-                province:
-                    currentProvince.value,
-
-                district:
-                    document
-                        .getElementById(
-                            "currentDistrict"
-                        )
-                        .value,
-
-                village:
-                    document
-                        .getElementById(
-                            "currentVillage"
-                        )
-                        .value
-
-            },
-
-            currentJob:
-                document
-                    .getElementById(
-                        "currentJob"
-                    )
-                    .value,
-
-            groupLeader:
-                document
-                    .getElementById(
-                        "groupLeader"
-                    )
-                    .value,
-
-            jihadiHistory:
-                jihadiHistory.value,
-
-            pdfCreationDate:
-                document
-                    .getElementById(
-                        "pdfCreationDate"
-                    )
-                    .value
-
-        };
-
-    }
-
-
-    // ==========================================
-    // Submit Registration
-    // ==========================================
-
-    form.addEventListener(
-        "submit",
-        async event => {
-
-            event.preventDefault();
-
-            hideMessage();
-
-            clearErrors();
-
-
-            saveBtn.disabled =
-                true;
-
-            saveBtn.textContent =
-                "⏳ ثبتېږي...";
-
-
-            try {
-
-                const data =
-                    collectFormData();
-
-
-                const result =
-                    await registerPerson(
-                        data
-                    );
-
-
-                if (!result.success) {
-
-                    displayErrors(
-                        result.errors
-                    );
-
-
-                    if (
-                        !result.errors ||
-                        result.errors.length === 0
-                    ) {
-
-                        showMessage(
-                            result.message ||
-                            "فورمه ثبت نه شوه.",
-                            "danger"
-                        );
-
-                    }
-
-
-                    return;
-
-                }
-
-
-                showMessage(
-                    result.message ||
-                    "فورمه په بریالیتوب ثبت شوه.",
-                    "success"
-                );
-
-
-                form.reset();
-
-
-                updateJihadiHistory();
-
-
-                window.scrollTo({
-                    top: 0,
-                    behavior: "smooth"
-                });
-
-
-            } catch (error) {
-
-                console.error(
-                    "Register Page Error:",
-                    error
-                );
-
-
-                showMessage(
-                    "د فورم د ثبت پر مهال ستونزه رامنځته شوه.",
-                    "danger"
-                );
-
-
-            } finally {
-
-                saveBtn.disabled =
-                    false;
-
-                saveBtn.textContent =
-                    "💾 فورمه ثبت کړئ";
-
-            }
-
-        }
-    );
-
-
-    // ==========================================
-    // Reset
-    // ==========================================
-
-    document
-        .getElementById(
-            "resetBtn"
-        )
-        .addEventListener(
-            "click",
-            () => {
-
-                clearErrors();
-
-                hideMessage();
-
-                setTimeout(
-                    updateJihadiHistory,
-                    0
-                );
-
-            }
-        );
-
-
-    // ==========================================
-    // Navigation
-    // ==========================================
-
-    document
-        .getElementById(
-            "dashboardBtn"
-        )
-        .addEventListener(
-            "click",
-            () => {
-
-                window.location.href =
-                    "./dashboard.html";
-
-            }
-        );
-
-
-    document
-        .getElementById(
-            "dashboardMenuBtn"
-        )
-        .addEventListener(
-            "click",
-            () => {
-
-                window.location.href =
-                    "./dashboard.html";
-
-            }
-        );
-
-
-    document
-        .getElementById(
-            "registerMenuBtn"
-        )
-        .addEventListener(
-            "click",
-            () => {
-
-                window.location.href =
-                    "./register.html";
-
-            }
-        );
-
-
-    document
-        .getElementById(
-            "searchMenuBtn"
-        )
-        .addEventListener(
-            "click",
-            () => {
-
-                window.location.href =
-                    "./search.html";
-
-            }
-        );
-
-
-    document
-        .getElementById(
-            "reportsMenuBtn"
-        )
-        .addEventListener(
-            "click",
-            () => {
-
-                window.location.href =
-                    "./reports.html";
-
-            }
-        );
-
-
-    document
-        .getElementById(
-            "adminMenuBtn"
-        )
-        .addEventListener(
-            "click",
-            () => {
-
-                window.location.href =
-                    "./admin.html";
-
-            }
-        );
-
-
-    document
-        .getElementById(
-            "settingsMenuBtn"
-        )
-        .addEventListener(
-            "click",
-            () => {
-
-                window.location.href =
-                    "./settings.html";
-
-            }
-        );
-
-
-    document
-        .getElementById(
-            "backBtn"
-        )
-        .addEventListener(
-            "click",
-            () => {
-
-                window.history.back();
-
-            }
-        );
-
-
-    document
-        .getElementById(
-            "refreshBtn"
-        )
-        .addEventListener(
-            "click",
-            () => {
-
-                window.location.reload();
-
-            }
-        );
-
-
-    // ==========================================
-    // Logout
-    // ==========================================
-
-    document
-        .getElementById(
-            "logoutBtn"
-        )
-        .addEventListener(
-            "click",
-            async () => {
-
-                const button =
-                    document.getElementById(
-                        "logoutBtn"
-                    );
-
-
-                button.disabled =
-                    true;
-
-
-                const result =
-                    await logoutUser();
-
-
-                if (result.success) {
-
-                    window.location.href =
-                        "./index.html";
-
-                    return;
-
-                }
-
-
-                button.disabled =
-                    false;
-
-
-                showMessage(
-                    result.message ||
-                    "له سیستم څخه وتل ناکام شول.",
-                    "danger"
-                );
-
-            }
-        );
-
-
-    // ==========================================
-    // Authentication
-    // ==========================================
-
-    listenAuth(
-        async session => {
-
-            if (!session) {
-
-                window.location.href =
-                    "./index.html";
-
-                return;
-
-            }
-
-
-            await initializeSettings();
-
-        }
-    );
-
-
-    // ==========================================
-    // Initial Setup
-    // ==========================================
-
-    loadProvinces();
-
-    updateJihadiHistory();
-
-
-    // ==========================================
-    // Set PDF Creation Date
-    // ==========================================
-
-    const pdfDate =
-        document.getElementById(
-            "pdfCreationDate"
-        );
-
-
-    if (!pdfDate.value) {
-
-        const today =
-            new Date();
-
-
-        const year =
-            today.getFullYear();
-
-
-        const month =
-            String(
-                today.getMonth() + 1
-            ).padStart(
-                2,
-                "0"
-            );
-
-
-        const day =
-            String(
-                today.getDate()
-            ).padStart(
-                2,
-                "0"
-            );
-
-
-        pdfDate.value =
-            `${year}-${month}-${day}`;
-
-    }
-
-</script></body></html>
+    <footer class="footer">
+        Hafz Admin Online System
+    </footer>
+
+    <script type="module" src="./register.js"></script>
+</body>
+</html>
