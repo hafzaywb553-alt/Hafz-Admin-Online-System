@@ -4,15 +4,21 @@
 // Firebase Configuration
 // ==========================================
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+import {
+    initializeApp
+} from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
 
 import {
-  getAuth
+    getAuth
 } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
 
 import {
-  getFirestore
+    getFirestore
 } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+
+import {
+    getStorage
+} from "https://www.gstatic.com/firebasejs/12.17.1/firebase-storage.js";
 
 
 // ==========================================
@@ -20,12 +26,12 @@ import {
 // ==========================================
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDI-AvCYCYb9tN8zQq3RFMjOnQXYWUN5UQ",
-  authDomain: "hafz-admin-online-system.firebaseapp.com",
-  projectId: "hafz-admin-online-system",
-  storageBucket: "hafz-admin-online-system.firebasestorage.app",
-  messagingSenderId: "941143292545",
-  appId: "1:941143292545:web:66bdbfe5879d6803b9eb80"
+    apiKey: "AIzaSyDI-AvCYCYb9tN8zQq3RFMjOnQXYWUN5UQ",
+    authDomain: "hafz-admin-online-system.firebaseapp.com",
+    projectId: "hafz-admin-online-system",
+    storageBucket: "hafz-admin-online-system.firebasestorage.app",
+    messagingSenderId: "941143292545",
+    appId: "1:941143292545:web:66bdbfe5879d6803b9eb80"
 };
 
 
@@ -37,12 +43,24 @@ const app = initializeApp(firebaseConfig);
 
 
 // ==========================================
-// Firebase Services
+// Firebase Authentication
 // ==========================================
 
 const auth = getAuth(app);
 
+
+// ==========================================
+// Firebase Firestore
+// ==========================================
+
 const db = getFirestore(app);
+
+
+// ==========================================
+// Firebase Storage
+// ==========================================
+
+const storage = getStorage(app);
 
 
 // ==========================================
@@ -50,7 +68,8 @@ const db = getFirestore(app);
 // ==========================================
 
 export {
-  app,
-  auth,
-  db
+    app,
+    auth,
+    db,
+    storage
 };
