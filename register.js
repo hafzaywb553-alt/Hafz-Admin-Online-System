@@ -9,6 +9,9 @@ import { db, auth } from "./firebase.js";
 import {
     collection,
     addDoc,
+    doc,
+    getDoc,
+    updateDoc,
     serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
@@ -17,13 +20,23 @@ import {
 } from "./validation.js";
 
 import {
-    createLocation
+    createLocation,
+    getProvinces
 } from "./locations.js";
 
 import {
     writeAudit,
     AUDIT_ACTIONS
 } from "./audit.js";
+
+import {
+    listenAuth,
+    logoutUser
+} from "./auth.js";
+
+import {
+    initializeSettings
+} from "./settings.js";
 
 
 // ==========================================
@@ -34,548 +47,657 @@ const RECORDS_COLLECTION = "records";
 
 
 // ==========================================
-// Generate Internal ID
+// Tazkira Constants
 // ==========================================
 
-function generateInternalId() {
+const TAZKIRA_TYPES = {
+    ELECTRONIC: "electronic",
+    PAPER: "paper"
+};
 
-    const time = Date.now();
-
-    const random =
-        Math.floor(
-            100000 +
-            Math.random() * 900000
-        );
-
-    return `REC-${time}-${random}`;
-}
+const ELECTRONIC_TAZKIRA_PATTERN = /^[0-9]{4}-[0-9]{4}-[0-9]{5}$/;
+const NUMERIC_ONLY_PATTERN = /^[0-9]+$/;
 
 
 // ==========================================
-// Clean Text
+// Elements
+// ==========================================
+
+const form = document.getElementById("registrationForm");
+const formMessage = document.getElementById("formMessage");
+const saveBtn = document.getElementById("saveBtn");
+const resetBtn = document.getElementById("resetBtn");
+const backBtn = document.getElementById("backBtn");
+const dashboardBtn = document.getElementById("dashboardBtn");
+const refreshBtn = document.getElementById("refreshBtn");
+const logoutBtn = document.getElementById("logoutBtn");
+
+const formNumber = document.getElementById("formNumber");
+const category = document.getElementById("category");
+const firstName = document.getElementById("firstName");
+const lastName = document.getElementById("lastName");
+const fatherName = document.getElementById("fatherName");
+const grandfatherName = document.getElementById("grandfatherName");
+const birthDate = document.getElementById("birthDate");
+const age = document.getElementById("age");
+const phone = document.getElementById("phone");
+const currentJob = document.getElementById("currentJob");
+const groupLeader = document.getElementById("groupLeader");
+const jihadiHistory = document.getElementById("jihadiHistory");
+const jihadiRequired = document.getElementById("jihadiRequired");
+const pdfCreationDate = document.getElementById("pdfCreationDate");
+
+const originalProvince = document.getElementById("originalProvince");
+const originalDistrict = document.getElementById("originalDistrict");
+const originalVillage = document.getElementById("originalVillage");
+const currentProvince = document.getElementById("currentProvince");
+const currentDistrict = document.getElementById("currentDistrict");
+const currentVillage = document.getElementById("currentVillage");
+
+const tazkiraTypeElectronic = document.getElementById("tazkiraTypeElectronic");
+const tazkiraTypePaper = document.getElementById("tazkiraTypePaper");
+const electronicTazkiraGroup = document.getElementById("electronicTazkiraGroup");
+const paperJildGroup = document.getElementById("paperJildGroup");
+const paperSafhaGroup = document.getElementById("paperSafhaGroup");
+const paperGanaGroup = document.getElementById("paperGanaGroup");
+
+const tazkira = document.getElementById("tazkira");
+const paperTazkiraVolume = document.getElementById("paperTazkiraVolume");
+const paperTazkiraPage = document.getElementById("paperTazkiraPage");
+const paperTazkiraNumber = document.getElementById("paperTazkiraNumber");
+
+const recordIdInput = document.getElementById("recordId");
+const editModeInput = document.getElementById("editMode");
+
+
+// ==========================================
+// State
+// ==========================================
+
+let loadingRecord = false;
+
+
+// ==========================================
+// Helpers
 // ==========================================
 
 function cleanText(value) {
-
-    if (
-        value === null ||
-        value === undefined
-    ) {
+    if (value === null || value === undefined) {
         return "";
     }
-
     return String(value).trim();
 }
 
-
-// ==========================================
-// Prepare Location
-// ==========================================
-
-function prepareLocation(
-    province,
-    district,
-    village
-) {
-
-    return createLocation(
-        cleanText(province),
-        cleanText(district),
-        cleanText(village)
-    );
+function showMessage(message, type = "success") {
+    formMessage.textContent = message;
+    formMessage.className = "alert alert-" + type;
+    formMessage.style.display = "block";
+    window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
+function hideMessage() {
+    formMessage.style.display = "none";
+    formMessage.textContent = "";
+}
 
-// ==========================================
-// Create Registration Data
-// ==========================================
+function clearErrors() {
+    document.querySelectorAll(".form-error").forEach(el => {
+        el.textContent = "";
+    });
 
-export function prepareRegistrationData(data = {}) {
+    document.querySelectorAll(".form-control").forEach(el => {
+        el.classList.remove("error");
+    });
+}
 
-    const registration = {
+function setFieldError(fieldId, message) {
+    const errorBox = document.getElementById(`${fieldId}Error`);
+    const field = document.getElementById(fieldId);
 
-        formNumber:
-            cleanText(data.formNumber),
+    if (errorBox) {
+        errorBox.textContent = message || "";
+    }
 
-        category:
-            cleanText(data.category),
+    if (field && message) {
+        field.classList.add("error");
+    }
+}
 
-        firstName:
-            cleanText(data.firstName),
+function loadProvinces() {
+    const provinces = getProvinces();
 
-        lastName:
-            cleanText(data.lastName),
+    provinces.forEach(province => {
+        const option1 = document.createElement("option");
+        option1.value = province;
+        option1.textContent = province;
 
-        fatherName:
-            cleanText(data.fatherName),
+        const option2 = document.createElement("option");
+        option2.value = province;
+        option2.textContent = province;
 
-        grandfatherName:
-            cleanText(data.grandfatherName),
+        originalProvince.appendChild(option1);
+        currentProvince.appendChild(option2);
+    });
+}
 
-        birthDate:
-            cleanText(data.birthDate),
+function updateJihadiHistory() {
+    const isMujahid = category.value === "مجاهد";
+    jihadiHistory.required = isMujahid;
+    jihadiRequired.style.display = isMujahid ? "inline" : "none";
 
-        age:
-            cleanText(data.age),
+    if (!isMujahid) {
+        jihadiHistory.value = "";
+    }
+}
+
+function setTazkiraMode(mode) {
+    const isPaper = mode === TAZKIRA_TYPES.PAPER;
+    const isElectronic = !isPaper;
+
+    tazkiraTypeElectronic.checked = isElectronic;
+    tazkiraTypePaper.checked = isPaper;
+
+    electronicTazkiraGroup.style.display = isElectronic ? "block" : "none";
+    paperJildGroup.style.display = isPaper ? "block" : "none";
+    paperSafhaGroup.style.display = isPaper ? "block" : "none";
+    paperGanaGroup.style.display = isPaper ? "block" : "none";
+
+    tazkira.required = isElectronic;
+    paperTazkiraVolume.required = isPaper;
+    paperTazkiraPage.required = isPaper;
+    paperTazkiraNumber.required = isPaper;
+
+    if (isElectronic) {
+        paperTazkiraVolume.value = "";
+        paperTazkiraPage.value = "";
+        paperTazkiraNumber.value = "";
+    } else {
+        tazkira.value = "";
+    }
+}
+
+function getSelectedTazkiraType() {
+    return tazkiraTypePaper.checked ? TAZKIRA_TYPES.PAPER : TAZKIRA_TYPES.ELECTRONIC;
+}
+
+function formatElectronicTazkiraInput(input) {
+    let value = cleanText(input).replace(/[^0-9]/g, "");
+
+    if (value.length > 13) {
+        value = value.substring(0, 13);
+    }
+
+    if (value.length > 8) {
+        value =
+            value.substring(0, 4) +
+            "-" +
+            value.substring(4, 8) +
+            "-" +
+            value.substring(8);
+    } else if (value.length > 4) {
+        value =
+            value.substring(0, 4) +
+            "-" +
+            value.substring(4);
+    }
+
+    return value;
+}
+
+function collectFormData() {
+    const tazkiraType = getSelectedTazkiraType();
+
+    return {
+        formNumber: cleanText(formNumber.value),
+        category: cleanText(category.value),
+        firstName: cleanText(firstName.value),
+        lastName: cleanText(lastName.value),
+        fatherName: cleanText(fatherName.value),
+        grandfatherName: cleanText(grandfatherName.value),
+        birthDate: cleanText(birthDate.value),
+        age: cleanText(age.value),
+        phone: cleanText(phone.value),
+
+        tazkiraType,
 
         tazkira:
-            cleanText(data.tazkira),
+            tazkiraType === TAZKIRA_TYPES.ELECTRONIC
+                ? cleanText(tazkira.value)
+                : "",
 
-        phone:
-            cleanText(data.phone),
+        electronicTazkiraNumber:
+            tazkiraType === TAZKIRA_TYPES.ELECTRONIC
+                ? cleanText(tazkira.value)
+                : "",
+
+        paperTazkiraVolume:
+            tazkiraType === TAZKIRA_TYPES.PAPER
+                ? cleanText(paperTazkiraVolume.value)
+                : "",
+
+        paperTazkiraPage:
+            tazkiraType === TAZKIRA_TYPES.PAPER
+                ? cleanText(paperTazkiraPage.value)
+                : "",
+
+        paperTazkiraNumber:
+            tazkiraType === TAZKIRA_TYPES.PAPER
+                ? cleanText(paperTazkiraNumber.value)
+                : "",
 
         originalLocation: {
-
-            province:
-                cleanText(
-                    data.originalLocation?.province
-                ),
-
-            district:
-                cleanText(
-                    data.originalLocation?.district
-                ),
-
-            village:
-                cleanText(
-                    data.originalLocation?.village
-                )
+            province: cleanText(originalProvince.value),
+            district: cleanText(originalDistrict.value),
+            village: cleanText(originalVillage.value)
         },
 
         currentLocation: {
-
-            province:
-                cleanText(
-                    data.currentLocation?.province
-                ),
-
-            district:
-                cleanText(
-                    data.currentLocation?.district
-                ),
-
-            village:
-                cleanText(
-                    data.currentLocation?.village
-                )
+            province: cleanText(currentProvince.value),
+            district: cleanText(currentDistrict.value),
+            village: cleanText(currentVillage.value)
         },
 
-        currentJob:
-            cleanText(data.currentJob),
+        currentJob: cleanText(currentJob.value),
+        groupLeader: cleanText(groupLeader.value),
+        jihadiHistory: cleanText(jihadiHistory.value),
+        pdfCreationDate: cleanText(pdfCreationDate.value),
 
-        groupLeader:
-            cleanText(data.groupLeader),
-
-        jihadiHistory:
-            cleanText(data.jihadiHistory),
-
-        pdfCreationDate:
-            cleanText(data.pdfCreationDate)
-
-    };
-
-    return registration;
-}
-
-
-// ==========================================
-// Validate Locations
-// ==========================================
-
-function validateLocations(data) {
-
-    const errors = [];
-
-
-    const original =
-        prepareLocation(
-            data.originalLocation.province,
-            data.originalLocation.district,
-            data.originalLocation.village
-        );
-
-
-    if (!original.success) {
-
-        errors.push(
-            ...original.errors.map(
-                error =>
-                    `د اصلي ځای: ${error}`
-            )
-        );
-    }
-
-
-    const current =
-        prepareLocation(
-            data.currentLocation.province,
-            data.currentLocation.district,
-            data.currentLocation.village
-        );
-
-
-    if (!current.success) {
-
-        errors.push(
-            ...current.errors.map(
-                error =>
-                    `د فعلي ځای: ${error}`
-            )
-        );
-    }
-
-
-    return {
-        valid: errors.length === 0,
-        errors
+        fieldState: {},
+        visibilityState: {}
     };
 }
 
-
-// ==========================================
-// Validate Registration
-// ==========================================
-
-export function validateRegistrationData(data) {
-
-    const registration =
-        prepareRegistrationData(data);
-
-
-    const errors = [];
-
-
-    // --------------------------------------
-    // Main validation
-    // --------------------------------------
-
-    const result =
-        validateRegistration(
-            registration
-        );
-
-
-    if (!result.valid) {
-
-        errors.push(
-            ...result.errors
-        );
+function extractValidationErrors(result) {
+    if (!result) {
+        return ["د فورم معلومات سم نه دي."];
     }
 
-
-    // --------------------------------------
-    // Location validation
-    // --------------------------------------
-
-    const locations =
-        validateLocations(
-            registration
-        );
-
-
-    if (!locations.valid) {
-
-        errors.push(
-            ...locations.errors
-        );
+    if (Array.isArray(result.errors) && result.errors.length > 0) {
+        return result.errors;
     }
 
-
-    // --------------------------------------
-    // PDF creation date
-    // --------------------------------------
-
-    if (!registration.pdfCreationDate) {
-
-        errors.push(
-            "د PDF د جوړېدو نېټه اجباري ده."
-        );
+    if (result.message) {
+        return [result.message];
     }
 
-
-    return {
-
-        valid:
-            errors.length === 0,
-
-        errors:
-
-            [...new Set(errors)]
-
-    };
+    return ["د فورم معلومات سم نه دي."];
 }
 
+function mapValidationToFields(errors = []) {
+    const text = errors.join(" ");
 
-// ==========================================
-// Register Person
-// ==========================================
+    if (text.includes("فورمي نمبر")) setFieldError("formNumber", text);
+    if (text.includes("نوم")) setFieldError("firstName", text);
+    if (text.includes("تخلص")) setFieldError("lastName", text);
+    if (text.includes("پلار")) setFieldError("fatherName", text);
+    if (text.includes("نیکه")) setFieldError("grandfatherName", text);
+    if (text.includes("عمر")) setFieldError("age", text);
+    if (text.includes("تذکرې")) setFieldError("tazkira", text);
+    if (text.includes("جلد")) setFieldError("paperTazkiraVolume", text);
+    if (text.includes("صفحه")) setFieldError("paperTazkiraPage", text);
+    if (text.includes("ګڼه")) setFieldError("paperTazkiraNumber", text);
+    if (text.includes("PDF")) setFieldError("pdfCreationDate", text);
+    if (text.includes("اصلي ځای")) setFieldError("originalDistrict", text);
+    if (text.includes("فعلي ځای")) setFieldError("currentDistrict", text);
+    if (text.includes("دلګی")) setFieldError("groupLeader", text);
+}
 
-export async function registerPerson(data = {}) {
+function populateFormFromRecord(record) {
+    if (!record) return;
+
+    formNumber.value = cleanText(record.formNumber);
+    category.value = cleanText(record.category);
+
+    const person = record.person || {};
+    firstName.value = cleanText(person.firstName);
+    lastName.value = cleanText(person.lastName);
+    fatherName.value = cleanText(person.fatherName);
+    grandfatherName.value = cleanText(person.grandfatherName);
+    birthDate.value = cleanText(person.birthDate);
+    age.value = cleanText(person.age);
+    phone.value = cleanText(person.phone);
+
+    const original = record.originalLocation || {};
+    originalProvince.value = cleanText(original.province);
+    originalDistrict.value = cleanText(original.district);
+    originalVillage.value = cleanText(original.village);
+
+    const current = record.currentLocation || {};
+    currentProvince.value = cleanText(current.province);
+    currentDistrict.value = cleanText(current.district);
+    currentVillage.value = cleanText(current.village);
+
+    currentJob.value = cleanText(record.currentJob);
+    groupLeader.value = cleanText(record.groupLeader);
+    jihadiHistory.value = cleanText(record.jihadiHistory);
+    pdfCreationDate.value = cleanText(record.pdfCreationDate);
+
+    const tType = cleanText(record.tazkiraType || person.tazkiraType || record.tazkiraDetails?.type);
+
+    if (tType === TAZKIRA_TYPES.PAPER) {
+        setTazkiraMode(TAZKIRA_TYPES.PAPER);
+        paperTazkiraVolume.value = cleanText(record.tazkiraDetails?.paper?.volume);
+        paperTazkiraPage.value = cleanText(record.tazkiraDetails?.paper?.page);
+        paperTazkiraNumber.value = cleanText(record.tazkiraDetails?.paper?.number);
+    } else {
+        setTazkiraMode(TAZKIRA_TYPES.ELECTRONIC);
+        const electronicNumber = cleanText(
+            record.tazkiraSearchKey ||
+            record.tazkiraDisplay ||
+            person.tazkira ||
+            record.tazkiraDetails?.electronicNumber
+        );
+        tazkira.value = formatElectronicTazkiraInput(electronicNumber);
+    }
+
+    updateJihadiHistory();
+}
+
+async function loadRecordForEdit(recordId) {
+    const id = cleanText(recordId);
+    if (!id) return;
+
+    loadingRecord = true;
 
     try {
+        const recordRef = doc(db, RECORDS_COLLECTION, id);
+        const snapshot = await getDoc(recordRef);
 
-        // --------------------------------------
-        // Authentication
-        // --------------------------------------
-
-        const user =
-            auth.currentUser;
-
-
-        if (!user) {
-
-            return {
-
-                success: false,
-
-                message:
-                    "د ثبت لپاره لومړی Login وکړئ."
-
-            };
+        if (!snapshot.exists()) {
+            showMessage("د edit لپاره ثبت شوی معلومات پیدا نه شو.", "danger");
+            return;
         }
 
-
-        // --------------------------------------
-        // Prepare data
-        // --------------------------------------
-
-        const registration =
-            prepareRegistrationData(data);
-
-
-        // --------------------------------------
-        // Validate
-        // --------------------------------------
-
-        const validation =
-            validateRegistrationData(
-                registration
-            );
-
-
-        if (!validation.valid) {
-
-            return {
-
-                success: false,
-
-                message:
-                    "د فورم معلومات سم نه دي.",
-
-                errors:
-                    validation.errors
-
-            };
-        }
-
-
-        // --------------------------------------
-        // Prepare Firestore document
-        // --------------------------------------
-
-        const internalId =
-            generateInternalId();
-
-
-        const record = {
-
-            internalId,
-
-            formNumber:
-                registration.formNumber,
-
-            category:
-                registration.category,
-
-
-            person: {
-
-                firstName:
-                    registration.firstName,
-
-                lastName:
-                    registration.lastName,
-
-                fatherName:
-                    registration.fatherName,
-
-                grandfatherName:
-                    registration.grandfatherName,
-
-                birthDate:
-                    registration.birthDate,
-
-                age:
-                    Number(
-                        registration.age
-                    ),
-
-                tazkira:
-                    registration.tazkira,
-
-                phone:
-                    registration.phone
-
-            },
-
-
-            originalLocation:
-                registration.originalLocation,
-
-
-            currentLocation:
-                registration.currentLocation,
-
-
-            currentJob:
-                registration.currentJob,
-
-
-            groupLeader:
-                registration.groupLeader,
-
-
-            jihadiHistory:
-                registration.jihadiHistory,
-
-
-            pdfCreationDate:
-                registration.pdfCreationDate,
-
-
-            // ----------------------------------
-            // Status
-            // ----------------------------------
-
-            status:
-                "active",
-
-            fraudulent:
-                false,
-
-
-            // ----------------------------------
-            // Creator
-            // ----------------------------------
-
-            createdBy: {
-
-                uid:
-                    user.uid,
-
-                email:
-                    user.email || ""
-
-            },
-
-
-            // ----------------------------------
-            // Timestamps
-            // ----------------------------------
-
-            createdAt:
-                serverTimestamp(),
-
-            updatedAt:
-                serverTimestamp()
-
-        };
-
-
-        // --------------------------------------
-        // Save to Firestore
-        // --------------------------------------
-
-        const recordRef =
-            await addDoc(
-                collection(
-                    db,
-                    RECORDS_COLLECTION
-                ),
-                record
-            );
-
-
-        // --------------------------------------
-        // Audit
-        // --------------------------------------
-
-        await writeAudit(
-
-            AUDIT_ACTIONS.REGISTER,
-
-            `نوی ثبت: ${registration.formNumber}`
-
-        );
-
-
-        // --------------------------------------
-        // Success
-        // --------------------------------------
-
-        return {
-
-            success: true,
-
-            id:
-                recordRef.id,
-
-            internalId,
-
-            message:
-                "فورمه په بریالیتوب ثبت شوه."
-
-        };
-
-
+        const record = snapshot.data() || {};
+        populateFormFromRecord(record);
+
+        recordIdInput.value = id;
+        editModeInput.value = "1";
+        saveBtn.textContent = "💾 بدلونونه خوندي کړئ";
+        showMessage("د edit حالت فعال شو.", "success");
     } catch (error) {
-
-        console.error(
-            "Registration Error:",
-            error
-        );
-
-
-        return {
-
-            success: false,
-
-            message:
-                error.message ||
-                "فورمه ثبت نه شوه."
-
-        };
+        console.error("Load Record Error:", error);
+        showMessage("د ثبت شوي معلوماتو د لوستلو پر مهال ستونزه رامنځته شوه.", "danger");
+    } finally {
+        loadingRecord = false;
     }
 }
 
 
 // ==========================================
-// Update Registration
+// Birth Date Formatting
 // ==========================================
-//
-// دا برخه به وروسته یوازې د Admin لپاره
-// د امنیتي اجازه‌لیکونو سره استعمالېږي.
-//
 
-export function getRegistrationCollectionName() {
+birthDate.addEventListener("input", () => {
+    let value = birthDate.value.replace(/[^0-9]/g, "");
 
-    return RECORDS_COLLECTION;
+    if (value.length > 8) {
+        value = value.substring(0, 8);
+    }
 
+    if (value.length > 6) {
+        value =
+            value.substring(0, 4) +
+            "/" +
+            value.substring(4, 6) +
+            "/" +
+            value.substring(6);
+    } else if (value.length > 4) {
+        value =
+            value.substring(0, 4) +
+            "/" +
+            value.substring(4);
+    }
+
+    birthDate.value = value;
+});
+
+
+// ==========================================
+// Electronic Tazkira Formatting
+// ==========================================
+
+tazkira.addEventListener("input", () => {
+    tazkira.value = formatElectronicTazkiraInput(tazkira.value);
+});
+
+
+// ==========================================
+// Tazkira Type Controls
+// ==========================================
+
+tazkiraTypeElectronic.addEventListener("change", () => {
+    if (tazkiraTypeElectronic.checked) {
+        setTazkiraMode(TAZKIRA_TYPES.ELECTRONIC);
+    }
+});
+
+tazkiraTypePaper.addEventListener("change", () => {
+    if (tazkiraTypePaper.checked) {
+        setTazkiraMode(TAZKIRA_TYPES.PAPER);
+    }
+});
+
+
+// ==========================================
+// Category Controls
+// ==========================================
+
+category.addEventListener("change", updateJihadiHistory);
+
+
+// ==========================================
+// Submit Registration
+// ==========================================
+
+form.addEventListener("submit", async event => {
+    event.preventDefault();
+
+    hideMessage();
+    clearErrors();
+
+    if (loadingRecord) {
+        showMessage("مهرباني وکړئ لږ انتظار وکړئ، معلومات لوډېږي.", "warning");
+        return;
+    }
+
+    saveBtn.disabled = true;
+    saveBtn.textContent = "⏳ ثبتېږي...";
+
+    try {
+        const data = collectFormData();
+
+        const validation = validateRegistration(data);
+
+        if (!validation.valid) {
+            const errors = extractValidationErrors(validation);
+            mapValidationToFields(errors);
+            showMessage(errors.join(" "), "danger");
+            return;
+        }
+
+        if (data.tazkiraType === TAZKIRA_TYPES.ELECTRONIC) {
+            if (!ELECTRONIC_TAZKIRA_PATTERN.test(data.electronicTazkiraNumber)) {
+                showMessage("د برقي تذکرې بڼه باید 0000-0000-00000 وي.", "danger");
+                setFieldError("tazkira", "د برقي تذکرې بڼه باید 0000-0000-00000 وي.");
+                return;
+            }
+        }
+
+        if (data.tazkiraType === TAZKIRA_TYPES.PAPER) {
+            const v = cleanText(data.paperTazkiraVolume).replace(/[^0-9]/g, "");
+            const p = cleanText(data.paperTazkiraPage).replace(/[^0-9]/g, "");
+            const n = cleanText(data.paperTazkiraNumber).replace(/[^0-9]/g, "");
+
+            if (!v || !p || !n) {
+                showMessage("د کاغذي تذکرې لپاره جلد، صفحه او ګڼه ټول اجباري دي.", "danger");
+                return;
+            }
+
+            if (!NUMERIC_ONLY_PATTERN.test(v) || !NUMERIC_ONLY_PATTERN.test(p) || !NUMERIC_ONLY_PATTERN.test(n)) {
+                showMessage("د کاغذي تذکرې ټولې درې خانې باید یوازې عددونه ولري.", "danger");
+                return;
+            }
+        }
+
+        let result;
+
+        if (editModeInput.value === "1" && cleanText(recordIdInput.value)) {
+            // Future-ready edit path
+            result = await updateRegistration(recordIdInput.value, data);
+        } else {
+            result = await registerPerson(data);
+        }
+
+        if (!result.success) {
+            const errors = Array.isArray(result.errors) ? result.errors : [];
+            if (errors.length) {
+                mapValidationToFields(errors);
+                showMessage(errors.join(" "), "danger");
+            } else {
+                showMessage(result.message || "فورمه ثبت نه شوه.", "danger");
+            }
+            return;
+        }
+
+        showMessage(result.message || "فورمه په بریالیتوب ثبت شوه.", "success");
+
+        form.reset();
+        recordIdInput.value = "";
+        editModeInput.value = "0";
+        saveBtn.textContent = "💾 فورمه ثبت کړئ";
+        setTazkiraMode(TAZKIRA_TYPES.ELECTRONIC);
+        updateJihadiHistory();
+        setTimeout(() => {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, "0");
+            const day = String(today.getDate()).padStart(2, "0");
+            pdfCreationDate.value = `${year}-${month}-${day}`;
+        }, 0);
+    } catch (error) {
+        console.error("Register Page Error:", error);
+        showMessage("د فورم د ثبت پر مهال ستونزه رامنځته شوه.", "danger");
+    } finally {
+        saveBtn.disabled = false;
+        if (editModeInput.value === "1") {
+            saveBtn.textContent = "💾 بدلونونه خوندي کړئ";
+        } else {
+            saveBtn.textContent = "💾 فورمه ثبت کړئ";
+        }
+    }
+});
+
+
+// ==========================================
+// Reset
+// ==========================================
+
+resetBtn.addEventListener("click", () => {
+    clearErrors();
+    hideMessage();
+
+    setTimeout(() => {
+        updateJihadiHistory();
+        setTazkiraMode(TAZKIRA_TYPES.ELECTRONIC);
+    }, 0);
+});
+
+
+// ==========================================
+// Navigation
+// ==========================================
+
+dashboardBtn.addEventListener("click", () => {
+    window.location.href = "./dashboard.html";
+});
+
+document.getElementById("dashboardMenuBtn").addEventListener("click", () => {
+    window.location.href = "./dashboard.html";
+});
+
+document.getElementById("registerMenuBtn").addEventListener("click", () => {
+    window.location.href = "./register.html";
+});
+
+document.getElementById("searchMenuBtn").addEventListener("click", () => {
+    window.location.href = "./search.html";
+});
+
+document.getElementById("reportsMenuBtn").addEventListener("click", () => {
+    window.location.href = "./reports.html";
+});
+
+document.getElementById("adminMenuBtn").addEventListener("click", () => {
+    window.location.href = "./admin.html";
+});
+
+document.getElementById("settingsMenuBtn").addEventListener("click", () => {
+    window.location.href = "./settings.html";
+});
+
+backBtn.addEventListener("click", () => {
+    window.history.back();
+});
+
+refreshBtn.addEventListener("click", () => {
+    window.location.reload();
+});
+
+
+// ==========================================
+// Logout
+// ==========================================
+
+logoutBtn.addEventListener("click", async () => {
+    const button = logoutBtn;
+    button.disabled = true;
+
+    const result = await logoutUser();
+
+    if (result.success) {
+        window.location.href = "./index.html";
+        return;
+    }
+
+    button.disabled = false;
+    showMessage(result.message || "له سیستم څخه وتل ناکام شول.", "danger");
+});
+
+
+// ==========================================
+// Authentication
+// ==========================================
+
+listenAuth(async session => {
+    if (!session) {
+        window.location.href = "./index.html";
+        return;
+    }
+
+    await initializeSettings();
+
+    const params = new URLSearchParams(window.location.search);
+    const recordId = params.get("recordId");
+
+    if (recordId) {
+        await loadRecordForEdit(recordId);
+    }
+});
+
+
+// ==========================================
+// Initial Setup
+// ==========================================
+
+loadProvinces();
+updateJihadiHistory();
+setTazkiraMode(TAZKIRA_TYPES.ELECTRONIC);
+
+if (!pdfCreationDate.value) {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const day = String(today.getDate()).padStart(2, "0");
+    pdfCreationDate.value = `${year}-${month}-${day}`;
 }
-
-
-// ==========================================
-// Export
-// ==========================================
-
-export default {
-
-    registerPerson,
-
-    validateRegistrationData,
-
-    prepareRegistrationData,
-
-    getRegistrationCollectionName
-
-};
