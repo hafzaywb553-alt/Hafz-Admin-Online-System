@@ -1,404 +1,182 @@
-<!DOCTYPE html><html lang="ps" dir="rtl"><head>
+<!DOCTYPE html>
+<html lang="ps" dir="rtl">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#0B6B36">
-    <title>لټون - د افغانستان اسلامي امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس</title><link rel="stylesheet" href="./style.css">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>لټون - د افغانستان اسلامي امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس</title>
+    <link rel="stylesheet" href="./style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="main-header">
+        <div class="header-brand">
+            <div class="header-logo">🔍</div>
+            <div class="header-title" data-system-name>Hafz Admin Online System</div>
+        </div>
 
-</head><body><header class="main-header">
-    <div class="header-brand">
-        <div class="header-logo">🔍</div>
-        <div class="header-title" data-system-name>Hafz Admin Online System</div>
-    </div><div class="header-actions">
-    <button type="button" id="dashboardBtn" title="Dashboard" aria-label="Dashboard">🏠</button>
-    <button type="button" id="refreshBtn" title="ریفریش" aria-label="ریفریش">🔄</button>
-    <button type="button" id="logoutBtn" title="وتل" aria-label="وتل">🚪</button>
-</div>
+        <div class="header-actions">
+            <button type="button" id="dashboardBtn" title="Dashboard" aria-label="Dashboard">🏠</button>
+            <button type="button" id="refreshBtn" title="ریفریش" aria-label="ریفریش">🔄</button>
+            <button type="button" id="logoutBtn" title="وتل" aria-label="وتل">🚪</button>
+        </div>
+    </header>
 
-</header><div class="app-layout">
-    <aside class="sidebar">
-        <div class="sidebar-title">اصلي مینو</div>    <nav class="sidebar-menu">
-        <button type="button" id="dashboardMenuBtn">📊 Dashboard</button>
-        <button type="button" id="registerMenuBtn">📝 نوی ثبت</button>
-        <button type="button" class="active" id="searchMenuBtn">🔍 لټون</button>
-        <button type="button" id="reportsMenuBtn">📄 راپورونه</button>
-        <button type="button" id="adminMenuBtn">👥 Admin</button>
-        <button type="button" id="settingsMenuBtn">⚙️ تنظیمات</button>
-    </nav>
-</aside>
+    <div class="app-layout">
+        <aside class="sidebar">
+            <div class="sidebar-title">اصلي مینو</div>
+            <nav class="sidebar-menu">
+                <button type="button" id="dashboardMenuBtn">📊 Dashboard</button>
+                <button type="button" id="registerMenuBtn">📝 نوی ثبت</button>
+                <button type="button" class="active" id="searchMenuBtn">🔍 لټون</button>
+                <button type="button" id="reportsMenuBtn">📄 راپورونه</button>
+                <button type="button" id="adminMenuBtn">👥 Admin</button>
+                <button type="button" id="settingsMenuBtn">⚙️ تنظیمات</button>
+            </nav>
+        </aside>
 
-<main class="main-content">
-    <div class="page">
+        <main class="main-content">
+            <div class="page">
+                <section class="page-header">
+                    <h1 class="page-title">🔍 د فورم لټون</h1>
+                    <p class="page-description">د فورم نمبر، برقي تذکرې، یا کاغذي تذکرې له لارې ثبت شوی کس پیدا کړئ.</p>
+                </section>
 
-        <section class="page-header">
-            <h1 class="page-title">🔍 د فورم لټون</h1>
-            <p class="page-description">د فورم نمبر یا د تذکرې نمبر له لارې ثبت شوی کس پیدا کړئ.</p>
-        </section>
+                <div id="searchMessage" class="alert" style="display:none;" role="alert" aria-live="polite"></div>
 
-        <div id="searchMessage" class="alert" style="display:none;" role="alert" aria-live="polite"></div>
-
-        <section class="card">
-            <form id="searchForm" novalidate>
-                <div class="search-box">
-                    <div class="form-group">
-                        <label class="form-label" for="formNumber">
-                            د فورمي نمبر
-                        </label>
-                        <input
-                            id="formNumber"
-                            name="formNumber"
-                            type="text"
-                            class="form-control"
-                            placeholder="د فورمي نمبر ولیکئ"
-                            maxlength="100"
-                            autocomplete="off"
-                        >
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label" for="tazkira">
-                            د تذکرې نمبر
-                        </label>
-                        <input
-                            id="tazkira"
-                            name="tazkira"
-                            type="text"
-                            class="form-control"
-                            placeholder="0000-0000-00000"
-                            maxlength="14"
-                            autocomplete="off"
-                        >
-                        <div class="form-help">بڼه: 0000-0000-00000</div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label" style="visibility:hidden;">عملیات</label>
-                        <button type="submit" class="btn btn-primary" id="searchBtn">🔍 لټون</button>
-                    </div>
-                </div>
-
-                <div class="form-actions" style="margin-top:14px;">
-                    <button type="button" class="btn btn-secondary" id="clearBtn">🧹 پاکول</button>
-                    <button type="button" class="btn btn-secondary" id="backBtn">⬅ شاته</button>
-                </div>
-            </form>
-        </section>
-
-        <section class="card search-results" style="margin-top:14px;">
-            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
-                <div>
-                    <h2 style="font-size:20px;font-weight:800;">📄 د لټون پایله</h2>
-                    <p style="color:var(--muted-color);font-size:13px;">دلته به د پیدا شوې فورمې ټول معلومات ښکاره شي.</p>
-                </div>
-
-                <div class="badge badge-info" id="resultBadge">چمتو</div>
-            </div>
-
-            <div id="searchResult">
-                <div class="search-empty">
-                    د لټون لپاره پورته فورمه وکاروه.
-                </div>
-            </div>
-        </section>
-
-    </div>
-</main>
-
-</div><footer class="footer">
-    Hafz Admin Online System
-</footer><script type="module">
-    import { listenAuth, logoutUser } from "./auth.js";
-    import { searchRegistration, getPersonInfo, getLocationInfo } from "./search.js";
-    import { initializeSettings } from "./settings.js";
-
-    const searchForm = document.getElementById("searchForm");
-    const formNumberInput = document.getElementById("formNumber");
-    const tazkiraInput = document.getElementById("tazkira");
-    const searchBtn = document.getElementById("searchBtn");
-    const clearBtn = document.getElementById("clearBtn");
-    const backBtn = document.getElementById("backBtn");
-    const searchMessage = document.getElementById("searchMessage");
-    const searchResult = document.getElementById("searchResult");
-    const resultBadge = document.getElementById("resultBadge");
-    const refreshBtn = document.getElementById("refreshBtn");
-    const logoutBtn = document.getElementById("logoutBtn");
-
-    function showMessage(message, type = "success") {
-        searchMessage.textContent = message;
-        searchMessage.className = "alert alert-" + type;
-        searchMessage.style.display = "block";
-    }
-
-    function hideMessage() {
-        searchMessage.textContent = "";
-        searchMessage.style.display = "none";
-    }
-
-    function setLoading(isLoading) {
-        searchBtn.disabled = isLoading;
-        clearBtn.disabled = isLoading;
-        searchBtn.textContent = isLoading ? "⏳ لټون کېږي..." : "🔍 لټون";
-    }
-
-    function escapeHtml(value) {
-        return String(value ?? "")
-            .replaceAll("&", "&amp;")
-            .replaceAll("<", "&lt;")
-            .replaceAll(">", "&gt;")
-            .replaceAll('"', "&quot;")
-            .replaceAll("'", "&#039;");
-    }
-
-    function formatText(value) {
-        const text = String(value ?? "").trim();
-        return text ? escapeHtml(text) : "—";
-    }
-
-    function renderEmpty(message = "هیڅ پایله ونه موندل شوه.") {
-        searchResult.innerHTML = `
-            <div class="search-empty">
-                ${escapeHtml(message)}
-            </div>
-        `;
-        resultBadge.className = "badge badge-warning";
-        resultBadge.textContent = "پایله نشته";
-    }
-
-    function renderRecord(result) {
-        const record = result?.record;
-        if (!record) {
-            renderEmpty("هیڅ ثبت شوی معلومات ونه موندل شو.");
-            return;
-        }
-
-        const person = getPersonInfo(record) || {};
-        const location = getLocationInfo(record) || {};
-        const fraudulent = record.fraudulent === true;
-
-        resultBadge.className = fraudulent ? "badge badge-danger" : "badge badge-success";
-        resultBadge.textContent = fraudulent ? "جعلي" : "اصلي";
-
-        searchResult.innerHTML = `
-            <div style="display:grid;gap:14px;">
-
-                <div class="card" style="padding:16px;">
-                    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;">
-                        <div>
-                            <div class="badge ${fraudulent ? 'badge-danger' : 'badge-success'}" style="margin-bottom:10px;">
-                                ${fraudulent ? 'دا فورمه جعلي ده' : 'اصلي فورمه'}
+                <section class="card">
+                    <form id="searchForm" novalidate>
+                        <div class="search-box">
+                            <div class="form-group">
+                                <label class="form-label" for="formNumber">
+                                    د فورمي نمبر
+                                </label>
+                                <input
+                                    id="formNumber"
+                                    name="formNumber"
+                                    type="text"
+                                    class="form-control"
+                                    placeholder="د فورمي نمبر ولیکئ"
+                                    maxlength="100"
+                                    autocomplete="off"
+                                >
                             </div>
 
-                            <h3 style="font-size:22px;font-weight:800;margin-bottom:6px;">
-                                ${formatText(record.formNumber)}
-                            </h3>
+                            <div class="form-group full">
+                                <label class="form-label">
+                                    د تذکرې ډول
+                                </label>
 
-                            <p style="color:var(--muted-color);font-size:13px;">
-                                د فورم ډول: ${formatText(record.category)}
-                            </p>
+                                <div style="display:flex;gap:14px;flex-wrap:wrap;">
+                                    <label class="form-control" style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                                        <input type="radio" name="searchTazkiraType" id="searchTazkiraTypeElectronic" value="electronic" checked>
+                                        <span>برقي تذکره</span>
+                                    </label>
+
+                                    <label class="form-control" style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                                        <input type="radio" name="searchTazkiraType" id="searchTazkiraTypePaper" value="paper">
+                                        <span>کاغذي تذکره</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-group" id="searchElectronicGroup">
+                                <label class="form-label" for="tazkira">
+                                    د تذکرې نمبر
+                                </label>
+                                <input
+                                    id="tazkira"
+                                    name="tazkira"
+                                    type="text"
+                                    class="form-control"
+                                    placeholder="0000-0000-00000"
+                                    maxlength="15"
+                                    autocomplete="off"
+                                    dir="ltr"
+                                >
+                                <div class="form-help">بڼه: 0000-0000-00000</div>
+                                <div class="form-error" id="tazkiraError"></div>
+                            </div>
+
+                            <div class="form-group" id="searchPaperVolumeGroup" style="display:none;">
+                                <label class="form-label" for="paperSearchVolume">
+                                    جلد
+                                </label>
+                                <input
+                                    id="paperSearchVolume"
+                                    type="text"
+                                    class="form-control"
+                                    placeholder="جلد"
+                                    inputmode="numeric"
+                                    maxlength="20"
+                                >
+                            </div>
+
+                            <div class="form-group" id="searchPaperPageGroup" style="display:none;">
+                                <label class="form-label" for="paperSearchPage">
+                                    صفحه
+                                </label>
+                                <input
+                                    id="paperSearchPage"
+                                    type="text"
+                                    class="form-control"
+                                    placeholder="صفحه"
+                                    inputmode="numeric"
+                                    maxlength="20"
+                                >
+                            </div>
+
+                            <div class="form-group" id="searchPaperNumberGroup" style="display:none;">
+                                <label class="form-label" for="paperSearchNumber">
+                                    ګڼه
+                                </label>
+                                <input
+                                    id="paperSearchNumber"
+                                    type="text"
+                                    class="form-control"
+                                    placeholder="ګڼه"
+                                    inputmode="numeric"
+                                    maxlength="20"
+                                >
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" style="visibility:hidden;">عملیات</label>
+                                <button type="submit" class="btn btn-primary" id="searchBtn">🔍 لټون</button>
+                            </div>
                         </div>
 
-                        <div style="text-align:left;">
-                            <div style="color:var(--muted-color);font-size:12px;">داخلي نمبر</div>
-                            <strong>${formatText(record.internalId)}</strong>
+                        <div class="form-actions" style="margin-top:14px;">
+                            <button type="button" class="btn btn-secondary" id="clearBtn">🧹 پاکول</button>
+                            <button type="button" class="btn btn-secondary" id="backBtn">⬅ شاته</button>
+                        </div>
+                    </form>
+                </section>
+
+                <section class="card search-results" style="margin-top:14px;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
+                        <div>
+                            <h2 style="font-size:20px;font-weight:800;">📄 د لټون پایله</h2>
+                            <p style="color:var(--muted-color);font-size:13px;">دلته به د پیدا شوې فورمې ټول معلومات ښکاره شي.</p>
+                        </div>
+
+                        <div class="badge badge-info" id="resultBadge">چمتو</div>
+                    </div>
+
+                    <div id="searchResult">
+                        <div class="search-empty">
+                            د لټون لپاره پورته فورمه وکاروه.
                         </div>
                     </div>
-                </div>
-
-                <div class="card">
-                    <h3 style="font-size:18px;font-weight:800;margin-bottom:12px;">👤 د شخص معلومات</h3>
-                    <div class="table-container">
-                        <table>
-                            <tbody>
-                                <tr><th>نوم</th><td>${formatText(person.firstName)}</td></tr>
-                                <tr><th>تخلص</th><td>${formatText(person.lastName)}</td></tr>
-                                <tr><th>د پلار نوم</th><td>${formatText(person.fatherName)}</td></tr>
-                                <tr><th>د نیکه نوم</th><td>${formatText(person.grandfatherName)}</td></tr>
-                                <tr><th>د زېږون نېټه</th><td>${formatText(person.birthDate)}</td></tr>
-                                <tr><th>عمر</th><td>${formatText(person.age)}</td></tr>
-                                <tr><th>د تذکرې نمبر</th><td>${formatText(person.tazkira)}</td></tr>
-                                <tr><th>د اړیکې شمېره</th><td>${formatText(person.phone)}</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <h3 style="font-size:18px;font-weight:800;margin-bottom:12px;">📍 د اصلي ځای معلومات</h3>
-                    <div class="table-container">
-                        <table>
-                            <tbody>
-                                <tr><th>ولایت</th><td>${formatText(location.original?.province)}</td></tr>
-                                <tr><th>ولسوالي</th><td>${formatText(location.original?.district)}</td></tr>
-                                <tr><th>کلی</th><td>${formatText(location.original?.village)}</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <h3 style="font-size:18px;font-weight:800;margin-bottom:12px;">📍 د فعلي ځای معلومات</h3>
-                    <div class="table-container">
-                        <table>
-                            <tbody>
-                                <tr><th>ولایت</th><td>${formatText(location.current?.province)}</td></tr>
-                                <tr><th>ولسوالي</th><td>${formatText(location.current?.district)}</td></tr>
-                                <tr><th>کلی</th><td>${formatText(location.current?.village)}</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <h3 style="font-size:18px;font-weight:800;margin-bottom:12px;">💼 نور معلومات</h3>
-                    <div class="table-container">
-                        <table>
-                            <tbody>
-                                <tr><th>اوسنی دنده</th><td>${formatText(record.currentJob)}</td></tr>
-                                <tr><th>د ګروپ مشر</th><td>${formatText(record.groupLeader)}</td></tr>
-                                <tr><th>جهادي سابقه</th><td>${formatText(record.jihadiHistory)}</td></tr>
-                                <tr><th>د PDF نېټه</th><td>${formatText(record.pdfCreationDate)}</td></tr>
-                                <tr><th>حالت</th><td>${formatText(record.status)}</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <h3 style="font-size:18px;font-weight:800;margin-bottom:12px;">🕒 د جوړېدو معلومات</h3>
-                    <div class="table-container">
-                        <table>
-                            <tbody>
-                                <tr><th>جوړونکی</th><td>${formatText(record.createdBy?.email)}</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
+                </section>
             </div>
-        `;
+        </main>
+    </div>
 
-        if (fraudulent) {
-            showMessage("دا فورمه جعلي ده.", "danger");
-        } else {
-            showMessage("فورمه پیدا شوه.", "success");
-        }
-    }
+    <footer class="footer">
+        Hafz Admin Online System
+    </footer>
 
-    const onTazkiraInput = () => {
-        let value = tazkiraInput.value.replace(/[^0-9]/g, "");
-        if (value.length > 13) value = value.slice(0, 13);
-
-        if (value.length > 8) {
-            value = value.slice(0, 4) + "-" + value.slice(4, 8) + "-" + value.slice(8);
-        } else if (value.length > 4) {
-            value = value.slice(0, 4) + "-" + value.slice(4);
-        }
-
-        tazkiraInput.value = value;
-    };
-
-    tazkiraInput.addEventListener("input", onTazkiraInput);
-
-    searchForm.addEventListener("submit", async (event) => {
-        event.preventDefault();
-        hideMessage();
-
-        const formNumber = formNumberInput.value.trim();
-        const tazkira = tazkiraInput.value.trim();
-
-        if (!formNumber && !tazkira) {
-            renderEmpty("لطفاً د فورمي نمبر یا د تذکرې نمبر ولیکئ.");
-            showMessage("لطفاً د فورمي نمبر یا د تذکرې نمبر ولیکئ.", "danger");
-            return;
-        }
-
-        try {
-            setLoading(true);
-            searchResult.innerHTML = `<div class="loading"><div class="spinner"></div><span>لټون کېږي...</span></div>`;
-
-            const result = await searchRegistration({ formNumber, tazkira });
-
-            if (!result.success || !result.found) {
-                renderEmpty(result.message || "د ورکړل شوو معلوماتو له مخې فورمه پیدا نه شوه.");
-                showMessage(result.message || "فورمه پیدا نه شوه.", "warning");
-                return;
-            }
-
-            renderRecord(result);
-        } catch (error) {
-            console.error("Search Page Error:", error);
-            renderEmpty("د لټون پر مهال ستونزه رامنځته شوه.");
-            showMessage("د لټون پر مهال ستونزه رامنځته شوه.", "danger");
-        } finally {
-            setLoading(false);
-        }
-    });
-
-    clearBtn.addEventListener("click", () => {
-        searchForm.reset();
-        hideMessage();
-        searchResult.innerHTML = `
-            <div class="search-empty">
-                د لټون لپاره پورته فورمه وکاروه.
-            </div>
-        `;
-        resultBadge.className = "badge badge-info";
-        resultBadge.textContent = "چمتو";
-    });
-
-    backBtn.addEventListener("click", () => {
-        window.history.back();
-    });
-
-    refreshBtn.addEventListener("click", () => {
-        window.location.reload();
-    });
-
-    listenAuth((session) => {
-        if (!session) {
-            window.location.href = "./index.html";
-        }
-    });
-
-    await initializeSettings();
-
-    logoutBtn.addEventListener("click", async () => {
-        logoutBtn.disabled = true;
-        const result = await logoutUser();
-        if (result.success) {
-            window.location.href = "./index.html";
-            return;
-        }
-        showMessage(result.message || "له سیستم څخه وتل ناکام شول.", "danger");
-        logoutBtn.disabled = false;
-    });
-
-    document.getElementById("dashboardBtn").addEventListener("click", () => {
-        window.location.href = "./dashboard.html";
-    });
-
-    document.getElementById("dashboardMenuBtn").addEventListener("click", () => {
-        window.location.href = "./dashboard.html";
-    });
-
-    document.getElementById("registerMenuBtn").addEventListener("click", () => {
-        window.location.href = "./register.html";
-    });
-
-    document.getElementById("searchMenuBtn").addEventListener("click", () => {
-        window.location.href = "./search.html";
-    });
-
-    document.getElementById("reportsMenuBtn").addEventListener("click", () => {
-        window.location.href = "./reports.html";
-    });
-
-    document.getElementById("adminMenuBtn").addEventListener("click", () => {
-        window.location.href = "./admin.html";
-    });
-
-    document.getElementById("settingsMenuBtn").addEventListener("click", () => {
-        window.location.href = "./settings.html";
-    });
-</script></body>
+    <script type="module" src="./search.js"></script>
+</body>
 </html>
