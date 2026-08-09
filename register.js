@@ -431,10 +431,20 @@ function setTazkiraMode(mode) {
         isPaper;
 
 
-    electronicTazkiraGroup.style.display =
-        isElectronic
-            ? "block"
-            : "none";
+    /*
+     * د برقي تذکرې نمبر خانه اوس د
+     * «د نیکه نوم» لاندې په Personal Information
+     * برخه کې ده.
+     *
+     * electronicTazkiraGroup یوازې د پخواني
+     * JavaScript compatibility لپاره ساتل شوی.
+     */
+
+    if (electronicTazkiraGroup) {
+        electronicTazkiraGroup.style.display =
+            "none";
+    }
+
 
     paperJildGroup.style.display =
         isPaper
@@ -571,6 +581,35 @@ function setupPaperNumericField(
 
 
 // ==========================================
+// Form Number Formatting
+// یوازې 0-9 ارقام
+// ==========================================
+
+function formatFormNumberInput(input) {
+
+    return cleanText(input)
+        .replace(/[^0-9]/g, "");
+}
+
+
+if (formNumber) {
+
+    formNumber.addEventListener(
+        "input",
+        () => {
+
+            formNumber.value =
+                formatFormNumberInput(
+                    formNumber.value
+                );
+
+        }
+    );
+
+}
+
+
+// ==========================================
 // Collect Form Data
 // ==========================================
 
@@ -642,20 +681,17 @@ function collectFormData() {
 
         tazkiraType,
 
-
         tazkira:
             tazkiraType ===
             TAZKIRA_TYPES.ELECTRONIC
                 ? cleanText(tazkira.value)
                 : "",
 
-
         electronicTazkiraNumber:
             tazkiraType ===
             TAZKIRA_TYPES.ELECTRONIC
                 ? cleanText(tazkira.value)
                 : "",
-
 
         paperTazkiraVolume:
             tazkiraType ===
@@ -665,7 +701,6 @@ function collectFormData() {
                 )
                 : "",
 
-
         paperTazkiraPage:
             tazkiraType ===
             TAZKIRA_TYPES.PAPER
@@ -673,7 +708,6 @@ function collectFormData() {
                     paperTazkiraPage.value
                 )
                 : "",
-
 
         paperTazkiraNumber:
             tazkiraType ===
@@ -961,12 +995,10 @@ function populateFormFromRecord(
     }
 
 
-    // --------------------------------------
-    // Original fields
-    // --------------------------------------
-
     formNumber.value =
-        cleanText(record.formNumber);
+        formatFormNumberInput(
+            cleanText(record.formNumber)
+        );
 
     category.value =
         cleanText(record.category);
@@ -1004,10 +1036,6 @@ function populateFormFromRecord(
         );
 
 
-    // --------------------------------------
-    // New English fields
-    // --------------------------------------
-
     englishName.value =
         cleanText(
             record.englishName ??
@@ -1036,10 +1064,6 @@ function populateFormFromRecord(
         );
 
 
-    // --------------------------------------
-    // Other fields
-    // --------------------------------------
-
     birthDate.value =
         cleanText(
             person.birthDate ??
@@ -1061,10 +1085,6 @@ function populateFormFromRecord(
         );
 
 
-    // --------------------------------------
-    // Original location
-    // --------------------------------------
-
     const original =
         record.originalLocation || {};
 
@@ -1078,10 +1098,6 @@ function populateFormFromRecord(
     originalVillage.value =
         cleanText(original.village);
 
-
-    // --------------------------------------
-    // Current location
-    // --------------------------------------
 
     const current =
         record.currentLocation || {};
@@ -1097,10 +1113,6 @@ function populateFormFromRecord(
         cleanText(current.village);
 
 
-    // --------------------------------------
-    // Work
-    // --------------------------------------
-
     currentJob.value =
         cleanText(record.currentJob);
 
@@ -1113,10 +1125,6 @@ function populateFormFromRecord(
     pdfCreationDate.value =
         cleanText(record.pdfCreationDate);
 
-
-    // --------------------------------------
-    // Tazkira
-    // --------------------------------------
 
     const tType =
         cleanText(
@@ -1348,8 +1356,6 @@ function buildFirestoreData(
 
         ...previousPerson,
 
-
-        // Original fields
         firstName:
             data.firstName,
 
@@ -1371,8 +1377,6 @@ function buildFirestoreData(
         phone:
             data.phone,
 
-
-        // New English fields
         englishName:
             data.englishName,
 
@@ -1385,8 +1389,6 @@ function buildFirestoreData(
         englishGrandfatherName:
             data.englishGrandfatherName,
 
-
-        // Tazkira compatibility
         tazkiraType:
             data.tazkiraType,
 
@@ -1398,22 +1400,11 @@ function buildFirestoreData(
 
     const firestoreData = {
 
-        // ----------------------------------
-        // Existing main fields
-        // ----------------------------------
-
         formNumber:
             data.formNumber,
 
         category:
             data.category,
-
-
-        // ----------------------------------
-        // Original fields also kept at root
-        // for compatibility with existing
-        // search/report code
-        // ----------------------------------
 
         firstName:
             data.firstName,
@@ -1427,11 +1418,6 @@ function buildFirestoreData(
         grandfatherName:
             data.grandfatherName,
 
-
-        // ----------------------------------
-        // New English fields
-        // ----------------------------------
-
         englishName:
             data.englishName,
 
@@ -1444,17 +1430,7 @@ function buildFirestoreData(
         englishGrandfatherName:
             data.englishGrandfatherName,
 
-
-        // ----------------------------------
-        // Existing person object
-        // ----------------------------------
-
         person,
-
-
-        // ----------------------------------
-        // Other fields
-        // ----------------------------------
 
         birthDate:
             data.birthDate,
@@ -1464,11 +1440,6 @@ function buildFirestoreData(
 
         phone:
             data.phone,
-
-
-        // ----------------------------------
-        // Tazkira
-        // ----------------------------------
 
         tazkiraType:
             data.tazkiraType,
@@ -1488,21 +1459,11 @@ function buildFirestoreData(
         paperTazkiraNumber:
             data.paperTazkiraNumber,
 
-
-        // ----------------------------------
-        // Locations
-        // ----------------------------------
-
         originalLocation:
             data.originalLocation,
 
         currentLocation:
             data.currentLocation,
-
-
-        // ----------------------------------
-        // Work
-        // ----------------------------------
 
         currentJob:
             data.currentJob,
@@ -1515,11 +1476,6 @@ function buildFirestoreData(
 
         pdfCreationDate:
             data.pdfCreationDate,
-
-
-        // ----------------------------------
-        // State
-        // ----------------------------------
 
         fieldState:
             data.fieldState || {},
@@ -1573,7 +1529,6 @@ async function registerPerson(
 
         firestoreData.updatedAt =
             serverTimestamp();
-
 
         firestoreData.createdBy =
             "authenticated-user";
@@ -1748,7 +1703,6 @@ async function updateRegistration(
 
 // ==========================================
 // Birth Date Formatting
-// اصلي پخوانی سیستم
 // ==========================================
 
 birthDate.addEventListener(
@@ -1885,7 +1839,6 @@ form.addEventListener(
 
         event.preventDefault();
 
-
         hideMessage();
         clearErrors();
 
@@ -1912,6 +1865,34 @@ form.addEventListener(
 
             const data =
                 collectFormData();
+
+
+            // ----------------------------------
+            // Form Number
+            // یوازې ارقام
+            // ----------------------------------
+
+            if (
+                !/^[0-9]+$/.test(
+                    data.formNumber
+                )
+            ) {
+
+                const message =
+                    "د کره کمیسیون د فورمي نمبر باید یوازې ارقام ولري.";
+
+                setFieldError(
+                    "formNumber",
+                    message
+                );
+
+                showMessage(
+                    message,
+                    "danger"
+                );
+
+                return;
+            }
 
 
             // ----------------------------------
