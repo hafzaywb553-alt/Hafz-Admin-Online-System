@@ -57,6 +57,7 @@
             font-weight: 900;
             margin-top: 8px;
             line-height: 1.5;
+            color: var(--text-color);
         }
 
         .system-name {
@@ -249,12 +250,12 @@
                     🔐 ننوتل
                 </button>
 
-                <button type="button" class="whatsapp-button btn btn-secondary" id="whatsappButton">
-                    📱 د WhatsApp له لارې مرسته
-                </button>
-
                 <button type="button" class="forgot-password-button" id="forgotPasswordButton">
                     پاسورډ مو هېر کړی؟
+                </button>
+
+                <button type="button" class="whatsapp-button btn btn-secondary" id="whatsappButton">
+                    📱 د WhatsApp له لارې مرسته
                 </button>
             </form>
 
@@ -292,7 +293,7 @@
         const imageModal = document.getElementById("imageModal");
         const closeImageModal = document.getElementById("closeImageModal");
 
-        const WHATSAPP_NUMBER = "93705965475"; // که اړتیا وي، خپل اصلي نمبر دلته ولیکه
+        const WHATSAPP_NUMBER = "93705965475";
 
         function showMessage(message, type = "error") {
             loginMessage.textContent = message;
@@ -319,8 +320,13 @@
                 ? `سلام، زما پاسورډ هېر شوی دی. مهرباني وکړئ مرسته وکړئ. زما ایمیل: ${email}`
                 : "سلام، زما پاسورډ هېر شوی دی. مهرباني وکړئ مرسته وکړئ.";
 
-            const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
-            window.open(url, "_blank", "noopener,noreferrer");
+            const url = `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${encodeURIComponent(text)}`;
+
+            // One-click open in WhatsApp or fallback to browser page
+            const win = window.open(url, "_blank");
+            if (!win) {
+                window.location.href = url;
+            }
         }
 
         await initializeSettings();
