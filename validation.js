@@ -8,9 +8,11 @@
  * د تشو ارزښتونو معلومول
  */
 export function isEmpty(value) {
-    return value === null ||
-           value === undefined ||
-           String(value).trim() === "";
+    return (
+        value === null ||
+        value === undefined ||
+        String(value).trim() === ""
+    );
 }
 
 
@@ -68,7 +70,14 @@ export function validateAge(value) {
         return numberResult;
     }
 
-    const age = Number(value);
+    const age = Number(String(value).trim());
+
+    if (!Number.isInteger(age)) {
+        return {
+            valid: false,
+            message: "عمر باید بشپړ عدد وي."
+        };
+    }
 
     if (age < 1 || age > 150) {
         return {
@@ -87,10 +96,6 @@ export function validateAge(value) {
 /**
  * د کره کمیسیون د فورمي نمبر
  * اجباري دی.
- *
- * یادونه:
- * دلته د فورمي نمبر عمومي اعتبار ساتل شوی،
- * ځکه د ادارې رسمي Format لا نه دی ټاکل شوی.
  */
 export function validateFormNumber(value) {
     if (isEmpty(value)) {
@@ -125,7 +130,6 @@ export function validateFormNumber(value) {
  * 0000-0000-00000
  */
 export function validateTazkira(value) {
-
     if (isEmpty(value)) {
         return {
             valid: true,
@@ -156,7 +160,6 @@ export function validateTazkira(value) {
  * اجباري
  */
 export function validateName(value, fieldName = "نوم") {
-
     if (isEmpty(value)) {
         return {
             valid: false,
@@ -191,7 +194,6 @@ export function validateName(value, fieldName = "نوم") {
  * اختیاري متن
  */
 export function validateOptionalText(value, fieldName = "دا خانه") {
-
     if (isEmpty(value)) {
         return {
             valid: true,
@@ -225,24 +227,14 @@ export function validateOptionalText(value, fieldName = "دا خانه") {
  * د نورو کټګوریو لپاره باید خالي وي.
  */
 export function validateJihadiHistory(category, history) {
-
     const selectedCategory = String(category || "").trim();
     const value = String(history || "").trim();
 
-    // که مجاهد وي
     if (selectedCategory === "مجاهد") {
-
         if (!value) {
             return {
                 valid: false,
                 message: "د مجاهد لپاره جهادي سابقه اجباري ده."
-            };
-        }
-
-        if (value.length < 1) {
-            return {
-                valid: false,
-                message: "جهادي سابقه باید معلومات ولري."
             };
         }
 
@@ -259,8 +251,6 @@ export function validateJihadiHistory(category, history) {
         };
     }
 
-
-    // د نورو کټګوریو لپاره باید خالي وي
     if (value !== "") {
         return {
             valid: false,
@@ -279,7 +269,6 @@ export function validateJihadiHistory(category, history) {
  * د کټګورۍ اعتبار
  */
 export function validateCategory(value) {
-
     const allowedCategories = [
         "مجاهد",
         "همکار",
@@ -313,7 +302,6 @@ export function validateCategory(value) {
  * اجباري
  */
 export function validateGroupLeader(value) {
-
     if (isEmpty(value)) {
         return {
             valid: false,
@@ -348,7 +336,6 @@ export function validateGroupLeader(value) {
  * د ولایت / ولسوالۍ / کلي د ځای اعتبار
  */
 export function validateLocation(location, locationName = "ځای") {
-
     if (!location || typeof location !== "object") {
         return {
             valid: false,
@@ -389,10 +376,81 @@ export function validateLocation(location, locationName = "ځای") {
 
 
 /**
+ * ==========================================
+ * د عکس اعتبار
+ * ==========================================
+ *
+ * د هر عکس اعظمي اندازه:
+ * 1MB
+ *
+ * 1MB = 1,048,576 bytes
+ */
+export const MAX_IMAGE_SIZE = 1 * 1024 * 1024;
+
+
+/**
+ * د اجازه لرونکو عکسونو MIME Types
+ */
+export const ALLOWED_IMAGE_TYPES = [
+    "image/jpeg",
+    "image/png",
+    "image/webp"
+];
+
+
+/**
+ * د عکس فایل اعتبار
+ */
+export function validateImageFile(
+    file,
+    fieldName = "عکس"
+) {
+    if (!file) {
+        return {
+            valid: true,
+            message: ""
+        };
+    }
+
+    if (!(file instanceof File)) {
+        return {
+            valid: false,
+            message: `${fieldName} ناسم فایل دی.`
+        };
+    }
+
+    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+        return {
+            valid: false,
+            message: `${fieldName} باید JPG، PNG یا WEBP وي.`
+        };
+    }
+
+    if (file.size <= 0) {
+        return {
+            valid: false,
+            message: `${fieldName} خالي یا خراب فایل دی.`
+        };
+    }
+
+    if (file.size > MAX_IMAGE_SIZE) {
+        return {
+            valid: false,
+            message: `${fieldName} باید تر 1MB زیات نه وي.`
+        };
+    }
+
+    return {
+        valid: true,
+        message: ""
+    };
+}
+
+
+/**
  * د ټول ثبت فورم مرکزي اعتبار
  */
-export function validateRegistration(data) {
-
+export function validateRegistration(data = {}) {
     const errors = [];
 
 
@@ -413,7 +471,10 @@ export function validateRegistration(data) {
 
 
     // نوم
-    const firstName = validateName(data.firstName, "نوم");
+    const firstName = validateName(
+        data.firstName,
+        "نوم"
+    );
 
     if (!firstName.valid) {
         errors.push(firstName.message);
@@ -421,7 +482,10 @@ export function validateRegistration(data) {
 
 
     // تخلص اختیاري
-    const lastName = validateOptionalText(data.lastName, "تخلص");
+    const lastName = validateOptionalText(
+        data.lastName,
+        "تخلص"
+    );
 
     if (!lastName.valid) {
         errors.push(lastName.message);
@@ -429,7 +493,10 @@ export function validateRegistration(data) {
 
 
     // د پلار نوم
-    const fatherName = validateName(data.fatherName, "د پلار نوم");
+    const fatherName = validateName(
+        data.fatherName,
+        "د پلار نوم"
+    );
 
     if (!fatherName.valid) {
         errors.push(fatherName.message);
@@ -489,7 +556,9 @@ export function validateRegistration(data) {
 
 
     // کټګوري
-    const category = validateCategory(data.category);
+    const category = validateCategory(
+        data.category
+    );
 
     if (!category.valid) {
         errors.push(category.message);
@@ -517,6 +586,34 @@ export function validateRegistration(data) {
     }
 
 
+    // عکس
+    if (data.imageFile) {
+        const image = validateImageFile(
+            data.imageFile,
+            "عکس"
+        );
+
+        if (!image.valid) {
+            errors.push(image.message);
+        }
+    }
+
+
+    // که څو عکسونه موجود وي
+    if (Array.isArray(data.imageFiles)) {
+        data.imageFiles.forEach((file, index) => {
+            const image = validateImageFile(
+                file,
+                `د ${index + 1}م عکس`
+            );
+
+            if (!image.valid) {
+                errors.push(image.message);
+            }
+        });
+    }
+
+
     return {
         valid: errors.length === 0,
         errors
@@ -528,11 +625,19 @@ export function validateRegistration(data) {
  * د فورم نمبر د لټون اعتبار
  */
 export function validateSearchFormNumber(value) {
-
     if (isEmpty(value)) {
         return {
             valid: false,
             message: "د کره کمیسیون د فورمي نمبر ولیکئ."
+        };
+    }
+
+    const formNumber = String(value).trim();
+
+    if (formNumber.length > 100) {
+        return {
+            valid: false,
+            message: "د فورمي نمبر اوږدوالی ناسم دی."
         };
     }
 
