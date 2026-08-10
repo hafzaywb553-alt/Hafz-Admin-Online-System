@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#0B6B36">
-    <title>لټون - د افغانستان اسلامي امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس</title>
+    <title>لټون - د افغانستان اسلامي امارت د کره کمیسیون د تصفیوی فورمو د ثبت او مدیریت ډیټابیس</title>
     <link rel="stylesheet" href="./style.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
@@ -12,7 +12,7 @@
     <header class="main-header">
         <div class="header-brand">
             <div class="header-logo">🔍</div>
-            <div class="header-title" data-system-name>Hafz Admin Online System</div>
+            <div class="header-title" data-system-name>د افغانستان اسلامي امارت د کره کمیسیون د تصفیوی فورمو د ثبت او مدیریت ډیټابیس</div>
         </div>
 
         <div class="header-actions">
@@ -39,7 +39,7 @@
             <div class="page">
                 <section class="page-header">
                     <h1 class="page-title">🔍 د فورم لټون</h1>
-                    <p class="page-description">د فورم نمبر، برقي تذکرې، یا کاغذي تذکرې له لارې ثبت شوی کس پیدا کړئ.</p>
+                    <p class="page-description">د هرې خانې له مخې لټون وکړئ. هېڅ فیلډ اجباري نه دی، او د ثبت ټول معلومات دلته ښکاري.</p>
                 </section>
 
                 <div id="searchMessage" class="alert" style="display:none;" role="alert" aria-live="polite"></div>
@@ -48,24 +48,52 @@
                     <form id="searchForm" novalidate>
                         <div class="search-box">
                             <div class="form-group">
-                                <label class="form-label" for="formNumber">
-                                    د فورمي نمبر
-                                </label>
-                                <input
-                                    id="formNumber"
-                                    name="formNumber"
-                                    type="text"
-                                    class="form-control"
-                                    placeholder="د فورمي نمبر ولیکئ"
-                                    maxlength="100"
-                                    autocomplete="off"
-                                >
+                                <label class="form-label" for="formNumber">د فورمي نمبر</label>
+                                <input id="formNumber" name="formNumber" type="text" class="form-control" placeholder="د فورمي نمبر ولیکئ" maxlength="100" autocomplete="off">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="firstName">نوم</label>
+                                <input id="firstName" name="firstName" type="text" class="form-control" placeholder="نوم ولیکئ" maxlength="100" autocomplete="off">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="lastName">تخلص</label>
+                                <input id="lastName" name="lastName" type="text" class="form-control" placeholder="تخلص ولیکئ" maxlength="200" autocomplete="off">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="fatherName">د پلار نوم</label>
+                                <input id="fatherName" name="fatherName" type="text" class="form-control" placeholder="د پلار نوم ولیکئ" maxlength="100" autocomplete="off">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="grandfatherName">د نیکه نوم</label>
+                                <input id="grandfatherName" name="grandfatherName" type="text" class="form-control" placeholder="د نیکه نوم ولیکئ" maxlength="100" autocomplete="off">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="englishName">Name</label>
+                                <input id="englishName" name="englishName" type="text" class="form-control" placeholder="Name" maxlength="100" autocomplete="off" dir="ltr">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="englishLastName">Last Name</label>
+                                <input id="englishLastName" name="englishLastName" type="text" class="form-control" placeholder="Last Name" maxlength="200" autocomplete="off" dir="ltr">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="englishFatherName">Father Name</label>
+                                <input id="englishFatherName" name="englishFatherName" type="text" class="form-control" placeholder="Father Name" maxlength="100" autocomplete="off" dir="ltr">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="englishGrandfatherName">Grandfather Name</label>
+                                <input id="englishGrandfatherName" name="englishGrandfatherName" type="text" class="form-control" placeholder="Grandfather Name" maxlength="100" autocomplete="off" dir="ltr">
                             </div>
 
                             <div class="form-group full">
-                                <label class="form-label">
-                                    د تذکرې ډول
-                                </label>
+                                <label class="form-label">د تذکرې ډول</label>
 
                                 <div style="display:flex;gap:14px;flex-wrap:wrap;">
                                     <label class="form-control" style="display:flex;align-items:center;gap:8px;cursor:pointer;">
@@ -81,63 +109,106 @@
                             </div>
 
                             <div class="form-group" id="searchElectronicGroup">
-                                <label class="form-label" for="tazkira">
-                                    د تذکرې نمبر
-                                </label>
-                                <input
-                                    id="tazkira"
-                                    name="tazkira"
-                                    type="text"
-                                    class="form-control"
-                                    placeholder="0000-0000-00000"
-                                    maxlength="15"
-                                    autocomplete="off"
-                                    dir="ltr"
-                                >
+                                <label class="form-label" for="tazkira">د تذکرې نمبر</label>
+                                <input id="tazkira" name="tazkira" type="text" class="form-control" placeholder="0000-0000-00000" maxlength="15" autocomplete="off" dir="ltr">
                                 <div class="form-help">بڼه: 0000-0000-00000</div>
                                 <div class="form-error" id="tazkiraError"></div>
                             </div>
 
                             <div class="form-group" id="searchPaperVolumeGroup" style="display:none;">
-                                <label class="form-label" for="paperSearchVolume">
-                                    جلد
-                                </label>
-                                <input
-                                    id="paperSearchVolume"
-                                    type="text"
-                                    class="form-control"
-                                    placeholder="جلد"
-                                    inputmode="numeric"
-                                    maxlength="20"
-                                >
+                                <label class="form-label" for="paperSearchVolume">جلد</label>
+                                <input id="paperSearchVolume" type="text" class="form-control" placeholder="جلد" inputmode="numeric" maxlength="20">
                             </div>
 
                             <div class="form-group" id="searchPaperPageGroup" style="display:none;">
-                                <label class="form-label" for="paperSearchPage">
-                                    صفحه
-                                </label>
-                                <input
-                                    id="paperSearchPage"
-                                    type="text"
-                                    class="form-control"
-                                    placeholder="صفحه"
-                                    inputmode="numeric"
-                                    maxlength="20"
-                                >
+                                <label class="form-label" for="paperSearchPage">صفحه</label>
+                                <input id="paperSearchPage" type="text" class="form-control" placeholder="صفحه" inputmode="numeric" maxlength="20">
                             </div>
 
                             <div class="form-group" id="searchPaperNumberGroup" style="display:none;">
-                                <label class="form-label" for="paperSearchNumber">
-                                    ګڼه
-                                </label>
-                                <input
-                                    id="paperSearchNumber"
-                                    type="text"
-                                    class="form-control"
-                                    placeholder="ګڼه"
-                                    inputmode="numeric"
-                                    maxlength="20"
-                                >
+                                <label class="form-label" for="paperSearchNumber">ګڼه</label>
+                                <input id="paperSearchNumber" type="text" class="form-control" placeholder="ګڼه" inputmode="numeric" maxlength="20">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="birthDate">د زېږون نېټه</label>
+                                <input id="birthDate" name="birthDate" type="text" class="form-control" placeholder="0000/00/00" maxlength="10" inputmode="numeric" autocomplete="off" dir="ltr">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="age">عمر</label>
+                                <input id="age" name="age" type="number" class="form-control" placeholder="عمر" min="1" max="150" inputmode="numeric">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="phone">د تلیفون شمېره</label>
+                                <input id="phone" name="phone" type="tel" class="form-control" placeholder="د تلیفون شمېره" inputmode="tel">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="originalProvince">اصلي ولایت</label>
+                                <select id="originalProvince" class="form-control">
+                                    <option value="">ولایت انتخاب کړئ</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="originalDistrict">اصلي ولسوالۍ</label>
+                                <input id="originalDistrict" type="text" class="form-control" placeholder="ولسوالۍ په لاس ولیکئ" maxlength="150" autocomplete="off">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="originalVillage">اصلي کلی</label>
+                                <input id="originalVillage" type="text" class="form-control" placeholder="کلی په لاس ولیکئ" maxlength="150" autocomplete="off">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="currentProvince">فعلي ولایت</label>
+                                <select id="currentProvince" class="form-control">
+                                    <option value="">ولایت انتخاب کړئ</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="currentDistrict">فعلي ولسوالۍ</label>
+                                <input id="currentDistrict" type="text" class="form-control" placeholder="ولسوالۍ په لاس ولیکئ" maxlength="150" autocomplete="off">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="currentVillage">فعلي کلی</label>
+                                <input id="currentVillage" type="text" class="form-control" placeholder="کلی په لاس ولیکئ" maxlength="150" autocomplete="off">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="currentJob">اوسنی دنده</label>
+                                <input id="currentJob" name="currentJob" type="text" class="form-control" placeholder="اوسنی دنده ولیکئ" maxlength="200" autocomplete="off">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="groupLeader">اړوند دلګی مشر نوم او تخلص</label>
+                                <input id="groupLeader" name="groupLeader" type="text" class="form-control" placeholder="نوم او تخلص ولیکئ" maxlength="150" autocomplete="off">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="category">کټګوري</label>
+                                <select id="category" name="category" class="form-control">
+                                    <option value="">کټګوري انتخاب کړئ</option>
+                                    <option value="مجاهد">مجاهد</option>
+                                    <option value="همکار">همکار</option>
+                                    <option value="د شهید د کورنۍ غړی">د شهید د کورنۍ غړی</option>
+                                    <option value="بعدالفتح">بعدالفتح</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group full">
+                                <label class="form-label" for="jihadiHistory">جهادي سابقه</label>
+                                <textarea id="jihadiHistory" name="jihadiHistory" class="form-control" placeholder="د جهادي سابقې معلومات" maxlength="1000"></textarea>
+                                <div class="form-help">د سرچ لپاره اختیاري ده.</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="pdfCreationDate">د PDF د جوړېدو نېټه</label>
+                                <input id="pdfCreationDate" name="pdfCreationDate" type="date" class="form-control">
                             </div>
 
                             <div class="form-group">
@@ -174,7 +245,7 @@
     </div>
 
     <footer class="footer">
-        Hafz Admin Online System
+        د افغانستان اسلامي امارت د کره کمیسیون د تصفیوی فورمو د ثبت او مدیریت ډیټابیس
     </footer>
 
     <script type="module" src="./search.js"></script>
