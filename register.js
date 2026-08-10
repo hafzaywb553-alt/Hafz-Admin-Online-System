@@ -1,5 +1,5 @@
 // ==========================================
-// Hafz Admin Online System
+// دافغانستان اسلامي امارت دکره کمیسیون دفورمو دثبت او مدیریت ډیټابیس
 // register.js
 // Registration Engine
 // ==========================================
@@ -8,13 +8,9 @@ import { db } from "./firebase.js";
 
 import {
     collection,
-    addDoc,
     doc,
     getDoc,
-    getDocs,
-    query,
-    where,
-    updateDoc,
+    runTransaction,
     serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
@@ -37,10 +33,19 @@ import {
 
 
 // ==========================================
-// Firestore Collection
+// System Name
+// ==========================================
+
+const SYSTEM_NAME =
+    "دافغانستان اسلامي امارت دکره کمیسیون دفورمو دثبت او مدیریت ډیټابیس";
+
+
+// ==========================================
+// Firestore Collections
 // ==========================================
 
 const RECORDS_COLLECTION = "records";
+const UNIQUE_NUMBERS_COLLECTION = "uniqueNumbers";
 
 
 // ==========================================
@@ -199,6 +204,9 @@ const tazkiraTypePaper =
 const electronicTazkiraGroup =
     document.getElementById("electronicTazkiraGroup");
 
+const paperNumberGroup =
+    document.getElementById("paperTazkiraNumberGroup");
+
 const paperJildGroup =
     document.getElementById("paperJildGroup");
 
@@ -220,6 +228,21 @@ const paperTazkiraPage =
 const paperTazkiraNumber =
     document.getElementById("paperTazkiraNumber");
 
+const electronicTazkiraRequired =
+    document.getElementById("electronicTazkiraRequired");
+
+const paperTazkiraNumberRequired =
+    document.getElementById("paperTazkiraNumberRequired");
+
+const paperTazkiraVolumeRequired =
+    document.getElementById("paperTazkiraVolumeRequired");
+
+const paperTazkiraPageRequired =
+    document.getElementById("paperTazkiraPageRequired");
+
+const paperTazkiraGanaRequired =
+    document.getElementById("paperTazkiraGanaRequired");
+
 
 // ==========================================
 // Edit State
@@ -238,13 +261,37 @@ const editModeInput =
 
 let loadingRecord = false;
 
+let activeAdmin = {
+    name: "نامعلوم اډمین",
+    email: "",
+    uid: ""
+};
+
+
+// ==========================================
+// System title update
+// ==========================================
+
+function applySystemName() {
+    document.title = SYSTEM_NAME;
+
+    const titleEl = document.querySelector("[data-system-name]");
+    if (titleEl) {
+        titleEl.textContent = SYSTEM_NAME;
+    }
+
+    const footerEl = document.querySelector(".footer");
+    if (footerEl) {
+        footerEl.textContent = SYSTEM_NAME;
+    }
+}
+
 
 // ==========================================
 // Helpers
 // ==========================================
 
 function cleanText(value) {
-
     if (
         value === null ||
         value === undefined
@@ -253,6 +300,261 @@ function cleanText(value) {
     }
 
     return String(value).trim();
+}
+
+function normalizeUniqueNumber(value) {
+    return cleanText(value).replace(/[^0-9]/g, "");
+}
+
+function uniqueDocId(type, value) {
+    return `${type}_${normalizeUniqueNumber(value)}`;
+}
+
+function getCurrentAdminName() {
+    return cleanText(activeAdmin.name) || "نامعلوم اډمین";
+}
+
+function getCurrentAdminEmail() {
+    return cleanText(activeAdmin.email);
+}
+
+function getUniqueNumberItemsFromData(data) {
+    const items = [
+        {
+            type: "formNumber",
+            value: data.formNumber,
+            fieldId: "formNumber"
+        }
+    ];
+
+    if (data.tazkiraType === TAZKIRA_TYPES.ELECTRONIC) {
+        items.push({
+            type: "electronicTazkiraNumber",
+            value: data.electronicTazkiraNumber,
+            fieldId: "tazkira"
+        });
+    }
+
+    if (data.tazkiraType === TAZKIRA_TYPES.PAPER) {
+        items.push({
+            type: "paperTazkiraNumber",
+            value: data.paperTazkiraNumber,
+            fieldId: "paperTazkiraNumber"
+        });
+    }
+
+    return items.filter(item => normalizeUniqueNumber(item.value));
+}
+
+function getUniqueNumberItemsFromRecord(record) {
+    const source = record || {};
+    const person = source.person || {};
+    const tType = cleanText(
+        source.tazkiraType ||
+        person.tazkiraType ||
+        source.tazkiraDetails?.type
+    );
+
+    const items = [
+        {
+            type: "formNumber",
+            value: source.formNumber,
+            fieldId: "formNumber"
+        }
+    ];
+
+    if (tType === TAZKIRA_TYPES.ELECTRONIC) {
+        items.push({
+            type: "electronicTazkiraNumber",
+            value:
+                source.electronicTazkiraNumber ||
+                source.tazkira ||
+                source.tazkiraDetails?.electronicNumber ||
+                person.tazkira,
+            fieldId: "tazkira"
+        });
+    }
+
+    if (tType === TAZKIRA_TYPES.PAPER) {
+        items.push({
+            type: "paperTazkiraNumber",
+            value:
+                source.paperTazkiraNumber ||
+                source.tazkiraDetails?.paper?.number,
+            fieldId: "paperTazkiraNumber"
+        });
+    }
+
+    return items.filter(item => normalizeUniqueNumber(item.value));
+}
+
+function buildDuplicateMessage(type, ownerName) {
+    const adminName = cleanText(ownerName) || "نامعلوم اډمین";
+
+    if (type === "formNumber") {
+        return `دا فورمی نمبر مخکی ${adminName} ثبت کړی دی.`;
+    }
+
+    if (type === "electronicTazkiraNumber") {
+        return `دا برقی تذکیری نمبر مخکی ${adminName} ثبت کړی دی.`;
+    }
+
+    if (type === "paperTazkiraNumber") {
+        return `دا کاغذی تذکیری نمبر مخکی ${adminName} ثبت کړی دی.`;
+    }
+
+    return `دا نمبر مخکی ${adminName} ثبت کړی دی.`;
+}
+
+async function getOwnerNameForUniqueNumber(
+    tx,
+    uniqueData,
+    uniqueType
+) {
+    const recordId = cleanText(uniqueData.recordId);
+
+    const directName =
+        cleanText(uniqueData.createdByName) ||
+        cleanText(uniqueData.adminName) ||
+        cleanText(uniqueData.ownerName);
+
+    if (directName) {
+        return directName;
+    }
+
+    if (!recordId) {
+        return "نامعلوم اډمین";
+    }
+
+    const ownerRecordRef = doc(
+        db,
+        RECORDS_COLLECTION,
+        recordId
+    );
+
+    const ownerSnapshot = await tx.get(ownerRecordRef);
+
+    if (!ownerSnapshot.exists()) {
+        return "نامعلوم اډمین";
+    }
+
+    const ownerData = ownerSnapshot.data() || {};
+
+    const ownerName =
+        cleanText(ownerData.createdByName) ||
+        cleanText(ownerData.updatedByName) ||
+        cleanText(ownerData.person?.createdByName) ||
+        cleanText(ownerData.person?.updatedByName) ||
+        cleanText(ownerData.createdBy) ||
+        cleanText(ownerData.updatedBy) ||
+        "نامعلوم اډمین";
+
+    return ownerName;
+}
+
+async function isUniqueNumberReserved(
+    type,
+    value,
+    currentRecordId = ""
+) {
+    const number = normalizeUniqueNumber(value);
+
+    if (!number) {
+        return false;
+    }
+
+    const uniqueRef = doc(
+        db,
+        UNIQUE_NUMBERS_COLLECTION,
+        uniqueDocId(type, number)
+    );
+
+    const snapshot = await getDoc(uniqueRef);
+
+    if (!snapshot.exists()) {
+        return false;
+    }
+
+    const data = snapshot.data() || {};
+    return cleanText(data.recordId) !== cleanText(currentRecordId);
+}
+
+async function assertUniqueNumbersInTransaction(
+    tx,
+    recordId,
+    data
+) {
+    const items = getUniqueNumberItemsFromData(data);
+
+    for (const item of items) {
+        const number = normalizeUniqueNumber(item.value);
+
+        if (!number) {
+            continue;
+        }
+
+        const uniqueRef = doc(
+            db,
+            UNIQUE_NUMBERS_COLLECTION,
+            uniqueDocId(item.type, number)
+        );
+
+        const snapshot = await tx.get(uniqueRef);
+
+        if (snapshot.exists()) {
+            const existing = snapshot.data() || {};
+            const ownerId = cleanText(existing.recordId);
+
+            if (ownerId && ownerId !== cleanText(recordId)) {
+                const ownerName = await getOwnerNameForUniqueNumber(
+                    tx,
+                    existing,
+                    item.type
+                );
+
+                const error = new Error(
+                    buildDuplicateMessage(item.type, ownerName)
+                );
+
+                error.code = "duplicate_number";
+                error.fieldId = item.fieldId;
+                throw error;
+            }
+        }
+    }
+}
+
+function writeUniqueNumbers(tx, recordId, data) {
+    const items = getUniqueNumberItemsFromData(data);
+
+    for (const item of items) {
+        const number = normalizeUniqueNumber(item.value);
+
+        if (!number) {
+            continue;
+        }
+
+        const uniqueRef = doc(
+            db,
+            UNIQUE_NUMBERS_COLLECTION,
+            uniqueDocId(item.type, number)
+        );
+
+        tx.set(
+            uniqueRef,
+            {
+                type: item.type,
+                number,
+                recordId: cleanText(recordId),
+                createdByName: getCurrentAdminName(),
+                createdByEmail: getCurrentAdminEmail(),
+                source: RECORDS_COLLECTION,
+                createdAt: serverTimestamp(),
+                updatedAt: serverTimestamp()
+            },
+            { merge: true }
+        );
+    }
 }
 
 
@@ -264,14 +566,10 @@ function showMessage(
     message,
     type = "success"
 ) {
-
     formMessage.textContent = message;
-
     formMessage.className =
         "alert alert-" + type;
-
-    formMessage.style.display =
-        "block";
+    formMessage.style.display = "block";
 
     window.scrollTo({
         top: 0,
@@ -279,17 +577,10 @@ function showMessage(
     });
 }
 
-
 function hideMessage() {
-
-    formMessage.style.display =
-        "none";
-
-    formMessage.textContent =
-        "";
-
-    formMessage.className =
-        "alert";
+    formMessage.style.display = "none";
+    formMessage.textContent = "";
+    formMessage.className = "alert";
 }
 
 
@@ -298,7 +589,6 @@ function hideMessage() {
 // ==========================================
 
 function clearErrors() {
-
     document
         .querySelectorAll(".form-error")
         .forEach(el => {
@@ -312,23 +602,18 @@ function clearErrors() {
         });
 }
 
-
 function setFieldError(
     fieldId,
     message
 ) {
-
     const errorBox =
-        document.getElementById(
-            `${fieldId}Error`
-        );
+        document.getElementById(`${fieldId}Error`);
 
     const field =
         document.getElementById(fieldId);
 
     if (errorBox) {
-        errorBox.textContent =
-            message || "";
+        errorBox.textContent = message || "";
     }
 
     if (field && message) {
@@ -342,7 +627,6 @@ function setFieldError(
 // ==========================================
 
 function loadProvinces() {
-
     if (
         !originalProvince ||
         !currentProvince
@@ -354,35 +638,18 @@ function loadProvinces() {
         getProvinces();
 
     provinces.forEach(province => {
-
         const option1 =
             document.createElement("option");
-
-        option1.value =
-            province;
-
-        option1.textContent =
-            province;
-
+        option1.value = province;
+        option1.textContent = province;
 
         const option2 =
             document.createElement("option");
+        option2.value = province;
+        option2.textContent = province;
 
-        option2.value =
-            province;
-
-        option2.textContent =
-            province;
-
-
-        originalProvince.appendChild(
-            option1
-        );
-
-        currentProvince.appendChild(
-            option2
-        );
-
+        originalProvince.appendChild(option1);
+        currentProvince.appendChild(option2);
     });
 }
 
@@ -392,21 +659,15 @@ function loadProvinces() {
 // ==========================================
 
 function updateJihadiHistory() {
-
     const isMujahid =
         category.value === "مجاهد";
 
-    jihadiHistory.required =
-        isMujahid;
-
+    jihadiHistory.required = isMujahid;
     jihadiRequired.style.display =
-        isMujahid
-            ? "inline"
-            : "none";
+        isMujahid ? "" : "none";
 
     if (!isMujahid) {
-        jihadiHistory.value =
-            "";
+        jihadiHistory.value = "";
     }
 }
 
@@ -416,13 +677,11 @@ function updateJihadiHistory() {
 // ==========================================
 
 function setTazkiraMode(mode) {
-
     const isPaper =
         mode === TAZKIRA_TYPES.PAPER;
 
     const isElectronic =
         !isPaper;
-
 
     tazkiraTypeElectronic.checked =
         isElectronic;
@@ -430,72 +689,81 @@ function setTazkiraMode(mode) {
     tazkiraTypePaper.checked =
         isPaper;
 
-
-    /*
-     * د برقي تذکرې نمبر خانه اوس د
-     * «د نیکه نوم» لاندې په Personal Information
-     * برخه کې ده.
-     *
-     * electronicTazkiraGroup یوازې د پخواني
-     * JavaScript compatibility لپاره ساتل شوی.
-     */
-
     if (electronicTazkiraGroup) {
         electronicTazkiraGroup.style.display =
-            "none";
+            isPaper ? "none" : "";
     }
 
+    if (paperNumberGroup) {
+        paperNumberGroup.style.display =
+            isPaper ? "" : "none";
+    }
 
-    paperJildGroup.style.display =
-        isPaper
-            ? "block"
-            : "none";
+    if (paperJildGroup) {
+        paperJildGroup.style.display =
+            isPaper ? "" : "none";
+    }
 
-    paperSafhaGroup.style.display =
-        isPaper
-            ? "block"
-            : "none";
+    if (paperSafhaGroup) {
+        paperSafhaGroup.style.display =
+            isPaper ? "" : "none";
+    }
 
-    paperGanaGroup.style.display =
-        isPaper
-            ? "block"
-            : "none";
+    if (paperGanaGroup) {
+        paperGanaGroup.style.display =
+            isPaper ? "" : "none";
+    }
 
+    tazkira.required = isElectronic;
 
-    tazkira.required =
-        isElectronic;
+    if (electronicTazkiraRequired) {
+        electronicTazkiraRequired.style.display =
+            isElectronic ? "" : "none";
+    }
 
-    paperTazkiraVolume.required =
-        isPaper;
+    paperTazkiraNumber.required = isPaper;
+    paperTazkiraVolume.required = isPaper;
+    paperTazkiraPage.required = isPaper;
+    paperTazkiraGana.required = isPaper;
 
-    paperTazkiraPage.required =
-        isPaper;
+    if (paperTazkiraNumberRequired) {
+        paperTazkiraNumberRequired.style.display =
+            isPaper ? "" : "none";
+    }
 
-    paperTazkiraNumber.required =
-        isPaper;
+    if (paperTazkiraVolumeRequired) {
+        paperTazkiraVolumeRequired.style.display =
+            isPaper ? "" : "none";
+    }
 
+    if (paperTazkiraPageRequired) {
+        paperTazkiraPageRequired.style.display =
+            isPaper ? "" : "none";
+    }
+
+    if (paperTazkiraGanaRequired) {
+        paperTazkiraGanaRequired.style.display =
+            isPaper ? "" : "none";
+    }
+
+    if (!isPaper) {
+        paperTazkiraNumber.required = false;
+        paperTazkiraVolume.required = false;
+        paperTazkiraPage.required = false;
+        paperTazkiraGana.required = false;
+    }
 
     if (isElectronic) {
-
-        paperTazkiraVolume.value =
-            "";
-
-        paperTazkiraPage.value =
-            "";
-
-        paperTazkiraNumber.value =
-            "";
-
+        paperTazkiraNumber.value = "";
+        paperTazkiraVolume.value = "";
+        paperTazkiraPage.value = "";
+        paperTazkiraGana.value = "";
     } else {
-
-        tazkira.value =
-            "";
+        tazkira.value = "";
     }
 }
 
-
 function getSelectedTazkiraType() {
-
     return tazkiraTypePaper.checked
         ? TAZKIRA_TYPES.PAPER
         : TAZKIRA_TYPES.ELECTRONIC;
@@ -507,39 +775,27 @@ function getSelectedTazkiraType() {
 // یوازې دقیق 13 عددونه + 2 کرښې
 // ==========================================
 
-function formatElectronicTazkiraInput(
-    input
-) {
-
+function formatElectronicTazkiraInput(input) {
     let value =
-        cleanText(input)
-            .replace(/[^0-9]/g, "");
-
+        cleanText(input).replace(/[^0-9]/g, "");
 
     if (value.length > 13) {
-
-        value =
-            value.substring(0, 13);
+        value = value.substring(0, 13);
     }
 
-
     if (value.length > 8) {
-
         value =
             value.substring(0, 4) +
             "-" +
             value.substring(4, 8) +
             "-" +
             value.substring(8);
-
     } else if (value.length > 4) {
-
         value =
             value.substring(0, 4) +
             "-" +
             value.substring(4);
     }
-
 
     return value;
 }
@@ -552,31 +808,18 @@ function formatElectronicTazkiraInput(
 // ==========================================
 
 function formatPaperNumberInput(input) {
-
-    return cleanText(input)
-        .replace(/[^0-9]/g, "");
+    return cleanText(input).replace(/[^0-9]/g, "");
 }
 
-
-function setupPaperNumericField(
-    field
-) {
-
+function setupPaperNumericField(field) {
     if (!field) {
         return;
     }
 
-    field.addEventListener(
-        "input",
-        () => {
-
-            field.value =
-                formatPaperNumberInput(
-                    field.value
-                );
-
-        }
-    );
+    field.addEventListener("input", () => {
+        field.value =
+            formatPaperNumberInput(field.value);
+    });
 }
 
 
@@ -586,26 +829,14 @@ function setupPaperNumericField(
 // ==========================================
 
 function formatFormNumberInput(input) {
-
-    return cleanText(input)
-        .replace(/[^0-9]/g, "");
+    return cleanText(input).replace(/[^0-9]/g, "");
 }
 
-
 if (formNumber) {
-
-    formNumber.addEventListener(
-        "input",
-        () => {
-
-            formNumber.value =
-                formatFormNumberInput(
-                    formNumber.value
-                );
-
-        }
-    );
-
+    formNumber.addEventListener("input", () => {
+        formNumber.value =
+            formatFormNumberInput(formNumber.value);
+    });
 }
 
 
@@ -614,179 +845,73 @@ if (formNumber) {
 // ==========================================
 
 function collectFormData() {
-
     const tazkiraType =
         getSelectedTazkiraType();
 
-
     const data = {
+        formNumber: cleanText(formNumber.value),
+        category: cleanText(category.value),
+        firstName: cleanText(firstName.value),
+        lastName: cleanText(lastName.value),
+        fatherName: cleanText(fatherName.value),
+        grandfatherName: cleanText(grandfatherName.value),
 
-        // ----------------------------------
-        // Original fields
-        // ----------------------------------
+        englishName: cleanText(englishName.value),
+        englishLastName: cleanText(englishLastName.value),
+        englishFatherName: cleanText(englishFatherName.value),
+        englishGrandfatherName: cleanText(englishGrandfatherName.value),
 
-        formNumber:
-            cleanText(formNumber.value),
-
-        category:
-            cleanText(category.value),
-
-        firstName:
-            cleanText(firstName.value),
-
-        lastName:
-            cleanText(lastName.value),
-
-        fatherName:
-            cleanText(fatherName.value),
-
-        grandfatherName:
-            cleanText(grandfatherName.value),
-
-
-        // ----------------------------------
-        // ONLY new English fields
-        // ----------------------------------
-
-        englishName:
-            cleanText(englishName.value),
-
-        englishLastName:
-            cleanText(englishLastName.value),
-
-        englishFatherName:
-            cleanText(englishFatherName.value),
-
-        englishGrandfatherName:
-            cleanText(englishGrandfatherName.value),
-
-
-        // ----------------------------------
-        // Other original fields
-        // ----------------------------------
-
-        birthDate:
-            cleanText(birthDate.value),
-
-        age:
-            cleanText(age.value),
-
-        phone:
-            cleanText(phone.value),
-
-
-        // ----------------------------------
-        // Tazkira
-        // ----------------------------------
+        birthDate: cleanText(birthDate.value),
+        age: cleanText(age.value),
+        phone: cleanText(phone.value),
 
         tazkiraType,
 
         tazkira:
-            tazkiraType ===
-            TAZKIRA_TYPES.ELECTRONIC
+            tazkiraType === TAZKIRA_TYPES.ELECTRONIC
                 ? cleanText(tazkira.value)
                 : "",
 
         electronicTazkiraNumber:
-            tazkiraType ===
-            TAZKIRA_TYPES.ELECTRONIC
+            tazkiraType === TAZKIRA_TYPES.ELECTRONIC
                 ? cleanText(tazkira.value)
                 : "",
 
         paperTazkiraVolume:
-            tazkiraType ===
-            TAZKIRA_TYPES.PAPER
-                ? cleanText(
-                    paperTazkiraVolume.value
-                )
+            tazkiraType === TAZKIRA_TYPES.PAPER
+                ? cleanText(paperTazkiraVolume.value)
                 : "",
 
         paperTazkiraPage:
-            tazkiraType ===
-            TAZKIRA_TYPES.PAPER
-                ? cleanText(
-                    paperTazkiraPage.value
-                )
+            tazkiraType === TAZKIRA_TYPES.PAPER
+                ? cleanText(paperTazkiraPage.value)
                 : "",
 
         paperTazkiraNumber:
-            tazkiraType ===
-            TAZKIRA_TYPES.PAPER
-                ? cleanText(
-                    paperTazkiraNumber.value
-                )
+            tazkiraType === TAZKIRA_TYPES.PAPER
+                ? cleanText(paperTazkiraNumber.value)
                 : "",
 
-
-        // ----------------------------------
-        // Locations
-        // ----------------------------------
-
         originalLocation: {
-
-            province:
-                cleanText(
-                    originalProvince.value
-                ),
-
-            district:
-                cleanText(
-                    originalDistrict.value
-                ),
-
-            village:
-                cleanText(
-                    originalVillage.value
-                )
+            province: cleanText(originalProvince.value),
+            district: cleanText(originalDistrict.value),
+            village: cleanText(originalVillage.value)
         },
-
 
         currentLocation: {
-
-            province:
-                cleanText(
-                    currentProvince.value
-                ),
-
-            district:
-                cleanText(
-                    currentDistrict.value
-                ),
-
-            village:
-                cleanText(
-                    currentVillage.value
-                )
+            province: cleanText(currentProvince.value),
+            district: cleanText(currentDistrict.value),
+            village: cleanText(currentVillage.value)
         },
 
-
-        // ----------------------------------
-        // Work
-        // ----------------------------------
-
-        currentJob:
-            cleanText(currentJob.value),
-
-        groupLeader:
-            cleanText(groupLeader.value),
-
-        jihadiHistory:
-            cleanText(jihadiHistory.value),
-
-        pdfCreationDate:
-            cleanText(pdfCreationDate.value),
-
-
-        // ----------------------------------
-        // Existing state fields
-        // ----------------------------------
+        currentJob: cleanText(currentJob.value),
+        groupLeader: cleanText(groupLeader.value),
+        jihadiHistory: cleanText(jihadiHistory.value),
+        pdfCreationDate: cleanText(pdfCreationDate.value),
 
         fieldState: {},
-
         visibilityState: {}
-
     };
-
 
     return data;
 }
@@ -796,36 +921,23 @@ function collectFormData() {
 // Validation Error Extraction
 // ==========================================
 
-function extractValidationErrors(
-    result
-) {
-
+function extractValidationErrors(result) {
     if (!result) {
-        return [
-            "د فورم معلومات سم نه دي."
-        ];
+        return ["د فورم معلومات سم نه دي."];
     }
-
 
     if (
         Array.isArray(result.errors) &&
         result.errors.length > 0
     ) {
-
         return result.errors;
     }
 
-
     if (result.message) {
-        return [
-            result.message
-        ];
+        return [result.message];
     }
 
-
-    return [
-        "د فورم معلومات سم نه دي."
-    ];
+    return ["د فورم معلومات سم نه دي."];
 }
 
 
@@ -833,151 +945,63 @@ function extractValidationErrors(
 // Map Validation Errors
 // ==========================================
 
-function mapValidationToFields(
-    errors = []
-) {
+function mapValidationToFields(errors = []) {
+    const text = errors.join(" ");
 
-    const text =
-        errors.join(" ");
-
-
-    if (
-        text.includes("فورمي نمبر")
-    ) {
-        setFieldError(
-            "formNumber",
-            text
-        );
+    if (text.includes("فورمي نمبر")) {
+        setFieldError("formNumber", text);
     }
 
-
-    if (
-        text.includes("نوم")
-    ) {
-        setFieldError(
-            "firstName",
-            text
-        );
+    if (text.includes("نوم")) {
+        setFieldError("firstName", text);
     }
 
-
-    if (
-        text.includes("تخلص")
-    ) {
-        setFieldError(
-            "lastName",
-            text
-        );
+    if (text.includes("تخلص")) {
+        setFieldError("lastName", text);
     }
 
-
-    if (
-        text.includes("پلار")
-    ) {
-        setFieldError(
-            "fatherName",
-            text
-        );
+    if (text.includes("پلار")) {
+        setFieldError("fatherName", text);
     }
 
-
-    if (
-        text.includes("نیکه")
-    ) {
-        setFieldError(
-            "grandfatherName",
-            text
-        );
+    if (text.includes("نیکه")) {
+        setFieldError("grandfatherName", text);
     }
 
-
-    if (
-        text.includes("عمر")
-    ) {
-        setFieldError(
-            "age",
-            text
-        );
+    if (text.includes("عمر")) {
+        setFieldError("age", text);
     }
 
-
-    if (
-        text.includes("تذکرې")
-    ) {
-        setFieldError(
-            "tazkira",
-            text
-        );
+    if (text.includes("تذکرې")) {
+        setFieldError("tazkira", text);
     }
 
-
-    if (
-        text.includes("جلد")
-    ) {
-        setFieldError(
-            "paperTazkiraVolume",
-            text
-        );
+    if (text.includes("جلد")) {
+        setFieldError("paperTazkiraVolume", text);
     }
 
-
-    if (
-        text.includes("صفحه")
-    ) {
-        setFieldError(
-            "paperTazkiraPage",
-            text
-        );
+    if (text.includes("صفحه")) {
+        setFieldError("paperTazkiraPage", text);
     }
 
-
-    if (
-        text.includes("ګڼه")
-    ) {
-        setFieldError(
-            "paperTazkiraNumber",
-            text
-        );
+    if (text.includes("ګڼه")) {
+        setFieldError("paperTazkiraNumber", text);
     }
 
-
-    if (
-        text.includes("PDF")
-    ) {
-        setFieldError(
-            "pdfCreationDate",
-            text
-        );
+    if (text.includes("PDF")) {
+        setFieldError("pdfCreationDate", text);
     }
 
-
-    if (
-        text.includes("اصلي ځای")
-    ) {
-        setFieldError(
-            "originalDistrict",
-            text
-        );
+    if (text.includes("اصلي ځای")) {
+        setFieldError("originalDistrict", text);
     }
 
-
-    if (
-        text.includes("فعلي ځای")
-    ) {
-        setFieldError(
-            "currentDistrict",
-            text
-        );
+    if (text.includes("فعلي ځای")) {
+        setFieldError("currentDistrict", text);
     }
 
-
-    if (
-        text.includes("دلګی")
-    ) {
-        setFieldError(
-            "groupLeader",
-            text
-        );
+    if (text.includes("دلګی")) {
+        setFieldError("groupLeader", text);
     }
 }
 
@@ -986,27 +1010,19 @@ function mapValidationToFields(
 // Populate Form For Edit
 // ==========================================
 
-function populateFormFromRecord(
-    record
-) {
-
+function populateFormFromRecord(record) {
     if (!record) {
         return;
     }
-
 
     formNumber.value =
         formatFormNumberInput(
             cleanText(record.formNumber)
         );
 
-    category.value =
-        cleanText(record.category);
+    category.value = cleanText(record.category);
 
-
-    const person =
-        record.person || {};
-
+    const person = record.person || {};
 
     firstName.value =
         cleanText(
@@ -1014,13 +1030,11 @@ function populateFormFromRecord(
             record.firstName
         );
 
-
     lastName.value =
         cleanText(
             person.lastName ??
             record.lastName
         );
-
 
     fatherName.value =
         cleanText(
@@ -1028,13 +1042,11 @@ function populateFormFromRecord(
             record.fatherName
         );
 
-
     grandfatherName.value =
         cleanText(
             person.grandfatherName ??
             record.grandfatherName
         );
-
 
     englishName.value =
         cleanText(
@@ -1042,13 +1054,11 @@ function populateFormFromRecord(
             person.englishName
         );
 
-
     englishLastName.value =
         cleanText(
             record.englishLastName ??
             person.englishLastName
         );
-
 
     englishFatherName.value =
         cleanText(
@@ -1056,13 +1066,11 @@ function populateFormFromRecord(
             person.englishFatherName
         );
 
-
     englishGrandfatherName.value =
         cleanText(
             record.englishGrandfatherName ??
             person.englishGrandfatherName
         );
-
 
     birthDate.value =
         cleanText(
@@ -1070,13 +1078,11 @@ function populateFormFromRecord(
             record.birthDate
         );
 
-
     age.value =
         cleanText(
             person.age ??
             record.age
         );
-
 
     phone.value =
         cleanText(
@@ -1084,10 +1090,7 @@ function populateFormFromRecord(
             record.phone
         );
 
-
-    const original =
-        record.originalLocation || {};
-
+    const original = record.originalLocation || {};
 
     originalProvince.value =
         cleanText(original.province);
@@ -1098,10 +1101,7 @@ function populateFormFromRecord(
     originalVillage.value =
         cleanText(original.village);
 
-
-    const current =
-        record.currentLocation || {};
-
+    const current = record.currentLocation || {};
 
     currentProvince.value =
         cleanText(current.province);
@@ -1111,7 +1111,6 @@ function populateFormFromRecord(
 
     currentVillage.value =
         cleanText(current.village);
-
 
     currentJob.value =
         cleanText(record.currentJob);
@@ -1125,7 +1124,6 @@ function populateFormFromRecord(
     pdfCreationDate.value =
         cleanText(record.pdfCreationDate);
 
-
     const tType =
         cleanText(
             record.tazkiraType ||
@@ -1133,70 +1131,44 @@ function populateFormFromRecord(
             record.tazkiraDetails?.type
         );
 
-
-    if (
-        tType === TAZKIRA_TYPES.PAPER
-    ) {
-
-        setTazkiraMode(
-            TAZKIRA_TYPES.PAPER
-        );
-
+    if (tType === TAZKIRA_TYPES.PAPER) {
+        setTazkiraMode(TAZKIRA_TYPES.PAPER);
 
         paperTazkiraVolume.value =
             cleanText(
-                record
-                    .tazkiraDetails
-                    ?.paper
-                    ?.volume ??
+                record.tazkiraDetails?.paper?.volume ??
                 record.paperTazkiraVolume
             );
 
-
         paperTazkiraPage.value =
             cleanText(
-                record
-                    .tazkiraDetails
-                    ?.paper
-                    ?.page ??
+                record.tazkiraDetails?.paper?.page ??
                 record.paperTazkiraPage
             );
 
-
         paperTazkiraNumber.value =
             cleanText(
-                record
-                    .tazkiraDetails
-                    ?.paper
-                    ?.number ??
+                record.tazkiraDetails?.paper?.number ??
                 record.paperTazkiraNumber
             );
-
     } else {
-
-        setTazkiraMode(
-            TAZKIRA_TYPES.ELECTRONIC
-        );
-
+        setTazkiraMode(TAZKIRA_TYPES.ELECTRONIC);
 
         const electronicNumber =
             cleanText(
                 record.tazkiraSearchKey ||
                 record.tazkiraDisplay ||
                 person.tazkira ||
-                record.tazkiraDetails
-                    ?.electronicNumber ||
+                record.tazkiraDetails?.electronicNumber ||
                 record.electronicTazkiraNumber ||
                 record.tazkira
             );
-
 
         tazkira.value =
             formatElectronicTazkiraInput(
                 electronicNumber
             );
     }
-
 
     updateJihadiHistory();
 }
@@ -1206,87 +1178,54 @@ function populateFormFromRecord(
 // Load Record For Edit
 // ==========================================
 
-async function loadRecordForEdit(
-    recordId
-) {
-
-    const id =
-        cleanText(recordId);
-
+async function loadRecordForEdit(recordId) {
+    const id = cleanText(recordId);
 
     if (!id) {
         return;
     }
 
-
     loadingRecord = true;
 
-
     try {
+        const recordRef = doc(
+            db,
+            RECORDS_COLLECTION,
+            id
+        );
 
-        const recordRef =
-            doc(
-                db,
-                RECORDS_COLLECTION,
-                id
-            );
-
-
-        const snapshot =
-            await getDoc(recordRef);
-
+        const snapshot = await getDoc(recordRef);
 
         if (!snapshot.exists()) {
-
             showMessage(
                 "د edit لپاره ثبت شوی معلومات پیدا نه شو.",
                 "danger"
             );
-
             return;
         }
 
+        const record = snapshot.data() || {};
 
-        const record =
-            snapshot.data() || {};
+        populateFormFromRecord(record);
 
-
-        populateFormFromRecord(
-            record
-        );
-
-
-        recordIdInput.value =
-            id;
-
-        editModeInput.value =
-            "1";
-
+        recordIdInput.value = id;
+        editModeInput.value = "1";
 
         saveBtn.textContent =
             "💾 بدلونونه خوندي کړئ";
-
 
         showMessage(
             "د edit حالت فعال شو.",
             "success"
         );
-
     } catch (error) {
-
-        console.error(
-            "Load Record Error:",
-            error
-        );
-
+        console.error("Load Record Error:", error);
 
         showMessage(
             "د ثبت شوي معلوماتو د لوستلو پر مهال ستونزه رامنځته شوه.",
             "danger"
         );
-
     } finally {
-
         loadingRecord = false;
     }
 }
@@ -1300,41 +1239,10 @@ async function formNumberExists(
     value,
     excludeId = ""
 ) {
-
-    const number =
-        cleanText(value);
-
-
-    if (!number) {
-        return false;
-    }
-
-
-    const q =
-        query(
-            collection(
-                db,
-                RECORDS_COLLECTION
-            ),
-            where(
-                "formNumber",
-                "==",
-                number
-            )
-        );
-
-
-    const snapshot =
-        await getDocs(q);
-
-
-    if (snapshot.empty) {
-        return false;
-    }
-
-
-    return snapshot.docs.some(
-        document => document.id !== excludeId
+    return await isUniqueNumberReserved(
+        "formNumber",
+        value,
+        excludeId
     );
 }
 
@@ -1347,144 +1255,67 @@ function buildFirestoreData(
     data,
     existing = {}
 ) {
-
     const previousPerson =
         existing.person || {};
 
-
     const person = {
-
         ...previousPerson,
 
-        firstName:
-            data.firstName,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        fatherName: data.fatherName,
+        grandfatherName: data.grandfatherName,
+        birthDate: data.birthDate,
+        age: data.age,
+        phone: data.phone,
 
-        lastName:
-            data.lastName,
+        englishName: data.englishName,
+        englishLastName: data.englishLastName,
+        englishFatherName: data.englishFatherName,
+        englishGrandfatherName: data.englishGrandfatherName,
 
-        fatherName:
-            data.fatherName,
-
-        grandfatherName:
-            data.grandfatherName,
-
-        birthDate:
-            data.birthDate,
-
-        age:
-            data.age,
-
-        phone:
-            data.phone,
-
-        englishName:
-            data.englishName,
-
-        englishLastName:
-            data.englishLastName,
-
-        englishFatherName:
-            data.englishFatherName,
-
-        englishGrandfatherName:
-            data.englishGrandfatherName,
-
-        tazkiraType:
-            data.tazkiraType,
-
-        tazkira:
-            data.tazkira
-
+        tazkiraType: data.tazkiraType,
+        tazkira: data.tazkira
     };
 
-
     const firestoreData = {
+        formNumber: data.formNumber,
+        category: data.category,
 
-        formNumber:
-            data.formNumber,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        fatherName: data.fatherName,
+        grandfatherName: data.grandfatherName,
 
-        category:
-            data.category,
-
-        firstName:
-            data.firstName,
-
-        lastName:
-            data.lastName,
-
-        fatherName:
-            data.fatherName,
-
-        grandfatherName:
-            data.grandfatherName,
-
-        englishName:
-            data.englishName,
-
-        englishLastName:
-            data.englishLastName,
-
-        englishFatherName:
-            data.englishFatherName,
-
-        englishGrandfatherName:
-            data.englishGrandfatherName,
+        englishName: data.englishName,
+        englishLastName: data.englishLastName,
+        englishFatherName: data.englishFatherName,
+        englishGrandfatherName: data.englishGrandfatherName,
 
         person,
 
-        birthDate:
-            data.birthDate,
+        birthDate: data.birthDate,
+        age: data.age,
+        phone: data.phone,
 
-        age:
-            data.age,
+        tazkiraType: data.tazkiraType,
+        tazkira: data.tazkira,
+        electronicTazkiraNumber: data.electronicTazkiraNumber,
+        paperTazkiraVolume: data.paperTazkiraVolume,
+        paperTazkiraPage: data.paperTazkiraPage,
+        paperTazkiraNumber: data.paperTazkiraNumber,
 
-        phone:
-            data.phone,
+        originalLocation: data.originalLocation,
+        currentLocation: data.currentLocation,
 
-        tazkiraType:
-            data.tazkiraType,
+        currentJob: data.currentJob,
+        groupLeader: data.groupLeader,
+        jihadiHistory: data.jihadiHistory,
+        pdfCreationDate: data.pdfCreationDate,
 
-        tazkira:
-            data.tazkira,
-
-        electronicTazkiraNumber:
-            data.electronicTazkiraNumber,
-
-        paperTazkiraVolume:
-            data.paperTazkiraVolume,
-
-        paperTazkiraPage:
-            data.paperTazkiraPage,
-
-        paperTazkiraNumber:
-            data.paperTazkiraNumber,
-
-        originalLocation:
-            data.originalLocation,
-
-        currentLocation:
-            data.currentLocation,
-
-        currentJob:
-            data.currentJob,
-
-        groupLeader:
-            data.groupLeader,
-
-        jihadiHistory:
-            data.jihadiHistory,
-
-        pdfCreationDate:
-            data.pdfCreationDate,
-
-        fieldState:
-            data.fieldState || {},
-
-        visibilityState:
-            data.visibilityState || {}
-
+        fieldState: data.fieldState || {},
+        visibilityState: data.visibilityState || {}
     };
-
 
     return firestoreData;
 }
@@ -1494,35 +1325,13 @@ function buildFirestoreData(
 // Register Person
 // ==========================================
 
-async function registerPerson(
-    data
-) {
-
+async function registerPerson(data) {
     try {
-
-        const duplicate =
-            await formNumberExists(
-                data.formNumber
-            );
-
-
-        if (duplicate) {
-
-            return {
-                success: false,
-
-                errors: [
-                    "دا فورمي نمبر مخکې ثبت شوی دی."
-                ]
-            };
-        }
-
+        const recordRef =
+            doc(collection(db, RECORDS_COLLECTION));
 
         const firestoreData =
-            buildFirestoreData(
-                data
-            );
-
+            buildFirestoreData(data);
 
         firestoreData.createdAt =
             serverTimestamp();
@@ -1533,43 +1342,50 @@ async function registerPerson(
         firestoreData.createdBy =
             "authenticated-user";
 
+        firestoreData.createdByName =
+            getCurrentAdminName();
 
-        const docRef =
-            await addDoc(
-                collection(
-                    db,
-                    RECORDS_COLLECTION
-                ),
-                firestoreData
+        firestoreData.createdByEmail =
+            getCurrentAdminEmail();
+
+        firestoreData.updatedBy =
+            "authenticated-user";
+
+        firestoreData.updatedByName =
+            getCurrentAdminName();
+
+        firestoreData.updatedByEmail =
+            getCurrentAdminEmail();
+
+        await runTransaction(db, async tx => {
+            await assertUniqueNumbersInTransaction(
+                tx,
+                recordRef.id,
+                data
             );
 
+            tx.set(recordRef, firestoreData);
+            writeUniqueNumbers(tx, recordRef.id, data);
+        });
 
         return {
-
             success: true,
-
-            id: docRef.id,
-
-            message:
-                "فورمه په بریالیتوب آنلاین ثبت شوه."
-
+            id: recordRef.id,
+            message: "فورمه په بریالیتوب آنلاین ثبت شوه."
         };
-
     } catch (error) {
+        console.error("Register Person Error:", error);
 
-        console.error(
-            "Register Person Error:",
-            error
-        );
-
+        if (error?.code === "duplicate_number") {
+            return {
+                success: false,
+                errors: [error.message]
+            };
+        }
 
         return {
-
             success: false,
-
-            message:
-                "فورمه Firestore ته ثبت نه شوه. د انټرنېټ او Firebase اتصال وګورئ."
-
+            message: "فورمه Firestore ته ثبت نه شوه. د انټرنېټ او Firebase اتصال وګورئ."
         };
     }
 }
@@ -1583,119 +1399,193 @@ async function updateRegistration(
     recordId,
     data
 ) {
-
-    const id =
-        cleanText(recordId);
-
+    const id = cleanText(recordId);
 
     if (!id) {
-
         return {
-
             success: false,
-
-            message:
-                "د ثبت د بدلون ID پیدا نه شو."
-
+            message: "د ثبت د بدلون ID پیدا نه شو."
         };
     }
 
+    try {
+        const recordRef = doc(
+            db,
+            RECORDS_COLLECTION,
+            id
+        );
+
+        await runTransaction(db, async tx => {
+            const snapshot = await tx.get(recordRef);
+
+            if (!snapshot.exists()) {
+                throw new Error("د بدلون لپاره ثبت شوی فورم پیدا نه شو.");
+            }
+
+            const existing = snapshot.data() || {};
+
+            const oldItems =
+                getUniqueNumberItemsFromRecord(existing);
+
+            for (const item of oldItems) {
+                const number = normalizeUniqueNumber(item.value);
+
+                if (!number) {
+                    continue;
+                }
+
+                const uniqueRef = doc(
+                    db,
+                    UNIQUE_NUMBERS_COLLECTION,
+                    uniqueDocId(item.type, number)
+                );
+
+                const uniqueSnap = await tx.get(uniqueRef);
+
+                if (uniqueSnap.exists()) {
+                    const uniqueData = uniqueSnap.data() || {};
+
+                    if (cleanText(uniqueData.recordId) === id) {
+                        tx.delete(uniqueRef);
+                    }
+                }
+            }
+
+            await assertUniqueNumbersInTransaction(
+                tx,
+                id,
+                data
+            );
+
+            const firestoreData =
+                buildFirestoreData(data, existing);
+
+            firestoreData.updatedAt =
+                serverTimestamp();
+
+            firestoreData.updatedBy =
+                "authenticated-user";
+
+            firestoreData.updatedByName =
+                getCurrentAdminName();
+
+            firestoreData.updatedByEmail =
+                getCurrentAdminEmail();
+
+            firestoreData.createdByName =
+                cleanText(existing.createdByName) ||
+                getCurrentAdminName();
+
+            firestoreData.createdByEmail =
+                cleanText(existing.createdByEmail) ||
+                getCurrentAdminEmail();
+
+            firestoreData.createdBy =
+                cleanText(existing.createdBy) ||
+                "authenticated-user";
+
+            tx.update(recordRef, firestoreData);
+            writeUniqueNumbers(tx, id, data);
+        });
+
+        return {
+            success: true,
+            id,
+            message: "بدلونونه په بریالیتوب آنلاین خوندي شول."
+        };
+    } catch (error) {
+        console.error("Update Registration Error:", error);
+
+        if (error?.code === "duplicate_number") {
+            return {
+                success: false,
+                errors: [error.message]
+            };
+        }
+
+        return {
+            success: false,
+            message:
+                error?.message ||
+                "د معلوماتو د تازه کولو پر مهال Firestore ستونزه رامنځته شوه."
+        };
+    }
+}
+
+
+// ==========================================
+// Delete Registration
+// ==========================================
+
+export async function deleteRegistration(recordId) {
+    const id = cleanText(recordId);
+
+    if (!id) {
+        return {
+            success: false,
+            message: "د حذف لپاره ID پیدا نه شو."
+        };
+    }
 
     try {
-
-        const recordRef =
-            doc(
-                db,
-                RECORDS_COLLECTION,
-                id
-            );
-
-
-        const snapshot =
-            await getDoc(recordRef);
-
-
-        if (!snapshot.exists()) {
-
-            return {
-
-                success: false,
-
-                message:
-                    "د بدلون لپاره ثبت شوی فورم پیدا نه شو."
-
-            };
-        }
-
-
-        const duplicate =
-            await formNumberExists(
-                data.formNumber,
-                id
-            );
-
-
-        if (duplicate) {
-
-            return {
-
-                success: false,
-
-                errors: [
-                    "دا فورمي نمبر مخکې په بل ثبت کې کارول شوی دی."
-                ]
-
-            };
-        }
-
-
-        const existing =
-            snapshot.data() || {};
-
-
-        const firestoreData =
-            buildFirestoreData(
-                data,
-                existing
-            );
-
-
-        firestoreData.updatedAt =
-            serverTimestamp();
-
-
-        await updateDoc(
-            recordRef,
-            firestoreData
+        const recordRef = doc(
+            db,
+            RECORDS_COLLECTION,
+            id
         );
 
+        await runTransaction(db, async tx => {
+            const snapshot = await tx.get(recordRef);
+
+            if (!snapshot.exists()) {
+                throw new Error("د حذف لپاره ثبت شوی فورم پیدا نه شو.");
+            }
+
+            const recordData = snapshot.data() || {};
+
+            const oldItems =
+                getUniqueNumberItemsFromRecord(recordData);
+
+            for (const item of oldItems) {
+                const number = normalizeUniqueNumber(item.value);
+
+                if (!number) {
+                    continue;
+                }
+
+                const uniqueRef = doc(
+                    db,
+                    UNIQUE_NUMBERS_COLLECTION,
+                    uniqueDocId(item.type, number)
+                );
+
+                const uniqueSnap = await tx.get(uniqueRef);
+
+                if (uniqueSnap.exists()) {
+                    const uniqueData = uniqueSnap.data() || {};
+
+                    if (cleanText(uniqueData.recordId) === id) {
+                        tx.delete(uniqueRef);
+                    }
+                }
+            }
+
+            tx.delete(recordRef);
+        });
 
         return {
-
             success: true,
-
             id,
-
-            message:
-                "بدلونونه په بریالیتوب آنلاین خوندي شول."
-
+            message: "ثبت شوی معلومات په بریالیتوب حذف شول."
         };
-
     } catch (error) {
-
-        console.error(
-            "Update Registration Error:",
-            error
-        );
-
+        console.error("Delete Registration Error:", error);
 
         return {
-
             success: false,
-
             message:
-                "د معلوماتو د تازه کولو پر مهال Firestore ستونزه رامنځته شوه."
-
+                error?.message ||
+                "د حذف پر مهال ستونزه رامنځته شوه."
         };
     }
 }
@@ -1705,63 +1595,42 @@ async function updateRegistration(
 // Birth Date Formatting
 // ==========================================
 
-birthDate.addEventListener(
-    "input",
-    () => {
+birthDate.addEventListener("input", () => {
+    let value =
+        birthDate.value.replace(/[^0-9]/g, "");
 
-        let value =
-            birthDate.value
-                .replace(/[^0-9]/g, "");
-
-
-        if (value.length > 8) {
-
-            value =
-                value.substring(
-                    0,
-                    8
-                );
-        }
-
-
-        if (value.length > 6) {
-
-            value =
-                value.substring(0, 4) +
-                "/" +
-                value.substring(4, 6) +
-                "/" +
-                value.substring(6);
-
-        } else if (value.length > 4) {
-
-            value =
-                value.substring(0, 4) +
-                "/" +
-                value.substring(4);
-        }
-
-
-        birthDate.value =
-            value;
+    if (value.length > 8) {
+        value = value.substring(0, 8);
     }
-);
+
+    if (value.length > 6) {
+        value =
+            value.substring(0, 4) +
+            "/" +
+            value.substring(4, 6) +
+            "/" +
+            value.substring(6);
+    } else if (value.length > 4) {
+        value =
+            value.substring(0, 4) +
+            "/" +
+            value.substring(4);
+    }
+
+    birthDate.value = value;
+});
 
 
 // ==========================================
 // Electronic Tazkira Formatting
 // ==========================================
 
-tazkira.addEventListener(
-    "input",
-    () => {
-
-        tazkira.value =
-            formatElectronicTazkiraInput(
-                tazkira.value
-            );
-    }
-);
+tazkira.addEventListener("input", () => {
+    tazkira.value =
+        formatElectronicTazkiraInput(
+            tazkira.value
+        );
+});
 
 
 // ==========================================
@@ -1770,17 +1639,9 @@ tazkira.addEventListener(
 // هېڅ عدد محدودیت نشته
 // ==========================================
 
-setupPaperNumericField(
-    paperTazkiraVolume
-);
-
-setupPaperNumericField(
-    paperTazkiraPage
-);
-
-setupPaperNumericField(
-    paperTazkiraNumber
-);
+setupPaperNumericField(paperTazkiraVolume);
+setupPaperNumericField(paperTazkiraPage);
+setupPaperNumericField(paperTazkiraNumber);
 
 
 // ==========================================
@@ -1790,30 +1651,17 @@ setupPaperNumericField(
 tazkiraTypeElectronic.addEventListener(
     "change",
     () => {
-
-        if (
-            tazkiraTypeElectronic.checked
-        ) {
-
-            setTazkiraMode(
-                TAZKIRA_TYPES.ELECTRONIC
-            );
+        if (tazkiraTypeElectronic.checked) {
+            setTazkiraMode(TAZKIRA_TYPES.ELECTRONIC);
         }
     }
 );
 
-
 tazkiraTypePaper.addEventListener(
     "change",
     () => {
-
-        if (
-            tazkiraTypePaper.checked
-        ) {
-
-            setTazkiraMode(
-                TAZKIRA_TYPES.PAPER
-            );
+        if (tazkiraTypePaper.checked) {
+            setTazkiraMode(TAZKIRA_TYPES.PAPER);
         }
     }
 );
@@ -1823,597 +1671,380 @@ tazkiraTypePaper.addEventListener(
 // Category Controls
 // ==========================================
 
-category.addEventListener(
-    "change",
-    updateJihadiHistory
-);
+category.addEventListener("change", updateJihadiHistory);
 
 
 // ==========================================
 // Submit Registration
 // ==========================================
 
-form.addEventListener(
-    "submit",
-    async event => {
+form.addEventListener("submit", async event => {
+    event.preventDefault();
 
-        event.preventDefault();
+    hideMessage();
+    clearErrors();
 
-        hideMessage();
-        clearErrors();
+    if (loadingRecord) {
+        showMessage(
+            "مهرباني وکړئ لږ انتظار وکړئ، معلومات لوډېږي.",
+            "warning"
+        );
+        return;
+    }
 
+    saveBtn.disabled = true;
+    saveBtn.textContent = "⏳ ثبتېږي...";
 
-        if (loadingRecord) {
+    try {
+        const data = collectFormData();
 
-            showMessage(
-                "مهرباني وکړئ لږ انتظار وکړئ، معلومات لوډېږي.",
-                "warning"
-            );
+        if (!/^[0-9]+$/.test(data.formNumber)) {
+            const message =
+                "د کره کمیسیون د فورمي نمبر باید یوازې ارقام ولري.";
+
+            setFieldError("formNumber", message);
+            showMessage(message, "danger");
+            return;
+        }
+
+        if (
+            await isUniqueNumberReserved(
+                "formNumber",
+                data.formNumber,
+                recordIdInput.value
+            )
+        ) {
+            const message =
+                "دا فورمی نمبر مخکې ثبت شوی دی.";
+
+            setFieldError("formNumber", message);
+            showMessage(message, "danger");
+            return;
+        }
+
+        if (
+            data.tazkiraType === TAZKIRA_TYPES.ELECTRONIC
+        ) {
+            if (
+                await isUniqueNumberReserved(
+                    "electronicTazkiraNumber",
+                    data.electronicTazkiraNumber,
+                    recordIdInput.value
+                )
+            ) {
+                const message =
+                    "دا برقی تذکیری نمبر مخکې ثبت شوی دی.";
+
+                setFieldError("tazkira", message);
+                showMessage(message, "danger");
+                return;
+            }
+        }
+
+        if (
+            data.tazkiraType === TAZKIRA_TYPES.PAPER
+        ) {
+            if (
+                await isUniqueNumberReserved(
+                    "paperTazkiraNumber",
+                    data.paperTazkiraNumber,
+                    recordIdInput.value
+                )
+            ) {
+                const message =
+                    "دا کاغذی تذکیری نمبر مخکې ثبت شوی دی.";
+
+                setFieldError("paperTazkiraNumber", message);
+                showMessage(message, "danger");
+                return;
+            }
+        }
+
+        const validation =
+            validateRegistration(data);
+
+        if (!validation.valid) {
+            const errors =
+                extractValidationErrors(validation);
+
+            mapValidationToFields(errors);
+
+            showMessage(errors.join(" "), "danger");
+            return;
+        }
+
+        if (
+            data.tazkiraType === TAZKIRA_TYPES.ELECTRONIC
+        ) {
+            if (
+                !ELECTRONIC_TAZKIRA_PATTERN.test(
+                    data.electronicTazkiraNumber
+                )
+            ) {
+                const message =
+                    "د برقي تذکرې بڼه باید 0000-0000-00000 وي.";
+
+                setFieldError("tazkira", message);
+                showMessage(message, "danger");
+                return;
+            }
+        }
+
+        if (
+            data.tazkiraType === TAZKIRA_TYPES.PAPER
+        ) {
+            const v = cleanText(data.paperTazkiraVolume);
+            const p = cleanText(data.paperTazkiraPage);
+            const n = cleanText(data.paperTazkiraNumber);
+
+            if (!v || !p || !n) {
+                showMessage(
+                    "د کاغذي تذکرې لپاره جلد، صفحه او ګڼه ټول اجباري دي.",
+                    "danger"
+                );
+                return;
+            }
+
+            if (
+                !NUMERIC_ONLY_PATTERN.test(v) ||
+                !NUMERIC_ONLY_PATTERN.test(p) ||
+                !NUMERIC_ONLY_PATTERN.test(n)
+            ) {
+                showMessage(
+                    "د کاغذي تذکرې جلد، صفحه او ګڼه باید یوازې عددونه ولري.",
+                    "danger"
+                );
+                return;
+            }
+        }
+
+        let result;
+
+        if (
+            editModeInput.value === "1" &&
+            cleanText(recordIdInput.value)
+        ) {
+            result =
+                await updateRegistration(
+                    recordIdInput.value,
+                    data
+                );
+        } else {
+            result =
+                await registerPerson(data);
+        }
+
+        if (!result.success) {
+            const errors =
+                Array.isArray(result.errors)
+                    ? result.errors
+                    : [];
+
+            if (errors.length) {
+                mapValidationToFields(errors);
+                showMessage(errors.join(" "), "danger");
+            } else {
+                showMessage(
+                    result.message || "فورمه ثبت نه شوه.",
+                    "danger"
+                );
+            }
 
             return;
         }
 
-
-        saveBtn.disabled =
-            true;
-
-        saveBtn.textContent =
-            "⏳ ثبتېږي...";
-
-
-        try {
-
-            const data =
-                collectFormData();
-
-
-            // ----------------------------------
-            // Form Number
-            // یوازې ارقام
-            // ----------------------------------
-
-            if (
-                !/^[0-9]+$/.test(
-                    data.formNumber
-                )
-            ) {
-
-                const message =
-                    "د کره کمیسیون د فورمي نمبر باید یوازې ارقام ولري.";
-
-                setFieldError(
-                    "formNumber",
-                    message
-                );
-
-                showMessage(
-                    message,
-                    "danger"
-                );
-
-                return;
-            }
-
-
-            // ----------------------------------
-            // Existing validation
-            // ----------------------------------
-
-            const validation =
-                validateRegistration(
-                    data
-                );
-
-
-            if (!validation.valid) {
-
-                const errors =
-                    extractValidationErrors(
-                        validation
-                    );
-
-
-                mapValidationToFields(
-                    errors
-                );
-
-
-                showMessage(
-                    errors.join(" "),
-                    "danger"
-                );
-
-                return;
-            }
-
-
-            // ----------------------------------
-            // Electronic Tazkira
-            // دقیق 0000-0000-00000
-            // ----------------------------------
-
-            if (
-                data.tazkiraType ===
-                TAZKIRA_TYPES.ELECTRONIC
-            ) {
-
-                if (
-                    !ELECTRONIC_TAZKIRA_PATTERN.test(
-                        data.electronicTazkiraNumber
-                    )
-                ) {
-
-                    const message =
-                        "د برقي تذکرې بڼه باید 0000-0000-00000 وي.";
-
-                    setFieldError(
-                        "tazkira",
-                        message
-                    );
-
-                    showMessage(
-                        message,
-                        "danger"
-                    );
-
-                    return;
-                }
-            }
-
-
-            // ----------------------------------
-            // Paper Tazkira
-            // یوازې عددونه
-            // هېڅ maxlength نشته
-            // ----------------------------------
-
-            if (
-                data.tazkiraType ===
-                TAZKIRA_TYPES.PAPER
-            ) {
-
-                const v =
-                    cleanText(
-                        data.paperTazkiraVolume
-                    );
-
-                const p =
-                    cleanText(
-                        data.paperTazkiraPage
-                    );
-
-                const n =
-                    cleanText(
-                        data.paperTazkiraNumber
-                    );
-
-
-                if (!v || !p || !n) {
-
-                    showMessage(
-                        "د کاغذي تذکرې لپاره جلد، صفحه او ګڼه ټول اجباري دي.",
-                        "danger"
-                    );
-
-                    return;
-                }
-
-
-                if (
-                    !NUMERIC_ONLY_PATTERN.test(v) ||
-                    !NUMERIC_ONLY_PATTERN.test(p) ||
-                    !NUMERIC_ONLY_PATTERN.test(n)
-                ) {
-
-                    showMessage(
-                        "د کاغذي تذکرې جلد، صفحه او ګڼه باید یوازې عددونه ولري.",
-                        "danger"
-                    );
-
-                    return;
-                }
-            }
-
-
-            // ----------------------------------
-            // Register / Update
-            // ----------------------------------
-
-            let result;
-
-
-            if (
-                editModeInput.value === "1" &&
-                cleanText(
-                    recordIdInput.value
-                )
-            ) {
-
-                result =
-                    await updateRegistration(
-                        recordIdInput.value,
-                        data
-                    );
-
-            } else {
-
-                result =
-                    await registerPerson(
-                        data
-                    );
-            }
-
-
-            // ----------------------------------
-            // Failed
-            // ----------------------------------
-
-            if (!result.success) {
-
-                const errors =
-                    Array.isArray(
-                        result.errors
-                    )
-                        ? result.errors
-                        : [];
-
-
-                if (errors.length) {
-
-                    mapValidationToFields(
-                        errors
-                    );
-
-
-                    showMessage(
-                        errors.join(" "),
-                        "danger"
-                    );
-
-                } else {
-
-                    showMessage(
-                        result.message ||
-                        "فورمه ثبت نه شوه.",
-                        "danger"
-                    );
-                }
-
-
-                return;
-            }
-
-
-            // ----------------------------------
-            // Success
-            // ----------------------------------
-
-            showMessage(
-                result.message ||
-                "فورمه په بریالیتوب ثبت شوه.",
-                "success"
-            );
-
-
-            form.reset();
-
-
-            recordIdInput.value =
-                "";
-
-            editModeInput.value =
-                "0";
-
-
-            saveBtn.textContent =
-                "💾 فورمه ثبت کړئ";
-
-
-            setTazkiraMode(
-                TAZKIRA_TYPES.ELECTRONIC
-            );
-
-
-            updateJihadiHistory();
-
-
-            setTimeout(
-                () => {
-
-                    setTodayPdfDate();
-
-                },
-                0
-            );
-
-
-        } catch (error) {
-
-            console.error(
-                "Register Page Error:",
-                error
-            );
-
-
-            showMessage(
-                "د فورم د ثبت پر مهال ستونزه رامنځته شوه.",
-                "danger"
-            );
-
-        } finally {
-
-            saveBtn.disabled =
-                false;
-
-
-            if (
-                editModeInput.value ===
-                "1"
-            ) {
-
-                saveBtn.textContent =
-                    "💾 بدلونونه خوندي کړئ";
-
-            } else {
-
-                saveBtn.textContent =
-                    "💾 فورمه ثبت کړئ";
-            }
+        showMessage(
+            result.message || "فورمه په بریالیتوب ثبت شوه.",
+            "success"
+        );
+
+        form.reset();
+
+        recordIdInput.value = "";
+        editModeInput.value = "0";
+
+        saveBtn.textContent = "💾 فورمه ثبت کړئ";
+
+        setTazkiraMode(TAZKIRA_TYPES.ELECTRONIC);
+        updateJihadiHistory();
+
+        setTimeout(() => {
+            setTodayPdfDate();
+        }, 0);
+    } catch (error) {
+        console.error("Register Page Error:", error);
+
+        showMessage(
+            "د فورم د ثبت پر مهال ستونزه رامنځته شوه.",
+            "danger"
+        );
+    } finally {
+        saveBtn.disabled = false;
+
+        if (editModeInput.value === "1") {
+            saveBtn.textContent = "💾 بدلونونه خوندي کړئ";
+        } else {
+            saveBtn.textContent = "💾 فورمه ثبت کړئ";
         }
-
     }
-);
+});
 
 
 // ==========================================
 // Reset
 // ==========================================
 
-resetBtn.addEventListener(
-    "click",
-    () => {
+resetBtn.addEventListener("click", () => {
+    clearErrors();
+    hideMessage();
 
-        clearErrors();
-        hideMessage();
-
-
-        setTimeout(
-            () => {
-
-                updateJihadiHistory();
-
-                setTazkiraMode(
-                    TAZKIRA_TYPES.ELECTRONIC
-                );
-
-                setTodayPdfDate();
-
-            },
-            0
-        );
-    }
-);
+    setTimeout(() => {
+        updateJihadiHistory();
+        setTazkiraMode(TAZKIRA_TYPES.ELECTRONIC);
+        setTodayPdfDate();
+    }, 0);
+});
 
 
 // ==========================================
 // Navigation
 // ==========================================
 
-dashboardBtn.addEventListener(
-    "click",
-    () => {
-
-        window.location.href =
-            "./dashboard.html";
-    }
-);
-
+dashboardBtn.addEventListener("click", () => {
+    window.location.href = "./dashboard.html";
+});
 
 document
     .getElementById("dashboardMenuBtn")
-    .addEventListener(
-        "click",
-        () => {
-
-            window.location.href =
-                "./dashboard.html";
-        }
-    );
-
+    .addEventListener("click", () => {
+        window.location.href = "./dashboard.html";
+    });
 
 document
     .getElementById("registerMenuBtn")
-    .addEventListener(
-        "click",
-        () => {
-
-            window.location.href =
-                "./register.html";
-        }
-    );
-
+    .addEventListener("click", () => {
+        window.location.href = "./register.html";
+    });
 
 document
     .getElementById("searchMenuBtn")
-    .addEventListener(
-        "click",
-        () => {
-
-            window.location.href =
-                "./search.html";
-        }
-    );
-
+    .addEventListener("click", () => {
+        window.location.href = "./search.html";
+    });
 
 document
     .getElementById("reportsMenuBtn")
-    .addEventListener(
-        "click",
-        () => {
-
-            window.location.href =
-                "./reports.html";
-        }
-    );
-
+    .addEventListener("click", () => {
+        window.location.href = "./reports.html";
+    });
 
 document
     .getElementById("adminMenuBtn")
-    .addEventListener(
-        "click",
-        () => {
-
-            window.location.href =
-                "./admin.html";
-        }
-    );
-
+    .addEventListener("click", () => {
+        window.location.href = "./admin.html";
+    });
 
 document
     .getElementById("settingsMenuBtn")
-    .addEventListener(
-        "click",
-        () => {
+    .addEventListener("click", () => {
+        window.location.href = "./settings.html";
+    });
 
-            window.location.href =
-                "./settings.html";
-        }
-    );
+backBtn.addEventListener("click", () => {
+    window.history.back();
+});
 
-
-backBtn.addEventListener(
-    "click",
-    () => {
-
-        window.history.back();
-    }
-);
-
-
-refreshBtn.addEventListener(
-    "click",
-    () => {
-
-        window.location.reload();
-    }
-);
+refreshBtn.addEventListener("click", () => {
+    window.location.reload();
+});
 
 
 // ==========================================
 // Logout
 // ==========================================
 
-logoutBtn.addEventListener(
-    "click",
-    async () => {
+logoutBtn.addEventListener("click", async () => {
+    const button = logoutBtn;
+    button.disabled = true;
 
-        const button =
-            logoutBtn;
+    try {
+        const result = await logoutUser();
 
-
-        button.disabled =
-            true;
-
-
-        try {
-
-            const result =
-                await logoutUser();
-
-
-            if (result.success) {
-
-                window.location.href =
-                    "./index.html";
-
-                return;
-            }
-
-
-            button.disabled =
-                false;
-
-
-            showMessage(
-                result.message ||
-                "له سیستم څخه وتل ناکام شول.",
-                "danger"
-            );
-
-        } catch (error) {
-
-            console.error(
-                "Logout Error:",
-                error
-            );
-
-
-            button.disabled =
-                false;
-
-
-            showMessage(
-                "له سیستم څخه وتل ناکام شول.",
-                "danger"
-            );
+        if (result.success) {
+            window.location.href = "./index.html";
+            return;
         }
+
+        button.disabled = false;
+
+        showMessage(
+            result.message || "له سیستم څخه وتل ناکام شول.",
+            "danger"
+        );
+    } catch (error) {
+        console.error("Logout Error:", error);
+
+        button.disabled = false;
+
+        showMessage(
+            "له سیستم څخه وتل ناکام شول.",
+            "danger"
+        );
     }
-);
+});
 
 
 // ==========================================
 // Authentication
 // ==========================================
 
-listenAuth(
-    async session => {
-
-        if (!session) {
-
-            window.location.href =
-                "./index.html";
-
-            return;
-        }
-
-
-        try {
-
-            await initializeSettings();
-
-
-            const params =
-                new URLSearchParams(
-                    window.location.search
-                );
-
-
-            const recordId =
-                params.get("recordId");
-
-
-            if (recordId) {
-
-                await loadRecordForEdit(
-                    recordId
-                );
-            }
-
-        } catch (error) {
-
-            console.error(
-                "Authentication Setup Error:",
-                error
-            );
-
-
-            showMessage(
-                "د سیستم د تنظیماتو د لوډ پر مهال ستونزه رامنځته شوه.",
-                "danger"
-            );
-        }
+listenAuth(async session => {
+    if (!session) {
+        window.location.href = "./index.html";
+        return;
     }
-);
+
+    activeAdmin = {
+        name:
+            cleanText(
+                session.displayName ||
+                session.name ||
+                session.user?.displayName ||
+                session.user?.name ||
+                session.user?.fullName
+            ) || "نامعلوم اډمین",
+        email:
+            cleanText(
+                session.email ||
+                session.user?.email
+            ),
+        uid:
+            cleanText(
+                session.uid ||
+                session.user?.uid
+            )
+    };
+
+    try {
+        await initializeSettings();
+
+        const params =
+            new URLSearchParams(window.location.search);
+
+        const recordId = params.get("recordId");
+
+        if (recordId) {
+            await loadRecordForEdit(recordId);
+        }
+    } catch (error) {
+        console.error("Authentication Setup Error:", error);
+
+        showMessage(
+            "د سیستم د تنظیماتو د لوډ پر مهال ستونزه رامنځته شوه.",
+            "danger"
+        );
+    }
+});
 
 
 // ==========================================
@@ -2421,40 +2052,21 @@ listenAuth(
 // ==========================================
 
 function setTodayPdfDate() {
-
     if (!pdfCreationDate) {
         return;
     }
 
+    const today = new Date();
 
-    const today =
-        new Date();
-
-
-    const year =
-        today.getFullYear();
-
+    const year = today.getFullYear();
 
     const month =
-        String(
-            today.getMonth() + 1
-        ).padStart(
-            2,
-            "0"
-        );
-
+        String(today.getMonth() + 1).padStart(2, "0");
 
     const day =
-        String(
-            today.getDate()
-        ).padStart(
-            2,
-            "0"
-        );
+        String(today.getDate()).padStart(2, "0");
 
-
-    pdfCreationDate.value =
-        `${year}-${month}-${day}`;
+    pdfCreationDate.value = `${year}-${month}-${day}`;
 }
 
 
@@ -2462,16 +2074,12 @@ function setTodayPdfDate() {
 // Initial Setup
 // ==========================================
 
+applySystemName();
+
 loadProvinces();
-
 updateJihadiHistory();
-
-setTazkiraMode(
-    TAZKIRA_TYPES.ELECTRONIC
-);
-
+setTazkiraMode(TAZKIRA_TYPES.ELECTRONIC);
 
 if (!pdfCreationDate.value) {
-
     setTodayPdfDate();
 }
