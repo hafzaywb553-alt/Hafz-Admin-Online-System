@@ -1,268 +1,398 @@
 rules_version = '2';
 
 service cloud.firestore {
-match /databases/{database}/documents {
-
-// =========================================================
-// د افغانستان اسلامی امارت د کره کمیسیون د فورمو د ثبت او
-// مدیریت ډیټابیس
-//
-// Roles:
-// superadmin = بشپړ صلاحیت
-// admin = ثبت، بدلون او اړوند مدیریت
-// user = یوازې لټون / Read
-// =========================================================
 
+    match /databases/{database}/documents {
 
-// =========================================================
-// Authentication Helpers
-// =========================================================
 
-function signedIn() {
-return request.auth != null;
-}
+        // =========================================================
+        // د افغانستان اسلامي امارت د کره کمیسیون
+        // د فورمو د ثبت او مدیریت ډیټابیس
+        //
+        // Roles:
+        // superadmin = بشپړ صلاحیت
+        // admin      = ثبت، بدلون او اړوند مدیریت
+        // user       = Read / Search
+        // =========================================================
 
 
-function adminPath(uid) {
-return /databases/$(database)/documents/admins/$(uid);
-}
+        // =========================================================
+        // Authentication Helpers
+        // =========================================================
 
+        function signedIn() {
+            return request.auth != null;
+        }
 
-function adminExists(uid) {
-return exists(adminPath(uid));
-}
 
+        function adminPath(uid) {
+            return /databases/$(database)/documents/admins/$(uid);
+        }
 
-function adminData(uid) {
-return get(adminPath(uid)).data;
-}
 
+        function adminExists(uid) {
+            return exists(adminPath(uid));
+        }
 
-// =========================================================
-// Current User Profile
-// =========================================================
 
-function hasValidAdminProfile() {
-return signedIn()
-&& adminExists(request.auth.uid)
-&& adminData(request.auth.uid).uid == request.auth.uid
-&& adminData(request.auth.uid).active == true
-&& (
-adminData(request.auth.uid).role == "superadmin" ||
-adminData(request.auth.uid).role == "admin" ||
-adminData(request.auth.uid).role == "user"
-);
-}
-
-
-function isSuperAdmin() {
-return hasValidAdminProfile()
-&& adminData(request.auth.uid).role == "superadmin";
-}
+        function adminData(uid) {
+            return get(adminPath(uid)).data;
+        }
 
 
-function isAdmin() {
-return hasValidAdminProfile()
-&& (
-adminData(request.auth.uid).role == "superadmin" ||
-adminData(request.auth.uid).role == "admin"
-);
-}
+        // =========================================================
+        // Current User Profile
+        // =========================================================
 
+        function hasValidAdminProfile() {
 
-function isUser() {
-return hasValidAdminProfile()
-&& adminData(request.auth.uid).role == "user";
-}
+            return signedIn()
 
+                && adminExists(request.auth.uid)
 
-function isMember() {
-return hasValidAdminProfile();
-}
+                && adminData(request.auth.uid).uid
+                    == request.auth.uid
 
+                && adminData(request.auth.uid).active
+                    == true
 
-// =========================================================
-// ADMINS
-// =========================================================
-//
-// User:
-// خپل Profile یوازې get کولی شي.
-//
-// Admin:
-// د نورو Admin Profiles مدیریت نه شي کولی.
-//
-// Superadmin:
-// بشپړ Admin management.
-//
-// =========================================================
+                && (
+                    adminData(request.auth.uid).role
+                        == "superadmin"
 
-match /admins/{uid} {
+                    ||
 
-// خپل Profile لوستل
-// Superadmin کولی شي هر Profile ولولي.
-allow get: if signedIn()
-&& (
-request.auth.uid == uid ||
-isSuperAdmin()
-);
+                    adminData(request.auth.uid).role
+                        == "admin"
 
+                    ||
 
-// یوازې Superadmin ټول Admin list کولی شي.
-allow list: if isSuperAdmin();
+                    adminData(request.auth.uid).role
+                        == "user"
+                );
+        }
 
 
-// یوازې Superadmin نوی Admin جوړولی شي.
-allow create: if isSuperAdmin();
+        function isSuperAdmin() {
 
+            return hasValidAdminProfile()
 
-// یوازې Superadmin Admin Profile بدلولی شي.
-allow update: if isSuperAdmin();
+                && adminData(
+                    request.auth.uid
+                ).role
+                    == "superadmin";
+        }
 
 
-// یوازې Superadmin Admin حذف کولی شي.
-allow delete: if isSuperAdmin();
-}
+        function isAdmin() {
 
+            return hasValidAdminProfile()
 
-// =========================================================
-// RECORDS
-// =========================================================
-//
-// user:
-// یوازې Read/Search
-// Create = NO
-// Update = NO
-// Delete = NO
-//
-// admin:
-// Read
-// Create
-// Update
-// Delete = NO
-//
-// superadmin:
-// Read
-// Create
-// Update
-// Delete
-//
-// =========================================================
+                && (
+                    adminData(
+                        request.auth.uid
+                    ).role
+                        == "superadmin"
 
-match /records/{recordId} {
+                    ||
 
-// ټول فعال authenticated roles کولی شي
-// records ولولي او Search وکړي.
-allow read: if isMember();
+                    adminData(
+                        request.auth.uid
+                    ).role
+                        == "admin"
+                );
+        }
 
 
-// یوازې Admin او Superadmin ثبت کولی شي.
-allow create: if isAdmin();
+        function isUser() {
 
+            return hasValidAdminProfile()
 
-// یوازې Admin او Superadmin بدلون کولی شي.
-allow update: if isAdmin();
+                && adminData(
+                    request.auth.uid
+                ).role
+                    == "user";
+        }
 
 
-// یوازې Superadmin حذف کولی شي.
-allow delete: if isSuperAdmin();
-}
+        function isMember() {
 
+            return hasValidAdminProfile();
+        }
 
-// =========================================================
-// SETTINGS
-// =========================================================
-//
-// ټول فعال users settings لوستلی شي.
-// یوازې Admin/Superadmin settings بدلولی شي.
-//
-// =========================================================
 
-match /settings/{settingId} {
+        // =========================================================
+        // ADMINS
+        // =========================================================
 
-allow read: if isMember();
+        match /admins/{uid} {
 
-allow create: if isAdmin();
 
-allow update: if isAdmin();
+            // خپل Profile لوستل
+            // Superadmin کولی شي هر Profile ولولي
+            allow get: if signedIn()
+                && (
+                    request.auth.uid == uid
+                    ||
+                    isSuperAdmin()
+                );
 
-allow delete: if isSuperAdmin();
-}
 
+            // یوازې Superadmin ټول Admin list کولی شي
+            allow list: if isSuperAdmin();
 
-// =========================================================
-// PRESENCE
-// =========================================================
-//
-// Online users:
-// هر فعال Member کولی شي Presence ولولي.
-//
-// هر user یوازې خپل Presence جوړولی/بدلولی/حذفولی شي.
-//
-// =========================================================
 
-match /presence/{uid} {
+            // یوازې Superadmin نوی Admin جوړولی شي
+            allow create: if isSuperAdmin();
 
-allow read: if isMember();
 
-allow create: if isMember()
-&& request.auth.uid == uid;
+            // یوازې Superadmin Admin Profile بدلولی شي
+            allow update: if isSuperAdmin();
 
-allow update: if isMember()
-&& request.auth.uid == uid;
 
-allow delete: if isMember()
-&& request.auth.uid == uid;
-}
+            // یوازې Superadmin Admin حذف کولی شي
+            allow delete: if isSuperAdmin();
 
+        }
 
-// =========================================================
-// AUDIT
-// =========================================================
-//
-// audit.js لاندې fields جوړوي:
-//
-// action
-// details
-// uid
-// email
-// time
-//
-// هر authenticated فعال Member کولی شي خپل Audit event
-// ثبت کړي.
-//
-// Audit records نه update کېږي او نه delete کېږي.
-//
-// یوازې Superadmin یې لوستلی شي.
-//
-// =========================================================
 
-match /audit/{auditId} {
+        // =========================================================
+        // RECORDS
+        // =========================================================
 
-allow create: if isMember()
-&& request.resource.data.uid == request.auth.uid
-&& request.resource.data.email == request.auth.token.email;
+        match /records/{recordId} {
 
 
-allow read: if isSuperAdmin();
+            // ټول فعال roles کولی شي records ولولي
+            allow read: if isMember();
 
 
-allow update: if false;
+            // یوازې Admin او Superadmin ثبت کولی شي
+            allow create: if isAdmin();
 
-allow delete: if false;
-}
 
+            // یوازې Admin او Superadmin بدلون کولی شي
+            allow update: if isAdmin();
 
-// =========================================================
-// DEFAULT DENY
-// =========================================================
-//
-// هر هغه Collection/Document چې پورته تعریف شوی نه وي،
-// په اتومات ډول بند دی.
-//
-// =========================================================
 
-match /{document=**} {
-allow read, write: if false;
-}
-}
+            // یوازې Superadmin حذف کولی شي
+            allow delete: if isSuperAdmin();
+
+        }
+
+
+        // =========================================================
+        // SETTINGS
+        // =========================================================
+
+        match /settings/{settingId} {
+
+
+            // ټول فعال users settings لوستلی شي
+            allow read: if isMember();
+
+
+            // Admin / Superadmin
+            allow create: if isAdmin();
+
+
+            // Admin / Superadmin
+            allow update: if isAdmin();
+
+
+            // یوازې Superadmin
+            allow delete: if isSuperAdmin();
+
+        }
+
+
+        // =========================================================
+        // PRESENCE
+        // =========================================================
+
+        match /presence/{uid} {
+
+
+            // ټول فعال Members presence لوستلی شي
+            allow read: if isMember();
+
+
+            // هر user یوازې خپل presence جوړولی شي
+            allow create: if isMember()
+                && request.auth.uid == uid;
+
+
+            // هر user یوازې خپل presence بدلولی شي
+            allow update: if isMember()
+                && request.auth.uid == uid;
+
+
+            // هر user یوازې خپل presence حذفولی شي
+            allow delete: if isMember()
+                && request.auth.uid == uid;
+
+        }
+
+
+        // =========================================================
+        // AUDIT
+        // =========================================================
+
+        match /audit/{auditId} {
+
+
+            // هر فعال Member خپل audit event ثبتولی شي
+            allow create: if isMember()
+
+                && request.resource.data.uid
+                    == request.auth.uid
+
+                && request.resource.data.email
+                    == request.auth.token.email;
+
+
+            // یوازې Superadmin لوستلی شي
+            allow read: if isSuperAdmin();
+
+
+            // Audit نه update کېږي
+            allow update: if false;
+
+
+            // Audit نه delete کېږي
+            allow delete: if false;
+
+        }
+
+
+        // =========================================================
+        // DASHBOARD COMMENTS
+        // =========================================================
+        //
+        // د Live Dashboard ټولنیز مرکز
+        //
+        // fields:
+        // text
+        // uid
+        // displayName
+        // email
+        // createdAt
+        // likes[]
+        // hearts[]
+        //
+        // ټول فعال Members:
+        // - Comment create
+        // - Comment read
+        // - Like
+        // - Heart
+        //
+        // text / uid / author:
+        // وروسته نه بدلېږي
+        //
+        // update یوازې:
+        // likes / hearts
+        // =========================================================
+
+        match /dashboard_comments/{commentId} {
+
+
+            // ټول فعال Members comments لوستلی شي
+            allow read: if isMember();
+
+
+            // نوی Comment
+            allow create: if isMember()
+
+                && request.resource.data.uid
+                    == request.auth.uid
+
+                && request.resource.data.email
+                    == request.auth.token.email
+
+                && request.resource.data.text
+                    is string
+
+                && request.resource.data.text.size()
+                    > 0
+
+                && request.resource.data.text.size()
+                    <= 500
+
+                && request.resource.data.displayName
+                    is string
+
+                && request.resource.data.likes
+                    is list
+
+                && request.resource.data.hearts
+                    is list;
+
+
+            // -----------------------------------------------------
+            // Like / Heart
+            // -----------------------------------------------------
+            //
+            // User نشي کولی:
+            // text
+            // uid
+            // email
+            // displayName
+            // createdAt
+            //
+            // بدل کړي.
+            //
+            // یوازې likes/hearts arrays بدلولی شي.
+            // -----------------------------------------------------
+
+            allow update: if isMember()
+
+                && request.resource.data.uid
+                    == resource.data.uid
+
+                && request.resource.data.email
+                    == resource.data.email
+
+                && request.resource.data.displayName
+                    == resource.data.displayName
+
+                && request.resource.data.text
+                    == resource.data.text
+
+                && request.resource.data.createdAt
+                    == resource.data.createdAt
+
+                && request.resource.data.diff(
+                    resource.data
+                ).affectedKeys().hasOnly(
+                    [
+                        "likes",
+                        "hearts"
+                    ]
+                )
+
+                && request.resource.data.likes
+                    is list
+
+                && request.resource.data.hearts
+                    is list;
+
+
+            // Comments حذفول
+            allow delete: if false;
+
+        }
+
+
+        // =========================================================
+        // DEFAULT DENY
+        // =========================================================
+
+        match /{document=**} {
+
+            allow read, write: if false;
+
+        }
+
+    }
+
 }
