@@ -18,13 +18,21 @@
 // - Live Presence
 // - Live Comments
 // - Likes / Hearts
+// - Comment Delete
+// - Automatic User Location / Province
+// - Manual Province Selection
+// - Permanent Saved Province Preference
+// - Automatic Weather by Current Location
+// - Automatic Prayer Times by Current Location
 // - Afghanistan provinces
 // - Prayer times
 // - Qibla
 // - Weather
 // - Solar / Lunar / Gregorian dates
-// - AM / PM clock
+// - 12-hour AM / PM clock only
 // - Login time / duration
+// - Daily Islamic Content
+// - Superadmin Daily Content Management
 // ==========================================
 
 
@@ -55,7 +63,6 @@ import {
     collection,
     getCountFromServer,
     query,
-    where,
     addDoc,
     serverTimestamp,
     onSnapshot,
@@ -63,6 +70,9 @@ import {
     limit,
     doc,
     updateDoc,
+    deleteDoc,
+    getDoc,
+    setDoc,
     arrayUnion,
     arrayRemove
 } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
@@ -111,6 +121,8 @@ let currentUser = null;
 
 let currentSession = null;
 
+let currentUserRole = "";
+
 let currentLanguage = "ps";
 
 let currentOnlineUsers = [];
@@ -118,6 +130,8 @@ let currentOnlineUsers = [];
 let currentPrayerTimings = null;
 
 let commentsUnsubscribe = null;
+
+let dailyContentUnsubscribe = null;
 
 let prayerTimer = null;
 
@@ -129,20 +143,68 @@ let loginAt = null;
 
 let selectedProvinceCode = "KBL";
 
+let detectedLocation = null;
+
+let locationDetectionPromise = null;
+
+
+// ==========================================
+// PROVINCE PREFERENCE STATE
+// ==========================================
+
+let provinceSelectionMode = "auto";
+
+let savedProvinceCode = null;
+
+const SAVED_PROVINCE_STORAGE_PREFIX =
+    "krhe_dashboard_saved_province_";
+
+
+// ==========================================
+// DAILY CONTENT STATE
+// ==========================================
+
+const DAILY_CONTENT_COLLECTION =
+    "dashboard_daily_content";
+
+const DAILY_CONTENT_DOCUMENT =
+    "today";
+
+const DEFAULT_DAILY_CONTENT = {
+
+    zikr:
+        "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، سُبْحَانَ اللَّهِ الْعَظِيمِ",
+
+    comfort:
+        "ستونزه هر څومره لویه وي، د الله رحمت تر هغې لوی دی.",
+
+    poem:
+        "د هیلو څراغ چې روښانه وساتې، د لارې تیاره ورو ورو ختمېږي."
+
+};
+
 
 // ==========================================
 // DOM HELPERS
 // ==========================================
 
 function $(selector) {
-    return document.querySelector(selector);
+
+    return document.querySelector(
+        selector
+    );
+
 }
 
 
 function $$(selector) {
+
     return Array.from(
-        document.querySelectorAll(selector)
+        document.querySelectorAll(
+            selector
+        )
     );
+
 }
 
 
@@ -152,12 +214,29 @@ function $$(selector) {
 
 function escapeHtml(value) {
 
-    return String(value ?? "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
+    return String(
+        value ?? ""
+    )
+        .replaceAll(
+            "&",
+            "&amp;"
+        )
+        .replaceAll(
+            "<",
+            "&lt;"
+        )
+        .replaceAll(
+            ">",
+            "&gt;"
+        )
+        .replaceAll(
+            '"',
+            "&quot;"
+        )
+        .replaceAll(
+            "'",
+            "&#039;"
+        );
 
 }
 
@@ -200,6 +279,27 @@ const TRANSLATIONS = {
         commentError:
             "تبصره ونه لېږل شوه.",
 
+        deleteComment:
+            "تبصره حذف کول",
+
+        deleteConfirm:
+            "ایا غواړئ دا تبصره حذف کړئ؟",
+
+        deleteError:
+            "تبصره حذف نه شوه.",
+
+        saveProvince:
+            "💾 زما ولایت د تل لپاره خوندي کړه",
+
+        provinceSaved:
+            "✅ ستاسو ولایت د تل لپاره خوندي شو.",
+
+        provinceSaving:
+            "⏳ ولایت خوندي کېږي...",
+
+        provinceSaveError:
+            "❌ ولایت خوندي نه شو.",
+
         prayerLoading:
             "د لمانځه وختونه ترلاسه کېږي...",
 
@@ -208,6 +308,21 @@ const TRANSLATIONS = {
 
         weatherError:
             "د هوا معلومات ترلاسه نه شول.",
+
+        dailyContentSave:
+            "د نن ورځې متنونه خوندي کړه",
+
+        dailyContentSaving:
+            "خوندي کېږي...",
+
+        dailyContentSaved:
+            "✅ د نن ورځې ذکر، جمله او شعر خوندي شول.",
+
+        dailyContentRequired:
+            "⚠️ درې واړه برخې باید ډکې وي.",
+
+        dailyContentUnauthorized:
+            "یوازې Superadmin کولی شي دا معلومات بدل کړي.",
 
         welcome:
             "ښه راغلاست، {name}",
@@ -250,6 +365,27 @@ const TRANSLATIONS = {
         commentError:
             "تبصره ارسال نشد.",
 
+        deleteComment:
+            "حذف تبصره",
+
+        deleteConfirm:
+            "آیا می‌خواهید این تبصره حذف شود؟",
+
+        deleteError:
+            "تبصره حذف نشد.",
+
+        saveProvince:
+            "💾 ولایت من را برای همیشه ذخیره کن",
+
+        provinceSaved:
+            "✅ ولایت شما برای همیشه ذخیره شد.",
+
+        provinceSaving:
+            "⏳ ولایت در حال ذخیره شدن است...",
+
+        provinceSaveError:
+            "❌ ولایت ذخیره نشد.",
+
         prayerLoading:
             "معلومات اوقات نماز دریافت می‌شود...",
 
@@ -258,6 +394,21 @@ const TRANSLATIONS = {
 
         weatherError:
             "معلومات هوا دریافت نشد.",
+
+        dailyContentSave:
+            "متن‌های امروز را ذخیره کن",
+
+        dailyContentSaving:
+            "در حال ذخیره...",
+
+        dailyContentSaved:
+            "✅ ذکر، جمله و شعر امروز ذخیره شد.",
+
+        dailyContentRequired:
+            "⚠️ هر سه بخش باید تکمیل باشد.",
+
+        dailyContentUnauthorized:
+            "فقط Superadmin می‌تواند این معلومات را تغییر دهد.",
 
         welcome:
             "خوش آمدید، {name}",
@@ -300,6 +451,27 @@ const TRANSLATIONS = {
         commentError:
             "Comment could not be sent.",
 
+        deleteComment:
+            "Delete comment",
+
+        deleteConfirm:
+            "Do you want to delete this comment?",
+
+        deleteError:
+            "Comment could not be deleted.",
+
+        saveProvince:
+            "💾 Save my province permanently",
+
+        provinceSaved:
+            "✅ Your province has been saved permanently.",
+
+        provinceSaving:
+            "⏳ Saving province...",
+
+        provinceSaveError:
+            "❌ Province could not be saved.",
+
         prayerLoading:
             "Loading prayer times...",
 
@@ -308,6 +480,21 @@ const TRANSLATIONS = {
 
         weatherError:
             "Weather unavailable.",
+
+        dailyContentSave:
+            "Save today's content",
+
+        dailyContentSaving:
+            "Saving...",
+
+        dailyContentSaved:
+            "✅ Today's zikr, message and poem were saved.",
+
+        dailyContentRequired:
+            "⚠️ All three fields are required.",
+
+        dailyContentUnauthorized:
+            "Only the Superadmin can change this content.",
 
         welcome:
             "Welcome, {name}",
@@ -613,19 +800,26 @@ const PRAYERS = [
 
 
 // ==========================================
-// GET TRANSLATION
+// TRANSLATION
 // ==========================================
 
-function t(key, replacements = {}) {
+function t(
+    key,
+    replacements = {}
+) {
 
     const pack =
-        TRANSLATIONS[currentLanguage] ||
+        TRANSLATIONS[
+            currentLanguage
+        ] ||
         TRANSLATIONS.ps;
+
 
     let text =
         pack[key] ??
         TRANSLATIONS.ps[key] ??
         key;
+
 
     Object.entries(
         replacements
@@ -641,7 +835,111 @@ function t(key, replacements = {}) {
         }
     );
 
+
     return text;
+
+}
+
+
+// ==========================================
+// 12-HOUR TIME FORMATTER
+// ==========================================
+
+function formatTime12(
+    value
+) {
+
+    if (
+        value === null ||
+        value === undefined ||
+        value === ""
+    ) {
+
+        return "--:--";
+
+    }
+
+
+    const raw =
+        String(value)
+            .trim();
+
+
+    const clean =
+        raw
+            .split(" ")[0];
+
+
+    const match =
+        clean.match(
+            /^(\d{1,2}):(\d{2})$/
+        );
+
+
+    if (!match) {
+
+        return raw;
+
+    }
+
+
+    const hour =
+        Number(
+            match[1]
+        );
+
+
+    const minute =
+        Number(
+            match[2]
+        );
+
+
+    if (
+        !Number.isFinite(hour) ||
+        !Number.isFinite(minute)
+    ) {
+
+        return raw;
+
+    }
+
+
+    if (
+        hour < 0 ||
+        hour > 23 ||
+        minute < 0 ||
+        minute > 59
+    ) {
+
+        return raw;
+
+    }
+
+
+    const period =
+        hour >= 12
+            ? "PM"
+            : "AM";
+
+
+    let hour12 =
+        hour % 12;
+
+
+    if (
+        hour12 === 0
+    ) {
+
+        hour12 =
+            12;
+
+    }
+
+
+    return (
+        `${hour12}:${String(minute).padStart(2, "0")} ${period}`
+    );
 
 }
 
@@ -655,18 +953,23 @@ function applySettingsText() {
     const settings =
         getSettings();
 
+
     currentLanguage =
         settings?.language ||
         "ps";
 
+
     if (
-        !TRANSLATIONS[currentLanguage]
+        !TRANSLATIONS[
+            currentLanguage
+        ]
     ) {
 
         currentLanguage =
             "ps";
 
     }
+
 
     const systemName =
         settings?.systemName ||
@@ -677,7 +980,9 @@ function applySettingsText() {
         `${systemName} | ${t("dashboard")}`;
 
 
-    $$("[data-system-name]")
+    $$(
+        "[data-system-name]"
+    )
         .forEach(
             element => {
 
@@ -691,6 +996,7 @@ function applySettingsText() {
     const sidebarTitle =
         $("#sidebarTitle");
 
+
     if (sidebarTitle) {
 
         sidebarTitle.textContent =
@@ -701,6 +1007,7 @@ function applySettingsText() {
 
     const dashboardBtn =
         $("#dashboardMenuBtn");
+
 
     if (dashboardBtn) {
 
@@ -713,6 +1020,7 @@ function applySettingsText() {
     const registerBtn =
         $("#registerMenuBtn");
 
+
     if (registerBtn) {
 
         registerBtn.textContent =
@@ -723,6 +1031,7 @@ function applySettingsText() {
 
     const searchBtn =
         $("#searchMenuBtn");
+
 
     if (searchBtn) {
 
@@ -735,6 +1044,7 @@ function applySettingsText() {
     const reportsBtn =
         $("#reportsMenuBtn");
 
+
     if (reportsBtn) {
 
         reportsBtn.textContent =
@@ -745,6 +1055,7 @@ function applySettingsText() {
 
     const adminBtn =
         $("#adminMenuBtn");
+
 
     if (adminBtn) {
 
@@ -757,6 +1068,7 @@ function applySettingsText() {
     const settingsBtn =
         $("#settingsMenuBtn");
 
+
     if (settingsBtn) {
 
         settingsBtn.textContent =
@@ -768,7 +1080,7 @@ function applySettingsText() {
 
 
 // ==========================================
-// CURRENT DATE/TIME
+// CURRENT DATE / TIME
 // ==========================================
 
 function updateClockAndCalendars() {
@@ -780,17 +1092,22 @@ function updateClockAndCalendars() {
     const solar =
         $("#solarDate");
 
+
     const lunar =
         $("#lunarDate");
+
 
     const gregorian =
         $("#gregorianDate");
 
+
     const ampmTime =
         $("#ampmTime");
 
+
     const ampmLabel =
         $("#ampmLabel");
+
 
     const currentDateTime =
         $("#currentDateTime");
@@ -804,9 +1121,14 @@ function updateClockAndCalendars() {
                 new Intl.DateTimeFormat(
                     "fa-AF-u-ca-persian",
                     {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric"
+                        year:
+                            "numeric",
+
+                        month:
+                            "long",
+
+                        day:
+                            "numeric"
                     }
                 ).format(
                     now
@@ -832,9 +1154,14 @@ function updateClockAndCalendars() {
                 new Intl.DateTimeFormat(
                     "ar-AF-u-ca-islamic",
                     {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric"
+                        year:
+                            "numeric",
+
+                        month:
+                            "long",
+
+                        day:
+                            "numeric"
                     }
                 ).format(
                     now
@@ -858,9 +1185,14 @@ function updateClockAndCalendars() {
             new Intl.DateTimeFormat(
                 "en-GB",
                 {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric"
+                    year:
+                        "numeric",
+
+                    month:
+                        "long",
+
+                    day:
+                        "numeric"
                 }
             ).format(
                 now
@@ -873,10 +1205,17 @@ function updateClockAndCalendars() {
         now.toLocaleTimeString(
             "en-US",
             {
-                hour: "numeric",
-                minute: "2-digit",
-                second: "2-digit",
-                hour12: true
+                hour:
+                    "numeric",
+
+                minute:
+                    "2-digit",
+
+                second:
+                    "2-digit",
+
+                hour12:
+                    true
             }
         );
 
@@ -913,7 +1252,9 @@ function updateClockAndCalendars() {
 // LOGIN TIME / DURATION
 // ==========================================
 
-function initializeLoginDuration(user) {
+function initializeLoginDuration(
+    user
+) {
 
     const storedLogin =
         localStorage.getItem(
@@ -975,10 +1316,17 @@ function initializeLoginDuration(user) {
             loginAt.toLocaleTimeString(
                 "en-US",
                 {
-                    hour: "numeric",
-                    minute: "2-digit",
-                    second: "2-digit",
-                    hour12: true
+                    hour:
+                        "numeric",
+
+                    minute:
+                        "2-digit",
+
+                    second:
+                        "2-digit",
+
+                    hour12:
+                        true
                 }
             );
 
@@ -1074,6 +1422,139 @@ function updateLoginDuration() {
 
 
 // ==========================================
+// PROVINCE STORAGE KEY
+// ==========================================
+
+function getProvinceStorageKey() {
+
+    if (!currentUser?.uid) {
+
+        return null;
+
+    }
+
+
+    return (
+        SAVED_PROVINCE_STORAGE_PREFIX +
+        currentUser.uid
+    );
+
+}
+
+
+// ==========================================
+// GET SAVED PROVINCE
+// ==========================================
+
+function getSavedProvinceCode() {
+
+    const key =
+        getProvinceStorageKey();
+
+
+    if (!key) {
+
+        return null;
+
+    }
+
+
+    try {
+
+        const value =
+            localStorage.getItem(
+                key
+            );
+
+
+        if (
+            value &&
+            AFGHAN_PROVINCES[value]
+        ) {
+
+            return value;
+
+        }
+
+    } catch (error) {
+
+        console.warn(
+            "Read saved province error:",
+            error
+        );
+
+    }
+
+
+    return null;
+
+}
+
+
+// ==========================================
+// SAVE PROVINCE PERMANENTLY
+// ==========================================
+
+function saveProvincePermanently(
+    code
+) {
+
+    const key =
+        getProvinceStorageKey();
+
+
+    if (
+        !key ||
+        !AFGHAN_PROVINCES[code]
+    ) {
+
+        return false;
+
+    }
+
+
+    try {
+
+        localStorage.setItem(
+            key,
+            code
+        );
+
+
+        savedProvinceCode =
+            code;
+
+
+        selectedProvinceCode =
+            code;
+
+
+        provinceSelectionMode =
+            "manual";
+
+
+        detectedLocation =
+            null;
+
+
+        return true;
+
+    } catch (error) {
+
+        console.error(
+            "Save province error:",
+            error
+        );
+
+
+        return false;
+
+    }
+
+}
+
+
+// ==========================================
 // PROVINCE SELECTOR
 // ==========================================
 
@@ -1097,36 +1578,826 @@ function initializeProvinceSelector() {
     Object.entries(
         AFGHAN_PROVINCES
     )
-    .forEach(
-        ([code, province]) => {
+        .forEach(
+            ([code, province]) => {
 
-            const option =
-                document.createElement(
-                    "option"
+                const option =
+                    document.createElement(
+                        "option"
+                    );
+
+
+                option.value =
+                    code;
+
+
+                option.textContent =
+                    province.name;
+
+
+                if (
+                    code ===
+                    selectedProvinceCode
+                ) {
+
+                    option.selected =
+                        true;
+
+                }
+
+
+                select.appendChild(
+                    option
+                );
+
+            }
+        );
+
+
+    select.disabled =
+        false;
+
+
+    let saveButton =
+        $("#saveProvinceBtn");
+
+
+    if (!saveButton) {
+
+        saveButton =
+            document.createElement(
+                "button"
+            );
+
+
+        saveButton.id =
+            "saveProvinceBtn";
+
+
+        saveButton.type =
+            "button";
+
+
+        saveButton.className =
+            "btn btn-primary";
+
+
+        saveButton.style.marginTop =
+            "8px";
+
+
+        saveButton.style.cursor =
+            "pointer";
+
+
+        saveButton.style.display =
+            "inline-flex";
+
+
+        saveButton.style.alignItems =
+            "center";
+
+
+        saveButton.style.justifyContent =
+            "center";
+
+
+        saveButton.style.gap =
+            "6px";
+
+
+        saveButton.style.maxWidth =
+            "100%";
+
+
+        saveButton.style.width =
+            "100%";
+
+
+        select.insertAdjacentElement(
+            "afterend",
+            saveButton
+        );
+
+    }
+
+
+    saveButton.textContent =
+        t("saveProvince");
+
+
+    let saveStatus =
+        $("#provinceSaveStatus");
+
+
+    if (!saveStatus) {
+
+        saveStatus =
+            document.createElement(
+                "small"
+            );
+
+
+        saveStatus.id =
+            "provinceSaveStatus";
+
+
+        saveStatus.style.display =
+            "block";
+
+
+        saveStatus.style.marginTop =
+            "6px";
+
+
+        saveStatus.style.lineHeight =
+            "1.5";
+
+
+        saveStatus.style.textAlign =
+            "center";
+
+
+        saveButton.insertAdjacentElement(
+            "afterend",
+            saveStatus
+        );
+
+    }
+
+
+    if (
+        savedProvinceCode &&
+        AFGHAN_PROVINCES[
+            savedProvinceCode
+        ]
+    ) {
+
+        saveStatus.textContent =
+            t("provinceSaved");
+
+    } else {
+
+        saveStatus.textContent =
+            "";
+
+    }
+
+
+    if (
+        select.dataset.provinceChangeBound !==
+        "true"
+    ) {
+
+        select.addEventListener(
+            "change",
+            async () => {
+
+                const code =
+                    select.value;
+
+
+                if (
+                    !AFGHAN_PROVINCES[code]
+                ) {
+
+                    return;
+
+                }
+
+
+                selectedProvinceCode =
+                    code;
+
+
+                provinceSelectionMode =
+                    "manual";
+
+
+                detectedLocation =
+                    null;
+
+
+                const province =
+                    getSelectedProvince();
+
+
+                await Promise.allSettled(
+                    [
+                        loadWeather(
+                            province
+                        ),
+
+                        loadPrayerTimes(
+                            province
+                        )
+                    ]
                 );
 
 
-            option.value =
-                code;
+                if (saveStatus) {
+
+                    saveStatus.textContent =
+                        "";
+
+                }
+
+            }
+        );
 
 
-            option.textContent =
-                province.name;
+        select.dataset.provinceChangeBound =
+            "true";
 
+    }
+
+
+    if (
+        saveButton.dataset.provinceSaveBound !==
+        "true"
+    ) {
+
+        saveButton.addEventListener(
+            "click",
+            async () => {
+
+                const code =
+                    select.value;
+
+
+                if (
+                    !AFGHAN_PROVINCES[code]
+                ) {
+
+                    if (saveStatus) {
+
+                        saveStatus.textContent =
+                            t("provinceSaveError");
+
+                    }
+
+
+                    return;
+
+                }
+
+
+                saveButton.disabled =
+                    true;
+
+
+                saveButton.textContent =
+                    t("provinceSaving");
+
+
+                try {
+
+                    const saved =
+                        saveProvincePermanently(
+                            code
+                        );
+
+
+                    if (!saved) {
+
+                        throw new Error(
+                            "Province storage failed."
+                        );
+
+                    }
+
+
+                    const province =
+                        getSelectedProvince();
+
+
+                    await Promise.allSettled(
+                        [
+                            loadWeather(
+                                province
+                            ),
+
+                            loadPrayerTimes(
+                                province
+                            )
+                        ]
+                    );
+
+
+                    if (saveStatus) {
+
+                        saveStatus.textContent =
+                            t("provinceSaved");
+
+                    }
+
+                } catch (error) {
+
+                    console.error(
+                        "Province Save Error:",
+                        error
+                    );
+
+
+                    if (saveStatus) {
+
+                        saveStatus.textContent =
+                            t("provinceSaveError");
+
+                    }
+
+                } finally {
+
+                    saveButton.disabled =
+                        false;
+
+
+                    saveButton.textContent =
+                        t("saveProvince");
+
+                }
+
+            }
+        );
+
+
+        saveButton.dataset.provinceSaveBound =
+            "true";
+
+    }
+
+}
+
+
+// ==========================================
+// NORMALIZE LOCATION TEXT
+// ==========================================
+
+function normalizeLocationText(
+    value
+) {
+
+    return String(
+        value ?? ""
+    )
+        .toLowerCase()
+        .trim()
+        .replaceAll(
+            "province",
+            ""
+        )
+        .replaceAll(
+            "velayat",
+            ""
+        )
+        .replaceAll(
+            "wilayat",
+            ""
+        )
+        .replaceAll(
+            "ولایت",
+            ""
+        )
+        .replaceAll(
+            "ولايت",
+            ""
+        )
+        .replace(
+            /\s+/g,
+            " "
+        );
+
+}
+
+
+// ==========================================
+// FIND AFGHANISTAN PROVINCE
+// ==========================================
+
+function findProvinceFromAddress(
+    address
+) {
+
+    if (!address) {
+
+        return null;
+
+    }
+
+
+    const possibleValues = [
+
+        address.state,
+
+        address.province,
+
+        address.region,
+
+        address.state_district,
+
+        address.county
+
+    ]
+        .filter(Boolean)
+        .map(
+            normalizeLocationText
+        );
+
+
+    const aliases = {
+
+        KBL: [
+            "kabul",
+            "کابل"
+        ],
+
+        KDH: [
+            "kandahar",
+            "کندهار"
+        ],
+
+        ZBL: [
+            "zabul",
+            "zabol",
+            "زابل"
+        ],
+
+        URZ: [
+            "uruzgan",
+            "ارزگان",
+            "اورزگان"
+        ],
+
+        HLM: [
+            "helmand",
+            "هلمند"
+        ],
+
+        HER: [
+            "herat",
+            "هرات"
+        ],
+
+        FRA: [
+            "farah",
+            "فراه"
+        ],
+
+        NMR: [
+            "nimroz",
+            "nimruz",
+            "نیمروز"
+        ],
+
+        BDG: [
+            "badghis",
+            "badgis",
+            "بادغیس"
+        ],
+
+        GHR: [
+            "ghor",
+            "ghur",
+            "غور"
+        ],
+
+        BAM: [
+            "bamyan",
+            "بامیان"
+        ],
+
+        DKD: [
+            "daykundi",
+            "daikundi",
+            "دایکندی",
+            "دایکندي"
+        ],
+
+        GHA: [
+            "ghazni",
+            "غزنی"
+        ],
+
+        PKT: [
+            "paktia",
+            "پکتیا"
+        ],
+
+        PKA: [
+            "paktika",
+            "پکتیکا"
+        ],
+
+        KST: [
+            "khost",
+            "خوست"
+        ],
+
+        LOG: [
+            "logar",
+            "لوګر"
+        ],
+
+        WDG: [
+            "wardak",
+            "maidan wardak",
+            "میدان وردګ",
+            "وردګ"
+        ],
+
+        PRN: [
+            "parwan",
+            "پروان"
+        ],
+
+        KPS: [
+            "kapisa",
+            "کاپیسا"
+        ],
+
+        PAN: [
+            "panjshir",
+            "پنجشیر",
+            "پنجشېر"
+        ],
+
+        BGL: [
+            "baghlan",
+            "بغلان"
+        ],
+
+        KND: [
+            "kunduz",
+            "کندز"
+        ],
+
+        TKR: [
+            "takhar",
+            "تخار"
+        ],
+
+        BDK: [
+            "badakhshan",
+            "بدخشان"
+        ],
+
+        SMG: [
+            "samangan",
+            "سمنگان",
+            "سمنګان"
+        ],
+
+        BLK: [
+            "balkh",
+            "بلخ"
+        ],
+
+        JOW: [
+            "jawzjan",
+            "jowzjan",
+            "جوزجان"
+        ],
+
+        SRP: [
+            "sar-e-pul",
+            "sar e pol",
+            "سرپل"
+        ],
+
+        FYB: [
+            "faryab",
+            "فاریاب"
+        ],
+
+        NRN: [
+            "nuristan",
+            "نورستان"
+        ],
+
+        LGM: [
+            "laghman",
+            "لغمان"
+        ],
+
+        NGR: [
+            "nangarhar",
+            "ننگرهار",
+            "ننګرهار"
+        ],
+
+        KNR: [
+            "kunar",
+            "کونړ",
+            "کنر"
+        ]
+
+    };
+
+
+    for (
+        const [code, names]
+        of Object.entries(
+            aliases
+        )
+    ) {
+
+        const normalizedNames =
+            names.map(
+                normalizeLocationText
+            );
+
+
+        const matched =
+            possibleValues.some(
+                value =>
+                    normalizedNames.some(
+                        alias =>
+                            value === alias ||
+                            value.includes(alias) ||
+                            alias.includes(value)
+                    )
+            );
+
+
+        if (matched) {
+
+            return code;
+
+        }
+
+    }
+
+
+    return null;
+
+}
+
+
+// ==========================================
+// REVERSE GEOCODING
+// ==========================================
+
+async function reverseGeocodeProvince(
+    latitude,
+    longitude
+) {
+
+    try {
+
+        const url =
+            "https://nominatim.openstreetmap.org/reverse" +
+            `?format=jsonv2` +
+            `&lat=${encodeURIComponent(latitude)}` +
+            `&lon=${encodeURIComponent(longitude)}` +
+            `&zoom=10` +
+            `&addressdetails=1`;
+
+
+        const response =
+            await fetch(
+                url,
+                {
+                    method:
+                        "GET",
+
+                    cache:
+                        "no-store",
+
+                    headers: {
+                        Accept:
+                            "application/json"
+                    }
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                `Reverse geocoding HTTP ${response.status}`
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        return {
+
+            code:
+                findProvinceFromAddress(
+                    data?.address
+                ),
+
+            address:
+                data?.address ||
+                null,
+
+            displayName:
+                data?.display_name ||
+                ""
+
+        };
+
+    } catch (error) {
+
+        console.warn(
+            "Reverse Geocoding Error:",
+            error
+        );
+
+
+        return {
+
+            code:
+                null,
+
+            address:
+                null,
+
+            displayName:
+                ""
+
+        };
+
+    }
+
+}
+
+
+// ==========================================
+// CURRENT LOCATION
+// ==========================================
+
+function getBrowserLocation() {
+
+    return new Promise(
+        (
+            resolve,
+            reject
+        ) => {
 
             if (
-                code ===
-                selectedProvinceCode
+                !navigator.geolocation
             ) {
 
-                option.selected =
-                    true;
+                reject(
+                    new Error(
+                        "Geolocation is not supported."
+                    )
+                );
+
+                return;
 
             }
 
 
-            select.appendChild(
-                option
+            navigator.geolocation.getCurrentPosition(
+
+                position => {
+
+                    resolve({
+
+                        latitude:
+                            Number(
+                                position.coords.latitude
+                            ),
+
+                        longitude:
+                            Number(
+                                position.coords.longitude
+                            ),
+
+                        accuracy:
+                            Number(
+                                position.coords.accuracy
+                            )
+
+                    });
+
+                },
+
+                error => {
+
+                    reject(
+                        error
+                    );
+
+                },
+
+                {
+                    enableHighAccuracy:
+                        true,
+
+                    timeout:
+                        12000,
+
+                    maximumAge:
+                        300000
+                }
+
             );
 
         }
@@ -1135,25 +2406,236 @@ function initializeProvinceSelector() {
 }
 
 
+// ==========================================
+// AUTOMATIC LOCATION
+// ==========================================
+
+async function initializeAutomaticLocation() {
+
+    if (
+        locationDetectionPromise
+    ) {
+
+        return locationDetectionPromise;
+
+    }
+
+
+    locationDetectionPromise =
+        (async () => {
+
+            const fallback =
+                AFGHAN_PROVINCES.KBL;
+
+
+            try {
+
+                const location =
+                    await getBrowserLocation();
+
+
+                if (
+                    !Number.isFinite(
+                        location.latitude
+                    ) ||
+                    !Number.isFinite(
+                        location.longitude
+                    )
+                ) {
+
+                    throw new Error(
+                        "Invalid browser coordinates."
+                    );
+
+                }
+
+
+                const reverse =
+                    await reverseGeocodeProvince(
+                        location.latitude,
+                        location.longitude
+                    );
+
+
+                const detectedCode =
+                    reverse.code ||
+                    null;
+
+
+                selectedProvinceCode =
+                    detectedCode ||
+                    "KBL";
+
+
+                const baseProvince =
+                    AFGHAN_PROVINCES[
+                        selectedProvinceCode
+                    ] ||
+                    fallback;
+
+
+                detectedLocation = {
+
+                    code:
+                        selectedProvinceCode,
+
+                    name:
+                        baseProvince.name,
+
+                    city:
+                        baseProvince.city,
+
+                    lat:
+                        location.latitude,
+
+                    lon:
+                        location.longitude,
+
+                    accuracy:
+                        location.accuracy,
+
+                    detected:
+                        Boolean(
+                            detectedCode
+                        ),
+
+                    reverseAddress:
+                        reverse.address,
+
+                    displayName:
+                        reverse.displayName
+
+                };
+
+
+                provinceSelectionMode =
+                    "auto";
+
+            } catch (error) {
+
+                console.warn(
+                    "Automatic Location Error:",
+                    error
+                );
+
+
+                selectedProvinceCode =
+                    "KBL";
+
+
+                detectedLocation = {
+
+                    code:
+                        "KBL",
+
+                    name:
+                        fallback.name,
+
+                    city:
+                        fallback.city,
+
+                    lat:
+                        fallback.lat,
+
+                    lon:
+                        fallback.lon,
+
+                    accuracy:
+                        null,
+
+                    detected:
+                        false,
+
+                    reverseAddress:
+                        null,
+
+                    displayName:
+                        ""
+
+                };
+
+
+                provinceSelectionMode =
+                    "auto";
+
+            }
+
+
+            return detectedLocation;
+
+        })();
+
+
+    return locationDetectionPromise;
+
+}
+
+
+// ==========================================
+// GET SELECTED / DETECTED PROVINCE
+// ==========================================
+
 function getSelectedProvince() {
 
-    const select =
-        $("#provinceSelect");
+    const baseProvince =
+        AFGHAN_PROVINCES[
+            selectedProvinceCode
+        ] ||
+        AFGHAN_PROVINCES.KBL;
 
 
-    const code =
-        select?.value ||
-        selectedProvinceCode;
+    if (
+        provinceSelectionMode ===
+        "manual"
+    ) {
+
+        return {
+
+            ...baseProvince,
+
+            lat:
+                baseProvince.lat,
+
+            lon:
+                baseProvince.lon,
+
+            detected:
+                false
+
+        };
+
+    }
 
 
-    selectedProvinceCode =
-        code;
+    if (
+        detectedLocation &&
+        Number.isFinite(
+            detectedLocation.lat
+        ) &&
+        Number.isFinite(
+            detectedLocation.lon
+        )
+    ) {
+
+        return {
+
+            ...baseProvince,
+
+            lat:
+                detectedLocation.lat,
+
+            lon:
+                detectedLocation.lon,
+
+            detected:
+                detectedLocation.detected
+
+        };
+
+    }
 
 
-    return (
-        AFGHAN_PROVINCES[code] ||
-        AFGHAN_PROVINCES.KBL
-    );
+    return baseProvince;
 
 }
 
@@ -1162,7 +2644,9 @@ function getSelectedProvince() {
 // WEATHER
 // ==========================================
 
-function getWeatherDescription(code) {
+function getWeatherDescription(
+    code
+) {
 
     const value =
         Number(code);
@@ -1254,7 +2738,9 @@ function getWeatherDescription(code) {
 }
 
 
-function getWeatherIcon(code) {
+function getWeatherIcon(
+    code
+) {
 
     const value =
         Number(code);
@@ -1332,20 +2818,26 @@ async function loadWeather(
     const description =
         $("#weatherDescription");
 
+
     const temperature =
         $("#weatherTemperature");
+
 
     const humidity =
         $("#weatherHumidity");
 
+
     const wind =
         $("#weatherWind");
+
 
     const icon =
         $("#weatherIcon");
 
+
     const updated =
         $("#weatherUpdated");
+
 
     const provinceName =
         $("#weatherProvinceName");
@@ -1536,7 +3028,8 @@ function getApiDate() {
     const day =
         String(
             now.getDate()
-        ).padStart(
+        )
+        .padStart(
             2,
             "0"
         );
@@ -1545,7 +3038,8 @@ function getApiDate() {
     const month =
         String(
             now.getMonth() + 1
-        ).padStart(
+        )
+        .padStart(
             2,
             "0"
         );
@@ -1555,7 +3049,9 @@ function getApiDate() {
         now.getFullYear();
 
 
-    return `${day}-${month}-${year}`;
+    return (
+        `${day}-${month}-${year}`
+    );
 
 }
 
@@ -1948,11 +3444,17 @@ function renderPrayerTimes(
                 "kr-prayer-item";
 
 
-            const value =
+            const rawValue =
                 timings[
                     prayer.key
                 ] ||
                 "--:--";
+
+
+            const displayValue =
+                formatTime12(
+                    rawValue
+                );
 
 
             card.innerHTML =
@@ -1960,15 +3462,21 @@ function renderPrayerTimes(
                 <i class="fa-solid ${prayer.icon}"></i>
 
                 <strong>
-                    ${escapeHtml(prayer.label)}
+                    ${escapeHtml(
+                        prayer.label
+                    )}
                 </strong>
 
                 <span>
-                    ${escapeHtml(value)}
+                    ${escapeHtml(
+                        displayValue
+                    )}
                 </span>
 
                 <small>
-                    ${escapeHtml(prayer.key)}
+                    ${escapeHtml(
+                        prayer.key
+                    )}
                 </small>
                 `;
 
@@ -2025,10 +3533,18 @@ async function loadPrayerTimes(
         const url =
             "https://api.aladhan.com/v1/timings/" +
             `${date}` +
-            `?latitude=${encodeURIComponent(province.lat)}` +
-            `&longitude=${encodeURIComponent(province.lon)}` +
-            `&method=${encodeURIComponent(method)}` +
-            `&school=${encodeURIComponent(school)}`;
+            `?latitude=${encodeURIComponent(
+                province.lat
+            )}` +
+            `&longitude=${encodeURIComponent(
+                province.lon
+            )}` +
+            `&method=${encodeURIComponent(
+                method
+            )}` +
+            `&school=${encodeURIComponent(
+                school
+            )}`;
 
 
         const response =
@@ -2074,7 +3590,10 @@ async function loadPrayerTimes(
         if (meta) {
 
             meta.textContent =
-                `${province.name} · ${data.data.meta?.timezone || "Afghanistan"}`;
+                `${province.name} · ${
+                    data.data.meta?.timezone ||
+                    "Afghanistan"
+                }`;
 
         }
 
@@ -2125,7 +3644,15 @@ async function loadQibla(
     try {
 
         const url =
-            `https://api.aladhan.com/v1/qibla/${encodeURIComponent(province.lat)}/${encodeURIComponent(province.lon)}`;
+            `https://api.aladhan.com/v1/qibla/${
+                encodeURIComponent(
+                    province.lat
+                )
+            }/${
+                encodeURIComponent(
+                    province.lon
+                )
+            }`;
 
 
         const response =
@@ -2227,29 +3754,6 @@ function initializePrayerSystem() {
     initializeProvinceSelector();
 
 
-    const provinceSelect =
-        $("#provinceSelect");
-
-
-    provinceSelect?.addEventListener(
-        "change",
-        async () => {
-
-            const province =
-                getSelectedProvince();
-
-
-            await Promise.allSettled(
-                [
-                    loadWeather(province),
-                    loadPrayerTimes(province)
-                ]
-            );
-
-        }
-    );
-
-
     $("#calculationMethod")
         ?.addEventListener(
             "change",
@@ -2325,7 +3829,8 @@ function formatLastSeen(
 
     if (
         !timestamp ||
-        typeof timestamp.toDate !== "function"
+        typeof timestamp.toDate !==
+            "function"
     ) {
 
         return "همدا اوس";
@@ -2375,9 +3880,7 @@ function renderFastOnlineUsers(
     }
 
 
-    if (
-        !users.length
-    ) {
+    if (!users.length) {
 
         target.innerHTML =
             `
@@ -2460,7 +3963,9 @@ function renderOnlineUsers(
 ) {
 
     currentOnlineUsers =
-        Array.isArray(users)
+        Array.isArray(
+            users
+        )
             ? users
             : [];
 
@@ -2506,7 +4011,9 @@ function renderOnlineUsers(
     if (heroCount) {
 
         heroCount.textContent =
-            String(count);
+            String(
+                count
+            );
 
     }
 
@@ -2514,7 +4021,9 @@ function renderOnlineUsers(
     if (donutOnline) {
 
         donutOnline.textContent =
-            String(count);
+            String(
+                count
+            );
 
     }
 
@@ -2535,10 +4044,7 @@ function renderOnlineUsers(
     }
 
 
-    if (
-        currentOnlineUsers.length ===
-        0
-    ) {
+    if (!currentOnlineUsers.length) {
 
         onlineList.innerHTML =
             `
@@ -2643,6 +4149,910 @@ const COMMENTS_COLLECTION =
 
 
 // ==========================================
+// CURRENT USER ROLE
+// ==========================================
+
+async function loadCurrentUserRole() {
+
+    currentUserRole =
+        "";
+
+
+    if (!currentUser?.uid) {
+
+        return "";
+
+    }
+
+
+    try {
+
+        const adminRef =
+            doc(
+                db,
+                "admins",
+                currentUser.uid
+            );
+
+
+        const snapshot =
+            await getDoc(
+                adminRef
+            );
+
+
+        if (!snapshot.exists()) {
+
+            return "";
+
+        }
+
+
+        const data =
+            snapshot.data();
+
+
+        currentUserRole =
+            String(
+                data?.role ||
+                ""
+            ).toLowerCase();
+
+
+        return currentUserRole;
+
+    } catch (error) {
+
+        console.error(
+            "Current User Role Error:",
+            error
+        );
+
+
+        currentUserRole =
+            "";
+
+
+        return "";
+
+    }
+
+}
+
+
+// ==========================================
+// DAILY CONTENT REF
+// ==========================================
+
+function getDailyContentRef() {
+
+    return doc(
+        db,
+        DAILY_CONTENT_COLLECTION,
+        DAILY_CONTENT_DOCUMENT
+    );
+
+}
+
+
+// ==========================================
+// APPLY DAILY CONTENT
+// ==========================================
+
+function applyDailyContent(
+    content = {}
+) {
+
+    const zikr =
+        String(
+            content.zikr ||
+            DEFAULT_DAILY_CONTENT.zikr
+        ).trim();
+
+
+    const comfort =
+        String(
+            content.comfort ||
+            DEFAULT_DAILY_CONTENT.comfort
+        ).trim();
+
+
+    const poem =
+        String(
+            content.poem ||
+            DEFAULT_DAILY_CONTENT.poem
+        ).trim();
+
+
+    const zikrElement =
+        $("#dailyZikrMessage");
+
+
+    const comfortElement =
+        $("#comfortMessage");
+
+
+    const poemElement =
+        $("#poemMessage");
+
+
+    if (zikrElement) {
+
+        zikrElement.textContent =
+            zikr;
+
+    }
+
+
+    if (comfortElement) {
+
+        comfortElement.textContent =
+            comfort;
+
+    }
+
+
+    if (poemElement) {
+
+        poemElement.textContent =
+            poem;
+
+    }
+
+
+    const zikrInput =
+        $("#dailyZikrInput");
+
+
+    const comfortInput =
+        $("#dailyComfortInput");
+
+
+    const poemInput =
+        $("#dailyPoemInput");
+
+
+    if (
+        zikrInput &&
+        document.activeElement !==
+            zikrInput
+    ) {
+
+        zikrInput.value =
+            zikr;
+
+    }
+
+
+    if (
+        comfortInput &&
+        document.activeElement !==
+            comfortInput
+    ) {
+
+        comfortInput.value =
+            comfort;
+
+    }
+
+
+    if (
+        poemInput &&
+        document.activeElement !==
+            poemInput
+    ) {
+
+        poemInput.value =
+            poem;
+
+    }
+
+}
+
+
+// ==========================================
+// START DAILY CONTENT LISTENER
+// ==========================================
+
+function startDailyContentListener() {
+
+    if (
+        dailyContentUnsubscribe
+    ) {
+
+        dailyContentUnsubscribe();
+
+        dailyContentUnsubscribe =
+            null;
+
+    }
+
+
+    const dailyRef =
+        getDailyContentRef();
+
+
+    dailyContentUnsubscribe =
+        onSnapshot(
+            dailyRef,
+
+            snapshot => {
+
+                if (
+                    snapshot.exists()
+                ) {
+
+                    applyDailyContent(
+                        snapshot.data()
+                    );
+
+                } else {
+
+                    applyDailyContent(
+                        DEFAULT_DAILY_CONTENT
+                    );
+
+                }
+
+            },
+
+            error => {
+
+                console.error(
+                    "Daily Content Listener Error:",
+                    error
+                );
+
+
+                applyDailyContent(
+                    DEFAULT_DAILY_CONTENT
+                );
+
+            }
+        );
+
+}
+
+
+// ==========================================
+// CREATE SUPERADMIN DAILY CONTENT PANEL
+// ==========================================
+
+function createDailyContentAdminPanel() {
+
+    if (
+        currentUserRole !==
+        "superadmin"
+    ) {
+
+        return;
+
+    }
+
+
+    if (
+        $("#dailyContentAdminPanel")
+    ) {
+
+        return;
+
+    }
+
+
+    const islamicGrid =
+        document.querySelector(
+            ".kr-islamic-grid"
+        );
+
+
+    if (!islamicGrid) {
+
+        return;
+
+    }
+
+
+    const panel =
+        document.createElement(
+            "section"
+        );
+
+
+    panel.id =
+        "dailyContentAdminPanel";
+
+
+    panel.style.margin =
+        "12px 0";
+
+
+    panel.style.padding =
+        "16px";
+
+
+    panel.style.border =
+        "1px solid var(--border-color)";
+
+
+    panel.style.borderRadius =
+        "17px";
+
+
+    panel.style.background =
+        "var(--surface-color)";
+
+
+    panel.style.boxShadow =
+        "0 10px 28px rgba(4,34,19,.06)";
+
+
+    panel.innerHTML =
+        `
+
+        <div
+            style="
+                display:flex;
+                align-items:center;
+                justify-content:space-between;
+                gap:10px;
+                flex-wrap:wrap;
+                margin-bottom:12px;
+            "
+        >
+
+            <div>
+
+                <strong
+                    style="
+                        display:block;
+                        font-size:11px;
+                    "
+                >
+                    👑 د نن ورځې ذکر، جمله او شعر
+                </strong>
+
+                <span
+                    style="
+                        display:block;
+                        margin-top:3px;
+                        color:var(--muted-color);
+                        font-size:7px;
+                    "
+                >
+                    یوازې Superadmin یې بدلولی او خوندي کولی شي.
+                </span>
+
+            </div>
+
+
+            <span
+                class="badge badge-success"
+            >
+                Superadmin
+            </span>
+
+        </div>
+
+
+        <div
+            class="kr-daily-admin-grid"
+            style="
+                display:grid;
+                grid-template-columns:
+                    repeat(3,minmax(0,1fr));
+                gap:10px;
+            "
+        >
+
+            <div>
+
+                <label
+                    for="dailyZikrInput"
+                    style="
+                        display:block;
+                        margin-bottom:5px;
+                        font-size:7px;
+                        font-weight:900;
+                    "
+                >
+                    🌙 د نن ذکر
+                </label>
+
+                <textarea
+                    id="dailyZikrInput"
+                    maxlength="1000"
+                    style="
+                        width:100%;
+                        min-height:90px;
+                        resize:vertical;
+                        box-sizing:border-box;
+                        padding:9px;
+                        border:1px solid var(--border-color);
+                        border-radius:9px;
+                        background:var(--surface-color);
+                        color:var(--text-color);
+                        outline:none;
+                        font-size:8px;
+                        line-height:1.8;
+                    "
+                ></textarea>
+
+            </div>
+
+
+            <div>
+
+                <label
+                    for="dailyComfortInput"
+                    style="
+                        display:block;
+                        margin-bottom:5px;
+                        font-size:7px;
+                        font-weight:900;
+                    "
+                >
+                    💚 ډاډ ورکوونکې جمله
+                </label>
+
+                <textarea
+                    id="dailyComfortInput"
+                    maxlength="1000"
+                    style="
+                        width:100%;
+                        min-height:90px;
+                        resize:vertical;
+                        box-sizing:border-box;
+                        padding:9px;
+                        border:1px solid var(--border-color);
+                        border-radius:9px;
+                        background:var(--surface-color);
+                        color:var(--text-color);
+                        outline:none;
+                        font-size:8px;
+                        line-height:1.8;
+                    "
+                ></textarea>
+
+            </div>
+
+
+            <div>
+
+                <label
+                    for="dailyPoemInput"
+                    style="
+                        display:block;
+                        margin-bottom:5px;
+                        font-size:7px;
+                        font-weight:900;
+                    "
+                >
+                    ✍️ لنډ شعر
+                </label>
+
+                <textarea
+                    id="dailyPoemInput"
+                    maxlength="1000"
+                    style="
+                        width:100%;
+                        min-height:90px;
+                        resize:vertical;
+                        box-sizing:border-box;
+                        padding:9px;
+                        border:1px solid var(--border-color);
+                        border-radius:9px;
+                        background:var(--surface-color);
+                        color:var(--text-color);
+                        outline:none;
+                        font-size:8px;
+                        line-height:1.8;
+                    "
+                ></textarea>
+
+            </div>
+
+        </div>
+
+
+        <div
+            style="
+                margin-top:10px;
+                display:flex;
+                align-items:center;
+                justify-content:space-between;
+                gap:10px;
+                flex-wrap:wrap;
+            "
+        >
+
+            <small
+                id="dailyContentSaveStatus"
+                style="
+                    color:var(--muted-color);
+                    font-size:7px;
+                "
+            ></small>
+
+
+            <button
+                type="button"
+                id="saveDailyContentBtn"
+                style="
+                    min-height:36px;
+                    padding:0 14px;
+                    border:0;
+                    border-radius:9px;
+                    color:#fff;
+                    background:
+                        linear-gradient(
+                            135deg,
+                            #0B6B36,
+                            #07552A
+                        );
+                    cursor:pointer;
+                    font-size:8px;
+                    font-weight:900;
+                "
+            >
+
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+
+                ${escapeHtml(
+                    t("dailyContentSave")
+                )}
+
+            </button>
+
+        </div>
+
+        `;
+
+
+    islamicGrid.insertAdjacentElement(
+        "afterend",
+        panel
+    );
+
+
+    if (
+        !document.getElementById(
+            "kr-daily-content-responsive-style"
+        )
+    ) {
+
+        const style =
+            document.createElement(
+                "style"
+            );
+
+
+        style.id =
+            "kr-daily-content-responsive-style";
+
+
+        style.textContent =
+            `
+
+            @media (max-width:950px) {
+
+                .kr-daily-admin-grid {
+                    grid-template-columns:
+                        1fr 1fr !important;
+                }
+
+            }
+
+            @media (max-width:650px) {
+
+                .kr-daily-admin-grid {
+                    grid-template-columns:
+                        1fr !important;
+                }
+
+            }
+
+            `;
+
+
+        document.head.appendChild(
+            style
+        );
+
+    }
+
+
+    const saveButton =
+        $("#saveDailyContentBtn");
+
+
+    if (saveButton) {
+
+        saveButton.addEventListener(
+            "click",
+            saveDailyContent
+        );
+
+    }
+
+
+    applyDailyContent(
+        DEFAULT_DAILY_CONTENT
+    );
+
+}
+
+
+// ==========================================
+// SAVE DAILY CONTENT
+// ==========================================
+
+async function saveDailyContent() {
+
+    if (
+        currentUserRole !==
+        "superadmin"
+    ) {
+
+        showDashboardError(
+            t("dailyContentUnauthorized")
+        );
+
+
+        return;
+
+    }
+
+
+    const saveButton =
+        $("#saveDailyContentBtn");
+
+
+    const status =
+        $("#dailyContentSaveStatus");
+
+
+    const zikrInput =
+        $("#dailyZikrInput");
+
+
+    const comfortInput =
+        $("#dailyComfortInput");
+
+
+    const poemInput =
+        $("#dailyPoemInput");
+
+
+    const zikr =
+        String(
+            zikrInput?.value ||
+            ""
+        )
+        .trim();
+
+
+    const comfort =
+        String(
+            comfortInput?.value ||
+            ""
+        )
+        .trim();
+
+
+    const poem =
+        String(
+            poemInput?.value ||
+            ""
+        )
+        .trim();
+
+
+    if (
+        !zikr ||
+        !comfort ||
+        !poem
+    ) {
+
+        if (status) {
+
+            status.textContent =
+                t(
+                    "dailyContentRequired"
+                );
+
+        }
+
+
+        return;
+
+    }
+
+
+    if (
+        zikr.length > 1000 ||
+        comfort.length > 1000 ||
+        poem.length > 1000
+    ) {
+
+        if (status) {
+
+            status.textContent =
+                "⚠️ متن له 1000 تورو څخه زیات نه شي کېدای.";
+
+        }
+
+
+        return;
+
+    }
+
+
+    if (saveButton) {
+
+        saveButton.disabled =
+            true;
+
+
+        saveButton.innerHTML =
+            `
+            <i class="fa-solid fa-spinner fa-spin"></i>
+            ${escapeHtml(
+                t("dailyContentSaving")
+            )}
+            `;
+
+    }
+
+
+    if (status) {
+
+        status.textContent =
+            t(
+                "dailyContentSaving"
+            );
+
+    }
+
+
+    try {
+
+        await setDoc(
+            getDailyContentRef(),
+            {
+
+                zikr,
+
+                comfort,
+
+                poem,
+
+                updatedAt:
+                    serverTimestamp(),
+
+                updatedBy:
+                    currentUser.uid,
+
+                updatedByEmail:
+                    currentUser.email ||
+                    ""
+
+            },
+            {
+                merge:
+                    true
+            }
+        );
+
+
+        applyDailyContent({
+
+            zikr,
+
+            comfort,
+
+            poem
+
+        });
+
+
+        if (status) {
+
+            status.textContent =
+                t(
+                    "dailyContentSaved"
+                );
+
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Save Daily Content Error:",
+            error
+        );
+
+
+        if (status) {
+
+            status.textContent =
+                "❌ متنونه خوندي نه شول.";
+
+        }
+
+
+        showDashboardError(
+            error?.message ||
+            "د نن ورځې متنونه خوندي نه شول."
+        );
+
+    } finally {
+
+        if (saveButton) {
+
+            saveButton.disabled =
+                false;
+
+
+            saveButton.innerHTML =
+                `
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                ${escapeHtml(
+                    t("dailyContentSave")
+                )}
+                `;
+
+        }
+
+    }
+
+}
+
+
+// ==========================================
+// INITIALIZE DAILY CONTENT
+// ==========================================
+
+function initializeDailyContent() {
+
+    // --------------------------------------
+    // Existing first Islamic card
+    // --------------------------------------
+
+    const cards =
+        document.querySelectorAll(
+            ".kr-islamic-card"
+        );
+
+
+    if (
+        cards.length > 0
+    ) {
+
+        const firstText =
+            cards[0].querySelector(
+                "span"
+            );
+
+
+        if (firstText) {
+
+            firstText.id =
+                "dailyZikrMessage";
+
+        }
+
+    }
+
+
+    startDailyContentListener();
+
+
+    createDailyContentAdminPanel();
+
+}
+
+
+// ==========================================
 // LIVE COMMENTS
 // ==========================================
 
@@ -2674,7 +5084,7 @@ function startCommentsListener() {
     const commentsRef =
         collection(
             db,
-            COMMENTS_COLLECTION
+            "dashboard_comments"
         );
 
 
@@ -2722,13 +5132,14 @@ function startCommentsListener() {
                 snapshot.forEach(
                     item => {
 
-                        const comment =
-                            {
-                                id:
-                                    item.id,
+                        const comment = {
 
-                                ...item.data()
-                            };
+                            id:
+                                item.id,
+
+                            ...item.data()
+
+                        };
 
 
                         list.appendChild(
@@ -2827,6 +5238,21 @@ function createCommentElement(
         );
 
 
+    const isOwnComment =
+        currentUser?.uid ===
+        comment.uid;
+
+
+    const isSuperAdmin =
+        currentUserRole ===
+        "superadmin";
+
+
+    const canDelete =
+        isOwnComment ||
+        isSuperAdmin;
+
+
     const createdAt =
         comment.createdAt &&
         typeof comment.createdAt.toDate ===
@@ -2860,18 +5286,24 @@ function createCommentElement(
             <div class="kr-comment-top">
 
                 <strong>
-                    ${escapeHtml(displayName)}
+                    ${escapeHtml(
+                        displayName
+                    )}
                 </strong>
 
                 <small>
-                    ${escapeHtml(createdAt)}
+                    ${escapeHtml(
+                        createdAt
+                    )}
                 </small>
 
             </div>
 
 
             <div class="kr-comment-text">
-                ${escapeHtml(text)}
+                ${escapeHtml(
+                    text
+                )}
             </div>
 
 
@@ -2885,7 +5317,9 @@ function createCommentElement(
                             : ""
                     }"
                     data-comment-action="like"
-                    data-comment-id="${escapeHtml(comment.id)}"
+                    data-comment-id="${escapeHtml(
+                        comment.id
+                    )}"
                 >
 
                     <i class="fa-solid fa-thumbs-up"></i>
@@ -2903,7 +5337,9 @@ function createCommentElement(
                             : ""
                     }"
                     data-comment-action="heart"
-                    data-comment-id="${escapeHtml(comment.id)}"
+                    data-comment-id="${escapeHtml(
+                        comment.id
+                    )}"
                 >
 
                     ❤️
@@ -2911,6 +5347,33 @@ function createCommentElement(
                     ${hearts.length}
 
                 </button>
+
+
+                ${
+                    canDelete
+                        ? `
+                        <button
+                            type="button"
+                            class="kr-react kr-delete-comment"
+                            data-comment-action="delete"
+                            data-comment-id="${escapeHtml(
+                                comment.id
+                            )}"
+                            title="${escapeHtml(
+                                t("deleteComment")
+                            )}"
+                        >
+
+                            <i class="fa-solid fa-trash"></i>
+
+                            ${escapeHtml(
+                                t("deleteComment")
+                            )}
+
+                        </button>
+                        `
+                        : ""
+                }
 
             </div>
 
@@ -2931,9 +5394,7 @@ async function sendComment(
     text
 ) {
 
-    if (
-        !currentUser
-    ) {
+    if (!currentUser) {
 
         throw new Error(
             "Authentication required."
@@ -2969,7 +5430,7 @@ async function sendComment(
     await addDoc(
         collection(
             db,
-            COMMENTS_COLLECTION
+            "dashboard_comments"
         ),
         {
 
@@ -3012,9 +5473,7 @@ async function toggleReaction(
     type
 ) {
 
-    if (
-        !currentUser
-    ) {
+    if (!currentUser) {
 
         return;
 
@@ -3024,7 +5483,7 @@ async function toggleReaction(
     const commentRef =
         doc(
             db,
-            COMMENTS_COLLECTION,
+            "dashboard_comments",
             commentId
         );
 
@@ -3037,7 +5496,11 @@ async function toggleReaction(
 
     const button =
         document.querySelector(
-            `[data-comment-action="${CSS.escape(safeType)}"][data-comment-id="${CSS.escape(commentId)}"]`
+            `[data-comment-action="${CSS.escape(
+                safeType
+            )}"][data-comment-id="${CSS.escape(
+                commentId
+            )}"]`
         );
 
 
@@ -3083,6 +5546,101 @@ async function toggleReaction(
 
 
 // ==========================================
+// DELETE COMMENT
+// ==========================================
+
+async function deleteComment(
+    commentId
+) {
+
+    if (!currentUser) {
+
+        throw new Error(
+            "Authentication required."
+        );
+
+    }
+
+
+    if (!commentId) {
+
+        throw new Error(
+            "Invalid comment ID."
+        );
+
+    }
+
+
+    const commentRef =
+        doc(
+            db,
+            "dashboard_comments",
+            commentId
+        );
+
+
+    const snapshot =
+        await getDoc(
+            commentRef
+        );
+
+
+    if (!snapshot.exists()) {
+
+        throw new Error(
+            "Comment not found."
+        );
+
+    }
+
+
+    const comment =
+        snapshot.data();
+
+
+    const isOwner =
+        comment?.uid ===
+        currentUser.uid;
+
+
+    const isSuperAdmin =
+        currentUserRole ===
+        "superadmin";
+
+
+    if (
+        !isOwner &&
+        !isSuperAdmin
+    ) {
+
+        throw new Error(
+            "You are not allowed to delete this comment."
+        );
+
+    }
+
+
+    const confirmed =
+        window.confirm(
+            t("deleteConfirm")
+        );
+
+
+    if (!confirmed) {
+
+        return;
+
+    }
+
+
+    await deleteDoc(
+        commentRef
+    );
+
+}
+
+
+// ==========================================
 // COMMENT EVENTS
 // ==========================================
 
@@ -3100,7 +5658,10 @@ function initializeComments() {
         $("#commentSend");
 
 
-    if (form && input) {
+    if (
+        form &&
+        input
+    ) {
 
         form.addEventListener(
             "submit",
@@ -3229,21 +5790,35 @@ function initializeComments() {
 
             try {
 
-                await toggleReaction(
-                    commentId,
-                    type
-                );
+                if (
+                    type ===
+                    "delete"
+                ) {
+
+                    await deleteComment(
+                        commentId
+                    );
+
+                } else {
+
+                    await toggleReaction(
+                        commentId,
+                        type
+                    );
+
+                }
 
             } catch (error) {
 
                 console.error(
-                    "Reaction Error:",
+                    "Comment Action Error:",
                     error
                 );
 
 
                 showDashboardError(
-                    error.message
+                    error.message ||
+                    t("deleteError")
                 );
 
             } finally {
@@ -3260,23 +5835,6 @@ function initializeComments() {
     startCommentsListener();
 
 }
-
-
-// ==========================================
-// DASHBOARD STATS
-// ==========================================
-//
-// اصلي ستونزه:
-// getDashboardStats is not defined
-//
-// دلته ټول اړین functions تعریف شوي:
-// - getRecordsCount()
-// - getOnlineUsersCount()
-// - getDashboardUser()
-// - getUserEmail()
-// - getDashboardStats()
-// - loadDashboardStats()
-// ==========================================
 
 
 // ==========================================
@@ -3301,7 +5859,8 @@ async function getRecordsCount() {
 
 
         return Number(
-            snapshot?.data?.()?.count || 0
+            snapshot?.data?.()?.count ||
+            0
         );
 
     } catch (error) {
@@ -3413,13 +5972,15 @@ async function loadDashboardStats() {
 
         const records =
             Number(
-                stats.records || 0
+                stats.records ||
+                0
             );
 
 
         const online =
             Number(
-                stats.onlineUsers || 0
+                stats.onlineUsers ||
+                0
             );
 
 
@@ -3437,14 +5998,6 @@ async function loadDashboardStats() {
 
         const heroOnline =
             $("#heroOnlineCount");
-
-
-        const donutRecords =
-            $("#donutRecords");
-
-
-        const donutOnline =
-            $("#donutOnline");
 
 
         if (recordsElement) {
@@ -3479,26 +6032,6 @@ async function loadDashboardStats() {
         if (heroOnline) {
 
             heroOnline.textContent =
-                String(
-                    online
-                );
-
-        }
-
-
-        if (donutRecords) {
-
-            donutRecords.textContent =
-                records.toLocaleString(
-                    "en-US"
-                );
-
-        }
-
-
-        if (donutOnline) {
-
-            donutOnline.textContent =
                 String(
                     online
                 );
@@ -3750,7 +6283,9 @@ function waitForAuthUser(
                 Date.now();
 
 
-            function finish(user) {
+            function finish(
+                user
+            ) {
 
                 if (finished) {
 
@@ -3895,6 +6430,30 @@ function cleanupDashboard() {
     }
 
 
+    if (
+        dailyContentUnsubscribe
+    ) {
+
+        try {
+
+            dailyContentUnsubscribe();
+
+        } catch (error) {
+
+            console.warn(
+                "Daily content cleanup:",
+                error
+            );
+
+        }
+
+
+        dailyContentUnsubscribe =
+            null;
+
+    }
+
+
     if (clockTimer) {
 
         clearInterval(
@@ -4009,6 +6568,53 @@ async function boot() {
                     false
 
             };
+
+        }
+
+
+        // --------------------------------------
+        // Current User Role
+        // --------------------------------------
+
+        await loadCurrentUserRole();
+
+
+        // --------------------------------------
+        // Daily Islamic Content
+        // --------------------------------------
+
+        initializeDailyContent();
+
+
+        // --------------------------------------
+        // LOAD SAVED PROVINCE
+        // --------------------------------------
+
+        savedProvinceCode =
+            getSavedProvinceCode();
+
+
+        if (
+            savedProvinceCode &&
+            AFGHAN_PROVINCES[
+                savedProvinceCode
+            ]
+        ) {
+
+            selectedProvinceCode =
+                savedProvinceCode;
+
+
+            provinceSelectionMode =
+                "manual";
+
+
+            detectedLocation =
+                null;
+
+        } else {
+
+            await initializeAutomaticLocation();
 
         }
 
@@ -4139,8 +6745,6 @@ async function boot() {
                 );
 
 
-                // Online count has now changed,
-                // refresh Dashboard stats UI.
                 loadDashboardStats();
 
             }
@@ -4205,18 +6809,12 @@ async function boot() {
 // ==========================================
 // PUBLIC INITIALIZER
 // ==========================================
-//
-// دا هماغه function دی چې ستا په آخر
-// default export کې missing و.
-//
-// د auto boot او manual boot دواړو لپاره
-// یو Promise کارول کېږي ترڅو Dashboard
-// دوه ځله initialize نه شي.
-// ==========================================
 
 async function initializeDashboard() {
 
-    if (dashboardInitialized) {
+    if (
+        dashboardInitialized
+    ) {
 
         return {
 
@@ -4292,12 +6890,14 @@ export function initializeDashboardLocationTracking() {
 
     return {
 
-        success: true,
+        success:
+            true,
 
-        enabled: false,
+        enabled:
+            true,
 
         message:
-            "Location tracking disabled."
+            "Automatic browser location detection is enabled."
 
     };
 
@@ -4306,16 +6906,59 @@ export function initializeDashboardLocationTracking() {
 
 export function getDashboardLocationState() {
 
+    const province =
+        AFGHAN_PROVINCES[
+            selectedProvinceCode
+        ] ||
+        AFGHAN_PROVINCES.KBL;
+
+
     return {
 
         initialized:
             dashboardInitialized,
 
         active:
-            false,
+            Boolean(
+                detectedLocation
+            ),
 
         enabled:
-            false
+            true,
+
+        province:
+            province.name,
+
+        latitude:
+            detectedLocation?.lat ??
+            (
+                provinceSelectionMode ===
+                "manual"
+                    ? province.lat
+                    : null
+            ),
+
+        longitude:
+            detectedLocation?.lon ??
+            (
+                provinceSelectionMode ===
+                "manual"
+                    ? province.lon
+                    : null
+            ),
+
+        detected:
+            Boolean(
+                detectedLocation?.detected
+            ),
+
+        selectionMode:
+            provinceSelectionMode,
+
+        saved:
+            Boolean(
+                savedProvinceCode
+            )
 
     };
 
@@ -4324,16 +6967,94 @@ export function getDashboardLocationState() {
 
 export async function requestCurrentLocation() {
 
+    if (
+        savedProvinceCode &&
+        AFGHAN_PROVINCES[
+            savedProvinceCode
+        ]
+    ) {
+
+        return {
+
+            success:
+                true,
+
+            enabled:
+                true,
+
+            province:
+                AFGHAN_PROVINCES[
+                    savedProvinceCode
+                ].name,
+
+            latitude:
+                AFGHAN_PROVINCES[
+                    savedProvinceCode
+                ].lat,
+
+            longitude:
+                AFGHAN_PROVINCES[
+                    savedProvinceCode
+                ].lon,
+
+            detected:
+                false,
+
+            saved:
+                true
+
+        };
+
+    }
+
+
+    locationDetectionPromise =
+        null;
+
+
+    await initializeAutomaticLocation();
+
+
+    if (!detectedLocation) {
+
+        return {
+
+            success:
+                false,
+
+            enabled:
+                true,
+
+            message:
+                "Current location is unavailable."
+
+        };
+
+    }
+
+
     return {
 
         success:
-            false,
+            true,
 
         enabled:
-            false,
+            true,
 
-        message:
-            "Location tracking disabled."
+        province:
+            detectedLocation.name,
+
+        latitude:
+            detectedLocation.lat,
+
+        longitude:
+            detectedLocation.lon,
+
+        detected:
+            detectedLocation.detected,
+
+        saved:
+            false
 
     };
 
