@@ -127,9 +127,6 @@ service cloud.firestore {
 
         match /admins/{uid} {
 
-
-            // خپل Profile لوستل
-            // Superadmin کولی شي هر Profile ولولي
             allow get: if signedIn()
                 && (
                     request.auth.uid == uid
@@ -138,19 +135,15 @@ service cloud.firestore {
                 );
 
 
-            // یوازې Superadmin ټول Admin list کولی شي
             allow list: if isSuperAdmin();
 
 
-            // یوازې Superadmin نوی Admin جوړولی شي
             allow create: if isSuperAdmin();
 
 
-            // یوازې Superadmin Admin Profile بدلولی شي
             allow update: if isSuperAdmin();
 
 
-            // یوازې Superadmin Admin حذف کولی شي
             allow delete: if isSuperAdmin();
 
         }
@@ -162,20 +155,15 @@ service cloud.firestore {
 
         match /records/{recordId} {
 
-
-            // ټول فعال roles کولی شي records ولولي
             allow read: if isMember();
 
 
-            // یوازې Admin او Superadmin ثبت کولی شي
             allow create: if isAdmin();
 
 
-            // یوازې Admin او Superadmin بدلون کولی شي
             allow update: if isAdmin();
 
 
-            // یوازې Superadmin حذف کولی شي
             allow delete: if isSuperAdmin();
 
         }
@@ -187,20 +175,15 @@ service cloud.firestore {
 
         match /settings/{settingId} {
 
-
-            // ټول فعال users settings لوستلی شي
             allow read: if isMember();
 
 
-            // Admin / Superadmin
             allow create: if isAdmin();
 
 
-            // Admin / Superadmin
             allow update: if isAdmin();
 
 
-            // یوازې Superadmin
             allow delete: if isSuperAdmin();
 
         }
@@ -212,22 +195,17 @@ service cloud.firestore {
 
         match /presence/{uid} {
 
-
-            // ټول فعال Members presence لوستلی شي
             allow read: if isMember();
 
 
-            // هر user یوازې خپل presence جوړولی شي
             allow create: if isMember()
                 && request.auth.uid == uid;
 
 
-            // هر user یوازې خپل presence بدلولی شي
             allow update: if isMember()
                 && request.auth.uid == uid;
 
 
-            // هر user یوازې خپل presence حذفولی شي
             allow delete: if isMember()
                 && request.auth.uid == uid;
 
@@ -240,8 +218,6 @@ service cloud.firestore {
 
         match /audit/{auditId} {
 
-
-            // هر فعال Member خپل audit event ثبتولی شي
             allow create: if isMember()
 
                 && request.resource.data.uid
@@ -251,15 +227,12 @@ service cloud.firestore {
                     == request.auth.token.email;
 
 
-            // یوازې Superadmin لوستلی شي
             allow read: if isSuperAdmin();
 
 
-            // Audit نه update کېږي
             allow update: if false;
 
 
-            // Audit نه delete کېږي
             allow delete: if false;
 
         }
@@ -268,39 +241,12 @@ service cloud.firestore {
         // =========================================================
         // DASHBOARD COMMENTS
         // =========================================================
-        //
-        // د Live Dashboard ټولنیز مرکز
-        //
-        // fields:
-        // text
-        // uid
-        // displayName
-        // email
-        // createdAt
-        // likes[]
-        // hearts[]
-        //
-        // ټول فعال Members:
-        // - Comment create
-        // - Comment read
-        // - Like
-        // - Heart
-        //
-        // text / uid / author:
-        // وروسته نه بدلېږي
-        //
-        // update یوازې:
-        // likes / hearts
-        // =========================================================
 
         match /dashboard_comments/{commentId} {
 
-
-            // ټول فعال Members comments لوستلی شي
             allow read: if isMember();
 
 
-            // نوی Comment
             allow create: if isMember()
 
                 && request.resource.data.uid
@@ -327,22 +273,6 @@ service cloud.firestore {
                 && request.resource.data.hearts
                     is list;
 
-
-            // -----------------------------------------------------
-            // Like / Heart
-            // -----------------------------------------------------
-            //
-            // User نشي کولی:
-            // text
-            // uid
-            // email
-            // displayName
-            // createdAt
-            //
-            // بدل کړي.
-            //
-            // یوازې likes/hearts arrays بدلولی شي.
-            // -----------------------------------------------------
 
             allow update: if isMember()
 
@@ -377,7 +307,129 @@ service cloud.firestore {
                     is list;
 
 
-            // Comments حذفول
+            allow delete: if isSuperAdmin()
+
+                || (
+                    isMember()
+
+                    && resource.data.uid
+                        == request.auth.uid
+                );
+
+        }
+
+
+        // =========================================================
+        // DAILY ISLAMIC CONTENT
+        // =========================================================
+        //
+        // Collection:
+        // dashboard_daily_content
+        //
+        // Document:
+        // today
+        //
+        // Fields:
+        // zikr
+        // comfort
+        // poem
+        // updatedAt
+        // updatedBy
+        // updatedByEmail
+        //
+        // Read:
+        // ټول فعال کارکوونکي
+        //
+        // Create / Update:
+        // یوازې Superadmin
+        //
+        // Delete:
+        // هېڅوک نه شي کولی
+        // =========================================================
+
+        match /dashboard_daily_content/{contentId} {
+
+
+            // ټول فعال کارکوونکي
+            // ټاکل شوی محتوا لوستلی شي
+            allow read: if isMember();
+
+
+            // یوازې Superadmin نوی محتوا جوړولی شي
+            allow create: if isSuperAdmin()
+
+                && request.resource.data.zikr
+                    is string
+
+                && request.resource.data.zikr.size()
+                    > 0
+
+                && request.resource.data.zikr.size()
+                    <= 1000
+
+                && request.resource.data.comfort
+                    is string
+
+                && request.resource.data.comfort.size()
+                    > 0
+
+                && request.resource.data.comfort.size()
+                    <= 1000
+
+                && request.resource.data.poem
+                    is string
+
+                && request.resource.data.poem.size()
+                    > 0
+
+                && request.resource.data.poem.size()
+                    <= 1000
+
+                && request.resource.data.updatedBy
+                    == request.auth.uid
+
+                && request.resource.data.updatedByEmail
+                    == request.auth.token.email;
+
+
+            // یوازې Superadmin محتوا بدلولی شي
+            allow update: if isSuperAdmin()
+
+                && request.resource.data.zikr
+                    is string
+
+                && request.resource.data.zikr.size()
+                    > 0
+
+                && request.resource.data.zikr.size()
+                    <= 1000
+
+                && request.resource.data.comfort
+                    is string
+
+                && request.resource.data.comfort.size()
+                    > 0
+
+                && request.resource.data.comfort.size()
+                    <= 1000
+
+                && request.resource.data.poem
+                    is string
+
+                && request.resource.data.poem.size()
+                    > 0
+
+                && request.resource.data.poem.size()
+                    <= 1000
+
+                && request.resource.data.updatedBy
+                    == request.auth.uid
+
+                && request.resource.data.updatedByEmail
+                    == request.auth.token.email;
+
+
+            // ورځنی محتوا نه حذف کېږي
             allow delete: if false;
 
         }
