@@ -242,6 +242,926 @@ function escapeHtml(value) {
 
 
 // ==========================================
+// DASHBOARD TEXT SIZE ENHANCEMENT
+// یوازې د متنونو اندازه لوړوي
+// د سیستم منطق او جوړښت نه بدلوي
+// ==========================================
+
+function applyDashboardTextSizes() {
+
+    if (
+        document.getElementById(
+            "kr-dashboard-large-text-style"
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    const style =
+        document.createElement(
+            "style"
+        );
+
+
+    style.id =
+        "kr-dashboard-large-text-style";
+
+
+    style.textContent = `
+
+        /* ======================================
+           GLOBAL DASHBOARD TEXT
+           ====================================== */
+
+        body,
+        body * {
+
+            font-size: 16px !important;
+
+        }
+
+
+        /* ======================================
+           MAIN TITLES
+           ====================================== */
+
+        h1 {
+
+            font-size: 25px !important;
+            line-height: 1.6 !important;
+            font-weight: 900 !important;
+
+        }
+
+
+        h2 {
+
+            font-size: 22px !important;
+            line-height: 1.6 !important;
+            font-weight: 900 !important;
+
+        }
+
+
+        h3 {
+
+            font-size: 20px !important;
+            line-height: 1.6 !important;
+            font-weight: 900 !important;
+
+        }
+
+
+        h4,
+        h5,
+        h6 {
+
+            font-size: 18px !important;
+            line-height: 1.6 !important;
+            font-weight: 900 !important;
+
+        }
+
+
+        /* ======================================
+           SYSTEM NAME
+           ====================================== */
+
+        [data-system-name] {
+
+            font-size: 18px !important;
+            line-height: 1.8 !important;
+            font-weight: 900 !important;
+
+        }
+
+
+        /* ======================================
+           WELCOME
+           ====================================== */
+
+        #welcomeText {
+
+            font-size: 20px !important;
+            line-height: 1.8 !important;
+            font-weight: 900 !important;
+
+        }
+
+
+        /* ======================================
+           SIDEBAR / MAIN MENU
+           ====================================== */
+
+        #sidebarTitle {
+
+            font-size: 18px !important;
+            font-weight: 900 !important;
+
+        }
+
+
+        #dashboardMenuBtn,
+        #registerMenuBtn,
+        #searchMenuBtn,
+        #reportsMenuBtn,
+        #adminMenuBtn,
+        #settingsMenuBtn {
+
+            font-size: 16px !important;
+            line-height: 1.6 !important;
+            font-weight: 900 !important;
+
+        }
+
+
+        /* ======================================
+           ALL BUTTONS
+           ====================================== */
+
+        button,
+        .btn {
+
+            font-size: 16px !important;
+            line-height: 1.5 !important;
+            font-weight: 900 !important;
+
+        }
+
+
+        /* ======================================
+           COMMON CARD CONTENT
+           ====================================== */
+
+        .kr-card,
+        .kr-panel,
+        .kr-box,
+        .card {
+
+            font-size: 16px !important;
+
+        }
+
+
+        .kr-card strong,
+        .kr-panel strong,
+        .kr-box strong,
+        .card strong {
+
+            font-size: 17px !important;
+            font-weight: 900 !important;
+
+        }
+
+
+        .kr-card span,
+        .kr-panel span,
+        .kr-box span,
+        .card span {
+
+            font-size: 16px !important;
+
+        }
+
+
+        .kr-card small,
+        .kr-panel small,
+        .kr-box small,
+        .card small {
+
+            font-size: 14px !important;
+
+        }
+
+
+        /* ======================================
+           DAILY ISLAMIC CONTENT
+           ====================================== */
+
+        #dailyZikrMessage,
+        #comfortMessage,
+        #poemMessage {
+
+            font-size: 20px !important;
+            line-height: 2 !important;
+            font-weight: 900 !important;
+
+        }
+
+
+        /* ======================================
+           DAILY CONTENT ADMIN PANEL
+           ====================================== */
+
+        #dailyContentAdminPanel {
+
+            font-size: 16px !important;
+
+        }
+
+
+        #dailyContentAdminPanel strong {
+
+            font-size: 18px !important;
+            font-weight: 900 !important;
+
+        }
+
+
+        #dailyContentAdminPanel span {
+
+            font-size: 14px !important;
+
+        }
+
+
+        #dailyContentAdminPanel label {
+
+            font-size: 15px !important;
+            line-height: 1.7 !important;
+            font-weight: 900 !important;
+
+        }
+
+
+        #dailyZikrInput,
+        #dailyComfortInput,
+        #dailyPoemInput {
+
+            font-size: 16px !important;
+            line-height: 1.9 !important;
+            font-weight: 700 !important;
+
+        }
+
+
+        #dailyContentSaveStatus {
+
+            font-size: 14px !important;
+            font-weight: 700 !important;
+
+        }
+
+
+        #saveDailyContentBtn {
+
+            font-size: 16px !important;
+            min-height: 46px !important;
+            font-weight: 900 !important;
+
+        }
+
+
+        /* ======================================
+           COMMENTS
+           ====================================== */
+
+        #commentInput {
+
+            font-size: 16px !important;
+            line-height: 1.8 !important;
+
+        }
+
+
+        #commentSend {
+
+            font-size: 16px !important;
+            font-weight: 900 !important;
+
+        }
+
+
+        .kr-comment {
+
+            font-size: 16px !important;
+
+        }
+
+
+        .kr-comment-top strong {
+
+            font-size: 17px !important;
+            font-weight: 900 !important;
+
+        }
+
+
+        .kr-comment-top small {
+
+            font-size: 14px !important;
+
+        }
+
+
+        .kr-comment-text {
+
+            font-size: 18px !important;
+            line-height: 2 !important;
+            font-weight: 700 !important;
+
+        }
+
+
+        .kr-comment-actions .kr-react {
+
+            font-size: 14px !important;
+            font-weight: 800 !important;
+
+        }
+
+
+        /* ======================================
+           ONLINE USERS
+           ====================================== */
+
+        .kr-fast-user,
+        .online-user {
+
+            font-size: 16px !important;
+
+        }
+
+
+        .kr-fast-info strong,
+        .online-user-name {
+
+            font-size: 16px !important;
+            font-weight: 900 !important;
+
+        }
+
+
+        .kr-fast-info span,
+        .online-user-email {
+
+            font-size: 14px !important;
+
+        }
+
+
+        .kr-fast-status,
+        .online-user-status {
+
+            font-size: 14px !important;
+            font-weight: 800 !important;
+
+        }
+
+
+        .online-user-time {
+
+            font-size: 13px !important;
+
+        }
+
+
+        /* ======================================
+           PRAYER TIMES
+           ====================================== */
+
+        .kr-prayer-item {
+
+            font-size: 16px !important;
+
+        }
+
+
+        .kr-prayer-item strong {
+
+            font-size: 18px !important;
+            line-height: 1.6 !important;
+            font-weight: 900 !important;
+
+        }
+
+
+        .kr-prayer-item span {
+
+            font-size: 19px !important;
+            line-height: 1.5 !important;
+            font-weight: 900 !important;
+
+        }
+
+
+        .kr-prayer-item small {
+
+            font-size: 13px !important;
+
+        }
+
+
+        #nextPrayerName {
+
+            font-size: 20px !important;
+            font-weight: 900 !important;
+
+        }
+
+
+        #nextPrayerCountdown {
+
+            font-size: 24px !important;
+            font-weight: 900 !important;
+
+        }
+
+
+        #prayerMeta {
+
+            font-size: 15px !important;
+            font-weight: 700 !important;
+
+        }
+
+
+        #qiblaDirection {
+
+            font-size: 21px !important;
+            font-weight: 900 !important;
+
+        }
+
+
+        /* ======================================
+           WEATHER
+           ====================================== */
+
+        #weatherProvinceName {
+
+            font-size: 17px !important;
+            font-weight: 900 !important;
+
+        }
+
+
+        #weatherDescription {
+
+            font-size: 17px !important;
+            font-weight: 800 !important;
+
+        }
+
+
+        #weatherTemperature {
+
+            font-size: 25px !important;
+            font-weight: 900 !important;
+
+        }
+
+
+        #weatherHumidity,
+        #weatherWind,
+        #weatherUpdated {
+
+            font-size: 16px !important;
+            font-weight: 800 !important;
+
+        }
+
+
+        /* ======================================
+           DATES
+           ====================================== */
+
+        #solarDate,
+        #lunarDate,
+        #gregorianDate {
+
+            font-size: 18px !important;
+            line-height: 1.8 !important;
+            font-weight: 900 !important;
+
+        }
+
+
+        /* ======================================
+           CLOCK
+           ====================================== */
+
+        #ampmTime,
+        #currentDateTime {
+
+            font-size: 25px !important;
+            line-height: 1.4 !important;
+            font-weight: 900 !important;
+
+        }
+
+
+        #ampmLabel {
+
+            font-size: 18px !important;
+            font-weight: 900 !important;
+
+        }
+
+
+        /* ======================================
+           LOGIN INFORMATION
+           ====================================== */
+
+        #loginTime {
+
+            font-size: 18px !important;
+            font-weight: 800 !important;
+
+        }
+
+
+        #loginDuration {
+
+            font-size: 21px !important;
+            font-weight: 900 !important;
+
+        }
+
+
+        #currentUserEmail {
+
+            font-size: 16px !important;
+            font-weight: 700 !important;
+
+        }
+
+
+        /* ======================================
+           COUNTERS
+           ====================================== */
+
+        #recordsCount,
+        #onlineUsersCount,
+        #heroOnlineCount,
+        #donutOnline {
+
+            font-size: 24px !important;
+            font-weight: 900 !important;
+
+        }
+
+
+        #onlineUsersBadge {
+
+            font-size: 15px !important;
+            font-weight: 900 !important;
+
+        }
+
+
+        /* ======================================
+           PROVINCE
+           ====================================== */
+
+        #provinceSelect {
+
+            font-size: 16px !important;
+            line-height: 1.6 !important;
+            font-weight: 700 !important;
+
+        }
+
+
+        #provinceSelect option {
+
+            font-size: 16px !important;
+
+        }
+
+
+        #saveProvinceBtn {
+
+            font-size: 16px !important;
+            min-height: 46px !important;
+            font-weight: 900 !important;
+
+        }
+
+
+        #provinceSaveStatus {
+
+            font-size: 14px !important;
+            font-weight: 800 !important;
+
+        }
+
+
+        /* ======================================
+           PRAYER SETTINGS
+           ====================================== */
+
+        #calculationMethod,
+        #asrSchool {
+
+            font-size: 16px !important;
+            font-weight: 700 !important;
+
+        }
+
+
+        #calculationMethod option,
+        #asrSchool option {
+
+            font-size: 16px !important;
+
+        }
+
+
+        /* ======================================
+           ALERTS
+           ====================================== */
+
+        .alert {
+
+            font-size: 16px !important;
+            line-height: 1.8 !important;
+            font-weight: 700 !important;
+
+        }
+
+
+        .search-empty {
+
+            font-size: 16px !important;
+            line-height: 1.8 !important;
+            font-weight: 700 !important;
+
+        }
+
+
+        /* ======================================
+           BADGES
+           ====================================== */
+
+        .badge {
+
+            font-size: 14px !important;
+            font-weight: 900 !important;
+
+        }
+
+
+        /* ======================================
+           FORM LABELS / INPUTS
+           ====================================== */
+
+        label {
+
+            font-size: 16px !important;
+            font-weight: 800 !important;
+
+        }
+
+
+        input,
+        select,
+        textarea {
+
+            font-size: 16px !important;
+            line-height: 1.8 !important;
+
+        }
+
+
+        input::placeholder,
+        textarea::placeholder {
+
+            font-size: 15px !important;
+
+        }
+
+
+        /* ======================================
+           SMALL TEXT
+           ====================================== */
+
+        small {
+
+            font-size: 14px !important;
+
+        }
+
+
+        /* ======================================
+           PARAGRAPHS
+           ====================================== */
+
+        p {
+
+            font-size: 16px !important;
+            line-height: 1.9 !important;
+
+        }
+
+
+        span {
+
+            line-height: 1.7 !important;
+
+        }
+
+
+        /* ======================================
+           TABLES
+           ====================================== */
+
+        table {
+
+            font-size: 16px !important;
+
+        }
+
+
+        th {
+
+            font-size: 16px !important;
+            font-weight: 900 !important;
+
+        }
+
+
+        td {
+
+            font-size: 16px !important;
+
+        }
+
+
+        /* ======================================
+           LINKS
+           ====================================== */
+
+        a {
+
+            font-size: 16px !important;
+
+        }
+
+
+        /* ======================================
+           MOBILE
+           ====================================== */
+
+        @media (max-width: 650px) {
+
+            body,
+            body * {
+
+                font-size: 15px !important;
+
+            }
+
+
+            h1 {
+
+                font-size: 22px !important;
+
+            }
+
+
+            h2 {
+
+                font-size: 20px !important;
+
+            }
+
+
+            h3 {
+
+                font-size: 18px !important;
+
+            }
+
+
+            [data-system-name] {
+
+                font-size: 17px !important;
+
+            }
+
+
+            #welcomeText {
+
+                font-size: 18px !important;
+
+            }
+
+
+            #dashboardMenuBtn,
+            #registerMenuBtn,
+            #searchMenuBtn,
+            #reportsMenuBtn,
+            #adminMenuBtn,
+            #settingsMenuBtn {
+
+                font-size: 15px !important;
+
+            }
+
+
+            #dailyZikrMessage,
+            #comfortMessage,
+            #poemMessage {
+
+                font-size: 18px !important;
+
+            }
+
+
+            .kr-comment-text {
+
+                font-size: 16px !important;
+
+            }
+
+
+            .kr-prayer-item strong {
+
+                font-size: 16px !important;
+
+            }
+
+
+            .kr-prayer-item span {
+
+                font-size: 17px !important;
+
+            }
+
+
+            #nextPrayerName {
+
+                font-size: 18px !important;
+
+            }
+
+
+            #nextPrayerCountdown {
+
+                font-size: 21px !important;
+
+            }
+
+
+            #weatherTemperature {
+
+                font-size: 22px !important;
+
+            }
+
+
+            #ampmTime,
+            #currentDateTime {
+
+                font-size: 22px !important;
+
+            }
+
+
+            #solarDate,
+            #lunarDate,
+            #gregorianDate {
+
+                font-size: 16px !important;
+
+            }
+
+
+            #recordsCount,
+            #onlineUsersCount,
+            #heroOnlineCount,
+            #donutOnline {
+
+                font-size: 21px !important;
+
+            }
+
+
+            #saveDailyContentBtn,
+            #saveProvinceBtn {
+
+                font-size: 15px !important;
+                min-height: 44px !important;
+
+            }
+
+        }
+
+    `;
+
+
+    document.head.appendChild(
+        style
+    );
+
+}
+
+
+// ==========================================
 // TRANSLATIONS
 // ==========================================
 
@@ -5014,10 +5934,6 @@ async function saveDailyContent() {
 
 function initializeDailyContent() {
 
-    // --------------------------------------
-    // Existing first Islamic card
-    // --------------------------------------
-
     const cards =
         document.querySelectorAll(
             ".kr-islamic-card"
@@ -5084,7 +6000,7 @@ function startCommentsListener() {
     const commentsRef =
         collection(
             db,
-            "dashboard_comments"
+            COMMENTS_COLLECTION
         );
 
 
@@ -5430,7 +6346,7 @@ async function sendComment(
     await addDoc(
         collection(
             db,
-            "dashboard_comments"
+            COMMENTS_COLLECTION
         ),
         {
 
@@ -5483,7 +6399,7 @@ async function toggleReaction(
     const commentRef =
         doc(
             db,
-            "dashboard_comments",
+            COMMENTS_COLLECTION,
             commentId
         );
 
@@ -5574,7 +6490,7 @@ async function deleteComment(
     const commentRef =
         doc(
             db,
-            "dashboard_comments",
+            COMMENTS_COLLECTION,
             commentId
         );
 
@@ -6517,6 +7433,13 @@ async function boot() {
 
 
         // --------------------------------------
+        // Text Size
+        // --------------------------------------
+
+        applyDashboardTextSizes();
+
+
+        // --------------------------------------
         // Authentication
         // --------------------------------------
 
@@ -6626,6 +7549,13 @@ async function boot() {
         await initializeSettings();
 
         applySettingsText();
+
+
+        // --------------------------------------
+        // Make sure text-size style exists
+        // --------------------------------------
+
+        applyDashboardTextSizes();
 
 
         // --------------------------------------
