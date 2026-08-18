@@ -8033,3 +8033,6 @@ export default {
     getDashboardStats
 
 };
+document.getElementById("formicMenuBtn")?.addEventListener("click", () => {
+    window.location.href = "./formic.html";
+});
