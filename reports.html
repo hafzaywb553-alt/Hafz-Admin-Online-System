@@ -19,6 +19,14 @@
     <aside class="sidebar">
         <div class="sidebar-title">اصلي مینو</div>    <nav class="sidebar-menu">
         <button type="button" id="dashboardMenuBtn">📊 Dashboard</button>
+        
+        <button
+    type="button"
+    id="formicMenuBtn"
+>
+    📋 فورمیک
+</button>
+        
         <button type="button" id="registerMenuBtn">📝 نوی ثبت</button>
         <button type="button" id="searchMenuBtn">🔍 لټون</button>
         <button type="button" class="active" id="reportsMenuBtn">📄 راپورونه</button>
@@ -406,6 +414,9 @@
 
     document.getElementById("settingsMenuBtn").addEventListener("click", () => {
         window.location.href = "./settings.html";
-    });
+   });
+   document.getElementById("formicMenuBtn")?.addEventListener("click", () => {
+    window.location.href = "./formic.html";
+});
 </script></body>
 </html>
