@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#0B6B36">
-    <title>ادمین - د افغانستان اسلامي امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس</title>
+    <title>ادمین - د افغانستان اسلامي امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس💻</title>
     <link rel="stylesheet" href="./style.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
@@ -140,10 +140,18 @@
             <div class="sidebar-title">اصلي مینو</div>
             <nav class="sidebar-menu">
                 <button type="button" id="dashboardMenuBtn">📊 کورپاڼه</button>
+           <button
+    type="button"
+    id="formicMenuBtn"
+>
+    📋 فورمیک
+</button>
+               
+                
                 <button type="button" id="registerMenuBtn">📝 نوی ثبت</button>
                 <button type="button" id="searchMenuBtn">🔍 لټون</button>
                 <button type="button" id="reportsMenuBtn">📄 راپورونه</button>
-                <button type="button" class="active" id="adminMenuBtn">👥 ادمین</button>
+                <button type="button" class="active" id="adminMenuBtn">👮ادمین</button>
                 <button type="button" id="settingsMenuBtn">⚙️ تنظیمات</button>
             </nav>
         </aside>
@@ -169,32 +177,32 @@
                     </div>
 
                     <div class="stat-card">
-                        <div class="stat-label">ستر ادمینان</div>
+                        <div class="stat-label">ستر اډمینان👮</div>
                         <div class="stat-value" id="superAdmins">0</div>
                     </div>
 
                     <div class="stat-card">
-                        <div class="stat-label">ادمینان</div>
+                        <div class="stat-label">اډمینان 👲👳</div>
                         <div class="stat-value" id="adminsCount">0</div>
                     </div>
 
                     <div class="stat-card">
-                        <div class="stat-label">ټول ریکارډونه</div>
+                        <div class="stat-label">ټول ریکارډونه 📚</div>
                         <div class="stat-value" id="totalRecords">0</div>
                     </div>
 
                     <div class="stat-card">
-                        <div class="stat-label">Editable ریکارډونه</div>
+                        <div class="stat-label">Editable📔ریکارډونه</div>
                         <div class="stat-value" id="editableRecords">0</div>
                     </div>
 
                     <div class="stat-card">
-                        <div class="stat-label">Locked ریکارډونه</div>
+                        <div class="stat-label">Locked📕ریکارډونه</div>
                         <div class="stat-value" id="lockedRecords">0</div>
                     </div>
 
                     <div class="stat-card">
-                        <div class="stat-label">پټ ریکارډونه</div>
+                        <div class="stat-label">پټ ریکارډونه 📓</div>
                         <div class="stat-value" id="hiddenRecords">0</div>
                     </div>
                 </section>
@@ -267,8 +275,8 @@
                                     </label>
                                     <select id="adminRole" class="form-control">
                                         <option value="user">کاروونکی</option>
-                                        <option value="admin">ادمین</option>
-                                        <option value="superadmin">ستر ادمین</option>
+                                        <option value="admin">اډمین 👲</option>
+                                        <option value="superadmin">ستر اډمین👮</option>
                                     </select>
                                 </div>
                             </div>
@@ -370,7 +378,7 @@
                         <div class="admin-inline" style="justify-content:space-between;margin-bottom:12px;">
                             <div>
                                 <h2 style="font-size:20px;font-weight:800;">🔒 Global Privacy Lock</h2>
-                                <p style="color:var(--muted-color);font-size:13px;">یوازې Super Admin دا برخه بدلولی شي.</p>
+                                <p style="color:var(--muted-color);font-size:13px;">یوازې سوفراډمین دا برخه بدلولی شی ته داصلاحیت نلری.</p>
                             </div>
 
                             <div class="badge badge-warning" id="privacyBadge">چمتو</div>
@@ -428,7 +436,7 @@
                         </div>
 
                         <div class="admin-mini-note">
-                            دا تنظیمات په Firestore کې خوندي کېږي او وروسته د register/search/users په پاڼو کې کارول کېدای شي.
+                            دا تنظیمات په ډیټابیس کې خوندي کېږي او وروسته د register/search/users په پاڼو کې کارول کېدای شي.
                         </div>
                     </section>
                 </div>
