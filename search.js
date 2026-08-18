@@ -52,185 +52,6 @@ const TAZKIRA_TYPES = {
 
 
 // ==========================================
-// Afghanistan 34 Provinces
-// ==========================================
-
-const AFGHANISTAN_PROVINCES = [
-
-    {
-        code: "KBL",
-        name: "کابل"
-    },
-
-    {
-        code: "KDH",
-        name: "کندهار"
-    },
-
-    {
-        code: "HER",
-        name: "هرات"
-    },
-
-    {
-        code: "BGL",
-        name: "بغلان"
-    },
-
-    {
-        code: "BDK",
-        name: "بدخشان"
-    },
-
-    {
-        code: "BAM",
-        name: "بامیان"
-    },
-
-    {
-        code: "BAD",
-        name: "بادغیس"
-    },
-
-    {
-        code: "BLK",
-        name: "بلخ"
-    },
-
-    {
-        code: "PAK",
-        name: "پکتیا"
-    },
-
-    {
-        code: "PKT",
-        name: "پکتیکا"
-    },
-
-    {
-        code: "PAN",
-        name: "پنجشېر"
-    },
-
-    {
-        code: "PAR",
-        name: "پروان"
-    },
-
-    {
-        code: "TAK",
-        name: "تخار"
-    },
-
-    {
-        code: "JOW",
-        name: "جوزجان"
-    },
-
-    {
-        code: "KND",
-        name: "کندز"
-    },
-
-    {
-        code: "FAR",
-        name: "فراه"
-    },
-
-    {
-        code: "FYA",
-        name: "فاریاب"
-    },
-
-    {
-        code: "GHA",
-        name: "غزني"
-    },
-
-    {
-        code: "GHO",
-        name: "غور"
-    },
-
-    {
-        code: "KAP",
-        name: "کاپیسا"
-    },
-
-    {
-        code: "KNR",
-        name: "کونړ"
-    },
-
-    {
-        code: "LAG",
-        name: "لغمان"
-    },
-
-    {
-        code: "LOG",
-        name: "لوګر"
-    },
-
-    {
-        code: "NGR",
-        name: "ننګرهار"
-    },
-
-    {
-        code: "NIM",
-        name: "نیمروز"
-    },
-
-    {
-        code: "NUR",
-        name: "نورستان"
-    },
-
-    {
-        code: "SAM",
-        name: "سمنګان"
-    },
-
-    {
-        code: "SAR",
-        name: "سرپل"
-    },
-
-    {
-        code: "URU",
-        name: "ارزګان"
-    },
-
-    {
-        code: "ZAB",
-        name: "زابل"
-    },
-
-    {
-        code: "WAR",
-        name: "میدان وردګ"
-    },
-
-    {
-        code: "HEL",
-        name: "هلمند"
-    },
-
-    {
-        code: "KHO",
-        name: "خوست"
-    },
-
-    {
-        code: "DAI",
-        name: "دایکندي"
-    }
-
-];
-
-
-// ==========================================
 // Elements
 // ==========================================
 
@@ -307,951 +128,411 @@ const settingsMenuBtn = document.getElementById("settingsMenuBtn");
 // ==========================================
 
 function cleanText(value) {
-
-    if (
-        value === null ||
-        value === undefined
-    ) {
-
+    if (value === null || value === undefined) {
         return "";
-
     }
 
-    return String(
-        value
-    ).trim();
-
+    return String(value).trim();
 }
 
 
 function escapeHtml(value) {
-
-    return String(
-        value ?? ""
-    )
-        .replaceAll(
-            "&",
-            "&amp;"
-        )
-        .replaceAll(
-            "<",
-            "&lt;"
-        )
-        .replaceAll(
-            ">",
-            "&gt;"
-        )
-        .replaceAll(
-            '"',
-            "&quot;"
-        )
-        .replaceAll(
-            "'",
-            "&#039;"
-        );
-
+    return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
 }
 
 
-function showMessage(
-    message,
-    type = "success"
-) {
-
+function showMessage(message, type = "success") {
     if (!searchMessage) return;
 
-    searchMessage.textContent =
-        message;
-
-    searchMessage.className =
-        `alert alert-${type}`;
-
-    searchMessage.style.display =
-        "block";
-
+    searchMessage.textContent = message;
+    searchMessage.className = `alert alert-${type}`;
+    searchMessage.style.display = "block";
 }
 
 
 function hideMessage() {
-
     if (!searchMessage) return;
 
-    searchMessage.textContent =
-        "";
-
-    searchMessage.style.display =
-        "none";
-
+    searchMessage.textContent = "";
+    searchMessage.style.display = "none";
 }
 
 
-function setLoading(
-    isLoading
-) {
-
+function setLoading(isLoading) {
     if (searchBtn) {
-
-        searchBtn.disabled =
-            isLoading;
-
-        searchBtn.textContent =
-            isLoading
-                ? "⏳ لټون کېږي..."
-                : "🔍 لټون";
-
+        searchBtn.disabled = isLoading;
+        searchBtn.textContent = isLoading
+            ? "⏳ لټون کېږي..."
+            : "🔍 لټون";
     }
-
 
     if (clearBtn) {
-
-        clearBtn.disabled =
-            isLoading;
-
+        clearBtn.disabled = isLoading;
     }
-
 
     if (backBtn) {
-
-        backBtn.disabled =
-            isLoading;
-
+        backBtn.disabled = isLoading;
     }
-
 }
 
 
-function renderEmpty(
-    message =
-        "هیڅ پایله ونه موندل شوه."
-) {
-
+function renderEmpty(message = "هیڅ پایله ونه موندل شوه.") {
     if (!searchResult) return;
 
-    searchResult.innerHTML =
-        `
+    searchResult.innerHTML = `
         <div class="search-empty">
-            ${escapeHtml(
-                message
-            )}
+            ${escapeHtml(message)}
         </div>
-        `;
-
+    `;
 
     if (resultBadge) {
-
-        resultBadge.className =
-            "badge badge-warning";
-
-        resultBadge.textContent =
-            "پایله نشته";
-
+        resultBadge.className = "badge badge-warning";
+        resultBadge.textContent = "پایله نشته";
     }
-
 }
 
 
-function formatText(
-    value
-) {
-
-    const text =
-        String(
-            value ?? ""
-        ).trim();
-
+function formatText(value) {
+    const text = String(value ?? "").trim();
 
     return text
-        ? escapeHtml(
-            text
-        )
+        ? escapeHtml(text)
         : "—";
-
 }
 
 
-function normalizeDigits(
-    value
-) {
-
-    return cleanText(
-        value
-    ).replace(
-        /[^0-9]/g,
-        ""
-    );
-
+function normalizeDigits(value) {
+    return cleanText(value).replace(/[^0-9]/g, "");
 }
 
 
-function normalizeTextForMatch(
-    value
-) {
-
-    return cleanText(
-        value
-    )
-        .replace(
-            /\s+/g,
-            " "
-        )
+function normalizeTextForMatch(value) {
+    return cleanText(value)
+        .replace(/\s+/g, " ")
         .toLowerCase();
-
 }
 
 
-function formatElectronicTazkira(
-    value
-) {
+function formatElectronicTazkira(value) {
+    let digits = normalizeDigits(value);
 
-    let digits =
-        normalizeDigits(
-            value
-        );
-
-
-    if (
-        digits.length > 13
-    ) {
-
-        digits =
-            digits.slice(
-                0,
-                13
-            );
-
+    if (digits.length > 13) {
+        digits = digits.slice(0, 13);
     }
 
-
-    if (
-        digits.length > 8
-    ) {
-
+    if (digits.length > 8) {
         return (
-            digits.slice(
-                0,
-                4
-            ) +
+            digits.slice(0, 4) +
             "-" +
-            digits.slice(
-                4,
-                8
-            ) +
+            digits.slice(4, 8) +
             "-" +
-            digits.slice(
-                8
-            )
+            digits.slice(8)
         );
-
     }
 
-
-    if (
-        digits.length > 4
-    ) {
-
+    if (digits.length > 4) {
         return (
-            digits.slice(
-                0,
-                4
-            ) +
+            digits.slice(0, 4) +
             "-" +
-            digits.slice(
-                4
-            )
+            digits.slice(4)
         );
-
     }
-
 
     return digits;
-
 }
 
 
 function getSelectedSearchTazkiraType() {
-
-    return (
-        searchTazkiraTypePaper &&
+    return searchTazkiraTypePaper &&
         searchTazkiraTypePaper.checked
-    )
         ? TAZKIRA_TYPES.PAPER
         : TAZKIRA_TYPES.ELECTRONIC;
-
 }
 
 
-function setSearchMode(
-    mode
-) {
-
-    const isPaper =
-        mode ===
-        TAZKIRA_TYPES.PAPER;
-
-    const isElectronic =
-        !isPaper;
-
+function setSearchMode(mode) {
+    const isPaper = mode === TAZKIRA_TYPES.PAPER;
+    const isElectronic = !isPaper;
 
     if (searchTazkiraTypeElectronic) {
-
-        searchTazkiraTypeElectronic.checked =
-            isElectronic;
-
+        searchTazkiraTypeElectronic.checked = isElectronic;
     }
-
 
     if (searchTazkiraTypePaper) {
-
-        searchTazkiraTypePaper.checked =
-            isPaper;
-
+        searchTazkiraTypePaper.checked = isPaper;
     }
 
-
+    // د کاغذي حالت لپاره هم د تذکرې نمبر ښکاره پاتې کېږي
     if (searchElectronicGroup) {
-
-        searchElectronicGroup.style.display =
-            "block";
-
+        searchElectronicGroup.style.display = "block";
     }
-
 
     if (searchPaperVolumeGroup) {
-
         searchPaperVolumeGroup.style.display =
-            isPaper
-                ? "block"
-                : "none";
-
+            isPaper ? "block" : "none";
     }
-
 
     if (searchPaperPageGroup) {
-
         searchPaperPageGroup.style.display =
-            isPaper
-                ? "block"
-                : "none";
-
+            isPaper ? "block" : "none";
     }
-
 
     if (searchPaperNumberGroup) {
-
         searchPaperNumberGroup.style.display =
-            isPaper
-                ? "block"
-                : "none";
-
+            isPaper ? "block" : "none";
     }
-
 
     if (tazkiraLabel) {
-
-        tazkiraLabel.innerHTML =
-            isPaper
-                ? "د کاغذي تذکرې نمبر"
-                : "د تذکرې نمبر";
-
+        tazkiraLabel.innerHTML = isPaper
+            ? "د کاغذي تذکرې نمبر"
+            : "د تذکرې نمبر";
     }
-
 
     if (tazkiraHelp) {
-
-        tazkiraHelp.style.display =
-            "none";
-
+        tazkiraHelp.style.display = "none";
     }
-
 
     if (tazkiraInput) {
-
-        tazkiraInput.placeholder =
-            isPaper
-                ? "د کاغذي تذکرې نمبر ولیکئ"
-                : "0000-0000-00000";
-
+        tazkiraInput.placeholder = isPaper
+            ? "د کاغذي تذکرې نمبر ولیکئ"
+            : "0000-0000-00000";
     }
-
 }
 
 
 function clearAllErrors() {
+    document.querySelectorAll(".form-error").forEach(el => {
+        el.textContent = "";
+    });
 
-    document
-        .querySelectorAll(
-            ".form-error"
-        )
-        .forEach(
-            el => {
-
-                el.textContent =
-                    "";
-
-            }
-        );
-
-
-    document
-        .querySelectorAll(
-            ".form-control"
-        )
-        .forEach(
-            el => {
-
-                el.classList.remove(
-                    "error"
-                );
-
-            }
-        );
-
+    document.querySelectorAll(".form-control").forEach(el => {
+        el.classList.remove("error");
+    });
 }
 
 
-function setFieldError(
-    fieldId,
-    message
-) {
-
-    const errorBox =
-        document.getElementById(
-            `${fieldId}Error`
-        );
-
-    const field =
-        document.getElementById(
-            fieldId
-        );
-
+function setFieldError(fieldId, message) {
+    const errorBox = document.getElementById(`${fieldId}Error`);
+    const field = document.getElementById(fieldId);
 
     if (errorBox) {
-
-        errorBox.textContent =
-            message || "";
-
+        errorBox.textContent = message || "";
     }
 
-
-    if (
-        field &&
-        message
-    ) {
-
-        field.classList.add(
-            "error"
-        );
-
+    if (field && message) {
+        field.classList.add("error");
     }
-
 }
 
 
-function valueFromRecord(
-    record,
-    paths
-) {
-
+function valueFromRecord(record, paths) {
     if (!record) return "";
 
+    for (const path of paths) {
+        const parts = String(path).split(".");
+        let current = record;
 
-    for (
-        const path of paths
-    ) {
-
-        const parts =
-            String(
-                path
-            ).split(
-                "."
-            );
-
-        let current =
-            record;
-
-
-        for (
-            const part of parts
-        ) {
-
+        for (const part of parts) {
             if (
                 current &&
-                Object.prototype.hasOwnProperty.call(
-                    current,
-                    part
-                )
+                Object.prototype.hasOwnProperty.call(current, part)
             ) {
-
-                current =
-                    current[part];
-
+                current = current[part];
             } else {
-
-                current =
-                    undefined;
-
+                current = undefined;
                 break;
-
             }
-
         }
-
 
         if (
             current !== undefined &&
             current !== null &&
-            String(
-                current
-            ).trim() !== ""
+            String(current).trim() !== ""
         ) {
-
-            return String(
-                current
-            ).trim();
-
+            return String(current).trim();
         }
-
     }
 
-
     return "";
-
 }
 
 
-function getPersonInfo(
-    record
-) {
-
+function getPersonInfo(record) {
     if (!record) return null;
 
-
     return {
+        firstName: valueFromRecord(record, [
+            "firstName",
+            "person.firstName"
+        ]),
 
-        firstName:
-            valueFromRecord(
-                record,
-                [
-                    "firstName",
-                    "person.firstName"
-                ]
-            ),
+        lastName: valueFromRecord(record, [
+            "lastName",
+            "person.lastName"
+        ]),
 
-        lastName:
-            valueFromRecord(
-                record,
-                [
-                    "lastName",
-                    "person.lastName"
-                ]
-            ),
+        fatherName: valueFromRecord(record, [
+            "fatherName",
+            "person.fatherName"
+        ]),
 
-        fatherName:
-            valueFromRecord(
-                record,
-                [
-                    "fatherName",
-                    "person.fatherName"
-                ]
-            ),
+        grandfatherName: valueFromRecord(record, [
+            "grandfatherName",
+            "person.grandfatherName"
+        ]),
 
-        grandfatherName:
-            valueFromRecord(
-                record,
-                [
-                    "grandfatherName",
-                    "person.grandfatherName"
-                ]
-            ),
+        birthDate: valueFromRecord(record, [
+            "birthDate",
+            "person.birthDate"
+        ]),
 
-        birthDate:
-            valueFromRecord(
-                record,
-                [
-                    "birthDate",
-                    "person.birthDate"
-                ]
-            ),
+        age: valueFromRecord(record, [
+            "age",
+            "person.age"
+        ]),
 
-        age:
-            valueFromRecord(
-                record,
-                [
-                    "age",
-                    "person.age"
-                ]
-            ),
+        tazkira: valueFromRecord(record, [
+            "tazkira",
+            "person.tazkira",
+            "tazkiraDisplay",
+            "tazkiraDetails.electronicNumber",
+            "paperTazkiraNumber",
+            "tazkiraDetails.paper.number"
+        ]),
 
-        tazkira:
-            valueFromRecord(
-                record,
-                [
-                    "tazkira",
-                    "person.tazkira",
-                    "tazkiraDisplay",
-                    "tazkiraDetails.electronicNumber",
-                    "paperTazkiraNumber",
-                    "tazkiraDetails.paper.number"
-                ]
-            ),
+        tazkiraType: valueFromRecord(record, [
+            "tazkiraType",
+            "person.tazkiraType",
+            "tazkiraDetails.type"
+        ]),
 
-        tazkiraType:
-            valueFromRecord(
-                record,
-                [
-                    "tazkiraType",
-                    "person.tazkiraType",
-                    "tazkiraDetails.type"
-                ]
-            ),
+        phone: valueFromRecord(record, [
+            "phone",
+            "person.phone"
+        ]),
 
-        phone:
-            valueFromRecord(
-                record,
-                [
-                    "phone",
-                    "person.phone"
-                ]
-            ),
+        englishName: valueFromRecord(record, [
+            "englishName",
+            "person.englishName"
+        ]),
 
-        englishName:
-            valueFromRecord(
-                record,
-                [
-                    "englishName",
-                    "person.englishName"
-                ]
-            ),
+        englishLastName: valueFromRecord(record, [
+            "englishLastName",
+            "person.englishLastName"
+        ]),
 
-        englishLastName:
-            valueFromRecord(
-                record,
-                [
-                    "englishLastName",
-                    "person.englishLastName"
-                ]
-            ),
+        englishFatherName: valueFromRecord(record, [
+            "englishFatherName",
+            "person.englishFatherName"
+        ]),
 
-        englishFatherName:
-            valueFromRecord(
-                record,
-                [
-                    "englishFatherName",
-                    "person.englishFatherName"
-                ]
-            ),
-
-        englishGrandfatherName:
-            valueFromRecord(
-                record,
-                [
-                    "englishGrandfatherName",
-                    "person.englishGrandfatherName"
-                ]
-            )
-
+        englishGrandfatherName: valueFromRecord(record, [
+            "englishGrandfatherName",
+            "person.englishGrandfatherName"
+        ])
     };
-
 }
 
 
-function getLocationInfo(
-    record
-) {
-
+function getLocationInfo(record) {
     if (!record) return null;
 
-
     return {
-
         original: {
+            province: valueFromRecord(record, [
+                "originalProvince",
+                "originalLocation.province"
+            ]),
 
-            province:
-                valueFromRecord(
-                    record,
-                    [
-                        "originalProvince",
-                        "originalLocation.province"
-                    ]
-                ),
+            district: valueFromRecord(record, [
+                "originalDistrict",
+                "originalLocation.district"
+            ]),
 
-            district:
-                valueFromRecord(
-                    record,
-                    [
-                        "originalDistrict",
-                        "originalLocation.district"
-                    ]
-                ),
-
-            village:
-                valueFromRecord(
-                    record,
-                    [
-                        "originalVillage",
-                        "originalLocation.village"
-                    ]
-                )
-
+            village: valueFromRecord(record, [
+                "originalVillage",
+                "originalLocation.village"
+            ])
         },
 
         current: {
+            province: valueFromRecord(record, [
+                "currentProvince",
+                "currentLocation.province"
+            ]),
 
-            province:
-                valueFromRecord(
-                    record,
-                    [
-                        "currentProvince",
-                        "currentLocation.province"
-                    ]
-                ),
+            district: valueFromRecord(record, [
+                "currentDistrict",
+                "currentLocation.district"
+            ]),
 
-            district:
-                valueFromRecord(
-                    record,
-                    [
-                        "currentDistrict",
-                        "currentLocation.district"
-                    ]
-                ),
-
-            village:
-                valueFromRecord(
-                    record,
-                    [
-                        "currentVillage",
-                        "currentLocation.village"
-                    ]
-                )
-
+            village: valueFromRecord(record, [
+                "currentVillage",
+                "currentLocation.village"
+            ])
         }
-
     };
-
 }
 
 
-function getTazkiraInfo(
-    record
-) {
-
+function getTazkiraInfo(record) {
     if (!record) return null;
 
-
     return {
+        type: valueFromRecord(record, [
+            "tazkiraType",
+            "person.tazkiraType",
+            "tazkiraDetails.type"
+        ]),
 
-        type:
-            valueFromRecord(
-                record,
-                [
-                    "tazkiraType",
-                    "person.tazkiraType",
-                    "tazkiraDetails.type"
-                ]
-            ),
+        searchKey: valueFromRecord(record, [
+            "tazkiraSearchKey"
+        ]),
 
-        searchKey:
-            valueFromRecord(
-                record,
-                [
-                    "tazkiraSearchKey"
-                ]
-            ),
+        display: valueFromRecord(record, [
+            "tazkiraDisplay",
+            "tazkira",
+            "person.tazkira"
+        ]),
 
-        display:
-            valueFromRecord(
-                record,
-                [
-                    "tazkiraDisplay",
-                    "tazkira",
-                    "person.tazkira"
-                ]
-            ),
-
-        electronicNumber:
-            valueFromRecord(
-                record,
-                [
-                    "tazkiraDetails.electronicNumber",
-                    "tazkira"
-                ]
-            ),
+        electronicNumber: valueFromRecord(record, [
+            "tazkiraDetails.electronicNumber",
+            "tazkira"
+        ]),
 
         paper: {
+            volume: valueFromRecord(record, [
+                "paperTazkiraVolume",
+                "tazkiraDetails.paper.volume"
+            ]),
 
-            volume:
-                valueFromRecord(
-                    record,
-                    [
-                        "paperTazkiraVolume",
-                        "tazkiraDetails.paper.volume"
-                    ]
-                ),
+            page: valueFromRecord(record, [
+                "paperTazkiraPage",
+                "tazkiraDetails.paper.page"
+            ]),
 
-            page:
-                valueFromRecord(
-                    record,
-                    [
-                        "paperTazkiraPage",
-                        "tazkiraDetails.paper.page"
-                    ]
-                ),
-
-            number:
-                valueFromRecord(
-                    record,
-                    [
-                        "paperTazkiraNumber",
-                        "tazkiraDetails.paper.number"
-                    ]
-                )
-
+            number: valueFromRecord(record, [
+                "paperTazkiraNumber",
+                "tazkiraDetails.paper.number"
+            ])
         }
-
     };
-
 }
 
 
-function normalizeRecordValue(
-    value
-) {
-
-    const text =
-        cleanText(
-            value
-        );
-
+function normalizeRecordValue(value) {
+    const text = cleanText(value);
 
     if (!text) {
-
         return "";
-
     }
 
-
-    return normalizeTextForMatch(
-        text
-    );
-
-}
-
-
-// ==========================================
-// Province Dropdown Setup
-// ==========================================
-
-function initializeProvinceDropdown(
-    selectElement,
-    placeholder
-) {
-
-    if (!selectElement) {
-
-        return;
-
-    }
-
-
-    const previousValue =
-        cleanText(
-            selectElement.value
-        );
-
-
-    selectElement.innerHTML =
-        "";
-
-
-    const defaultOption =
-        document.createElement(
-            "option"
-        );
-
-
-    defaultOption.value =
-        "";
-
-
-    defaultOption.textContent =
-        placeholder;
-
-
-    defaultOption.disabled =
-        false;
-
-
-    defaultOption.selected =
-        true;
-
-
-    selectElement.appendChild(
-        defaultOption
-    );
-
-
-    AFGHANISTAN_PROVINCES
-        .forEach(
-            province => {
-
-                const option =
-                    document.createElement(
-                        "option"
-                    );
-
-
-                option.value =
-                    province.name;
-
-
-                option.textContent =
-                    province.name;
-
-
-                option.dataset.provinceCode =
-                    province.code;
-
-
-                selectElement.appendChild(
-                    option
-                );
-
-            }
-        );
-
-
-    if (
-        previousValue &&
-        Array.from(
-            selectElement.options
-        ).some(
-            option =>
-                option.value ===
-                previousValue
-        )
-    ) {
-
-        selectElement.value =
-            previousValue;
-
-    }
-
-}
-
-
-function initializeProvinceSelectors() {
-
-    initializeProvinceDropdown(
-        originalProvinceInput,
-        "د اصلي ولایت انتخاب کړئ"
-    );
-
-
-    initializeProvinceDropdown(
-        currentProvinceInput,
-        "د فعلي ولایت انتخاب کړئ"
-    );
-
+    return normalizeTextForMatch(text);
 }
 
 
@@ -1259,71 +540,34 @@ function initializeProvinceSelectors() {
 // Firestore Search Helpers
 // ==========================================
 
-async function searchByField(
-    fieldPath,
-    value
-) {
-
-    const clean =
-        cleanText(
-            value
-        );
-
+async function searchByField(fieldPath, value) {
+    const clean = cleanText(value);
 
     if (!clean) {
-
         return [];
-
     }
 
-
-    const recordsRef =
-        collection(
-            db,
-            RECORDS_COLLECTION
-        );
-
-
-    const q =
-        query(
-            recordsRef,
-            where(
-                fieldPath,
-                "==",
-                clean
-            ),
-            limit(
-                50
-            )
-        );
-
-
-    const snapshot =
-        await getDocs(
-            q
-        );
-
-
-    if (
-        snapshot.empty
-    ) {
-
-        return [];
-
-    }
-
-
-    return snapshot.docs.map(
-        document => ({
-
-            id:
-                document.id,
-
-            ...document.data()
-
-        })
+    const recordsRef = collection(
+        db,
+        RECORDS_COLLECTION
     );
 
+    const q = query(
+        recordsRef,
+        where(fieldPath, "==", clean),
+        limit(50)
+    );
+
+    const snapshot = await getDocs(q);
+
+    if (snapshot.empty) {
+        return [];
+    }
+
+    return snapshot.docs.map(document => ({
+        id: document.id,
+        ...document.data()
+    }));
 }
 
 
@@ -1337,80 +581,40 @@ function matchesRecordValue(
     inputValue,
     numeric = false
 ) {
-
-    const clean =
-        cleanText(
-            inputValue
-        );
-
+    const clean = cleanText(inputValue);
 
     if (!clean) {
-
         return false;
-
     }
 
-
-    const expected =
-        numeric
-            ? normalizeDigits(
-                clean
-            )
-            : normalizeRecordValue(
-                clean
-            );
-
+    const expected = numeric
+        ? normalizeDigits(clean)
+        : normalizeRecordValue(clean);
 
     if (!expected) {
-
         return false;
-
     }
 
-
-    for (
-        const path of paths
-    ) {
-
-        const actualRaw =
-            valueFromRecord(
-                record,
-                [path]
-            );
-
+    for (const path of paths) {
+        const actualRaw = valueFromRecord(
+            record,
+            [path]
+        );
 
         if (!actualRaw) {
-
             continue;
-
         }
 
+        const actual = numeric
+            ? normalizeDigits(actualRaw)
+            : normalizeRecordValue(actualRaw);
 
-        const actual =
-            numeric
-                ? normalizeDigits(
-                    actualRaw
-                )
-                : normalizeRecordValue(
-                    actualRaw
-                );
-
-
-        if (
-            actual &&
-            actual ===
-            expected
-        ) {
-
+        if (actual && actual === expected) {
             return true;
-
         }
-
     }
 
-
     return false;
-
 }
 
 
@@ -1418,38 +622,24 @@ function filterRecordByClauses(
     record,
     clauses
 ) {
-
-    for (
-        const clause of clauses
-    ) {
-
+    for (const clause of clauses) {
         if (!clause.value) {
-
             continue;
-
         }
 
-
-        const ok =
-            matchesRecordValue(
-                record,
-                clause.paths,
-                clause.value,
-                clause.numeric
-            );
-
+        const ok = matchesRecordValue(
+            record,
+            clause.paths,
+            clause.value,
+            clause.numeric
+        );
 
         if (!ok) {
-
             return false;
-
         }
-
     }
 
-
     return true;
-
 }
 
 
@@ -1459,214 +649,95 @@ function filterRecordByClauses(
 //
 // مهم:
 // جلد / صفحه / ګڼه دلته هېڅ search effect نه لري.
-//
-// ولایت / ولسوالۍ / کلی:
-// اصلي او فعلي ټول فعال دي.
+// یواځې اصلي Search Criteria کارول کېږي.
 //
 // ==========================================
 
-async function searchRecordByCriteria(
-    criteria
-) {
+async function searchRecordByCriteria(criteria) {
+    const clauses = criteria.filter(
+        item => cleanText(item.value)
+    );
 
-    const clauses =
-        criteria.filter(
-            item =>
-                cleanText(
-                    item.value
-                )
-        );
-
-
-    if (
-        clauses.length ===
-        0
-    ) {
-
+    if (clauses.length === 0) {
         return {
-
-            found:
-                false,
-
-            records:
-                [],
-
-            record:
-                null,
-
-            message:
-                "لطفاً د لټون لپاره لږ تر لږه یوه خانه ډکه کړئ."
-
+            found: false,
+            records: [],
+            record: null,
+            message: "لطفاً د لټون لپاره لږ تر لږه یوه خانه ډکه کړئ."
         };
-
     }
 
+    let candidates = null;
 
-    let candidates =
-        null;
+    for (const clause of clauses) {
+        const groupResults = [];
 
-
-    for (
-        const clause of clauses
-    ) {
-
-        const groupResults =
-            [];
-
-
-        for (
-            const path of clause.paths
-        ) {
-
+        for (const path of clause.paths) {
             try {
-
-                const resultList =
-                    await searchByField(
-                        path,
-                        clause.numeric
-                            ? normalizeDigits(
-                                clause.value
-                            )
-                            : cleanText(
-                                clause.value
-                            )
-                    );
-
-
-                groupResults.push(
-                    ...resultList
+                const resultList = await searchByField(
+                    path,
+                    clause.numeric
+                        ? normalizeDigits(clause.value)
+                        : cleanText(clause.value)
                 );
 
+                groupResults.push(...resultList);
             } catch (error) {
-
                 console.warn(
                     `Search field failed: ${path}`,
                     error
                 );
-
             }
-
         }
 
+        const unique = [];
+        const seen = new Set();
 
-        const unique =
-            [];
-
-        const seen =
-            new Set();
-
-
-        for (
-            const item of groupResults
-        ) {
-
-            if (
-                !seen.has(
-                    item.id
-                )
-            ) {
-
-                seen.add(
-                    item.id
-                );
-
-                unique.push(
-                    item
-                );
-
+        for (const item of groupResults) {
+            if (!seen.has(item.id)) {
+                seen.add(item.id);
+                unique.push(item);
             }
-
         }
 
-
-        if (
-            candidates ===
-            null
-        ) {
-
-            candidates =
-                unique;
-
+        if (candidates === null) {
+            candidates = unique;
         } else {
+            const currentIds = new Set(
+                unique.map(item => item.id)
+            );
 
-            const currentIds =
-                new Set(
-                    unique.map(
-                        item =>
-                            item.id
-                    )
-                );
-
-
-            candidates =
-                candidates.filter(
-                    item =>
-                        currentIds.has(
-                            item.id
-                        )
-                );
-
+            candidates = candidates.filter(
+                item => currentIds.has(item.id)
+            );
         }
 
-
-        if (
-            !candidates ||
-            candidates.length ===
-            0
-        ) {
-
+        if (!candidates || candidates.length === 0) {
             return {
-
-                found:
-                    false,
-
-                records:
-                    [],
-
-                record:
-                    null,
-
-                message:
-                    "د ورکړل شوو معلوماتو له مخې فورمه پیدا نه شوه."
-
+                found: false,
+                records: [],
+                record: null,
+                message: "د ورکړل شوو معلوماتو له مخې فورمه پیدا نه شوه."
             };
-
         }
-
     }
 
-
-    const matchedRecords =
-        candidates.filter(
-            record =>
-                filterRecordByClauses(
-                    record,
-                    clauses
-                )
-        );
-
+    // وروستی دقیق matching
+    const matchedRecords = candidates.filter(
+        record => filterRecordByClauses(
+            record,
+            clauses
+        )
+    );
 
     return {
-
-        found:
-            matchedRecords.length >
-            0,
-
-        records:
-            matchedRecords,
-
-        record:
-            matchedRecords[0] ||
-            null,
-
-        message:
-            matchedRecords.length >
-            0
-                ? `${matchedRecords.length} پایلې پیدا شوې.`
-                : "د ورکړل شوو معلوماتو له مخې فورمه پیدا نه شوه."
-
+        found: matchedRecords.length > 0,
+        records: matchedRecords,
+        record: matchedRecords[0] || null,
+        message: matchedRecords.length > 0
+            ? `${matchedRecords.length} پایلې پیدا شوې.`
+            : "د ورکړل شوو معلوماتو له مخې فورمه پیدا نه شوه."
     };
-
 }
 
 
@@ -1675,95 +746,53 @@ async function searchRecordByCriteria(
 // ==========================================
 
 export async function searchRegistration({
-
     formNumber = "",
-
     firstName = "",
-
     lastName = "",
-
     fatherName = "",
-
     grandfatherName = "",
 
-
     englishName = "",
-
     englishLastName = "",
-
     englishFatherName = "",
-
     englishGrandfatherName = "",
 
-
-    tazkiraType =
-        TAZKIRA_TYPES.ELECTRONIC,
-
+    tazkiraType = TAZKIRA_TYPES.ELECTRONIC,
     tazkira = "",
 
-
     paperTazkiraVolume = "",
-
     paperTazkiraPage = "",
-
     paperTazkiraNumber = "",
 
-
     birthDate = "",
-
     age = "",
-
     phone = "",
 
-
     originalProvince = "",
-
     originalDistrict = "",
-
     originalVillage = "",
 
-
     currentProvince = "",
-
     currentDistrict = "",
-
     currentVillage = "",
 
-
     currentJob = "",
-
     groupLeader = "",
-
     category = "",
-
     jihadiHistory = "",
-
     pdfCreationDate = ""
 
 } = {}) {
 
     try {
 
-        if (
-            !auth.currentUser
-        ) {
-
+        if (!auth.currentUser) {
             return {
-
-                success:
-                    false,
-
-                found:
-                    false,
-
-                records:
-                    [],
-
-                message:
-                    "د لټون لپاره لومړی Login وکړئ."
-
+                success: false,
+                found: false,
+                records: [],
+                message: "د لټون لپاره لومړی Login وکړئ."
             };
-
         }
 
 
@@ -1772,309 +801,194 @@ export async function searchRegistration({
         // ======================================
 
         const cleanFormNumber =
-            cleanText(
-                formNumber
-            );
-
+            cleanText(formNumber);
 
         const cleanFirstName =
-            cleanText(
-                firstName
-            );
-
+            cleanText(firstName);
 
         const cleanLastName =
-            cleanText(
-                lastName
-            );
-
+            cleanText(lastName);
 
         const cleanFatherName =
-            cleanText(
-                fatherName
-            );
-
+            cleanText(fatherName);
 
         const cleanGrandfatherName =
-            cleanText(
-                grandfatherName
-            );
+            cleanText(grandfatherName);
 
 
         const cleanEnglishName =
-            cleanText(
-                englishName
-            );
-
+            cleanText(englishName);
 
         const cleanEnglishLastName =
-            cleanText(
-                englishLastName
-            );
-
+            cleanText(englishLastName);
 
         const cleanEnglishFatherName =
-            cleanText(
-                englishFatherName
-            );
-
+            cleanText(englishFatherName);
 
         const cleanEnglishGrandfatherName =
-            cleanText(
-                englishGrandfatherName
-            );
+            cleanText(englishGrandfatherName);
 
 
         const cleanTazkiraType =
-            cleanText(
-                tazkiraType
-            ) ||
+            cleanText(tazkiraType) ||
             TAZKIRA_TYPES.ELECTRONIC;
 
-
         const cleanTazkira =
-            cleanText(
-                tazkira
-            );
+            cleanText(tazkira);
 
+
+        // ======================================
+        // Paper Tazkira
+        // ======================================
+        //
+        // IMPORTANT:
+        // دا درې واړه نور Search criteria نه دي.
+        //
+        // ======================================
 
         const cleanPaperVolume =
-            cleanText(
-                paperTazkiraVolume
-            );
-
+            cleanText(paperTazkiraVolume);
 
         const cleanPaperPage =
-            cleanText(
-                paperTazkiraPage
-            );
-
+            cleanText(paperTazkiraPage);
 
         const cleanPaperNumber =
-            cleanText(
-                paperTazkiraNumber
-            );
+            cleanText(paperTazkiraNumber);
 
 
         const cleanBirthDate =
-            cleanText(
-                birthDate
-            );
-
+            cleanText(birthDate);
 
         const cleanAge =
-            cleanText(
-                age
-            );
-
+            cleanText(age);
 
         const cleanPhone =
-            cleanText(
-                phone
-            );
+            cleanText(phone);
 
 
         const cleanOriginalProvince =
-            cleanText(
-                originalProvince
-            );
-
+            cleanText(originalProvince);
 
         const cleanOriginalDistrict =
-            cleanText(
-                originalDistrict
-            );
-
+            cleanText(originalDistrict);
 
         const cleanOriginalVillage =
-            cleanText(
-                originalVillage
-            );
+            cleanText(originalVillage);
 
 
         const cleanCurrentProvince =
-            cleanText(
-                currentProvince
-            );
-
+            cleanText(currentProvince);
 
         const cleanCurrentDistrict =
-            cleanText(
-                currentDistrict
-            );
-
+            cleanText(currentDistrict);
 
         const cleanCurrentVillage =
-            cleanText(
-                currentVillage
-            );
+            cleanText(currentVillage);
 
 
         const cleanCurrentJob =
-            cleanText(
-                currentJob
-            );
-
+            cleanText(currentJob);
 
         const cleanGroupLeader =
-            cleanText(
-                groupLeader
-            );
-
+            cleanText(groupLeader);
 
         const cleanCategory =
-            cleanText(
-                category
-            );
-
+            cleanText(category);
 
         const cleanJihadiHistory =
-            cleanText(
-                jihadiHistory
-            );
-
+            cleanText(jihadiHistory);
 
         const cleanPdfCreationDate =
-            cleanText(
-                pdfCreationDate
-            );
+            cleanText(pdfCreationDate);
 
 
         // ======================================
         // Search Criteria
         // ======================================
+        //
+        // جلد / صفحه / ګڼه قصداً نه دي شامل.
+        //
+        // ======================================
 
         const criteria = [
 
             {
-                value:
-                    cleanFormNumber,
+                value: cleanFormNumber,
+                numeric: false,
+                paths: ["formNumber"]
+            },
 
-                numeric:
-                    false,
+            {
+                value: cleanFirstName,
+                numeric: false,
+                paths: [
+                    "firstName",
+                    "person.firstName"
+                ]
+            },
 
-                paths:
-                    ["formNumber"]
+            {
+                value: cleanLastName,
+                numeric: false,
+                paths: [
+                    "lastName",
+                    "person.lastName"
+                ]
+            },
+
+            {
+                value: cleanFatherName,
+                numeric: false,
+                paths: [
+                    "fatherName",
+                    "person.fatherName"
+                ]
+            },
+
+            {
+                value: cleanGrandfatherName,
+                numeric: false,
+                paths: [
+                    "grandfatherName",
+                    "person.grandfatherName"
+                ]
             },
 
 
             {
-                value:
-                    cleanFirstName,
-
-                numeric:
-                    false,
-
-                paths:
-                    [
-                        "firstName",
-                        "person.firstName"
-                    ]
+                value: cleanEnglishName,
+                numeric: false,
+                paths: [
+                    "englishName",
+                    "person.englishName"
+                ]
             },
 
-
             {
-                value:
-                    cleanLastName,
-
-                numeric:
-                    false,
-
-                paths:
-                    [
-                        "lastName",
-                        "person.lastName"
-                    ]
+                value: cleanEnglishLastName,
+                numeric: false,
+                paths: [
+                    "englishLastName",
+                    "person.englishLastName"
+                ]
             },
 
-
             {
-                value:
-                    cleanFatherName,
-
-                numeric:
-                    false,
-
-                paths:
-                    [
-                        "fatherName",
-                        "person.fatherName"
-                    ]
+                value: cleanEnglishFatherName,
+                numeric: false,
+                paths: [
+                    "englishFatherName",
+                    "person.englishFatherName"
+                ]
             },
 
-
             {
-                value:
-                    cleanGrandfatherName,
-
-                numeric:
-                    false,
-
-                paths:
-                    [
-                        "grandfatherName",
-                        "person.grandfatherName"
-                    ]
-            },
-
-
-            {
-                value:
-                    cleanEnglishName,
-
-                numeric:
-                    false,
-
-                paths:
-                    [
-                        "englishName",
-                        "person.englishName"
-                    ]
-            },
-
-
-            {
-                value:
-                    cleanEnglishLastName,
-
-                numeric:
-                    false,
-
-                paths:
-                    [
-                        "englishLastName",
-                        "person.englishLastName"
-                    ]
-            },
-
-
-            {
-                value:
-                    cleanEnglishFatherName,
-
-                numeric:
-                    false,
-
-                paths:
-                    [
-                        "englishFatherName",
-                        "person.englishFatherName"
-                    ]
-            },
-
-
-            {
-                value:
-                    cleanEnglishGrandfatherName,
-
-                numeric:
-                    false,
-
-                paths:
-                    [
-                        "englishGrandfatherName",
-                        "person.englishGrandfatherName"
-                    ]
+                value: cleanEnglishGrandfatherName,
+                numeric: false,
+                paths: [
+                    "englishGrandfatherName",
+                    "person.englishGrandfatherName"
+                ]
             },
 
 
@@ -2083,187 +997,116 @@ export async function searchRegistration({
             // ==================================
 
             {
-                value:
-                    cleanTazkira,
-
-                numeric:
-                    false,
-
-                paths:
-                    [
-                        "tazkiraSearchKey",
-                        "tazkira",
-                        "person.tazkira",
-                        "tazkiraDisplay",
-                        "tazkiraDetails.electronicNumber",
-                        "paperTazkiraNumber",
-                        "tazkiraDetails.paper.number"
-                    ]
+                value: cleanTazkira,
+                numeric: false,
+                paths: [
+                    "tazkiraSearchKey",
+                    "tazkira",
+                    "person.tazkira",
+                    "tazkiraDisplay",
+                    "tazkiraDetails.electronicNumber",
+                    "paperTazkiraNumber",
+                    "tazkiraDetails.paper.number"
+                ]
             },
 
 
             // ==================================
+            // NOTE:
             // Paper Volume / Page / Number
             // دلته قصداً Search criteria نه دي.
             // ==================================
 
 
             {
-                value:
-                    cleanBirthDate,
-
-                numeric:
-                    false,
-
-                paths:
-                    [
-                        "birthDate",
-                        "person.birthDate"
-                    ]
+                value: cleanBirthDate,
+                numeric: false,
+                paths: [
+                    "birthDate",
+                    "person.birthDate"
+                ]
             },
 
-
             {
-                value:
-                    cleanAge,
-
-                numeric:
-                    true,
-
-                paths:
-                    [
-                        "age",
-                        "person.age"
-                    ]
+                value: cleanAge,
+                numeric: true,
+                paths: [
+                    "age",
+                    "person.age"
+                ]
             },
 
-
             {
-                value:
-                    cleanPhone,
-
-                numeric:
-                    false,
-
-                paths:
-                    [
-                        "phone",
-                        "person.phone"
-                    ]
+                value: cleanPhone,
+                numeric: false,
+                paths: [
+                    "phone",
+                    "person.phone"
+                ]
             },
 
 
             // ==================================
-            // اصلي ولایت
+            // Original Location
             // ==================================
 
             {
-                value:
-                    cleanOriginalProvince,
+                value: cleanOriginalProvince,
+                numeric: false,
+                paths: [
+                    "originalProvince",
+                    "originalLocation.province"
+                ]
+            },
 
-                numeric:
-                    false,
+            {
+                value: cleanOriginalDistrict,
+                numeric: false,
+                paths: [
+                    "originalDistrict",
+                    "originalLocation.district"
+                ]
+            },
 
-                paths:
-                    [
-                        "originalProvince",
-                        "originalLocation.province"
-                    ]
+            {
+                value: cleanOriginalVillage,
+                numeric: false,
+                paths: [
+                    "originalVillage",
+                    "originalLocation.village"
+                ]
             },
 
 
             // ==================================
-            // اصلي ولسوالۍ
+            // Current Location
             // ==================================
 
             {
-                value:
-                    cleanOriginalDistrict,
-
-                numeric:
-                    false,
-
-                paths:
-                    [
-                        "originalDistrict",
-                        "originalLocation.district"
-                    ]
+                value: cleanCurrentProvince,
+                numeric: false,
+                paths: [
+                    "currentProvince",
+                    "currentLocation.province"
+                ]
             },
 
-
-            // ==================================
-            // اصلي کلی
-            // ==================================
-
             {
-                value:
-                    cleanOriginalVillage,
-
-                numeric:
-                    false,
-
-                paths:
-                    [
-                        "originalVillage",
-                        "originalLocation.village"
-                    ]
+                value: cleanCurrentDistrict,
+                numeric: false,
+                paths: [
+                    "currentDistrict",
+                    "currentLocation.district"
+                ]
             },
 
-
-            // ==================================
-            // فعلي ولایت
-            // ==================================
-
             {
-                value:
-                    cleanCurrentProvince,
-
-                numeric:
-                    false,
-
-                paths:
-                    [
-                        "currentProvince",
-                        "currentLocation.province"
-                    ]
-            },
-
-
-            // ==================================
-            // فعلي ولسوالۍ
-            // ==================================
-
-            {
-                value:
-                    cleanCurrentDistrict,
-
-                numeric:
-                    false,
-
-                paths:
-                    [
-                        "currentDistrict",
-                        "currentLocation.district"
-                    ]
-            },
-
-
-            // ==================================
-            // فعلي کلی
-            // ==================================
-
-            {
-                value:
-                    cleanCurrentVillage,
-
-                numeric:
-                    false,
-
-                paths:
-                    [
-                        "currentVillage",
-                        "currentLocation.village"
-                    ]
+                value: cleanCurrentVillage,
+                numeric: false,
+                paths: [
+                    "currentVillage",
+                    "currentLocation.village"
+                ]
             },
 
 
@@ -2272,79 +1115,47 @@ export async function searchRegistration({
             // ==================================
 
             {
-                value:
-                    cleanCurrentJob,
-
-                numeric:
-                    false,
-
-                paths:
-                    [
-                        "currentJob"
-                    ]
+                value: cleanCurrentJob,
+                numeric: false,
+                paths: [
+                    "currentJob"
+                ]
             },
 
-
             {
-                value:
-                    cleanGroupLeader,
-
-                numeric:
-                    false,
-
-                paths:
-                    [
-                        "groupLeader"
-                    ]
+                value: cleanGroupLeader,
+                numeric: false,
+                paths: [
+                    "groupLeader"
+                ]
             },
 
-
             {
-                value:
-                    cleanCategory,
-
-                numeric:
-                    false,
-
-                paths:
-                    [
-                        "category"
-                    ]
+                value: cleanCategory,
+                numeric: false,
+                paths: [
+                    "category"
+                ]
             },
 
-
             {
-                value:
-                    cleanJihadiHistory,
-
-                numeric:
-                    false,
-
-                paths:
-                    [
-                        "jihadiHistory"
-                    ]
+                value: cleanJihadiHistory,
+                numeric: false,
+                paths: [
+                    "jihadiHistory"
+                ]
             },
 
-
             {
-                value:
-                    cleanPdfCreationDate,
-
-                numeric:
-                    false,
-
-                paths:
-                    [
-                        "pdfCreationDate"
-                    ]
+                value: cleanPdfCreationDate,
+                numeric: false,
+                paths: [
+                    "pdfCreationDate"
+                ]
             }
 
         ].filter(
-            item =>
-                cleanText(
-                    item.value
-                )
+            item => cleanText(item.value)
         );
 
 
@@ -2352,27 +1163,13 @@ export async function searchRegistration({
         // No Criteria
         // ======================================
 
-        if (
-            criteria.length ===
-            0
-        ) {
-
+        if (criteria.length === 0) {
             return {
-
-                success:
-                    false,
-
-                found:
-                    false,
-
-                records:
-                    [],
-
-                message:
-                    "لطفاً د لټون لپاره لږ تر لږه یوه خانه ډکه کړئ."
-
+                success: false,
+                found: false,
+                records: [],
+                message: "لطفاً د لټون لپاره لږ تر لږه یوه خانه ډکه کړئ."
             };
-
         }
 
 
@@ -2380,38 +1177,21 @@ export async function searchRegistration({
         // Form Number Validation
         // ======================================
 
-        if (
-            cleanFormNumber
-        ) {
+        if (cleanFormNumber) {
 
             const validation =
                 validateSearchFormNumber(
                     cleanFormNumber
                 );
 
-
-            if (
-                !validation.valid
-            ) {
-
+            if (!validation.valid) {
                 return {
-
-                    success:
-                        false,
-
-                    found:
-                        false,
-
-                    records:
-                        [],
-
-                    message:
-                        validation.message
-
+                    success: false,
+                    found: false,
+                    records: [],
+                    message: validation.message
                 };
-
             }
-
         }
 
 
@@ -2430,12 +1210,10 @@ export async function searchRegistration({
                     cleanTazkira
                 );
 
-
             const validation =
                 validateTazkira(
                     normalizedElectronic
                 );
-
 
             if (
                 validation &&
@@ -2443,24 +1221,14 @@ export async function searchRegistration({
             ) {
 
                 return {
-
-                    success:
-                        false,
-
-                    found:
-                        false,
-
-                    records:
-                        [],
-
+                    success: false,
+                    found: false,
+                    records: [],
                     message:
                         validation.message ||
                         "د تذکرې نمبر ناسم دی."
-
                 };
-
             }
-
         }
 
 
@@ -2481,42 +1249,26 @@ export async function searchRegistration({
         if (
             !result.found ||
             !result.records ||
-            result.records.length ===
-            0
+            result.records.length === 0
         ) {
 
             await writeAudit(
                 AUDIT_ACTIONS.SEARCH,
                 `لټون ناکام: ${
                     criteria
-                        .map(
-                            c =>
-                                c.value
-                        )
-                        .join(
-                            " | "
-                        )
+                        .map(c => c.value)
+                        .join(" | ")
                 }`
             );
 
-
             return {
-
-                success:
-                    false,
-
-                found:
-                    false,
-
-                records:
-                    [],
-
+                success: false,
+                found: false,
+                records: [],
                 message:
                     result.message ||
                     "د ورکړل شوو معلوماتو له مخې فورمه پیدا نه شوه."
-
             };
-
         }
 
 
@@ -2537,26 +1289,13 @@ export async function searchRegistration({
         // ======================================
 
         return {
-
-            success:
-                true,
-
-            found:
-                true,
-
-            records:
-                result.records,
-
-            record:
-                result.records[0] ||
-                null,
-
-            count:
-                result.records.length,
-
+            success: true,
+            found: true,
+            records: result.records,
+            record: result.records[0] || null,
+            count: result.records.length,
             message:
                 `${result.records.length} پایلې پیدا شوې.`
-
         };
 
     } catch (error) {
@@ -2566,26 +1305,15 @@ export async function searchRegistration({
             error
         );
 
-
         return {
-
-            success:
-                false,
-
-            found:
-                false,
-
-            records:
-                [],
-
+            success: false,
+            found: false,
+            records: [],
             message:
                 error.message ||
                 "د لټون پر مهال ستونزه رامنځته شوه."
-
         };
-
     }
-
 }
 
 
@@ -2596,13 +1324,9 @@ export async function searchRegistration({
 export async function searchByForm(
     formNumber
 ) {
-
     return searchRegistration({
-
         formNumber
-
     });
-
 }
 
 
@@ -2613,13 +1337,9 @@ export async function searchByForm(
 export async function searchByTazkiraNumber(
     tazkira
 ) {
-
     return searchRegistration({
-
         tazkira
-
     });
-
 }
 
 
@@ -2627,34 +1347,18 @@ export async function searchByTazkiraNumber(
 // Render Tazkira Section
 // ==========================================
 
-function renderTazkiraSection(
-    record
-) {
+function renderTazkiraSection(record) {
 
     const info =
-        getTazkiraInfo(
-            record
-        );
-
+        getTazkiraInfo(record);
 
     if (!info) {
-
         return `
-
             <tr>
-
-                <th>
-                    د تذکرې ډول
-                </th>
-
-                <td>
-                    —
-                </td>
-
+                <th>د تذکرې ډول</th>
+                <td>—</td>
             </tr>
-
         `;
-
     }
 
 
@@ -2664,117 +1368,67 @@ function renderTazkiraSection(
     ) {
 
         return `
-
             <tr>
-
-                <th>
-                    د تذکرې ډول
-                </th>
-
-                <td>
-                    کاغذي تذکره
-                </td>
-
+                <th>د تذکرې ډول</th>
+                <td>کاغذي تذکره</td>
             </tr>
 
-
             <tr>
-
-                <th>
-                    د تذکرې نمبر
-                </th>
-
+                <th>د تذکرې نمبر</th>
                 <td>
                     ${formatText(
                         info.display ||
                         info.paper.number
                     )}
                 </td>
-
             </tr>
 
-
             <tr>
-
-                <th>
-                    جلد
-                </th>
-
+                <th>جلد</th>
                 <td>
                     ${formatText(
                         info.paper.volume
                     )}
                 </td>
-
             </tr>
 
-
             <tr>
-
-                <th>
-                    صفحه
-                </th>
-
+                <th>صفحه</th>
                 <td>
                     ${formatText(
                         info.paper.page
                     )}
                 </td>
-
             </tr>
 
-
             <tr>
-
-                <th>
-                    ګڼه
-                </th>
-
+                <th>ګڼه</th>
                 <td>
                     ${formatText(
                         info.paper.number
                     )}
                 </td>
-
             </tr>
-
         `;
-
     }
 
 
     return `
-
         <tr>
-
-            <th>
-                د تذکرې ډول
-            </th>
-
-            <td>
-                برقي تذکره
-            </td>
-
+            <th>د تذکرې ډول</th>
+            <td>برقي تذکره</td>
         </tr>
 
-
         <tr>
-
-            <th>
-                د تذکرې نمبر
-            </th>
-
+            <th>د تذکرې نمبر</th>
             <td>
                 ${formatText(
                     info.display ||
                     info.electronicNumber
                 )}
             </td>
-
         </tr>
-
     `;
-
 }
 
 
@@ -2782,42 +1436,25 @@ function renderTazkiraSection(
 // Render One Record
 // ==========================================
 
-function renderRecordCard(
-    record
-) {
+function renderRecordCard(record) {
 
     const person =
-        getPersonInfo(
-            record
-        ) ||
-        {};
-
+        getPersonInfo(record) || {};
 
     const location =
-        getLocationInfo(
-            record
-        ) ||
-        {};
-
+        getLocationInfo(record) || {};
 
     const fraudulent =
-        record.fraudulent ===
-        true;
-
+        record.fraudulent === true;
 
     const canEdit =
-        record.editable !==
-        false;
+        record.editable !== false;
 
 
     return `
-
         <div
             class="card search-result-card"
-            style="
-                padding:16px;
-                margin-bottom:14px;
-            "
+            style="padding:16px;margin-bottom:14px;"
         >
 
             <!-- Header -->
@@ -2840,9 +1477,7 @@ function renderRecordCard(
                                 ? "badge-danger"
                                 : "badge-success"
                         }"
-                        style="
-                            margin-bottom:10px;
-                        "
+                        style="margin-bottom:10px;"
                     >
                         ${
                             fraudulent
@@ -2850,7 +1485,6 @@ function renderRecordCard(
                                 : "اصلي فورمه"
                         }
                     </div>
-
 
                     <h3
                         style="
@@ -2863,7 +1497,6 @@ function renderRecordCard(
                             record.formNumber
                         )}
                     </h3>
-
 
                     <p
                         style="
@@ -2880,11 +1513,7 @@ function renderRecordCard(
                 </div>
 
 
-                <div
-                    style="
-                        text-align:left;
-                    "
-                >
+                <div style="text-align:left;">
 
                     <div
                         style="
@@ -2894,7 +1523,6 @@ function renderRecordCard(
                     >
                         داخلي نمبر
                     </div>
-
 
                     <strong>
                         ${formatText(
@@ -2921,7 +1549,6 @@ function renderRecordCard(
                 ${
                     canEdit
                         ? `
-
                             <a
                                 class="btn btn-primary"
                                 href="./register.html?recordId=${encodeURIComponent(
@@ -2930,11 +1557,9 @@ function renderRecordCard(
                             >
                                 ✏️ Edit
                             </a>
-
                         `
                         : ""
                 }
-
 
                 <button
                     type="button"
@@ -2953,9 +1578,7 @@ function renderRecordCard(
 
             <div
                 class="card"
-                style="
-                    margin-top:14px;
-                "
+                style="margin-top:14px;"
             >
 
                 <h3
@@ -2967,7 +1590,6 @@ function renderRecordCard(
                 >
                     🪪 د تذکرې معلومات
                 </h3>
-
 
                 <div class="table-container">
 
@@ -2992,9 +1614,7 @@ function renderRecordCard(
 
             <div
                 class="card"
-                style="
-                    margin-top:14px;
-                "
+                style="margin-top:14px;"
             >
 
                 <h3
@@ -3007,7 +1627,6 @@ function renderRecordCard(
                     👤 د شخص معلومات
                 </h3>
 
-
                 <div class="table-container">
 
                     <table>
@@ -3015,167 +1634,102 @@ function renderRecordCard(
                         <tbody>
 
                             <tr>
-
-                                <th>
-                                    نوم
-                                </th>
-
+                                <th>نوم</th>
                                 <td>
                                     ${formatText(
                                         person.firstName
                                     )}
                                 </td>
-
                             </tr>
 
-
                             <tr>
-
-                                <th>
-                                    تخلص
-                                </th>
-
+                                <th>تخلص</th>
                                 <td>
                                     ${formatText(
                                         person.lastName
                                     )}
                                 </td>
-
                             </tr>
 
-
                             <tr>
-
-                                <th>
-                                    د پلار نوم
-                                </th>
-
+                                <th>د پلار نوم</th>
                                 <td>
                                     ${formatText(
                                         person.fatherName
                                     )}
                                 </td>
-
                             </tr>
 
-
                             <tr>
-
-                                <th>
-                                    د نیکه نوم
-                                </th>
-
+                                <th>د نیکه نوم</th>
                                 <td>
                                     ${formatText(
                                         person.grandfatherName
                                     )}
                                 </td>
-
                             </tr>
 
-
                             <tr>
-
-                                <th>
-                                    English Name
-                                </th>
-
+                                <th>English Name</th>
                                 <td>
                                     ${formatText(
                                         person.englishName
                                     )}
                                 </td>
-
                             </tr>
 
-
                             <tr>
-
-                                <th>
-                                    English Last Name
-                                </th>
-
+                                <th>English Last Name</th>
                                 <td>
                                     ${formatText(
                                         person.englishLastName
                                     )}
                                 </td>
-
                             </tr>
 
-
                             <tr>
-
-                                <th>
-                                    English Father Name
-                                </th>
-
+                                <th>English Father Name</th>
                                 <td>
                                     ${formatText(
                                         person.englishFatherName
                                     )}
                                 </td>
-
                             </tr>
 
-
                             <tr>
-
-                                <th>
-                                    English Grandfather Name
-                                </th>
-
+                                <th>English Grandfather Name</th>
                                 <td>
                                     ${formatText(
                                         person.englishGrandfatherName
                                     )}
                                 </td>
-
                             </tr>
 
-
                             <tr>
-
-                                <th>
-                                    د زېږون نېټه
-                                </th>
-
+                                <th>د زېږون نېټه</th>
                                 <td>
                                     ${formatText(
                                         person.birthDate
                                     )}
                                 </td>
-
                             </tr>
 
-
                             <tr>
-
-                                <th>
-                                    عمر
-                                </th>
-
+                                <th>عمر</th>
                                 <td>
                                     ${formatText(
                                         person.age
                                     )}
                                 </td>
-
                             </tr>
 
-
                             <tr>
-
-                                <th>
-                                    د اړیکې شمېره
-                                </th>
-
+                                <th>د اړیکې شمېره</th>
                                 <td>
                                     ${formatText(
                                         person.phone
                                     )}
                                 </td>
-
                             </tr>
 
                         </tbody>
@@ -3191,9 +1745,7 @@ function renderRecordCard(
 
             <div
                 class="card"
-                style="
-                    margin-top:14px;
-                "
+                style="margin-top:14px;"
             >
 
                 <h3
@@ -3206,7 +1758,6 @@ function renderRecordCard(
                     📍 د اصلي ځای معلومات
                 </h3>
 
-
                 <div class="table-container">
 
                     <table>
@@ -3214,47 +1765,30 @@ function renderRecordCard(
                         <tbody>
 
                             <tr>
-
-                                <th>
-                                    ولایت
-                                </th>
-
+                                <th>ولایت</th>
                                 <td>
                                     ${formatText(
                                         location.original?.province
                                     )}
                                 </td>
-
                             </tr>
 
-
                             <tr>
-
-                                <th>
-                                    ولسوالۍ
-                                </th>
-
+                                <th>ولسوالي</th>
                                 <td>
                                     ${formatText(
                                         location.original?.district
                                     )}
                                 </td>
-
                             </tr>
 
-
                             <tr>
-
-                                <th>
-                                    کلی
-                                </th>
-
+                                <th>کلی</th>
                                 <td>
                                     ${formatText(
                                         location.original?.village
                                     )}
                                 </td>
-
                             </tr>
 
                         </tbody>
@@ -3270,9 +1804,7 @@ function renderRecordCard(
 
             <div
                 class="card"
-                style="
-                    margin-top:14px;
-                "
+                style="margin-top:14px;"
             >
 
                 <h3
@@ -3285,7 +1817,6 @@ function renderRecordCard(
                     📍 د فعلي ځای معلومات
                 </h3>
 
-
                 <div class="table-container">
 
                     <table>
@@ -3293,47 +1824,30 @@ function renderRecordCard(
                         <tbody>
 
                             <tr>
-
-                                <th>
-                                    ولایت
-                                </th>
-
+                                <th>ولایت</th>
                                 <td>
                                     ${formatText(
                                         location.current?.province
                                     )}
                                 </td>
-
                             </tr>
 
-
                             <tr>
-
-                                <th>
-                                    ولسوالۍ
-                                </th>
-
+                                <th>ولسوالي</th>
                                 <td>
                                     ${formatText(
                                         location.current?.district
                                     )}
                                 </td>
-
                             </tr>
 
-
                             <tr>
-
-                                <th>
-                                    کلی
-                                </th>
-
+                                <th>کلی</th>
                                 <td>
                                     ${formatText(
                                         location.current?.village
                                     )}
                                 </td>
-
                             </tr>
 
                         </tbody>
@@ -3349,9 +1863,7 @@ function renderRecordCard(
 
             <div
                 class="card"
-                style="
-                    margin-top:14px;
-                "
+                style="margin-top:14px;"
             >
 
                 <h3
@@ -3364,7 +1876,6 @@ function renderRecordCard(
                     💼 نور معلومات
                 </h3>
 
-
                 <div class="table-container">
 
                     <table>
@@ -3372,92 +1883,57 @@ function renderRecordCard(
                         <tbody>
 
                             <tr>
-
-                                <th>
-                                    اوسنی دنده
-                                </th>
-
+                                <th>اوسنی دنده</th>
                                 <td>
                                     ${formatText(
                                         record.currentJob
                                     )}
                                 </td>
-
                             </tr>
 
-
                             <tr>
-
-                                <th>
-                                    د ګروپ مشر
-                                </th>
-
+                                <th>د ګروپ مشر</th>
                                 <td>
                                     ${formatText(
                                         record.groupLeader
                                     )}
                                 </td>
-
                             </tr>
 
-
                             <tr>
-
-                                <th>
-                                    کټګوري
-                                </th>
-
+                                <th>کټګوري</th>
                                 <td>
                                     ${formatText(
                                         record.category
                                     )}
                                 </td>
-
                             </tr>
 
-
                             <tr>
-
-                                <th>
-                                    جهادي سابقه
-                                </th>
-
+                                <th>جهادي سابقه</th>
                                 <td>
                                     ${formatText(
                                         record.jihadiHistory
                                     )}
                                 </td>
-
                             </tr>
 
-
                             <tr>
-
-                                <th>
-                                    د PDF نېټه
-                                </th>
-
+                                <th>د PDF نېټه</th>
                                 <td>
                                     ${formatText(
                                         record.pdfCreationDate
                                     )}
                                 </td>
-
                             </tr>
 
-
                             <tr>
-
-                                <th>
-                                    حالت
-                                </th>
-
+                                <th>حالت</th>
                                 <td>
                                     ${formatText(
                                         record.status
                                     )}
                                 </td>
-
                             </tr>
 
                         </tbody>
@@ -3473,9 +1949,7 @@ function renderRecordCard(
 
             <div
                 class="card"
-                style="
-                    margin-top:14px;
-                "
+                style="margin-top:14px;"
             >
 
                 <h3
@@ -3488,7 +1962,6 @@ function renderRecordCard(
                     🕒 د جوړېدو معلومات
                 </h3>
 
-
                 <div class="table-container">
 
                     <table>
@@ -3496,32 +1969,21 @@ function renderRecordCard(
                         <tbody>
 
                             <tr>
-
-                                <th>
-                                    جوړونکی
-                                </th>
-
+                                <th>جوړونکی</th>
                                 <td>
                                     ${formatText(
                                         record.createdBy?.email
                                     )}
                                 </td>
-
                             </tr>
 
-
                             <tr>
-
-                                <th>
-                                    Record ID
-                                </th>
-
+                                <th>Record ID</th>
                                 <td>
                                     ${formatText(
                                         record.id
                                     )}
                                 </td>
-
                             </tr>
 
                         </tbody>
@@ -3533,9 +1995,7 @@ function renderRecordCard(
             </div>
 
         </div>
-
     `;
-
 }
 
 
@@ -3543,25 +2003,18 @@ function renderRecordCard(
 // Render Multiple Records
 // ==========================================
 
-function renderRecords(
-    records
-) {
+function renderRecords(records) {
 
     if (
         !records ||
-        !Array.isArray(
-            records
-        ) ||
-        records.length ===
-        0
+        !Array.isArray(records) ||
+        records.length === 0
     ) {
-
         renderEmpty(
             "هیڅ ثبت شوی معلومات ونه موندل شو."
         );
 
         return;
-
     }
 
 
@@ -3572,7 +2025,6 @@ function renderRecords(
 
         resultBadge.textContent =
             `${records.length} پایلې`;
-
     }
 
 
@@ -3591,13 +2043,10 @@ function renderRecords(
         >
 
             <div>
-
                 <strong>
                     د لټون پایلې
                 </strong>
-
             </div>
-
 
             <div
                 class="badge badge-info"
@@ -3608,77 +2057,60 @@ function renderRecords(
 
         </div>
 
-
         <div class="search-results-list">
 
-            ${
-                records
-                    .map(
-                        record =>
-                            renderRecordCard(
-                                record
-                            )
-                    )
-                    .join(
-                        ""
-                    )
-            }
+            ${records
+                .map(record =>
+                    renderRecordCard(record)
+                )
+                .join("")}
 
         </div>
-
     `;
 
 
+    // ======================================
+    // Copy Record IDs
+    // ======================================
+
     document
-        .querySelectorAll(
-            ".copy-record-id"
-        )
-        .forEach(
-            button => {
+        .querySelectorAll(".copy-record-id")
+        .forEach(button => {
 
-                button.addEventListener(
-                    "click",
-                    async () => {
+            button.addEventListener(
+                "click",
+                async () => {
 
-                        const recordId =
-                            button.dataset.recordId ||
-                            "";
+                    const recordId =
+                        button.dataset.recordId ||
+                        "";
 
+                    try {
 
-                        try {
+                        await navigator.clipboard
+                            .writeText(recordId);
 
-                            await navigator.clipboard
-                                .writeText(
-                                    recordId
-                                );
+                        showMessage(
+                            "د ثبت ID کاپي شو.",
+                            "success"
+                        );
 
+                    } catch {
 
-                            showMessage(
-                                "د ثبت ID کاپي شو.",
-                                "success"
-                            );
-
-                        } catch {
-
-                            showMessage(
-                                "د ID کاپي کول ممکن نه شول.",
-                                "warning"
-                            );
-
-                        }
-
+                        showMessage(
+                            "د ID کاپي کول ممکن نه شول.",
+                            "warning"
+                        );
                     }
-                );
-
-            }
-        );
+                }
+            );
+        });
 
 
     showMessage(
         `${records.length} پایلې پیدا شوې.`,
         "success"
     );
-
 }
 
 
@@ -3686,29 +2118,21 @@ function renderRecords(
 // Backward Compatible Render Record
 // ==========================================
 
-function renderRecord(
-    result
-) {
+function renderRecord(result) {
 
     if (
         result &&
-        Array.isArray(
-            result.records
-        )
+        Array.isArray(result.records)
     ) {
-
         renderRecords(
             result.records
         );
 
         return;
-
     }
-
 
     const record =
         result?.record;
-
 
     if (!record) {
 
@@ -3717,14 +2141,11 @@ function renderRecord(
         );
 
         return;
-
     }
-
 
     renderRecords([
         record
     ]);
-
 }
 
 
@@ -3754,12 +2175,9 @@ if (tazkiraInput) {
                     cleanText(
                         tazkiraInput.value
                     );
-
             }
-
         }
     );
-
 }
 
 
@@ -3773,10 +2191,8 @@ if (paperSearchVolumeInput) {
                 normalizeDigits(
                     paperSearchVolumeInput.value
                 );
-
         }
     );
-
 }
 
 
@@ -3790,10 +2206,8 @@ if (paperSearchPageInput) {
                 normalizeDigits(
                     paperSearchPageInput.value
                 );
-
         }
     );
-
 }
 
 
@@ -3807,10 +2221,8 @@ if (paperSearchNumberInput) {
                 normalizeDigits(
                     paperSearchNumberInput.value
                 );
-
         }
     );
-
 }
 
 
@@ -3831,12 +2243,9 @@ if (searchTazkiraTypeElectronic) {
                 setSearchMode(
                     TAZKIRA_TYPES.ELECTRONIC
                 );
-
             }
-
         }
     );
-
 }
 
 
@@ -3853,12 +2262,9 @@ if (searchTazkiraTypePaper) {
                 setSearchMode(
                     TAZKIRA_TYPES.PAPER
                 );
-
             }
-
         }
     );
-
 }
 
 
@@ -3875,7 +2281,6 @@ if (searchForm) {
             event.preventDefault();
 
             hideMessage();
-
             clearAllErrors();
 
 
@@ -3886,136 +2291,83 @@ if (searchForm) {
             const criteria = [
 
                 {
-                    value:
-                        formNumberInput?.value,
+                    value: formNumberInput?.value,
+                    numeric: false,
+                    paths: ["formNumber"]
+                },
 
-                    numeric:
-                        false,
+                {
+                    value: firstNameInput?.value,
+                    numeric: false,
+                    paths: [
+                        "firstName",
+                        "person.firstName"
+                    ]
+                },
 
-                    paths:
-                        [
-                            "formNumber"
-                        ]
+                {
+                    value: lastNameInput?.value,
+                    numeric: false,
+                    paths: [
+                        "lastName",
+                        "person.lastName"
+                    ]
+                },
+
+                {
+                    value: fatherNameInput?.value,
+                    numeric: false,
+                    paths: [
+                        "fatherName",
+                        "person.fatherName"
+                    ]
+                },
+
+                {
+                    value: grandfatherNameInput?.value,
+                    numeric: false,
+                    paths: [
+                        "grandfatherName",
+                        "person.grandfatherName"
+                    ]
                 },
 
 
                 {
-                    value:
-                        firstNameInput?.value,
-
-                    numeric:
-                        false,
-
-                    paths:
-                        [
-                            "firstName",
-                            "person.firstName"
-                        ]
+                    value: englishNameInput?.value,
+                    numeric: false,
+                    paths: [
+                        "englishName",
+                        "person.englishName"
+                    ]
                 },
-
 
                 {
-                    value:
-                        lastNameInput?.value,
-
-                    numeric:
-                        false,
-
-                    paths:
-                        [
-                            "lastName",
-                            "person.lastName"
-                        ]
+                    value: englishLastNameInput?.value,
+                    numeric: false,
+                    paths: [
+                        "englishLastName",
+                        "person.englishLastName"
+                    ]
                 },
-
 
                 {
-                    value:
-                        fatherNameInput?.value,
-
-                    numeric:
-                        false,
-
-                    paths:
-                        [
-                            "fatherName",
-                            "person.fatherName"
-                        ]
+                    value: englishFatherNameInput?.value,
+                    numeric: false,
+                    paths: [
+                        "englishFatherName",
+                        "person.englishFatherName"
+                    ]
                 },
-
-
-                {
-                    value:
-                        grandfatherNameInput?.value,
-
-                    numeric:
-                        false,
-
-                    paths:
-                        [
-                            "grandfatherName",
-                            "person.grandfatherName"
-                        ]
-                },
-
-
-                {
-                    value:
-                        englishNameInput?.value,
-
-                    numeric:
-                        false,
-
-                    paths:
-                        [
-                            "englishName",
-                            "person.englishName"
-                        ]
-                },
-
-
-                {
-                    value:
-                        englishLastNameInput?.value,
-
-                    numeric:
-                        false,
-
-                    paths:
-                        [
-                            "englishLastName",
-                            "person.englishLastName"
-                        ]
-                },
-
-
-                {
-                    value:
-                        englishFatherNameInput?.value,
-
-                    numeric:
-                        false,
-
-                    paths:
-                        [
-                            "englishFatherName",
-                            "person.englishFatherName"
-                        ]
-                },
-
 
                 {
                     value:
                         englishGrandfatherNameInput?.value,
-
-                    numeric:
-                        false,
-
-                    paths:
-                        [
-                            "englishGrandfatherName",
-                            "person.englishGrandfatherName"
-                        ]
+                    numeric: false,
+                    paths: [
+                        "englishGrandfatherName",
+                        "person.englishGrandfatherName"
+                    ]
                 },
 
 
@@ -4024,185 +2376,122 @@ if (searchForm) {
                 // ==============================
 
                 {
-                    value:
-                        tazkiraInput?.value,
-
-                    numeric:
-                        false,
-
-                    paths:
-                        [
-                            "tazkiraSearchKey",
-                            "tazkira",
-                            "person.tazkira",
-                            "tazkiraDisplay",
-                            "tazkiraDetails.electronicNumber",
-                            "paperTazkiraNumber",
-                            "tazkiraDetails.paper.number"
-                        ]
+                    value: tazkiraInput?.value,
+                    numeric: false,
+                    paths: [
+                        "tazkiraSearchKey",
+                        "tazkira",
+                        "person.tazkira",
+                        "tazkiraDisplay",
+                        "tazkiraDetails.electronicNumber",
+                        "paperTazkiraNumber",
+                        "tazkiraDetails.paper.number"
+                    ]
                 },
 
 
                 // ==============================
-                // Birth / Age / Phone
+                // IMPORTANT:
+                // Paper Volume/Page/Number
+                // دلته نشته
                 // ==============================
 
+
                 {
-                    value:
-                        birthDateInput?.value,
-
-                    numeric:
-                        false,
-
-                    paths:
-                        [
-                            "birthDate",
-                            "person.birthDate"
-                        ]
+                    value: birthDateInput?.value,
+                    numeric: false,
+                    paths: [
+                        "birthDate",
+                        "person.birthDate"
+                    ]
                 },
 
-
                 {
-                    value:
-                        ageInput?.value,
-
-                    numeric:
-                        true,
-
-                    paths:
-                        [
-                            "age",
-                            "person.age"
-                        ]
+                    value: ageInput?.value,
+                    numeric: true,
+                    paths: [
+                        "age",
+                        "person.age"
+                    ]
                 },
 
-
                 {
-                    value:
-                        phoneInput?.value,
-
-                    numeric:
-                        false,
-
-                    paths:
-                        [
-                            "phone",
-                            "person.phone"
-                        ]
+                    value: phoneInput?.value,
+                    numeric: false,
+                    paths: [
+                        "phone",
+                        "person.phone"
+                    ]
                 },
 
 
                 // ==============================
-                // اصلي ولایت
+                // Original Location
                 // ==============================
 
                 {
                     value:
                         originalProvinceInput?.value,
-
-                    numeric:
-                        false,
-
-                    paths:
-                        [
-                            "originalProvince",
-                            "originalLocation.province"
-                        ]
+                    numeric: false,
+                    paths: [
+                        "originalProvince",
+                        "originalLocation.province"
+                    ]
                 },
-
-
-                // ==============================
-                // اصلي ولسوالۍ
-                // ==============================
 
                 {
                     value:
                         originalDistrictInput?.value,
-
-                    numeric:
-                        false,
-
-                    paths:
-                        [
-                            "originalDistrict",
-                            "originalLocation.district"
-                        ]
+                    numeric: false,
+                    paths: [
+                        "originalDistrict",
+                        "originalLocation.district"
+                    ]
                 },
-
-
-                // ==============================
-                // اصلي کلی
-                // ==============================
 
                 {
                     value:
                         originalVillageInput?.value,
-
-                    numeric:
-                        false,
-
-                    paths:
-                        [
-                            "originalVillage",
-                            "originalLocation.village"
-                        ]
+                    numeric: false,
+                    paths: [
+                        "originalVillage",
+                        "originalLocation.village"
+                    ]
                 },
 
 
                 // ==============================
-                // فعلي ولایت
+                // Current Location
                 // ==============================
 
                 {
                     value:
                         currentProvinceInput?.value,
-
-                    numeric:
-                        false,
-
-                    paths:
-                        [
-                            "currentProvince",
-                            "currentLocation.province"
-                        ]
+                    numeric: false,
+                    paths: [
+                        "currentProvince",
+                        "currentLocation.province"
+                    ]
                 },
-
-
-                // ==============================
-                // فعلي ولسوالۍ
-                // ==============================
 
                 {
                     value:
                         currentDistrictInput?.value,
-
-                    numeric:
-                        false,
-
-                    paths:
-                        [
-                            "currentDistrict",
-                            "currentLocation.district"
-                        ]
+                    numeric: false,
+                    paths: [
+                        "currentDistrict",
+                        "currentLocation.district"
+                    ]
                 },
-
-
-                // ==============================
-                // فعلي کلی
-                // ==============================
 
                 {
                     value:
                         currentVillageInput?.value,
-
-                    numeric:
-                        false,
-
-                    paths:
-                        [
-                            "currentVillage",
-                            "currentLocation.village"
-                        ]
+                    numeric: false,
+                    paths: [
+                        "currentVillage",
+                        "currentLocation.village"
+                    ]
                 },
 
 
@@ -4213,77 +2502,50 @@ if (searchForm) {
                 {
                     value:
                         currentJobInput?.value,
-
-                    numeric:
-                        false,
-
-                    paths:
-                        [
-                            "currentJob"
-                        ]
+                    numeric: false,
+                    paths: [
+                        "currentJob"
+                    ]
                 },
-
 
                 {
                     value:
                         groupLeaderInput?.value,
-
-                    numeric:
-                        false,
-
-                    paths:
-                        [
-                            "groupLeader"
-                        ]
+                    numeric: false,
+                    paths: [
+                        "groupLeader"
+                    ]
                 },
-
 
                 {
                     value:
                         categoryInput?.value,
-
-                    numeric:
-                        false,
-
-                    paths:
-                        [
-                            "category"
-                        ]
+                    numeric: false,
+                    paths: [
+                        "category"
+                    ]
                 },
-
 
                 {
                     value:
                         jihadiHistoryInput?.value,
-
-                    numeric:
-                        false,
-
-                    paths:
-                        [
-                            "jihadiHistory"
-                        ]
+                    numeric: false,
+                    paths: [
+                        "jihadiHistory"
+                    ]
                 },
-
 
                 {
                     value:
                         pdfCreationDateInput?.value,
-
-                    numeric:
-                        false,
-
-                    paths:
-                        [
-                            "pdfCreationDate"
-                        ]
+                    numeric: false,
+                    paths: [
+                        "pdfCreationDate"
+                    ]
                 }
 
             ].filter(
-                item =>
-                    cleanText(
-                        item.value
-                    )
+                item => cleanText(item.value)
             );
 
 
@@ -4291,39 +2553,29 @@ if (searchForm) {
             // Empty Search
             // ==================================
 
-            if (
-                criteria.length ===
-                0
-            ) {
+            if (criteria.length === 0) {
 
                 renderEmpty(
                     "لطفاً لږ تر لږه یوه خانه ډکه کړئ."
                 );
-
 
                 showMessage(
                     "لطفاً د لټون لپاره لږ تر لږه یوه خانه ډکه کړئ.",
                     "warning"
                 );
 
-
                 return;
-
             }
 
 
             try {
 
-                setLoading(
-                    true
-                );
+                setLoading(true);
 
 
                 if (searchResult) {
 
-                    searchResult.innerHTML =
-                        `
-
+                    searchResult.innerHTML = `
                         <div
                             class="loading"
                             style="
@@ -4335,18 +2587,14 @@ if (searchForm) {
                             "
                         >
 
-                            <div
-                                class="spinner"
-                            ></div>
+                            <div class="spinner"></div>
 
                             <span>
                                 لټون کېږي...
                             </span>
 
                         </div>
-
-                        `;
-
+                    `;
                 }
 
 
@@ -4367,8 +2615,7 @@ if (searchForm) {
                 if (
                     !result.found ||
                     !result.records ||
-                    result.records.length ===
-                    0
+                    result.records.length === 0
                 ) {
 
                     renderEmpty(
@@ -4376,16 +2623,13 @@ if (searchForm) {
                         "د ورکړل شوو معلوماتو له مخې فورمه پیدا نه شوه."
                     );
 
-
                     showMessage(
                         result.message ||
                         "فورمه پیدا نه شوه.",
                         "warning"
                     );
 
-
                     return;
-
                 }
 
 
@@ -4409,6 +2653,7 @@ if (searchForm) {
                     result.records
                 );
 
+
             } catch (error) {
 
                 console.error(
@@ -4416,11 +2661,9 @@ if (searchForm) {
                     error
                 );
 
-
                 renderEmpty(
                     "د لټون پر مهال ستونزه رامنځته شوه."
                 );
-
 
                 showMessage(
                     "د لټون پر مهال ستونزه رامنځته شوه.",
@@ -4429,15 +2672,10 @@ if (searchForm) {
 
             } finally {
 
-                setLoading(
-                    false
-                );
-
+                setLoading(false);
             }
-
         }
     );
-
 }
 
 
@@ -4452,16 +2690,11 @@ if (clearBtn) {
         () => {
 
             if (searchForm) {
-
                 searchForm.reset();
-
             }
 
-
             hideMessage();
-
             clearAllErrors();
-
 
             setSearchMode(
                 TAZKIRA_TYPES.ELECTRONIC
@@ -4470,17 +2703,11 @@ if (clearBtn) {
 
             if (searchResult) {
 
-                searchResult.innerHTML =
-                    `
-
-                    <div
-                        class="search-empty"
-                    >
+                searchResult.innerHTML = `
+                    <div class="search-empty">
                         د لټون لپاره پورته فورمه وکاروه.
                     </div>
-
-                    `;
-
+                `;
             }
 
 
@@ -4491,16 +2718,9 @@ if (clearBtn) {
 
                 resultBadge.textContent =
                     "چمتو";
-
             }
-
-
-            // ۳۴ ولایتونه بېرته فعال ساته
-            initializeProvinceSelectors();
-
         }
     );
-
 }
 
 
@@ -4513,12 +2733,9 @@ if (backBtn) {
     backBtn.addEventListener(
         "click",
         () => {
-
             window.history.back();
-
         }
     );
-
 }
 
 
@@ -4527,12 +2744,9 @@ if (refreshBtn) {
     refreshBtn.addEventListener(
         "click",
         () => {
-
             window.location.reload();
-
         }
     );
-
 }
 
 
@@ -4541,13 +2755,10 @@ if (dashboardBtn) {
     dashboardBtn.addEventListener(
         "click",
         () => {
-
             window.location.href =
                 "./dashboard.html";
-
         }
     );
-
 }
 
 
@@ -4556,13 +2767,10 @@ if (dashboardMenuBtn) {
     dashboardMenuBtn.addEventListener(
         "click",
         () => {
-
             window.location.href =
                 "./dashboard.html";
-
         }
     );
-
 }
 
 
@@ -4571,13 +2779,10 @@ if (registerMenuBtn) {
     registerMenuBtn.addEventListener(
         "click",
         () => {
-
             window.location.href =
                 "./register.html";
-
         }
     );
-
 }
 
 
@@ -4586,13 +2791,10 @@ if (searchMenuBtn) {
     searchMenuBtn.addEventListener(
         "click",
         () => {
-
             window.location.href =
                 "./search.html";
-
         }
     );
-
 }
 
 
@@ -4601,13 +2803,10 @@ if (reportsMenuBtn) {
     reportsMenuBtn.addEventListener(
         "click",
         () => {
-
             window.location.href =
                 "./reports.html";
-
         }
     );
-
 }
 
 
@@ -4616,13 +2815,10 @@ if (adminMenuBtn) {
     adminMenuBtn.addEventListener(
         "click",
         () => {
-
             window.location.href =
                 "./admin.html";
-
         }
     );
-
 }
 
 
@@ -4631,13 +2827,10 @@ if (settingsMenuBtn) {
     settingsMenuBtn.addEventListener(
         "click",
         () => {
-
             window.location.href =
                 "./settings.html";
-
         }
     );
-
 }
 
 
@@ -4651,27 +2844,20 @@ if (logoutBtn) {
         "click",
         async () => {
 
-            logoutBtn.disabled =
-                true;
-
+            logoutBtn.disabled = true;
 
             try {
 
                 const result =
                     await logoutUser();
 
-
-                if (
-                    result.success
-                ) {
+                if (result.success) {
 
                     window.location.href =
                         "./index.html";
 
                     return;
-
                 }
-
 
                 showMessage(
                     result.message ||
@@ -4686,7 +2872,6 @@ if (logoutBtn) {
                     error
                 );
 
-
                 showMessage(
                     "له سیستم څخه وتل ناکام شول.",
                     "danger"
@@ -4694,14 +2879,10 @@ if (logoutBtn) {
 
             } finally {
 
-                logoutBtn.disabled =
-                    false;
-
+                logoutBtn.disabled = false;
             }
-
         }
     );
-
 }
 
 
@@ -4718,12 +2899,9 @@ listenAuth(
                 "./index.html";
 
             return;
-
         }
 
-
         await initializeSettings();
-
     }
 );
 
@@ -4732,21 +2910,13 @@ listenAuth(
 // Initial Setup
 // ==========================================
 
-// د اصلي او فعلي ولایتونو لپاره
-// د افغانستان ۳۴ ولایتونه فعالول
-initializeProvinceSelectors();
-
-
 setSearchMode(
     TAZKIRA_TYPES.ELECTRONIC
 );
 
 
 if (tazkiraHelp) {
-
-    tazkiraHelp.style.display =
-        "none";
-
+    tazkiraHelp.style.display = "none";
 }
 
 
@@ -4756,3 +2926,6 @@ hideMessage();
 renderEmpty(
     "د لټون لپاره پورته فورمه وکاروه."
 );
+document.getElementById("formicMenuBtn")?.addEventListener("click", () => {
+    window.location.href = "./formic.html";
+});
