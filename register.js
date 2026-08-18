@@ -2083,3 +2083,6 @@ setTazkiraMode(TAZKIRA_TYPES.ELECTRONIC);
 if (!pdfCreationDate.value) {
     setTodayPdfDate();
 }
+document.getElementById("formicMenuBtn")?.addEventListener("click", () => {
+    window.location.href = "./formic.html";
+});
