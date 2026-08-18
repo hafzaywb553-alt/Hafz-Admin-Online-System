@@ -1,5 +1,5 @@
 // ==========================================
-// Hafz Admin Online System
+// د افغانستان اسلامی امارت دکره کمیسیون دفورمو دثبت او مدیریت ډیټابیس
 // admin.js
 // Admin Management Engine + Records/Settings Control
 // ==========================================
@@ -623,7 +623,7 @@ export async function updateAdminRole(uid, role) {
         if (!(await isSuperAdmin())) {
             return {
                 success: false,
-                message: "یوازې Super Admin د Role بدلولو اجازه لري."
+                message: "یوازې سوفراډمین حافظ ایوب د Role بدلولو اجازه لری ځکه دادحافظ ایوب قانون دی."
             };
         }
 
@@ -647,7 +647,7 @@ export async function updateAdminRole(uid, role) {
         if (uid === auth.currentUser?.uid && role !== ADMIN_ROLES.SUPERADMIN) {
             return {
                 success: false,
-                message: "خپل Super Admin صلاحیت مه کموی."
+                message: "خپل سوفراډمین صلاحیت مه کموی."
             };
         }
 
@@ -694,7 +694,7 @@ export async function setAdminStatus(uid, active) {
         if (!(await isSuperAdmin())) {
             return {
                 success: false,
-                message: "یوازې Super Admin د کاروونکي حالت بدلولی شي."
+                message: "یوازې سوفراډمین حافظ ایوب د کاروونکي حالت بدلولی شی نور هیڅوک داصلاحیت نلری."
             };
         }
 
@@ -710,7 +710,7 @@ export async function setAdminStatus(uid, active) {
         if (uid === auth.currentUser?.uid && active === false) {
             return {
                 success: false,
-                message: "خپل Super Admin حساب غیر فعالولی نه شئ."
+                message: "خپل سوفراډمین حافظ ایوب حساب غیر فعالولی نه شی نور هیڅوک داصلاحیت نلری."
             };
         }
 
@@ -757,7 +757,7 @@ export async function deleteAdminProfile(uid) {
         if (!(await isSuperAdmin())) {
             return {
                 success: false,
-                message: "یوازې Super Admin کاروونکی حذف کولی شي."
+                message: "یوازې سوفراډمین حافظ ایوب کاروونکی حذف کولی شی نور هیڅوک داصلاحیت نلری."
             };
         }
 
@@ -773,7 +773,7 @@ export async function deleteAdminProfile(uid) {
         if (uid === auth.currentUser?.uid) {
             return {
                 success: false,
-                message: "خپل Super Admin حساب نه شئ حذف کولی."
+                message: "خپل سوفراډمین 💪 حساب نه شئ حذف کولی."
             };
         }
 
@@ -835,7 +835,7 @@ export async function saveSystemSettings(settings = {}) {
         if (!(await isSuperAdmin())) {
             return {
                 success: false,
-                message: "یوازې Super Admin تنظیمات بدلولی شي."
+                message: "یوازې سوفراډمین حافظ ایوب تنظیمات بدلولی شی نور کسان صلاحیت نلری."
             };
         }
 
@@ -875,7 +875,7 @@ export async function updateRecordEditable(recordId, editable) {
         if (!(await isAdmin())) {
             return {
                 success: false,
-                message: "یوازې ادمین دا عملیات ترسره کولی شي."
+                message: "یوازې اډمینان دا عملیات ترسره کولی شی ساده کارکونکی صلاحیت نلری."
             };
         }
 
@@ -923,7 +923,7 @@ export async function updateRecordVisibility(recordId, hiddenFromAdmins) {
         if (!(await isSuperAdmin())) {
             return {
                 success: false,
-                message: "یوازې Super Admin visibility بدلولی شي."
+                message: "یوازې سوفر اډمین حافظ visibility بدلولی شی نور هیڅوک داصلاحیت نلری."
             };
         }
 
@@ -975,7 +975,7 @@ export async function deleteRecord(recordId) {
         if (!(await isSuperAdmin())) {
             return {
                 success: false,
-                message: "یوازې Super Admin ریکارډ حذف کولی شي."
+                message: "یوازې سوفراډمین حافظ ایوب ریکارډ حذف کولی شی نور هیځوک داصلاحیت نلری."
             };
         }
 
@@ -1202,7 +1202,7 @@ async function saveFieldsSettings() {
 
 async function savePrivacySettings() {
     if (!(await isSuperAdmin())) {
-        showMessage("یوازې Super Admin privacy بدلولی شي.", "danger");
+        showMessage("یوازې سوفراډمین 💪 privacy بدلولی شی نور هیڅوک داصلاحیت نلری.", "danger");
         return;
     }
 
@@ -1264,7 +1264,7 @@ function updateMyInfo(admin) {
 
     permissionNote.textContent = superAdminAllowed
         ? "تاسو ستر ادمین یاست؛ د ادمین مدیریت، ریکارډ قفل/ښکاره کول، او فیلډ تنظیمات فعال دي."
-        : "ستاسو حساب په ادمین لست کې شته، خو بشپړ مدیریت یوازې ستر ادمین ته ورکول کېږي.";
+        : "ستاسو حساب په ادمین لست کې شته، خو بشپړ مدیریت یوازې ستر ادمین 👮 ته ورکول کېږي.";
 }
 
 function renderEmpty(message) {
@@ -1440,9 +1440,9 @@ async function loadAdmins() {
         superAdminAllowed = await isSuperAdmin();
 
         if (!superAdminAllowed) {
-            renderEmpty("یوازې ستر ادمین د ادمین لست اداره کولی شي.");
+            renderEmpty("یوازې ستر ادمین د اډمین 💪 لست اداره کولی شی نور هیڅوک داصلاحیت نلری.");
             adminsBadge.className = "badge badge-warning";
-            adminsBadge.textContent = "محدود";
+            adminsBadge.textContent = "یوازی ستالپاره محدودیت سته ";
         }
 
         const result = await getAdmins();
@@ -1491,7 +1491,7 @@ createAdminForm.addEventListener("submit", async event => {
     hideMessage();
 
     if (!superAdminAllowed) {
-        showMessage("یوازې ستر ادمین نوی پروفایل جوړولی شي.", "danger");
+        showMessage("یوازې ستر اډمین 💪 نوی پروفایل جوړولی شی نور هیڅوک داصلاحیت نلری.", "danger");
         return;
     }
 
@@ -1549,7 +1549,7 @@ adminsTableBody.addEventListener("click", async event => {
     hideMessage();
 
     if (!superAdminAllowed) {
-        showMessage("یوازې ستر ادمین دا عملیات ترسره کولی شي.", "danger");
+        showMessage("یوازې ستر اډمین 💪 دا عملیات ترسره کولی نور هیڅوک داصلاحیت نلری.", "danger");
         return;
     }
 
@@ -1623,7 +1623,7 @@ recordsTableBody.addEventListener("click", async event => {
 
     if (action === "toggle-editable") {
         if (!(await isAdmin())) {
-            showMessage("یوازې ادمین دا عملیات ترسره کولی شي.", "danger");
+            showMessage("یوازې ادمین دا عملیات ترسره کولی شی ته داصلاحیت نلری.", "danger");
             return;
         }
 
@@ -1645,7 +1645,7 @@ recordsTableBody.addEventListener("click", async event => {
 
     if (action === "toggle-visibility") {
         if (!superAdminAllowed) {
-            showMessage("یوازې ستر ادمین visibility بدلولی شي.", "danger");
+            showMessage("یوازې ستر ادمین visibility بدلولی ته داصلاحیت نلری.", "danger");
             return;
         }
 
@@ -1667,7 +1667,7 @@ recordsTableBody.addEventListener("click", async event => {
 
     if (action === "delete-record") {
         if (!superAdminAllowed) {
-            showMessage("یوازې ستر ادمین ریکارډ حذف کولی شي.", "danger");
+            showMessage("یوازې ستر ادمین 💪ریکارډ حذف کولی شی ته داصلاحیت نلری.", "danger");
             return;
         }
 
@@ -1792,4 +1792,7 @@ listenAuth(async session => {
     await loadSystemSettings();
     await loadAdmins();
     await loadRecords();
+});
+document.getElementById("formicMenuBtn")?.addEventListener("click", () => {
+    window.location.href = "./formic.html";
 });
