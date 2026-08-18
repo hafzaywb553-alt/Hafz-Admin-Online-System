@@ -1,5 +1,5 @@
 /* ==========================================
-   د افغانستان اسلامي امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس
+   د افغانستان اسلامي امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس💻
    settings.js
    System Settings Engine
 ========================================== */
@@ -622,7 +622,7 @@ export async function saveSettings(settings = {}) {
         return {
             success: true,
             settings: currentSettings,
-            message: "تنظیمات په بریالیتوب خوندي شوې."
+            message: "تنظیمات په بریالیتوب خوندي شول ✅."
         };
     } catch (error) {
         console.error("Save Settings Error:", error);
@@ -630,7 +630,7 @@ export async function saveSettings(settings = {}) {
         return {
             success: false,
             settings: currentSettings,
-            message: error.message || "تنظیمات خوندي نه شوې."
+            message: error.message || "تنظیمات خوندي نه شول ❗."
         };
     }
 }
@@ -872,3 +872,6 @@ export default {
     initializeSettings,
     applyTranslations
 };
+document.getElementById("formicMenuBtn")?.addEventListener("click", () => {
+    window.location.href = "./formic.html";
+});
