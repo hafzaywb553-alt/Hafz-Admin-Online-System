@@ -181,6 +181,10 @@ body {
     flex: 0 0 auto;
 }
 
+.فورمیک-کوچنی-تڼۍ:hover {
+    background: var(--surface-alt);
+}
+
 .فورمیک-کوچنی-تڼۍ.فعال {
     background: #0B6B36;
     color: #fff;
@@ -554,6 +558,99 @@ body {
 
 
 /* =====================================================
+   ERROR / WARNING AUTO NAVIGATION
+===================================================== */
+
+#فورمیکپیغام {
+    scroll-margin-top: 90px;
+    position: relative;
+}
+
+#فورمیکپیغام.alert-danger,
+#فورمیکپیغام.alert-warning,
+#فورمیکپیغام.alert-error {
+    animation:
+        فورمیک-اخطار
+        .45s ease;
+}
+
+@keyframes فورمیک-اخطار {
+
+    0% {
+        transform: translateY(-8px);
+        opacity: .35;
+    }
+
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+
+}
+
+
+/* =====================================================
+   PERMANENT SAVE
+===================================================== */
+
+.فورمیک-تلپاتې-خوندي {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    z-index: 9999;
+
+    min-width: 150px;
+    min-height: 48px;
+
+    padding: 9px 15px;
+
+    border: 0;
+    border-radius: 14px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #0B6B36,
+            #07552A
+        );
+
+    color: #fff;
+
+    box-shadow:
+        0 8px 26px
+        rgba(0,0,0,.20);
+
+    cursor: pointer;
+
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 900;
+
+    transition:
+        transform .15s ease,
+        opacity .15s ease;
+}
+
+.فورمیک-تلپاتې-خوندي:hover {
+    transform: translateY(-2px);
+}
+
+.فورمیک-تلپاتې-خوندي:active {
+    transform: translateY(0);
+}
+
+.فورمیک-تلپاتې-خوندي:disabled {
+    opacity: .55;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.فورمیک-تلپاتې-خوندي.خوندي-کېږي {
+    cursor: wait;
+}
+
+
+/* =====================================================
    FOOTER
 ===================================================== */
 
@@ -586,19 +683,6 @@ body {
 /* =====================================================
    MOBILE
 ===================================================== */
-
-@media (max-width: 900px) {
-
-    .فورمیک-سرلیک {
-        display: block;
-    }
-
-    .فورمیک-وسایل {
-        margin-top: 10px;
-    }
-
-}
-
 
 @media (max-width: 700px) {
 
@@ -635,10 +719,8 @@ body {
         grid-column: 1 / -1;
     }
 
-    .فورمیک-ګروپ
-    .فورمیک-کوچنی-تڼۍ,
-    .فورمیک-ګروپ
-    .فورمیک-انتخاب {
+    .فورمیک-ګروپ .فورمیک-کوچنی-تڼۍ,
+    .فورمیک-ګروپ .فورمیک-انتخاب {
         width: 100%;
         min-width: 0;
         max-width: none;
@@ -650,6 +732,14 @@ body {
 
     .فورمیک-جدول {
         min-width: 760px;
+    }
+
+    .فورمیک-تلپاتې-خوندي {
+        right: 10px;
+        bottom: 10px;
+        min-width: 128px;
+        min-height: 44px;
+        font-size: 13px;
     }
 
 }
@@ -745,13 +835,6 @@ body {
                 📊 ډشبورډ
             </button>
 
-          <button
-                type="button"
-                class="active"
-                id="formicMenuBtn"
-            >
-                📋 فورمیک
-            </button>
 
             <button
                 type="button"
@@ -766,6 +849,15 @@ body {
                 id="searchMenuBtn"
             >
                 🔍 لټون
+            </button>
+
+
+            <button
+                type="button"
+                class="active"
+                id="formicMenuBtn"
+            >
+                📋 فورمیک
             </button>
 
 
@@ -917,6 +1009,8 @@ body {
                 id="فورمیکپیغام"
                 class="alert"
                 hidden
+                role="alert"
+                aria-live="assertive"
             ></div>
 
 
@@ -1232,7 +1326,7 @@ body {
                         <button
                             type="button"
                             class="فورمیک-کوچنی-تڼۍ"
-                            id="عمومي شمیر"
+                            id="عموميشمېر"
                         >
                             123
                         </button>
@@ -1356,8 +1450,8 @@ body {
                 د کرښې یا ستون پر څنډه
                 Drag کول د هغې اندازه بدلوي.
 
-                ټول مهم بدلونونه اوس یـوازي د ســـوفــراډمــین 💪 پـه خـوښـه او کنټرول سره
-                يــومـنظم آنـلایــن 🌍 ډیـټابـیس 💻 تـه 💯 اطــمنانـی تلپاتې خوندي کېږي.
+                ټول مهم بدلونونه د Superadmin لپاره
+                Firebase ته تلپاتې خوندي کېږي.
 
             </section>
 
@@ -1366,6 +1460,18 @@ body {
     </main>
 
 </div>
+
+
+<!-- تلپاتې Save -->
+
+<button
+    type="button"
+    id="تلپاتېخونديکول"
+    class="فورمیک-تلپاتې-خوندي"
+    title="تلپاتې خوندي کول"
+>
+    💾 تلپاتې خوندي کول
+</button>
 
 
 <footer class="footer">
