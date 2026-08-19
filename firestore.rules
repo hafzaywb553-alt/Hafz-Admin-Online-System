@@ -4,6 +4,7 @@ service cloud.firestore {
 
     match /databases/{database}/documents {
 
+
         // =========================================================
         // د افغانستان اسلامي امارت د کره کمیسیون
         // د فورمو د ثبت او مدیریت ډیټابیس
@@ -20,22 +21,34 @@ service cloud.firestore {
         // =========================================================
 
         function signedIn() {
+
             return request.auth != null;
+
         }
 
 
         function adminPath(uid) {
+
             return /databases/$(database)/documents/admins/$(uid);
+
         }
 
 
         function adminExists(uid) {
-            return exists(adminPath(uid));
+
+            return exists(
+                adminPath(uid)
+            );
+
         }
 
 
         function adminData(uid) {
-            return get(adminPath(uid)).data;
+
+            return get(
+                adminPath(uid)
+            ).data;
+
         }
 
 
@@ -47,28 +60,43 @@ service cloud.firestore {
 
             return signedIn()
 
-                && adminExists(request.auth.uid)
+                && adminExists(
+                    request.auth.uid
+                )
 
-                && adminData(request.auth.uid).uid
+                && adminData(
+                    request.auth.uid
+                ).uid
                     == request.auth.uid
 
-                && adminData(request.auth.uid).active
+                && adminData(
+                    request.auth.uid
+                ).active
                     == true
 
                 && (
-                    adminData(request.auth.uid).role
+
+                    adminData(
+                        request.auth.uid
+                    ).role
                         == "superadmin"
 
                     ||
 
-                    adminData(request.auth.uid).role
+                    adminData(
+                        request.auth.uid
+                    ).role
                         == "admin"
 
                     ||
 
-                    adminData(request.auth.uid).role
+                    adminData(
+                        request.auth.uid
+                    ).role
                         == "user"
+
                 );
+
         }
 
 
@@ -80,6 +108,7 @@ service cloud.firestore {
                     request.auth.uid
                 ).role
                     == "superadmin";
+
         }
 
 
@@ -88,6 +117,7 @@ service cloud.firestore {
             return hasValidAdminProfile()
 
                 && (
+
                     adminData(
                         request.auth.uid
                     ).role
@@ -99,7 +129,9 @@ service cloud.firestore {
                         request.auth.uid
                     ).role
                         == "admin"
+
                 );
+
         }
 
 
@@ -111,12 +143,14 @@ service cloud.firestore {
                     request.auth.uid
                 ).role
                     == "user";
+
         }
 
 
         function isMember() {
 
             return hasValidAdminProfile();
+
         }
 
 
@@ -126,29 +160,28 @@ service cloud.firestore {
 
         match /admins/{uid} {
 
-            // خپل Profile لوستل
-            // Superadmin کولی شي هر Profile ولولي
             allow get: if signedIn()
+
                 && (
+
                     request.auth.uid == uid
+
                     ||
+
                     isSuperAdmin()
+
                 );
 
 
-            // یوازې Superadmin ټول Admin list کولی شي
             allow list: if isSuperAdmin();
 
 
-            // یوازې Superadmin نوی Admin جوړولی شي
             allow create: if isSuperAdmin();
 
 
-            // یوازې Superadmin Admin Profile بدلولی شي
             allow update: if isSuperAdmin();
 
 
-            // یوازې Superadmin Admin حذف کولی شي
             allow delete: if isSuperAdmin();
 
         }
@@ -160,19 +193,15 @@ service cloud.firestore {
 
         match /records/{recordId} {
 
-            // ټول فعال roles کولی شي records ولولي
             allow read: if isMember();
 
 
-            // Superadmin + Admin نوي کسان ثبتولی شي
             allow create: if isAdmin();
 
 
-            // Superadmin + Admin ثبت شوي معلومات بدلولی شي
             allow update: if isAdmin();
 
 
-            // یوازې Superadmin حذف کولی شي
             allow delete: if isSuperAdmin();
 
         }
@@ -181,31 +210,12 @@ service cloud.firestore {
         // =========================================================
         // UNIQUE NUMBERS
         // =========================================================
-        //
-        // register.js د ثبت پر مهال دا Collection کاروي:
-        //
-        // - formNumber
-        // - electronicTazkiraNumber
-        // - paperTazkiraNumber
-        //
-        // Transaction:
-        // - get
-        // - create
-        // - update
-        // - delete
-        //
-        // ځکه نو د Admin او Superadmin لپاره بشپړ
-        // transaction access ضروري دی.
-        // =========================================================
 
         match /uniqueNumbers/{uniqueId} {
 
-            // Superadmin + Admin د duplicate check
-            // او transaction لپاره لوستلی شي
             allow read: if isAdmin();
 
 
-            // Superadmin + Admin نوی unique number جوړولی شي
             allow create: if isAdmin()
 
                 && request.resource.data.recordId
@@ -224,7 +234,6 @@ service cloud.firestore {
                     is string;
 
 
-            // Superadmin + Admin موجود unique number بدلولی شي
             allow update: if isAdmin()
 
                 && request.resource.data.recordId
@@ -243,8 +252,6 @@ service cloud.firestore {
                     is string;
 
 
-            // Admin هم د edit/delete transaction لپاره
-            // زاړه unique number حذفولی شي
             allow delete: if isAdmin();
 
         }
@@ -256,19 +263,15 @@ service cloud.firestore {
 
         match /settings/{settingId} {
 
-            // ټول فعال users settings لوستلی شي
             allow read: if isMember();
 
 
-            // Admin / Superadmin
             allow create: if isAdmin();
 
 
-            // Admin / Superadmin
             allow update: if isAdmin();
 
 
-            // یوازې Superadmin
             allow delete: if isSuperAdmin();
 
         }
@@ -285,43 +288,28 @@ service cloud.firestore {
         // اصلي
         //
         // Read:
-        // ټول فعال کاروونکي
+        // ټول فعال غړي
         //
         // Create / Update / Delete:
         // یوازې Superadmin
+        //
+        // مهم:
+        // د Formic د داخلي structure پر فیلډونو
+        // هېڅ اضافي validation شرط نه لګوو.
         //
         // =========================================================
 
         match /formic_settings/{settingId} {
 
-            // ټول فعال کاروونکي یې لوستلی شي
             allow read: if isMember();
 
 
-            // نوی Formic سند
-            // یوازې Superadmin
-            allow create: if isSuperAdmin()
-
-                && request.resource.data["شیتونه"]
-                    is list
-
-                && request.resource.data["بدلون_ورکوونکی"]
-                    == request.auth.uid;
+            allow create: if isSuperAdmin();
 
 
-            // موجود Formic سند بدلول
-            // یوازې Superadmin
-            allow update: if isSuperAdmin()
-
-                && request.resource.data["شیتونه"]
-                    is list
-
-                && request.resource.data["بدلون_ورکوونکی"]
-                    == request.auth.uid;
+            allow update: if isSuperAdmin();
 
 
-            // حذف
-            // یوازې Superadmin
             allow delete: if isSuperAdmin();
 
         }
@@ -333,21 +321,17 @@ service cloud.firestore {
 
         match /presence/{uid} {
 
-            // ټول فعال Members presence لوستلی شي
             allow read: if isMember();
 
 
-            // هر user یوازې خپل presence جوړولی شي
             allow create: if isMember()
                 && request.auth.uid == uid;
 
 
-            // هر user یوازې خپل presence بدلولی شي
             allow update: if isMember()
                 && request.auth.uid == uid;
 
 
-            // هر user یوازې خپل presence حذفولی شي
             allow delete: if isMember()
                 && request.auth.uid == uid;
 
@@ -360,7 +344,6 @@ service cloud.firestore {
 
         match /audit/{auditId} {
 
-            // هر فعال Member خپل audit event ثبتولی شي
             allow create: if isMember()
 
                 && request.resource.data.uid
@@ -370,15 +353,12 @@ service cloud.firestore {
                     == request.auth.token.email;
 
 
-            // یوازې Superadmin لوستلی شي
             allow read: if isSuperAdmin();
 
 
-            // Audit نه update کېږي
             allow update: if false;
 
 
-            // Audit نه delete کېږي
             allow delete: if false;
 
         }
@@ -390,11 +370,9 @@ service cloud.firestore {
 
         match /dashboard_comments/{commentId} {
 
-            // ټول فعال Members comments لوستلی شي
             allow read: if isMember();
 
 
-            // نوی Comment
             allow create: if isMember()
 
                 && request.resource.data.uid
@@ -422,7 +400,6 @@ service cloud.firestore {
                     is list;
 
 
-            // Like / Heart
             allow update: if isMember()
 
                 && request.resource.data.uid
@@ -456,16 +433,15 @@ service cloud.firestore {
                     is list;
 
 
-            // Delete:
-            // Superadmin هر comment
-            // User خپل comment
             allow delete: if isSuperAdmin()
 
                 || (
+
                     isMember()
 
                     && resource.data.uid
                         == request.auth.uid
+
                 );
 
         }
@@ -477,11 +453,9 @@ service cloud.firestore {
 
         match /dashboard_daily_content/{contentId} {
 
-            // ټول فعال کارکوونکي یې لوستلی شي
             allow read: if isMember();
 
 
-            // یوازې Superadmin نوی محتوا جوړولی شي
             allow create: if isSuperAdmin()
 
                 && request.resource.data.zikr
@@ -518,7 +492,6 @@ service cloud.firestore {
                     == request.auth.token.email;
 
 
-            // یوازې Superadmin محتوا بدلولی شي
             allow update: if isSuperAdmin()
 
                 && request.resource.data.zikr
@@ -555,7 +528,6 @@ service cloud.firestore {
                     == request.auth.token.email;
 
 
-            // ورځنی محتوا نه حذف کېږي
             allow delete: if false;
 
         }
