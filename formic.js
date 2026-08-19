@@ -23,11 +23,12 @@ import {
    FIRESTORE
 ===================================================== */
 
-const formicDoc = doc(
-    db,
-    "formic_settings",
-    "اصلي"
-);
+const formicDoc =
+    doc(
+        db,
+        "formic_settings",
+        "اصلي"
+    );
 
 
 /* =====================================================
@@ -52,23 +53,76 @@ let undoStack = [];
 
 let redoStack = [];
 
+
+/* =====================================================
+   SAVE ENGINE
+===================================================== */
+
 let saveTimer = null;
+
+let retryTimer = null;
 
 let saveBusy = false;
 
-let saveAgain = false;
+let pendingSave = false;
+
+let pendingSnapshot = null;
+
+let saveGeneration = 0;
+
+let savedGeneration = 0;
+
+let retryAttempt = 0;
+
+let pageLeaving = false;
+
+let saveFailedNoticeShown = false;
 
 
 /* =====================================================
-   HELPERS
+   SAVE CONFIG
 ===================================================== */
 
-function $(id) {
-    return document.getElementById(id);
+const SAVE_DELAY =
+    850;
+
+const MAX_RETRY_DELAY =
+    20000;
+
+const MAX_UNDO =
+    50;
+
+
+/* =====================================================
+   LOCAL BACKUP
+===================================================== */
+
+const LOCAL_BACKUP_KEY =
+    "formic_local_backup_v1";
+
+
+/* =====================================================
+   DOM
+===================================================== */
+
+function $(
+    id
+) {
+
+    return document.getElementById(
+        id
+    );
+
 }
 
 
-function clean(value) {
+/* =====================================================
+   BASIC HELPERS
+===================================================== */
+
+function clean(
+    value
+) {
 
     if (
         value === null ||
@@ -79,15 +133,21 @@ function clean(value) {
 
     }
 
-    return String(value).trim();
+    return String(
+        value
+    ).trim();
 
 }
 
 
-function deep(value) {
+function deep(
+    value
+) {
 
     return JSON.parse(
-        JSON.stringify(value)
+        JSON.stringify(
+            value
+        )
     );
 
 }
@@ -96,15 +156,20 @@ function deep(value) {
 function isSuper() {
 
     return (
-        currentRole === "superadmin"
+        currentRole ===
+        "superadmin"
     );
 
 }
 
 
-function toPashtoDigits(value) {
+function toPashtoDigits(
+    value
+) {
 
-    return String(value).replace(
+    return String(
+        value
+    ).replace(
         /\d/g,
         digit =>
             "۰۱۲۳۴۵۶۷۸۹"[digit]
@@ -113,17 +178,28 @@ function toPashtoDigits(value) {
 }
 
 
+/* =====================================================
+   MESSAGE
+===================================================== */
+
 function showMessage(
     text,
     type = "success"
 ) {
 
     const element =
-        $("فورمیک پیغام");
+        $("فورمیکپیغام");
 
     if (!element) {
+
+        console.error(
+            text
+        );
+
         return;
+
     }
+
 
     element.textContent =
         text;
@@ -134,9 +210,49 @@ function showMessage(
     element.hidden =
         false;
 
+
     clearTimeout(
         showMessage.timer
     );
+
+
+    if (
+        type === "danger" ||
+        type === "warning" ||
+        type === "error"
+    ) {
+
+        requestAnimationFrame(
+            () => {
+
+                element.scrollIntoView(
+                    {
+                        behavior:
+                            "smooth",
+
+                        block:
+                            "center",
+
+                        inline:
+                            "nearest"
+                    }
+                );
+
+            }
+        );
+
+    }
+
+
+    const duration =
+        (
+            type === "danger" ||
+            type === "warning" ||
+            type === "error"
+        )
+            ? 8000
+            : 4500;
+
 
     showMessage.timer =
         setTimeout(
@@ -146,11 +262,198 @@ function showMessage(
                     true;
 
             },
-            4500
+            duration
         );
 
 }
 
+
+/* =====================================================
+   FIREBASE ERROR HELPERS
+===================================================== */
+
+function errorCode(
+    error
+) {
+
+    return clean(
+        error?.code ||
+        error?.name ||
+        ""
+    ).toLowerCase();
+
+}
+
+
+function errorMessage(
+    error
+) {
+
+    return clean(
+        error?.message ||
+        ""
+    ).toLowerCase();
+
+}
+
+
+function isAbortError(
+    error
+) {
+
+    const code =
+        errorCode(
+            error
+        );
+
+    const message =
+        errorMessage(
+            error
+        );
+
+
+    return (
+
+        code ===
+            "aborterror"
+
+        ||
+
+        code ===
+            "aborted"
+
+        ||
+
+        message.includes(
+            "the user aborted a request"
+        )
+
+        ||
+
+        message.includes(
+            "user aborted a request"
+        )
+
+        ||
+
+        message.includes(
+            "aborted"
+        )
+
+    );
+
+}
+
+
+function isRetryableError(
+    error
+) {
+
+    const code =
+        errorCode(
+            error
+        );
+
+
+    return (
+
+        isAbortError(
+            error
+        )
+
+        ||
+
+        code ===
+            "unavailable"
+
+        ||
+
+        code ===
+            "deadline-exceeded"
+
+        ||
+
+        code ===
+            "internal"
+
+        ||
+
+        code ===
+            "resource-exhausted"
+
+        ||
+
+        code ===
+            "network-request-failed"
+
+    );
+
+}
+
+
+function firebaseErrorText(
+    error
+) {
+
+    const code =
+        errorCode(
+            error
+        );
+
+
+    if (
+        code ===
+        "permission-denied"
+    ) {
+
+        return (
+            "❌ Firestore اجازه نه ورکوي. " +
+            "ډاډ ترلاسه کړئ چې حساب مو Superadmin دی او Firestore Rules مو Publish کړي دي."
+        );
+
+    }
+
+
+    if (
+        code ===
+        "unauthenticated"
+    ) {
+
+        return (
+            "❌ د Login اعتبار ختم شوی. بیا Login وکړئ."
+        );
+
+    }
+
+
+    if (
+        code ===
+        "failed-precondition"
+    ) {
+
+        return (
+            "❌ د Firebase شرط بشپړ نه شو. " +
+            "د Firebase تنظیمات وګورئ."
+        );
+
+    }
+
+
+    return (
+        "❌ د Firebase عملیاتو پر مهال ستونزه رامنځته شوه." +
+        (
+            error?.message
+                ? ` ${error.message}`
+                : ""
+        )
+    );
+
+}
+
+
+/* =====================================================
+   SAFE EVENT
+===================================================== */
 
 function safeEvent(
     element,
@@ -158,14 +461,16 @@ function safeEvent(
     callback
 ) {
 
-    if (!element) {
-        return;
-    }
+    if (
+        element
+    ) {
 
-    element.addEventListener(
-        event,
-        callback
-    );
+        element.addEventListener(
+            event,
+            callback
+        );
+
+    }
 
 }
 
@@ -180,22 +485,25 @@ const els = {
         $("شیتونوځای"),
 
     table:
-        $("فورمیک جدول"),
+        $("فورمیکجدول"),
 
     message:
-        $("فورمیک پیغام"),
+        $("فورمیکپیغام"),
 
     status:
         $("سترحالت"),
 
     statusText:
-        $("حالت تشریح"),
+        $("حالتتشریح"),
 
     count:
         $("دشمېرښود"),
 
     save:
         $("خونديکول"),
+
+    permanentSave:
+        $("تلپاتېخونديکول"),
 
     newSheet:
         $("نویشیت"),
@@ -207,7 +515,7 @@ const els = {
         $("نوېکرښه"),
 
     deleteSheet:
-        $("شیت حذف"),
+        $("شیتحذف"),
 
     font:
         $("دخط"),
@@ -219,7 +527,7 @@ const els = {
         $("دلیکټاکليکړنګ"),
 
     fillColor:
-        $("دخانې شالید"),
+        $("دخانېشالید"),
 
     hAlign:
         $("دافقيبرابرول"),
@@ -234,7 +542,7 @@ const els = {
         $("کږلیک"),
 
     underline:
-        $("لاندې کرښه"),
+        $("لاندېکرښه"),
 
     wrap:
         $("تاوول"),
@@ -303,6 +611,105 @@ const els = {
 
 
 /* =====================================================
+   LOCAL BACKUP
+===================================================== */
+
+function saveLocalBackup() {
+
+    if (
+        !isSuper()
+    ) {
+
+        return;
+
+    }
+
+
+    try {
+
+        localStorage.setItem(
+            LOCAL_BACKUP_KEY,
+            JSON.stringify({
+
+                شیتونه:
+                    deep(
+                        state.شیتونه
+                    ),
+
+                updatedAt:
+                    Date.now()
+
+            })
+        );
+
+    } catch (
+        error
+    ) {
+
+        console.warn(
+            "FORMIC LOCAL BACKUP:",
+            error
+        );
+
+    }
+
+}
+
+
+function loadLocalBackup() {
+
+    try {
+
+        const raw =
+            localStorage.getItem(
+                LOCAL_BACKUP_KEY
+            );
+
+
+        if (!raw) {
+
+            return null;
+
+        }
+
+
+        const parsed =
+            JSON.parse(
+                raw
+            );
+
+
+        if (
+            !Array.isArray(
+                parsed?.شیتونه
+            )
+        ) {
+
+            return null;
+
+        }
+
+
+        return parsed;
+
+    } catch (
+        error
+    ) {
+
+        console.warn(
+            "FORMIC LOCAL BACKUP LOAD:",
+            error
+        );
+
+
+        return null;
+
+    }
+
+}
+
+
+/* =====================================================
    DEFAULT CELL
 ===================================================== */
 
@@ -310,7 +717,8 @@ function defaultCell() {
 
     return {
 
-        متن: "",
+        متن:
+            "",
 
         fontFamily:
             "Noto Naskh Arabic",
@@ -353,10 +761,17 @@ function defaultCell() {
 }
 
 
-function normalizeCell(value) {
+/* =====================================================
+   NORMALIZE CELL
+===================================================== */
+
+function normalizeCell(
+    value
+) {
 
     const old =
         value || {};
+
 
     return {
 
@@ -446,6 +861,10 @@ function normalizeCell(value) {
 
 function defaultSheet() {
 
+    const time =
+        Date.now();
+
+
     return {
 
         پېژند:
@@ -457,36 +876,42 @@ function defaultSheet() {
         ستنې: [
 
             {
+
                 پېژند:
-                    "ستون_۱",
+                    `ستون_${time}_1`,
 
                 نوم:
                     "نوم",
 
                 پلنوالی:
                     170
+
             },
 
             {
+
                 پېژند:
-                    "ستون_۲",
+                    `ستون_${time}_2`,
 
                 نوم:
                     "تخلص",
 
                 پلنوالی:
                     170
+
             },
 
             {
+
                 پېژند:
-                    "ستون_۳",
+                    `ستون_${time}_3`,
 
                 نوم:
                     "معلومات",
 
                 پلنوالی:
                     220
+
             }
 
         ],
@@ -516,7 +941,9 @@ function defaultSheet() {
    NORMALIZE STATE
 ===================================================== */
 
-function normalizeState(data) {
+function normalizeState(
+    data
+) {
 
     const raw =
         Array.isArray(
@@ -525,10 +952,14 @@ function normalizeState(data) {
             ? data.شیتونه
             : [];
 
+
     const sheets =
         raw.length
             ? raw
-            : [defaultSheet()];
+            : [
+                defaultSheet()
+            ];
+
 
     return {
 
@@ -547,9 +978,6 @@ function normalizeState(data) {
                             ) || 8
                         );
 
-                    const defaultColumns =
-                        defaultSheet()
-                            .ستنې;
 
                     const sourceColumns =
                         Array.isArray(
@@ -558,20 +986,29 @@ function normalizeState(data) {
                             ? source.ستنې
                             : [];
 
+
                     const columns =
                         sourceColumns.length
                             ? sourceColumns
                             : deep(
-                                defaultColumns
+                                defaultSheet()
+                                    .ستنې
                             );
 
-                    const cells = {};
+
+                    const cells =
+                        {};
+
 
                     Object.entries(
-                        source?.حجرې || {}
+                        source?.حجرې ||
+                        {}
                     ).forEach(
                         (
-                            [key, value]
+                            [
+                                key,
+                                value
+                            ]
                         ) => {
 
                             cells[key] =
@@ -582,6 +1019,7 @@ function normalizeState(data) {
                         }
                     );
 
+
                     const rowHeights =
                         Array.from(
                             {
@@ -590,12 +1028,13 @@ function normalizeState(data) {
                             },
                             (
                                 _,
-                                row
+                                index
                             ) => {
 
                                 const old =
-                                    source?.rowHeights?.[row] ??
-                                    source?.د_کرښو_لوړوالی?.[row];
+                                    source?.rowHeights?.[index] ??
+                                    source?.د_کرښو_لوړوالی?.[index];
+
 
                                 return Math.max(
                                     35,
@@ -606,6 +1045,7 @@ function normalizeState(data) {
 
                             }
                         );
+
 
                     const oldMerges =
                         Array.isArray(
@@ -619,6 +1059,7 @@ function normalizeState(data) {
                                     ? source.یوځای_شوي_خانې
                                     : []
                             );
+
 
                     const merges =
                         oldMerges
@@ -645,15 +1086,51 @@ function normalizeState(data) {
                                             merge?.colSpan
                                         );
 
+
                                     return (
-                                        Number.isInteger(sr) &&
-                                        Number.isInteger(sc) &&
-                                        rs >= 1 &&
-                                        cs >= 1 &&
-                                        sr >= 0 &&
-                                        sc >= 0 &&
-                                        sr + rs <= rows &&
-                                        sc + cs <= columns.length
+
+                                        Number.isInteger(
+                                            sr
+                                        )
+
+                                        &&
+
+                                        Number.isInteger(
+                                            sc
+                                        )
+
+                                        &&
+
+                                        rs >=
+                                            1
+
+                                        &&
+
+                                        cs >=
+                                            1
+
+                                        &&
+
+                                        sr >=
+                                            0
+
+                                        &&
+
+                                        sc >=
+                                            0
+
+                                        &&
+
+                                        sr +
+                                            rs <=
+                                            rows
+
+                                        &&
+
+                                        sc +
+                                            cs <=
+                                            columns.length
+
                                     );
 
                                 }
@@ -684,19 +1161,26 @@ function normalizeState(data) {
                                 })
                             );
 
+
                     return {
 
                         پېژند:
                             clean(
                                 source?.پېژند
                             ) ||
-                            `شیت_${sheetIndex + 1}`,
+                            `شیت_${
+                                sheetIndex +
+                                1
+                            }`,
 
                         نوم:
                             clean(
                                 source?.نوم
                             ) ||
-                            `شیت ${sheetIndex + 1}`,
+                            `شیت ${
+                                sheetIndex +
+                                1
+                            }`,
 
                         ستنې:
                             columns.map(
@@ -709,13 +1193,22 @@ function normalizeState(data) {
                                         clean(
                                             column?.پېژند
                                         ) ||
-                                        `ستون_${sheetIndex + 1}_${columnIndex + 1}_${Date.now()}`,
+                                        `ستون_${
+                                            sheetIndex +
+                                            1
+                                        }_${
+                                            columnIndex +
+                                            1
+                                        }_${Date.now()}`,
 
                                     نوم:
                                         clean(
                                             column?.نوم
                                         ) ||
-                                        `ستون ${columnIndex + 1}`,
+                                        `ستون ${
+                                            columnIndex +
+                                            1
+                                        }`,
 
                                     پلنوالی:
                                         Math.max(
@@ -755,13 +1248,21 @@ function normalizeState(data) {
 function getSheet() {
 
     return (
+
         state.شیتونه.find(
-            item =>
-                item.پېژند ===
+            sheet =>
+                sheet.پېژند ===
                 currentSheetId
-        ) ||
-        state.شیتونه[0] ||
+        )
+
+        ||
+
+        state.شیتونه[0]
+
+        ||
+
         null
+
     );
 
 }
@@ -779,11 +1280,22 @@ function cellKey(
     const sh =
         getSheet();
 
+
     const column =
         sh?.ستنې?.[col];
 
+
+    if (
+        !column
+    ) {
+
+        return "";
+
+    }
+
+
     return (
-        `${row}:${column?.پېژند || ""}`
+        `${row}:${column.پېژند}`
     );
 
 }
@@ -812,26 +1324,46 @@ function mergeAt(
 ) {
 
     if (
-        !sh?.merges?.length
+        !Array.isArray(
+            sh?.merges
+        )
     ) {
 
         return null;
 
     }
 
+
     return (
+
         sh.merges.find(
             merge =>
-                row >= merge.startRow &&
+
+                row >=
+                    merge.startRow
+
+                &&
+
                 row <
                     merge.startRow +
-                    merge.rowSpan &&
-                col >= merge.startCol &&
+                    merge.rowSpan
+
+                &&
+
+                col >=
+                    merge.startCol
+
+                &&
+
                 col <
                     merge.startCol +
                     merge.colSpan
-        ) ||
+        )
+
+        ||
+
         null
+
     );
 
 }
@@ -850,14 +1382,21 @@ function mergeStart(
             col
         );
 
-    if (!merge) {
+
+    if (
+        !merge
+    ) {
 
         return {
+
             row,
+
             col
+
         };
 
     }
+
 
     return {
 
@@ -873,7 +1412,7 @@ function mergeStart(
 
 
 /* =====================================================
-   SNAPSHOT / UNDO
+   SNAPSHOT
 ===================================================== */
 
 function snapshot() {
@@ -881,74 +1420,6 @@ function snapshot() {
     return deep(
         state
     );
-
-}
-
-
-function pushUndo(
-    previousState = null
-) {
-
-    undoStack.push(
-        previousState
-            ? deep(previousState)
-            : snapshot()
-    );
-
-    if (
-        undoStack.length >
-        50
-    ) {
-
-        undoStack.shift();
-
-    }
-
-    redoStack = [];
-
-}
-
-
-function mutate(
-    callback
-) {
-
-    if (
-        !isSuper()
-    ) {
-
-        showMessage(
-            "یوازې سوفراډمین💪 کولی شي بدلون وکړي ته دبدلون حق نلري.",
-            "warning"
-        );
-
-        return;
-
-    }
-
-    const previous =
-        snapshot();
-
-    callback();
-
-    undoStack.push(
-        previous
-    );
-
-    if (
-        undoStack.length >
-        50
-    ) {
-
-        undoStack.shift();
-
-    }
-
-    redoStack = [];
-
-    renderAll();
-
-    scheduleSave();
 
 }
 
@@ -966,14 +1437,24 @@ function selectCell(
     const sh =
         getSheet();
 
-    if (!sh) {
+
+    if (
+        !sh
+    ) {
+
         return;
+
     }
 
-    if (shiftKey && selected.length) {
+
+    if (
+        shiftKey &&
+        selected.length
+    ) {
 
         const first =
             selected[0];
+
 
         const startRow =
             Math.min(
@@ -981,11 +1462,13 @@ function selectCell(
                 row
             );
 
+
         const endRow =
             Math.max(
                 first.row,
                 row
             );
+
 
         const startCol =
             Math.min(
@@ -993,30 +1476,62 @@ function selectCell(
                 col
             );
 
+
         const endCol =
             Math.max(
                 first.col,
                 col
             );
 
-        selected = [];
+
+        selected =
+            [];
+
 
         for (
-            let r = startRow;
-            r <= endRow;
+            let r =
+                startRow;
+            r <=
+                endRow;
             r++
         ) {
 
             for (
-                let c = startCol;
-                c <= endCol;
+                let c =
+                    startCol;
+                c <=
+                    endCol;
                 c++
             ) {
 
-                selected.push({
-                    row: r,
-                    col: c
-                });
+                const start =
+                    mergeStart(
+                        sh,
+                        r,
+                        c
+                    );
+
+
+                const exists =
+                    selected.some(
+                        item =>
+                            item.row ===
+                                start.row
+                            &&
+                            item.col ===
+                                start.col
+                    );
+
+
+                if (
+                    !exists
+                ) {
+
+                    selected.push(
+                        start
+                    );
+
+                }
 
             }
 
@@ -1024,25 +1539,30 @@ function selectCell(
 
     } else {
 
-        const start =
+        selected = [
+
             mergeStart(
                 sh,
                 row,
                 col
-            );
+            )
 
-        selected = [
-            start
         ];
 
     }
 
+
     updateSelectionUI();
+
 
     syncToolbar();
 
 }
 
+
+/* =====================================================
+   SELECTED RECTANGLE
+===================================================== */
 
 function selectedRect() {
 
@@ -1054,11 +1574,13 @@ function selectedRect() {
 
     }
 
+
     const rows =
         selected.map(
             item =>
                 item.row
         );
+
 
     const cols =
         selected.map(
@@ -1066,25 +1588,30 @@ function selectedRect() {
                 item.col
         );
 
+
     const startRow =
         Math.min(
             ...rows
         );
+
 
     const endRow =
         Math.max(
             ...rows
         );
 
+
     const startCol =
         Math.min(
             ...cols
         );
 
+
     const endCol =
         Math.max(
             ...cols
         );
+
 
     return {
 
@@ -1111,11 +1638,20 @@ function selectedRect() {
 }
 
 
+/* =====================================================
+   SELECTION UI
+===================================================== */
+
 function updateSelectionUI() {
 
-    if (!els.table) {
+    if (
+        !els.table
+    ) {
+
         return;
+
     }
+
 
     els.table
         .querySelectorAll(
@@ -1131,6 +1667,7 @@ function updateSelectionUI() {
             }
         );
 
+
     selected.forEach(
         position => {
 
@@ -1139,7 +1676,10 @@ function updateSelectionUI() {
                     `.فورمیک-خانه-پوښ[data-row="${position.row}"][data-col="${position.col}"]`
                 );
 
-            if (wrapper) {
+
+            if (
+                wrapper
+            ) {
 
                 wrapper.classList.add(
                     "انتخاب-شوی"
@@ -1167,12 +1707,19 @@ function syncToolbar() {
 
     }
 
+
     const sh =
         getSheet();
 
-    if (!sh) {
+
+    if (
+        !sh
+    ) {
+
         return;
+
     }
+
 
     const first =
         mergeStart(
@@ -1181,63 +1728,97 @@ function syncToolbar() {
             selected[0].col
         );
 
-    const key =
-        cellKey(
-            first.row,
-            first.col
-        );
 
     const cell =
         normalizeCell(
-            sh.حجرې[key]
+            sh.حجرې[
+                cellKey(
+                    first.row,
+                    first.col
+                )
+            ]
         );
 
-    if (els.font) {
+
+    if (
+        els.font
+    ) {
+
         els.font.value =
             cell.fontFamily;
+
     }
 
-    if (els.size) {
+
+    if (
+        els.size
+    ) {
+
         els.size.value =
             String(
                 cell.fontSize
             );
+
     }
 
-    if (els.fontColor) {
+
+    if (
+        els.fontColor
+    ) {
+
         els.fontColor.value =
             cell.fontColor;
+
     }
 
-    if (els.fillColor) {
+
+    if (
+        els.fillColor
+    ) {
+
         els.fillColor.value =
             cell.fillColor;
+
     }
 
-    if (els.hAlign) {
+
+    if (
+        els.hAlign
+    ) {
+
         els.hAlign.value =
             cell.hAlign;
+
     }
 
-    if (els.vAlign) {
+
+    if (
+        els.vAlign
+    ) {
+
         els.vAlign.value =
             cell.vAlign;
+
     }
+
 
     els.bold?.classList.toggle(
         "فعال",
         cell.bold
     );
 
+
     els.italic?.classList.toggle(
         "فعال",
         cell.italic
     );
 
+
     els.underline?.classList.toggle(
         "فعال",
         cell.underline
     );
+
 
     els.wrap?.classList.toggle(
         "فعال",
@@ -1248,76 +1829,1143 @@ function syncToolbar() {
 
 
 /* =====================================================
-   CELL VALUE FORMAT
+   MUTATE
 ===================================================== */
 
-function formatDisplayValue(
-    cell
+function mutate(
+    callback
 ) {
 
-    const text =
-        String(
-            cell?.متن ?? ""
-        );
-
     if (
-        !text
+        !isSuper()
     ) {
 
-        return "";
+        showMessage(
+            "یوازې Superadmin کولی شي بدلون وکړي.",
+            "warning"
+        );
+
+        return;
 
     }
 
-    const raw =
-        Number(
-            text.replaceAll(
-                ",",
-                ""
+
+    const previous =
+        snapshot();
+
+
+    callback();
+
+
+    undoStack.push(
+        previous
+    );
+
+
+    if (
+        undoStack.length >
+        MAX_UNDO
+    ) {
+
+        undoStack.shift();
+
+    }
+
+
+    redoStack =
+        [];
+
+
+    renderAll();
+
+
+    markChanged();
+
+}
+
+
+/* =====================================================
+   CHANGE TRACKING
+===================================================== */
+
+function markChanged() {
+
+    if (
+        !isSuper()
+    ) {
+
+        return;
+
+    }
+
+
+    saveGeneration +=
+        1;
+
+
+    pendingSave =
+        true;
+
+
+    pendingSnapshot =
+        deep(
+            state.شیتونه
+        );
+
+
+    saveLocalBackup();
+
+
+    clearTimeout(
+        saveTimer
+    );
+
+
+    saveTimer =
+        setTimeout(
+            () => {
+
+                processSaveQueue();
+
+            },
+            SAVE_DELAY
+        );
+
+}
+
+
+/* =====================================================
+   SAVE QUEUE
+===================================================== */
+
+async function processSaveQueue() {
+
+    if (
+        pageLeaving ||
+        !isSuper()
+    ) {
+
+        return;
+
+    }
+
+
+    if (
+        !pendingSave
+    ) {
+
+        return;
+
+    }
+
+
+    if (
+        saveBusy
+    ) {
+
+        return;
+
+    }
+
+
+    if (
+        pendingSnapshot ===
+        null
+    ) {
+
+        pendingSnapshot =
+            deep(
+                state.شیتونه
+            );
+
+    }
+
+
+    const snapshotToSave =
+        deep(
+            pendingSnapshot
+        );
+
+
+    const generationToSave =
+        saveGeneration;
+
+
+    pendingSave =
+        false;
+
+
+    saveBusy =
+        true;
+
+
+    try {
+
+        await writeSnapshot(
+            snapshotToSave,
+            generationToSave,
+            true
+        );
+
+
+        retryAttempt =
+            0;
+
+
+        saveFailedNoticeShown =
+            false;
+
+
+    } catch (
+        error
+    ) {
+
+        pendingSnapshot =
+            snapshotToSave;
+
+
+        pendingSave =
+            true;
+
+
+        if (
+            isRetryableError(
+                error
             )
-        );
+        ) {
 
-    if (
-        !Number.isFinite(
-            raw
+            scheduleRetry(
+                false
+            );
+
+        } else {
+
+            if (
+                !saveFailedNoticeShown
+            ) {
+
+                saveFailedNoticeShown =
+                    true;
+
+
+                showMessage(
+                    firebaseErrorText(
+                        error
+                    ),
+                    "danger"
+                );
+
+            }
+
+        }
+
+    } finally {
+
+        saveBusy =
+            false;
+
+
+        if (
+            saveGeneration >
+            generationToSave
+        ) {
+
+            pendingSnapshot =
+                deep(
+                    state.شیتونه
+                );
+
+
+            pendingSave =
+                true;
+
+
+            saveLocalBackup();
+
+        }
+
+
+        if (
+            pendingSave &&
+            !retryTimer
+        ) {
+
+            clearTimeout(
+                saveTimer
+            );
+
+
+            saveTimer =
+                setTimeout(
+                    () => {
+
+                        processSaveQueue();
+
+                    },
+                    250
+                );
+
+        }
+
+    }
+
+}
+
+
+/* =====================================================
+   RETRY
+===================================================== */
+
+function retryDelay() {
+
+    const steps = [
+
+        1500,
+
+        2500,
+
+        4000,
+
+        6000,
+
+        9000,
+
+        12000,
+
+        16000,
+
+        MAX_RETRY_DELAY
+
+    ];
+
+
+    return steps[
+        Math.min(
+            retryAttempt,
+            steps.length -
+                1
         )
+    ];
+
+}
+
+
+function scheduleRetry(
+    showNotice = false
+) {
+
+    if (
+        pageLeaving
     ) {
 
-        return text;
+        return;
 
     }
 
+
     if (
-        cell.numberFormat ===
-        "percent"
+        retryTimer
     ) {
 
-        return `${raw}%`;
+        return;
 
     }
 
+
     if (
-        cell.numberFormat ===
-        "thousands"
+        navigator.onLine ===
+        false
     ) {
 
-        return raw.toLocaleString(
-            "en-US"
+        return;
+
+    }
+
+
+    const delay =
+        retryDelay();
+
+
+    retryAttempt +=
+        1;
+
+
+    if (
+        showNotice
+    ) {
+
+        showMessage(
+            "⚠️ اړیکه لنډمهاله کمزورې ده؛ معلومات ساتل شوي او Save به بیا هڅه وکړي.",
+            "warning"
+        );
+
+    } else if (
+        els.statusText &&
+        isSuper()
+    ) {
+
+        els.statusText.textContent =
+            "بدلونونه محلي خوندي دي؛ Firebase ته د همغږۍ بیا هڅه روانه ده.";
+
+    }
+
+
+    retryTimer =
+        setTimeout(
+            async () => {
+
+                retryTimer =
+                    null;
+
+
+                if (
+                    pendingSave
+                ) {
+
+                    await processSaveQueue();
+
+                }
+
+            },
+            delay
+        );
+
+}
+
+
+/* =====================================================
+   ONLINE / OFFLINE
+===================================================== */
+
+window.addEventListener(
+    "online",
+    () => {
+
+        if (
+            !isSuper()
+        ) {
+
+            return;
+
+        }
+
+
+        retryAttempt =
+            0;
+
+
+        if (
+            els.statusText
+        ) {
+
+            els.statusText.textContent =
+                "انټرنېټ بېرته وصل شو؛ د Formic پاتې بدلونونه همغږي کېږي.";
+
+        }
+
+
+        clearTimeout(
+            saveTimer
+        );
+
+
+        saveTimer =
+            setTimeout(
+                () => {
+
+                    processSaveQueue();
+
+                },
+                300
+            );
+
+    }
+);
+
+
+window.addEventListener(
+    "offline",
+    () => {
+
+        if (
+            !isSuper()
+        ) {
+
+            return;
+
+        }
+
+
+        if (
+            els.statusText
+        ) {
+
+            els.statusText.textContent =
+                "انټرنېټ لنډمهاله نشته؛ Formic محلي بدلونونه ساتي او وروسته یې Firebase سره همغږي کوي.";
+
+        }
+
+    }
+);
+
+
+/* =====================================================
+   LOW LEVEL WRITE
+===================================================== */
+
+async function writeSnapshot(
+    snapshotData,
+    generationToSave,
+    auto = true
+) {
+
+    if (
+        !isSuper()
+    ) {
+
+        const error =
+            new Error(
+                "Superadmin permission required."
+            );
+
+
+        error.code =
+            "permission-denied";
+
+
+        throw error;
+
+    }
+
+
+    await setDoc(
+        formicDoc,
+        {
+
+            شیتونه:
+                deep(
+                    snapshotData
+                ),
+
+            تازه_کولو_وخت:
+                serverTimestamp(),
+
+            بدلون_ورکوونکی:
+                currentUser?.uid ||
+                "",
+
+            بدلون_ورکوونکی_برېښنالیک:
+                currentUser?.email ||
+                ""
+
+        },
+        {
+            merge:
+                true
+        }
+    );
+
+
+    savedGeneration =
+        generationToSave;
+
+
+    try {
+
+        localStorage.setItem(
+            LOCAL_BACKUP_KEY,
+            JSON.stringify({
+
+                شیتونه:
+                    deep(
+                        snapshotData
+                    ),
+
+                updatedAt:
+                    Date.now(),
+
+                synced:
+                    true
+
+            })
+        );
+
+    } catch (
+        error
+    ) {
+
+        console.warn(
+            "FORMIC BACKUP UPDATE:",
+            error
         );
 
     }
 
+
     if (
-        cell.numberFormat ===
-        "number"
+        els.statusText &&
+        auto &&
+        isSuper()
     ) {
 
-        return String(
-            raw
+        els.statusText.textContent =
+            "ټول بدلونونه په بریالیتوب Firebase سره همغږي شول.";
+
+    }
+
+
+    if (
+        !auto
+    ) {
+
+        showMessage(
+            "✅ فورمیک په بریالیتوب Firebase ته تلپاتې خوندي شو.",
+            "success"
         );
 
     }
 
-    return text;
+}
+
+
+/* =====================================================
+   MANUAL SAVE
+===================================================== */
+
+async function manualSave() {
+
+    if (
+        !isSuper()
+    ) {
+
+        showMessage(
+            "یوازې Superadmin معلومات خوندي کولی شي.",
+            "warning"
+        );
+
+        return;
+
+    }
+
+
+    clearTimeout(
+        saveTimer
+    );
+
+
+    if (
+        retryTimer
+    ) {
+
+        clearTimeout(
+            retryTimer
+        );
+
+
+        retryTimer =
+            null;
+
+    }
+
+
+    if (
+        saveBusy
+    ) {
+
+        pendingSnapshot =
+            deep(
+                state.شیتونه
+            );
+
+
+        pendingSave =
+            true;
+
+
+        showMessage(
+            "⏳ پخوانی Save روان دی؛ نوی بدلون هم د Save په کتار کې شامل شو.",
+            "warning"
+        );
+
+
+        return;
+
+    }
+
+
+    saveBusy =
+        true;
+
+
+    const snapshotToSave =
+        deep(
+            state.شیتونه
+        );
+
+
+    const generationToSave =
+        saveGeneration;
+
+
+    pendingSave =
+        false;
+
+
+    saveLocalBackup();
+
+
+    if (
+        els.save
+    ) {
+
+        els.save.disabled =
+            true;
+
+
+        els.save.textContent =
+            "⏳ خوندي کېږي...";
+
+    }
+
+
+    if (
+        els.permanentSave
+    ) {
+
+        els.permanentSave.disabled =
+            true;
+
+
+        els.permanentSave.textContent =
+            "⏳ خوندي کېږي...";
+
+
+        els.permanentSave.classList.add(
+            "خوندي-کېږي"
+        );
+
+    }
+
+
+    try {
+
+        await writeSnapshot(
+            snapshotToSave,
+            generationToSave,
+            false
+        );
+
+
+        retryAttempt =
+            0;
+
+
+        saveFailedNoticeShown =
+            false;
+
+
+    } catch (
+        error
+    ) {
+
+        pendingSnapshot =
+            snapshotToSave;
+
+
+        pendingSave =
+            true;
+
+
+        if (
+            isRetryableError(
+                error
+            )
+        ) {
+
+            scheduleRetry(
+                true
+            );
+
+        } else {
+
+            showMessage(
+                firebaseErrorText(
+                    error
+                ),
+                "danger"
+            );
+
+        }
+
+    } finally {
+
+        saveBusy =
+            false;
+
+
+        if (
+            els.save
+        ) {
+
+            els.save.disabled =
+                !isSuper();
+
+
+            els.save.textContent =
+                "💾 خوندي کول";
+
+        }
+
+
+        if (
+            els.permanentSave
+        ) {
+
+            els.permanentSave.disabled =
+                !isSuper();
+
+
+            els.permanentSave.textContent =
+                "💾 تلپاتې خوندي کول";
+
+
+            els.permanentSave.classList.remove(
+                "خوندي-کېږي"
+            );
+
+        }
+
+
+        if (
+            saveGeneration >
+            generationToSave
+        ) {
+
+            pendingSnapshot =
+                deep(
+                    state.شیتونه
+                );
+
+
+            pendingSave =
+                true;
+
+
+            saveLocalBackup();
+
+        }
+
+
+        if (
+            pendingSave &&
+            !retryTimer
+        ) {
+
+            clearTimeout(
+                saveTimer
+            );
+
+
+            saveTimer =
+                setTimeout(
+                    () => {
+
+                        processSaveQueue();
+
+                    },
+                    250
+                );
+
+        }
+
+    }
+
+}
+
+
+/* =====================================================
+   LOAD FORMIC
+===================================================== */
+
+async function loadFormic() {
+
+    let remoteLoaded =
+        false;
+
+
+    try {
+
+        const result =
+            await getDoc(
+                formicDoc
+            );
+
+
+        if (
+            result.exists()
+        ) {
+
+            state =
+                normalizeState(
+                    result.data()
+                );
+
+
+            remoteLoaded =
+                true;
+
+        } else {
+
+            state =
+                normalizeState(
+                    {}
+                );
+
+        }
+
+    } catch (
+        error
+    ) {
+
+        console.error(
+            "FORMIC LOAD ERROR:",
+            error
+        );
+
+
+        const local =
+            loadLocalBackup();
+
+
+        if (
+            local?.شیتونه?.length
+        ) {
+
+            state =
+                normalizeState(
+                    local
+                );
+
+        } else {
+
+            state =
+                normalizeState(
+                    {}
+                );
+
+        }
+
+
+        if (
+            !isRetryableError(
+                error
+            )
+        ) {
+
+            showMessage(
+                firebaseErrorText(
+                    error
+                ),
+                "danger"
+            );
+
+        }
+
+    }
+
+
+    if (
+        !remoteLoaded &&
+        isSuper()
+    ) {
+
+        pendingSnapshot =
+            deep(
+                state.شیتونه
+            );
+
+
+        pendingSave =
+            true;
+
+
+        saveLocalBackup();
+
+
+        if (
+            navigator.onLine
+        ) {
+
+            scheduleRetry(
+                false
+            );
+
+        }
+
+    }
+
+
+    if (
+        remoteLoaded &&
+        isSuper()
+    ) {
+
+        saveLocalBackup();
+
+    }
+
+
+    currentSheetId =
+        state.شیتونه[0]
+            ?.پېژند ||
+        "";
+
+
+    selected =
+        [];
+
+
+    renderAll();
+
+}
+
+
+/* =====================================================
+   RENDER SHEETS
+===================================================== */
+
+function renderSheets() {
+
+    if (
+        !els.sheets
+    ) {
+
+        return;
+
+    }
+
+
+    els.sheets.innerHTML =
+        "";
+
+
+    state.شیتونه.forEach(
+        sh => {
+
+            const button =
+                document.createElement(
+                    "button"
+                );
+
+
+            button.type =
+                "button";
+
+
+            button.className =
+                "فورمیک-شیت";
+
+
+            if (
+                sh.پېژند ===
+                currentSheetId
+            ) {
+
+                button.classList.add(
+                    "فعال"
+                );
+
+            }
+
+
+            button.textContent =
+                sh.نوم;
+
+
+            safeEvent(
+                button,
+                "click",
+                () => {
+
+                    currentSheetId =
+                        sh.پېژند;
+
+
+                    selected =
+                        [];
+
+
+                    renderAll();
+
+                }
+            );
+
+
+            safeEvent(
+                button,
+                "dblclick",
+                () => {
+
+                    if (
+                        !isSuper()
+                    ) {
+
+                        return;
+
+                    }
+
+
+                    const name =
+                        window.prompt(
+                            "د شیت نوی نوم:",
+                            sh.نوم
+                        );
+
+
+                    if (
+                        name ===
+                        null
+                    ) {
+
+                        return;
+
+                    }
+
+
+                    const newName =
+                        clean(
+                            name
+                        );
+
+
+                    if (
+                        !newName
+                    ) {
+
+                        return;
+
+                    }
+
+
+                    mutate(
+                        () => {
+
+                            sh.نوم =
+                                newName;
+
+                        }
+                    );
+
+                }
+            );
+
+
+            els.sheets.appendChild(
+                button
+            );
+
+        }
+    );
 
 }
 
@@ -1335,52 +2983,70 @@ function renderCellStyle(
     wrapper.style.backgroundColor =
         cell.fillColor;
 
+
     wrapper.style.justifyContent =
-        cell.vAlign === "top"
+        cell.vAlign ===
+            "top"
+
             ? "flex-start"
-            : cell.vAlign === "bottom"
+
+            : cell.vAlign ===
+                "bottom"
+
                 ? "flex-end"
+
                 : "center";
+
 
     textarea.style.fontFamily =
         cell.fontFamily;
 
+
     textarea.style.fontSize =
         `${cell.fontSize}px`;
 
+
     textarea.style.color =
         cell.fontColor;
+
 
     textarea.style.fontWeight =
         cell.bold
             ? "900"
             : "400";
 
+
     textarea.style.fontStyle =
         cell.italic
             ? "italic"
             : "normal";
+
 
     textarea.style.textDecoration =
         cell.underline
             ? "underline"
             : "none";
 
+
     textarea.style.textAlign =
         cell.hAlign;
+
 
     textarea.style.whiteSpace =
         cell.wrap
             ? "pre-wrap"
             : "nowrap";
 
+
     textarea.style.overflow =
         cell.wrap
             ? "auto"
             : "hidden";
 
+
     textarea.style.border =
         "0";
+
 
     wrapper.style.border =
         cell.border;
@@ -1389,128 +3055,14 @@ function renderCellStyle(
 
 
 /* =====================================================
-   RENDER SHEETS
-===================================================== */
-
-function renderSheets() {
-
-    if (!els.sheets) {
-        return;
-    }
-
-    els.sheets.innerHTML =
-        "";
-
-    state.شیتونه.forEach(
-        sh => {
-
-            const button =
-                document.createElement(
-                    "button"
-                );
-
-            button.type =
-                "button";
-
-            button.className =
-                "فورمیک-شیت";
-
-            if (
-                sh.پېژند ===
-                currentSheetId
-            ) {
-
-                button.classList.add(
-                    "فعال"
-                );
-
-            }
-
-            button.textContent =
-                sh.نوم;
-
-            safeEvent(
-                button,
-                "click",
-                () => {
-
-                    currentSheetId =
-                        sh.پېژند;
-
-                    selected = [];
-
-                    renderAll();
-
-                }
-            );
-
-            safeEvent(
-                button,
-                "dblclick",
-                () => {
-
-                    if (
-                        !isSuper()
-                    ) {
-
-                        return;
-
-                    }
-
-                    const name =
-                        window.prompt(
-                            "د شیت نوی نوم:",
-                            sh.نوم
-                        );
-
-                    if (
-                        name ===
-                        null
-                    ) {
-
-                        return;
-
-                    }
-
-                    const newName =
-                        clean(
-                            name
-                        );
-
-                    if (!newName) {
-                        return;
-                    }
-
-                    mutate(
-                        () => {
-
-                            sh.نوم =
-                                newName;
-
-                        }
-                    );
-
-                }
-            );
-
-            els.sheets.appendChild(
-                button
-            );
-
-        }
-    );
-
-}
-
-
-/* =====================================================
-   RENDER TABLE
+   TABLE
 ===================================================== */
 
 function renderTable() {
 
     const sh =
         getSheet();
+
 
     if (
         !sh ||
@@ -1520,6 +3072,7 @@ function renderTable() {
         return;
 
     }
+
 
     sh.rowHeights =
         Array.from(
@@ -1539,14 +3092,6 @@ function renderTable() {
                 )
         );
 
-    if (
-        !sh.حجرې ||
-        typeof sh.حجرې !== "object"
-    ) {
-
-        sh.حجرې = {};
-
-    }
 
     if (
         !Array.isArray(
@@ -1554,12 +3099,27 @@ function renderTable() {
         )
     ) {
 
-        sh.merges = [];
+        sh.merges =
+            [];
 
     }
 
+
+    if (
+        !sh.حجرې ||
+        typeof sh.حجرې !==
+        "object"
+    ) {
+
+        sh.حجرې =
+            {};
+
+    }
+
+
     els.table.innerHTML =
         "";
+
 
     const totalWidth =
         70 +
@@ -1575,27 +3135,31 @@ function renderTable() {
             0
         );
 
+
     els.table.style.width =
         `${totalWidth}px`;
 
-    /* COLGROUP */
 
     const colgroup =
         document.createElement(
             "colgroup"
         );
 
+
     const rowCol =
         document.createElement(
             "col"
         );
 
+
     rowCol.style.width =
         "70px";
+
 
     colgroup.appendChild(
         rowCol
     );
+
 
     sh.ستنې.forEach(
         column => {
@@ -1605,8 +3169,10 @@ function renderTable() {
                     "col"
                 );
 
+
             col.style.width =
                 `${column.پلنوالی}px`;
+
 
             colgroup.appendChild(
                 col
@@ -1615,36 +3181,42 @@ function renderTable() {
         }
     );
 
+
     els.table.appendChild(
         colgroup
     );
 
-    /* HEADER */
 
     const thead =
         document.createElement(
             "thead"
         );
 
+
     const headerRow =
         document.createElement(
             "tr"
         );
+
 
     const numberHeader =
         document.createElement(
             "th"
         );
 
+
     numberHeader.className =
         "فورمیک-شمېره";
+
 
     numberHeader.textContent =
         "#";
 
+
     headerRow.appendChild(
         numberHeader
     );
+
 
     sh.ستنې.forEach(
         (
@@ -1657,44 +3229,56 @@ function renderTable() {
                     "th"
                 );
 
+
             th.style.width =
                 `${column.پلنوالی}px`;
 
+
             th.style.minWidth =
                 `${column.پلنوالی}px`;
+
 
             const box =
                 document.createElement(
                     "div"
                 );
 
+
             box.className =
                 "فورمیک-سر-خانه";
+
 
             const top =
                 document.createElement(
                     "div"
                 );
 
+
             top.className =
                 "فورمیک-سر-تڼۍ";
+
 
             const nameInput =
                 document.createElement(
                     "input"
                 );
 
+
             nameInput.type =
                 "text";
+
 
             nameInput.className =
                 "فورمیک-ستون-نوم";
 
+
             nameInput.value =
                 column.نوم;
 
+
             nameInput.disabled =
                 !isSuper();
+
 
             safeEvent(
                 nameInput,
@@ -1709,12 +3293,16 @@ function renderTable() {
 
                     }
 
+
                     const value =
                         clean(
                             nameInput.value
                         );
 
-                    if (!value) {
+
+                    if (
+                        !value
+                    ) {
 
                         nameInput.value =
                             column.نوم;
@@ -1722,6 +3310,7 @@ function renderTable() {
                         return;
 
                     }
+
 
                     mutate(
                         () => {
@@ -1735,25 +3324,32 @@ function renderTable() {
                 }
             );
 
+
             const deleteButton =
                 document.createElement(
                     "button"
                 );
 
+
             deleteButton.type =
                 "button";
+
 
             deleteButton.className =
                 "فورمیک-ستون-حذف";
 
+
             deleteButton.textContent =
                 "×";
+
 
             deleteButton.title =
                 "ستون حذف کړه";
 
+
             deleteButton.disabled =
                 !isSuper();
+
 
             safeEvent(
                 deleteButton,
@@ -1762,6 +3358,7 @@ function renderTable() {
 
                     event.stopPropagation();
 
+
                     deleteColumn(
                         columnIndex
                     );
@@ -1769,54 +3366,66 @@ function renderTable() {
                 }
             );
 
+
             top.append(
                 nameInput,
                 deleteButton
             );
 
-            /* FILTER */
 
             const filterWrap =
                 document.createElement(
                     "div"
                 );
 
+
             filterWrap.className =
                 "فورمیک-فلټر-برخه";
+
 
             const filterButton =
                 document.createElement(
                     "button"
                 );
 
+
             filterButton.type =
                 "button";
+
 
             filterButton.className =
                 "فورمیک-فلټر-تڼۍ";
 
+
             filterButton.textContent =
                 "🔽";
 
+
             filterButton.title =
                 "فلټر خلاص/بند کړه";
+
 
             const filter =
                 document.createElement(
                     "input"
                 );
 
+
             filter.type =
                 "search";
+
 
             filter.className =
                 "فورمیک-فلټر";
 
+
             filter.placeholder =
                 "لټون...";
 
+
             filter.hidden =
                 true;
+
 
             safeEvent(
                 filterButton,
@@ -1826,10 +3435,12 @@ function renderTable() {
                     filter.hidden =
                         !filter.hidden;
 
+
                     filterButton.classList.toggle(
                         "فعال",
                         !filter.hidden
                     );
+
 
                     if (
                         !filter.hidden
@@ -1852,46 +3463,49 @@ function renderTable() {
                 }
             );
 
+
             safeEvent(
                 filter,
                 "input",
-                () => {
-
+                () =>
                     applyFilter(
                         columnIndex,
                         filter.value
-                    );
-
-                }
+                    )
             );
+
 
             filterWrap.append(
                 filterButton,
                 filter
             );
 
+
             box.append(
                 top,
                 filterWrap
             );
 
-            /* RESIZE HANDLES */
 
             const leftHandle =
                 document.createElement(
                     "span"
                 );
 
+
             leftHandle.className =
                 "فورمیک-ستون-ریز-چپ";
+
 
             const rightHandle =
                 document.createElement(
                     "span"
                 );
 
+
             rightHandle.className =
                 "فورمیک-ستون-ریز-راست";
+
 
             installColumnResize(
                 leftHandle,
@@ -1899,17 +3513,20 @@ function renderTable() {
                 "left"
             );
 
+
             installColumnResize(
                 rightHandle,
                 columnIndex,
                 "right"
             );
 
+
             th.append(
                 box,
                 leftHandle,
                 rightHandle
             );
+
 
             headerRow.appendChild(
                 th
@@ -1918,23 +3535,26 @@ function renderTable() {
         }
     );
 
+
     thead.appendChild(
         headerRow
     );
+
 
     els.table.appendChild(
         thead
     );
 
-    /* BODY */
 
     const tbody =
         document.createElement(
             "tbody"
         );
 
+
     const occupied =
         new Set();
+
 
     for (
         let row = 0;
@@ -1947,6 +3567,7 @@ function renderTable() {
                 "tr"
             );
 
+
         const rowHeight =
             Math.max(
                 35,
@@ -1955,62 +3576,76 @@ function renderTable() {
                 ) || 55
             );
 
+
         tr.style.height =
             `${rowHeight}px`;
 
-        /* ROW HEADER */
 
         const rowHead =
             document.createElement(
                 "td"
             );
 
+
         rowHead.className =
             "فورمیک-شمېره";
 
+
         rowHead.style.height =
             `${rowHeight}px`;
+
 
         const rowBox =
             document.createElement(
                 "div"
             );
 
+
         rowBox.className =
             "فورمیک-کرښې-سر";
+
 
         const rowNumber =
             document.createElement(
                 "span"
             );
 
+
         rowNumber.className =
             "فورمیک-کرښې-شمېره";
+
 
         rowNumber.textContent =
             toPashtoDigits(
                 row + 1
             );
 
+
         const rowDelete =
             document.createElement(
                 "button"
             );
 
+
         rowDelete.type =
             "button";
+
 
         rowDelete.className =
             "فورمیک-کرښې-حذف";
 
+
         rowDelete.textContent =
             "×";
+
 
         rowDelete.title =
             "کرښه حذف کړه";
 
+
         rowDelete.disabled =
             !isSuper();
+
 
         safeEvent(
             rowDelete,
@@ -2019,6 +3654,7 @@ function renderTable() {
 
                 event.stopPropagation();
 
+
                 deleteRow(
                     row
                 );
@@ -2026,26 +3662,32 @@ function renderTable() {
             }
         );
 
+
         rowBox.append(
             rowNumber,
             rowDelete
         );
+
 
         const topResize =
             document.createElement(
                 "span"
             );
 
+
         topResize.className =
             "فورمیک-کرښې-ریز-پورته";
+
 
         const bottomResize =
             document.createElement(
                 "span"
             );
 
+
         bottomResize.className =
             "فورمیک-کرښې-ریز-لاندې";
+
 
         installRowResize(
             topResize,
@@ -2053,11 +3695,13 @@ function renderTable() {
             "top"
         );
 
+
         installRowResize(
             bottomResize,
             row,
             "bottom"
         );
+
 
         rowHead.append(
             rowBox,
@@ -2065,11 +3709,11 @@ function renderTable() {
             bottomResize
         );
 
+
         tr.appendChild(
             rowHead
         );
 
-        /* CELLS */
 
         for (
             let col = 0;
@@ -2087,6 +3731,7 @@ function renderTable() {
 
             }
 
+
             const merge =
                 mergeAt(
                     sh,
@@ -2094,42 +3739,60 @@ function renderTable() {
                     col
                 );
 
+
             const start =
                 merge
+
                     ? {
+
                         row:
                             merge.startRow,
+
                         col:
                             merge.startCol
+
                     }
+
                     : {
+
                         row,
+
                         col
+
                     };
+
 
             const rowSpan =
                 merge
                     ? merge.rowSpan
                     : 1;
 
+
             const colSpan =
                 merge
                     ? merge.colSpan
                     : 1;
 
+
             for (
-                let r = start.row;
+                let r =
+                    start.row;
+
                 r <
                     start.row +
                     rowSpan;
+
                 r++
             ) {
 
                 for (
-                    let c = start.col;
+                    let c =
+                        start.col;
+
                     c <
                         start.col +
                         colSpan;
+
                     c++
                 ) {
 
@@ -2141,49 +3804,65 @@ function renderTable() {
 
             }
 
+
             const td =
                 document.createElement(
                     "td"
                 );
 
+
             td.rowSpan =
                 rowSpan;
 
+
             td.colSpan =
                 colSpan;
+
 
             const column =
                 sh.ستنې[
                     start.col
                 ];
 
-            if (!column) {
+
+            if (
+                !column
+            ) {
+
                 continue;
+
             }
+
 
             td.style.width =
                 `${column.پلنوالی}px`;
 
+
             td.style.minWidth =
                 `${column.پلنوالی}px`;
+
 
             const wrapper =
                 document.createElement(
                     "div"
                 );
 
+
             wrapper.className =
                 "فورمیک-خانه-پوښ";
+
 
             wrapper.dataset.row =
                 String(
                     start.row
                 );
 
+
             wrapper.dataset.col =
                 String(
                     start.col
                 );
+
 
             const key =
                 cellKey(
@@ -2191,60 +3870,62 @@ function renderTable() {
                     start.col
                 );
 
+
             const cell =
                 normalizeCell(
                     sh.حجرې[key]
                 );
 
+
             sh.حجرې[key] =
                 cell;
+
 
             const textarea =
                 document.createElement(
                     "textarea"
                 );
 
+
             textarea.className =
                 "فورمیک-خانه";
 
+
             textarea.value =
-                formatDisplayValue(
-                    cell
-                );
+                cell.متن;
+
 
             textarea.disabled =
                 !isSuper();
 
+
             textarea.spellcheck =
                 false;
+
 
             safeEvent(
                 textarea,
                 "pointerdown",
-                event => {
-
+                event =>
                     selectCell(
                         start.row,
                         start.col,
                         event.shiftKey
-                    );
-
-                }
+                    )
             );
+
 
             safeEvent(
                 textarea,
                 "focus",
-                () => {
-
+                () =>
                     selectCell(
                         start.row,
                         start.col,
                         false
-                    );
-
-                }
+                    )
             );
+
 
             safeEvent(
                 textarea,
@@ -2259,19 +3940,25 @@ function renderTable() {
 
                     }
 
+
                     sh.حجرې[key] =
                         {
+
                             ...normalizeCell(
                                 sh.حجرې[key]
                             ),
+
                             متن:
                                 textarea.value
+
                         };
 
-                    scheduleSave();
+
+                    markChanged();
 
                 }
             );
+
 
             renderCellStyle(
                 wrapper,
@@ -2279,13 +3966,16 @@ function renderTable() {
                 cell
             );
 
+
             wrapper.appendChild(
                 textarea
             );
 
+
             td.appendChild(
                 wrapper
             );
+
 
             tr.appendChild(
                 td
@@ -2293,17 +3983,21 @@ function renderTable() {
 
         }
 
+
         tbody.appendChild(
             tr
         );
 
     }
 
+
     els.table.appendChild(
         tbody
     );
 
+
     updateSelectionUI();
+
 
     syncToolbar();
 
@@ -2330,24 +4024,28 @@ function renderAll() {
 
     }
 
-    const exists =
-        state.شیتونه.some(
-            item =>
-                item.پېژند ===
-                currentSheetId
-        );
 
-    if (!exists) {
+    if (
+        !state.شیتونه.some(
+            sheet =>
+                sheet.پېژند ===
+                currentSheetId
+        )
+    ) {
 
         currentSheetId =
             state.شیتونه[0]
-                ?.پېژند || "";
+                ?.پېژند ||
+            "";
 
     }
 
+
     renderSheets();
 
+
     renderTable();
+
 
     updatePermissions();
 
@@ -2377,37 +4075,47 @@ function installColumnResize(
 
             }
 
+
             const sh =
                 getSheet();
 
-            if (!sh) {
-                return;
-            }
 
             const column =
-                sh.ستنې[index];
+                sh?.ستنې?.[index];
 
-            if (!column) {
+
+            if (
+                !column
+            ) {
+
                 return;
+
             }
+
 
             event.preventDefault();
 
+
             event.stopPropagation();
+
 
             const previous =
                 snapshot();
 
+
             const startX =
                 event.clientX;
+
 
             const startWidth =
                 Number(
                     column.پلنوالی
                 ) || 170;
 
+
             document.body.style.userSelect =
                 "none";
+
 
             const move =
                 moveEvent => {
@@ -2416,14 +4124,17 @@ function installColumnResize(
                         moveEvent.clientX -
                         startX;
 
+
                     if (
-                        side === "left"
+                        side ===
+                        "left"
                     ) {
 
                         delta =
                             -delta;
 
                     }
+
 
                     column.پلنوالی =
                         Math.max(
@@ -2434,12 +4145,16 @@ function installColumnResize(
                             )
                         );
 
-                    const number =
-                        index + 2;
+
+                    const nth =
+                        index +
+                        2;
+
 
                     els.table
                         ?.querySelectorAll(
-                            `th:nth-child(${number}), td:nth-child(${number})`
+                            `th:nth-child(${nth}),
+                             td:nth-child(${nth})`
                         )
                         .forEach(
                             cell => {
@@ -2455,45 +4170,55 @@ function installColumnResize(
 
                 };
 
+
             const end =
                 () => {
 
                     document.body.style.userSelect =
                         "";
 
+
                     window.removeEventListener(
                         "pointermove",
                         move
                     );
+
 
                     window.removeEventListener(
                         "pointerup",
                         end
                     );
 
+
                     undoStack.push(
                         previous
                     );
 
+
                     if (
                         undoStack.length >
-                        50
+                        MAX_UNDO
                     ) {
 
                         undoStack.shift();
 
                     }
 
-                    redoStack = [];
 
-                    scheduleSave();
+                    redoStack =
+                        [];
+
+
+                    markChanged();
 
                 };
+
 
             window.addEventListener(
                 "pointermove",
                 move
             );
+
 
             window.addEventListener(
                 "pointerup",
@@ -2529,30 +4254,43 @@ function installRowResize(
 
             }
 
+
             const sh =
                 getSheet();
 
-            if (!sh) {
+
+            if (
+                !sh
+            ) {
+
                 return;
+
             }
+
 
             event.preventDefault();
 
+
             event.stopPropagation();
+
 
             const previous =
                 snapshot();
 
+
             const startY =
                 event.clientY;
+
 
             const startHeight =
                 Number(
                     sh.rowHeights[row]
                 ) || 55;
 
+
             document.body.style.userSelect =
                 "none";
+
 
             const move =
                 moveEvent => {
@@ -2561,14 +4299,17 @@ function installRowResize(
                         moveEvent.clientY -
                         startY;
 
+
                     if (
-                        side === "top"
+                        side ===
+                        "top"
                     ) {
 
                         delta =
                             -delta;
 
                     }
+
 
                     sh.rowHeights[row] =
                         Math.max(
@@ -2579,12 +4320,16 @@ function installRowResize(
                             )
                         );
 
+
                     const tr =
                         els.table?.querySelector(
                             `tbody tr:nth-child(${row + 1})`
                         );
 
-                    if (tr) {
+
+                    if (
+                        tr
+                    ) {
 
                         tr.style.height =
                             `${sh.rowHeights[row]}px`;
@@ -2593,45 +4338,55 @@ function installRowResize(
 
                 };
 
+
             const end =
                 () => {
 
                     document.body.style.userSelect =
                         "";
 
+
                     window.removeEventListener(
                         "pointermove",
                         move
                     );
+
 
                     window.removeEventListener(
                         "pointerup",
                         end
                     );
 
+
                     undoStack.push(
                         previous
                     );
 
+
                     if (
                         undoStack.length >
-                        50
+                        MAX_UNDO
                     ) {
 
                         undoStack.shift();
 
                     }
 
-                    redoStack = [];
 
-                    scheduleSave();
+                    redoStack =
+                        [];
+
+
+                    markChanged();
 
                 };
+
 
             window.addEventListener(
                 "pointermove",
                 move
             );
+
 
             window.addEventListener(
                 "pointerup",
@@ -2658,29 +4413,38 @@ function addSheet() {
 
     }
 
-    const nextNumber =
-        state.شیتونه.length + 1;
+
+    const number =
+        state.شیتونه.length +
+        1;
+
 
     const name =
         window.prompt(
             "د نوي شیت نوم:",
-            `شیت ${nextNumber}`
+            `شیت ${number}`
         );
 
+
     if (
-        name === null
+        name ===
+        null
     ) {
 
         return;
 
     }
 
+
     const cleanName =
         clean(
             name
         );
 
-    if (!cleanName) {
+
+    if (
+        !cleanName
+    ) {
 
         showMessage(
             "د شیت نوم خالي نه شي کېدای.",
@@ -2691,16 +4455,19 @@ function addSheet() {
 
     }
 
-    const timestamp =
-        Date.now();
 
     mutate(
         () => {
 
-            const id =
-                `شیت_${timestamp}`;
+            const time =
+                Date.now();
 
-            const newSheet = {
+
+            const id =
+                `شیت_${time}`;
+
+
+            state.شیتونه.push({
 
                 پېژند:
                     id,
@@ -2711,8 +4478,9 @@ function addSheet() {
                 ستنې: [
 
                     {
+
                         پېژند:
-                            `ستون_${timestamp}_1`,
+                            `ستون_${time}_1`,
 
                         نوم:
                             "لومړۍ ستنه",
@@ -2723,8 +4491,9 @@ function addSheet() {
                     },
 
                     {
+
                         پېژند:
-                            `ستون_${timestamp}_2`,
+                            `ستون_${time}_2`,
 
                         نوم:
                             "دوهمه ستنه",
@@ -2735,8 +4504,9 @@ function addSheet() {
                     },
 
                     {
+
                         پېژند:
-                            `ستون_${timestamp}_3`,
+                            `ستون_${time}_3`,
 
                         نوم:
                             "معلومات",
@@ -2764,19 +4534,19 @@ function addSheet() {
                 merges:
                     []
 
-            };
+            });
 
-            state.شیتونه.push(
-                newSheet
-            );
 
             currentSheetId =
                 id;
 
-            selected = [];
+
+            selected =
+                [];
 
         }
     );
+
 
     showMessage(
         `«${cleanName}» شیت جوړ شو.`,
@@ -2800,33 +4570,49 @@ function addColumn() {
 
     }
 
+
     const sh =
         getSheet();
 
-    if (!sh) {
-        return;
-    }
-
-    const name =
-        window.prompt(
-            "د نوي ستون نوم:",
-            `ستون ${sh.ستنې.length + 1}`
-        );
 
     if (
-        name === null
+        !sh
     ) {
 
         return;
 
     }
 
+
+    const name =
+        window.prompt(
+            "د نوي ستون نوم:",
+            `ستون ${
+                sh.ستنې.length +
+                1
+            }`
+        );
+
+
+    if (
+        name ===
+        null
+    ) {
+
+        return;
+
+    }
+
+
     const cleanName =
         clean(
             name
         );
 
-    if (!cleanName) {
+
+    if (
+        !cleanName
+    ) {
 
         showMessage(
             "د ستون نوم خالي نه شي کېدای.",
@@ -2837,13 +4623,14 @@ function addColumn() {
 
     }
 
+
     mutate(
         () => {
 
             sh.ستنې.push({
 
                 پېژند:
-                    `ستون_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+                    `ستون_${Date.now()}_${Math.random().toString(36).slice(2,8)}`,
 
                 نوم:
                     cleanName,
@@ -2855,6 +4642,7 @@ function addColumn() {
 
         }
     );
+
 
     showMessage(
         `«${cleanName}» ستون اضافه شو.`,
@@ -2878,12 +4666,19 @@ function addRow() {
 
     }
 
+
     const sh =
         getSheet();
 
-    if (!sh) {
+
+    if (
+        !sh
+    ) {
+
         return;
+
     }
+
 
     mutate(
         () => {
@@ -2891,12 +4686,14 @@ function addRow() {
             sh.کرښې +=
                 1;
 
+
             sh.rowHeights.push(
                 55
             );
 
         }
     );
+
 
     showMessage(
         "نوې کرښه اضافه شوه.",
@@ -2920,6 +4717,7 @@ function deleteSheet() {
 
     }
 
+
     if (
         state.شیتونه.length <=
         1
@@ -2934,21 +4732,30 @@ function deleteSheet() {
 
     }
 
+
     const sh =
         getSheet();
 
-    if (!sh) {
+
+    if (
+        !sh
+    ) {
+
         return;
+
     }
 
-    const confirmed =
-        window.confirm(
+
+    if (
+        !window.confirm(
             `ایا غواړئ «${sh.نوم}» حذف کړئ؟`
-        );
+        )
+    ) {
 
-    if (!confirmed) {
         return;
+
     }
+
 
     mutate(
         () => {
@@ -2960,14 +4767,19 @@ function deleteSheet() {
                         sh.پېژند
                 );
 
+
             currentSheetId =
                 state.شیتونه[0]
-                    ?.پېژند || "";
+                    ?.پېژند ||
+                "";
 
-            selected = [];
+
+            selected =
+                [];
 
         }
     );
+
 
     showMessage(
         "شیت حذف شو.",
@@ -2993,12 +4805,19 @@ function deleteRow(
 
     }
 
+
     const sh =
         getSheet();
 
-    if (!sh) {
+
+    if (
+        !sh
+    ) {
+
         return;
+
     }
+
 
     if (
         sh.کرښې <=
@@ -3014,22 +4833,26 @@ function deleteRow(
 
     }
 
-    const confirmed =
-        window.confirm(
+
+    if (
+        !window.confirm(
             `ایا غواړئ کرښه ${
                 row + 1
             } حذف کړئ؟`
-        );
+        )
+    ) {
 
-    if (!confirmed) {
         return;
+
     }
+
 
     mutate(
         () => {
 
             const newCells =
                 {};
+
 
             Object.entries(
                 sh.حجرې
@@ -3047,10 +4870,12 @@ function deleteRow(
                     ] =
                         key.split(":");
 
+
                     const oldRow =
                         Number(
                             rowText
                         );
+
 
                     if (
                         oldRow ===
@@ -3061,11 +4886,16 @@ function deleteRow(
 
                     }
 
+
                     const newRow =
                         oldRow >
                             row
-                            ? oldRow - 1
+
+                            ? oldRow -
+                                1
+
                             : oldRow;
+
 
                     newCells[
                         cellKeyByColumnId(
@@ -3078,24 +4908,31 @@ function deleteRow(
                 }
             );
 
+
             sh.حجرې =
                 newCells;
+
 
             sh.rowHeights.splice(
                 row,
                 1
             );
 
+
             sh.کرښې -=
                 1;
+
 
             sh.merges =
                 [];
 
-            selected = [];
+
+            selected =
+                [];
 
         }
     );
+
 
     showMessage(
         "کرښه حذف شوه.",
@@ -3121,12 +4958,19 @@ function deleteColumn(
 
     }
 
+
     const sh =
         getSheet();
 
-    if (!sh) {
+
+    if (
+        !sh
+    ) {
+
         return;
+
     }
+
 
     if (
         sh.ستنې.length <=
@@ -3142,21 +4986,30 @@ function deleteColumn(
 
     }
 
+
     const column =
         sh.ستنې[index];
 
-    if (!column) {
+
+    if (
+        !column
+    ) {
+
         return;
+
     }
 
-    const confirmed =
-        window.confirm(
+
+    if (
+        !window.confirm(
             `ایا غواړئ «${column.نوم}» حذف کړئ؟`
-        );
+        )
+    ) {
 
-    if (!confirmed) {
         return;
+
     }
+
 
     mutate(
         () => {
@@ -3164,13 +5017,16 @@ function deleteColumn(
             const deletedId =
                 column.پېژند;
 
+
             sh.ستنې.splice(
                 index,
                 1
             );
 
+
             const newCells =
                 {};
+
 
             Object.entries(
                 sh.حجرې
@@ -3188,6 +5044,7 @@ function deleteColumn(
                     ] =
                         key.split(":");
 
+
                     if (
                         columnId ===
                         deletedId
@@ -3197,6 +5054,7 @@ function deleteColumn(
 
                     }
 
+
                     newCells[
                         `${row}:${columnId}`
                     ] =
@@ -3205,16 +5063,21 @@ function deleteColumn(
                 }
             );
 
+
             sh.حجرې =
                 newCells;
+
 
             sh.merges =
                 [];
 
-            selected = [];
+
+            selected =
+                [];
 
         }
     );
+
 
     showMessage(
         "ستون حذف شو.",
@@ -3246,26 +5109,40 @@ function insertRow(
 
     }
 
+
     const sh =
         getSheet();
 
-    if (!sh) {
+
+    if (
+        !sh
+    ) {
+
         return;
+
     }
+
 
     const reference =
         selected[0];
 
+
     const at =
-        position === "above"
+        position ===
+            "above"
+
             ? reference.row
-            : reference.row + 1;
+
+            : reference.row +
+                1;
+
 
     mutate(
         () => {
 
             const newCells =
                 {};
+
 
             Object.entries(
                 sh.حجرې
@@ -3283,15 +5160,22 @@ function insertRow(
                     ] =
                         key.split(":");
 
+
                     const row =
                         Number(
                             rowText
                         );
 
+
                     const newRow =
-                        row >= at
-                            ? row + 1
+                        row >=
+                            at
+
+                            ? row +
+                                1
+
                             : row;
+
 
                     newCells[
                         `${newRow}:${columnId}`
@@ -3301,8 +5185,10 @@ function insertRow(
                 }
             );
 
+
             sh.حجرې =
                 newCells;
+
 
             sh.rowHeights.splice(
                 at,
@@ -3310,27 +5196,41 @@ function insertRow(
                 55
             );
 
+
             sh.کرښې +=
                 1;
+
 
             sh.merges =
                 [];
 
+
             selected = [
+
                 {
-                    row: at,
+
+                    row:
+                        at,
+
                     col:
                         reference.col
+
                 }
+
             ];
 
         }
     );
 
+
     showMessage(
-        position === "above"
+        position ===
+            "above"
+
             ? "پورته نوې کرښه اضافه شوه."
+
             : "لاندې نوې کرښه اضافه شوه.",
+
         "success"
     );
 
@@ -3359,26 +5259,36 @@ function insertColumn(
 
     }
 
+
     const sh =
         getSheet();
 
-    if (!sh) {
+
+    if (
+        !sh
+    ) {
+
         return;
+
     }
+
 
     const reference =
         selected[0];
 
+
     const at =
-        position === "left"
+        position ===
+            "left"
+
             ? reference.col
-            : reference.col + 1;
+
+            : reference.col +
+                1;
+
 
     mutate(
         () => {
-
-            const id =
-                `ستون_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 
             sh.ستنې.splice(
                 at,
@@ -3386,7 +5296,7 @@ function insertColumn(
                 {
 
                     پېژند:
-                        id,
+                        `ستون_${Date.now()}_${Math.random().toString(36).slice(2,8)}`,
 
                     نوم:
                         "نوې ستنه",
@@ -3397,26 +5307,37 @@ function insertColumn(
                 }
             );
 
+
             sh.merges =
                 [];
 
+
             selected = [
+
                 {
+
                     row:
                         reference.row,
 
                     col:
                         at
+
                 }
+
             ];
 
         }
     );
 
+
     showMessage(
-        position === "left"
+        position ===
+            "left"
+
             ? "چپ نوی ستون اضافه شو."
+
             : "راست نوی ستون اضافه شو.",
+
         "success"
     );
 
@@ -3437,12 +5358,15 @@ function mergeSelected() {
 
     }
 
+
     const rect =
         selectedRect();
 
+
     if (
         !rect ||
-        selected.length < 2
+        selected.length <
+            2
     ) {
 
         showMessage(
@@ -3453,6 +5377,7 @@ function mergeSelected() {
         return;
 
     }
+
 
     if (
         selected.length !==
@@ -3469,12 +5394,19 @@ function mergeSelected() {
 
     }
 
+
     const sh =
         getSheet();
 
-    if (!sh) {
+
+    if (
+        !sh
+    ) {
+
         return;
+
     }
+
 
     const newMerge = {
 
@@ -3492,24 +5424,32 @@ function mergeSelected() {
 
     };
 
+
     const conflict =
         sh.merges.some(
             current =>
+
                 !(
                     current.startRow +
                         current.rowSpan
                         <=
-                        newMerge.startRow ||
+                        newMerge.startRow
+
+                    ||
 
                     newMerge.startRow +
                         newMerge.rowSpan
                         <=
-                        current.startRow ||
+                        current.startRow
+
+                    ||
 
                     current.startCol +
                         current.colSpan
                         <=
-                        newMerge.startCol ||
+                        newMerge.startCol
+
+                    ||
 
                     newMerge.startCol +
                         newMerge.colSpan
@@ -3518,7 +5458,10 @@ function mergeSelected() {
                 )
         );
 
-    if (conflict) {
+
+    if (
+        conflict
+    ) {
 
         showMessage(
             "له موجود Merge سره تداخل لري.",
@@ -3529,6 +5472,7 @@ function mergeSelected() {
 
     }
 
+
     mutate(
         () => {
 
@@ -3536,18 +5480,24 @@ function mergeSelected() {
                 newMerge
             );
 
+
             selected = [
+
                 {
+
                     row:
                         newMerge.startRow,
 
                     col:
                         newMerge.startCol
+
                 }
+
             ];
 
         }
     );
+
 
     showMessage(
         "خانې یوځای شوې.",
@@ -3568,19 +5518,32 @@ function unmergeSelected() {
         !selected.length
     ) {
 
+        showMessage(
+            "لومړی Merge شوې خانه وټاکئ.",
+            "warning"
+        );
+
         return;
 
     }
+
 
     const sh =
         getSheet();
 
-    if (!sh) {
+
+    if (
+        !sh
+    ) {
+
         return;
+
     }
+
 
     const first =
         selected[0];
+
 
     const merge =
         mergeAt(
@@ -3589,7 +5552,10 @@ function unmergeSelected() {
             first.col
         );
 
-    if (!merge) {
+
+    if (
+        !merge
+    ) {
 
         showMessage(
             "ټاکل شوې خانه Merge شوې نه ده.",
@@ -3600,15 +5566,20 @@ function unmergeSelected() {
 
     }
 
+
     mutate(
         () => {
 
             sh.merges =
                 sh.merges.filter(
                     item =>
+
                         !(
                             item.startRow ===
-                                merge.startRow &&
+                                merge.startRow
+
+                            &&
+
                             item.startCol ===
                                 merge.startCol
                         )
@@ -3616,6 +5587,7 @@ function unmergeSelected() {
 
         }
     );
+
 
     showMessage(
         "Merge لرې شو.",
@@ -3626,7 +5598,7 @@ function unmergeSelected() {
 
 
 /* =====================================================
-   COPY
+   COPY / CUT
 ===================================================== */
 
 function copySelection(
@@ -3646,58 +5618,86 @@ function copySelection(
 
     }
 
+
+    if (
+        cut &&
+        !isSuper()
+    ) {
+
+        showMessage(
+            "یوازې Superadmin Cut کولی شي.",
+            "warning"
+        );
+
+        return;
+
+    }
+
+
     const sh =
         getSheet();
 
-    if (!sh) {
+
+    if (
+        !sh
+    ) {
+
         return;
+
     }
+
 
     const rect =
         selectedRect();
 
-    const data = [];
+
+    const data =
+        [];
+
 
     for (
-        let r =
+        let row =
             rect.startRow;
-        r <=
-            rect.endRow;
-        r++
+        row <=
+        rect.endRow;
+        row++
     ) {
 
-        const rowData = [];
+        const rowData =
+            [];
+
 
         for (
-            let c =
+            let col =
                 rect.startCol;
-            c <=
-                rect.endCol;
-            c++
+            col <=
+            rect.endCol;
+            col++
         ) {
 
             const start =
                 mergeStart(
                     sh,
-                    r,
-                    c
+                    row,
+                    col
                 );
 
-            const key =
-                cellKey(
-                    start.row,
-                    start.col
-                );
 
             rowData.push(
                 deep(
                     normalizeCell(
-                        sh.حجرې[key]
+                        sh.حجرې[
+                            cellKey(
+                                start.row,
+                                start.col
+                            )
+                        ]
                     )
                 )
             );
 
         }
+
 
         data.push(
             rowData
@@ -3705,96 +5705,83 @@ function copySelection(
 
     }
 
+
     clipboard = {
+
         data,
+
         cut
+
     };
+
 
     if (
         cut
     ) {
 
-        if (
-            !isSuper()
-        ) {
+        mutate(
+            () => {
 
-            showMessage(
-                "یوازې سوفراډمین💪 Cut کولی شي ته داصلاحیت نلري.",
-                "warning"
-            );
+                for (
+                    let row =
+                        rect.startRow;
 
-            return;
+                    row <=
+                        rect.endRow;
 
-        }
+                    row++
+                ) {
 
-        const previous =
-            snapshot();
+                    for (
+                        let col =
+                            rect.startCol;
 
-        for (
-            let r =
-                rect.startRow;
-            r <=
-                rect.endRow;
-            r++
-        ) {
+                        col <=
+                            rect.endCol;
 
-            for (
-                let c =
-                    rect.startCol;
-                c <=
-                    rect.endCol;
-                c++
-            ) {
+                        col++
+                    ) {
 
-                const start =
-                    mergeStart(
-                        sh,
-                        r,
-                        c
-                    );
+                        const start =
+                            mergeStart(
+                                sh,
+                                row,
+                                col
+                            );
 
-                const key =
-                    cellKey(
-                        start.row,
-                        start.col
-                    );
 
-                sh.حجرې[key] =
-                    {
-                        ...normalizeCell(
-                            sh.حجرې[key]
-                        ),
-                        متن: ""
-                    };
+                        const key =
+                            cellKey(
+                                start.row,
+                                start.col
+                            );
+
+
+                        sh.حجرې[key] =
+                            {
+
+                                ...normalizeCell(
+                                    sh.حجرې[key]
+                                ),
+
+                                متن:
+                                    ""
+
+                            };
+
+                    }
+
+                }
 
             }
-
-        }
-
-        undoStack.push(
-            previous
         );
-
-        if (
-            undoStack.length >
-            50
-        ) {
-
-            undoStack.shift();
-
-        }
-
-        redoStack = [];
-
-        renderAll();
-
-        scheduleSave();
 
     }
 
+
     showMessage(
         cut
-            ? "خانې پرې شوې."
+            ? "خانې Cut شوې."
             : "خانې Copy شوې.",
         "success"
     );
@@ -3821,18 +5808,20 @@ function pasteSelection() {
 
     }
 
+
     if (
         !isSuper()
     ) {
 
         showMessage(
-            "یوازې سوفراډمین💪 پیسټ کولی شي ته داصلاحیت نلري.",
+            "یوازې Superadmin Paste کولی شي.",
             "warning"
         );
 
         return;
 
     }
+
 
     if (
         !selected.length
@@ -3847,15 +5836,23 @@ function pasteSelection() {
 
     }
 
+
     const sh =
         getSheet();
 
-    if (!sh) {
+
+    if (
+        !sh
+    ) {
+
         return;
+
     }
+
 
     const start =
         selected[0];
+
 
     mutate(
         () => {
@@ -3876,9 +5873,11 @@ function pasteSelection() {
                                 start.row +
                                 rowOffset;
 
+
                             const col =
                                 start.col +
                                 colOffset;
+
 
                             if (
                                 row < 0 ||
@@ -3893,13 +5892,13 @@ function pasteSelection() {
 
                             }
 
-                            const key =
+
+                            sh.حجرې[
                                 cellKey(
                                     row,
                                     col
-                                );
-
-                            sh.حجرې[key] =
+                                )
+                            ] =
                                 deep(
                                     cell
                                 );
@@ -3912,6 +5911,7 @@ function pasteSelection() {
 
         }
     );
+
 
     showMessage(
         "معلومات Paste شول.",
@@ -3934,13 +5934,14 @@ function applyStyle(
     ) {
 
         showMessage(
-            "یوازې سـوفـراډمین💪 دامـعلومات بدلولی شي ته داصلاحیت نلري.",
+            "یوازې Superadmin کولی شي بڼه بدله کړي.",
             "warning"
         );
 
         return;
 
     }
+
 
     if (
         !selected.length
@@ -3955,12 +5956,19 @@ function applyStyle(
 
     }
 
+
     const sh =
         getSheet();
 
-    if (!sh) {
+
+    if (
+        !sh
+    ) {
+
         return;
+
     }
+
 
     mutate(
         () => {
@@ -3975,18 +5983,23 @@ function applyStyle(
                             position.col
                         );
 
+
                     const key =
                         cellKey(
                             start.row,
                             start.col
                         );
 
+
                     sh.حجرې[key] =
                         {
+
                             ...normalizeCell(
                                 sh.حجرې[key]
                             ),
+
                             ...changes
+
                         };
 
                 }
@@ -4015,12 +6028,19 @@ function toggleStyle(
 
     }
 
+
     const sh =
         getSheet();
 
-    if (!sh) {
+
+    if (
+        !sh
+    ) {
+
         return;
+
     }
+
 
     const first =
         mergeStart(
@@ -4028,6 +6048,7 @@ function toggleStyle(
             selected[0].row,
             selected[0].col
         );
+
 
     const cell =
         normalizeCell(
@@ -4039,10 +6060,13 @@ function toggleStyle(
             ]
         );
 
+
     applyStyle(
         {
+
             [property]:
                 !cell[property]
+
         }
     );
 
@@ -4056,32 +6080,27 @@ function toggleStyle(
 function clearContents() {
 
     if (
-        !isSuper()
-    ) {
-
-        return;
-
-    }
-
-    if (
+        !isSuper() ||
         !selected.length
     ) {
 
-        showMessage(
-            "لومړی خانې وټاکئ.",
-            "warning"
-        );
-
         return;
 
     }
+
 
     const sh =
         getSheet();
 
-    if (!sh) {
+
+    if (
+        !sh
+    ) {
+
         return;
+
     }
+
 
     mutate(
         () => {
@@ -4096,18 +6115,24 @@ function clearContents() {
                             position.col
                         );
 
+
                     const key =
                         cellKey(
                             start.row,
                             start.col
                         );
 
+
                     sh.حجرې[key] =
                         {
+
                             ...normalizeCell(
                                 sh.حجرې[key]
                             ),
-                            متن: ""
+
+                            متن:
+                                ""
+
                         };
 
                 }
@@ -4116,8 +6141,9 @@ function clearContents() {
         }
     );
 
+
     showMessage(
-        "د خانونو معلومات پاک شول.",
+        "د خانونو متن پاک شو.",
         "success"
     );
 
@@ -4131,32 +6157,27 @@ function clearContents() {
 function clearFormat() {
 
     if (
-        !isSuper()
-    ) {
-
-        return;
-
-    }
-
-    if (
+        !isSuper() ||
         !selected.length
     ) {
 
-        showMessage(
-            "لومړی خانې وټاکئ.",
-            "warning"
-        );
-
         return;
 
     }
+
 
     const sh =
         getSheet();
 
-    if (!sh) {
+
+    if (
+        !sh
+    ) {
+
         return;
+
     }
+
 
     mutate(
         () => {
@@ -4171,22 +6192,28 @@ function clearFormat() {
                             position.col
                         );
 
+
                     const key =
                         cellKey(
                             start.row,
                             start.col
                         );
 
+
                     const text =
                         sh.حجرې[key]
                             ?.متن ??
                         "";
 
+
                     sh.حجرې[key] =
                         {
+
                             ...defaultCell(),
+
                             متن:
                                 text
+
                         };
 
                 }
@@ -4195,8 +6222,9 @@ function clearFormat() {
         }
     );
 
+
     showMessage(
-        "د خانونو ټوله متن پاک شو📋.",
+        "د خانونو بڼه پاکه شوه.",
         "success"
     );
 
@@ -4235,6 +6263,7 @@ function autoSum() {
 
     }
 
+
     if (
         selected.length <
         2
@@ -4249,15 +6278,23 @@ function autoSum() {
 
     }
 
+
     const sh =
         getSheet();
 
-    if (!sh) {
+
+    if (
+        !sh
+    ) {
+
         return;
+
     }
+
 
     let total =
         0;
+
 
     selected.forEach(
         position => {
@@ -4269,16 +6306,15 @@ function autoSum() {
                     position.col
                 );
 
-            const key =
-                cellKey(
-                    start.row,
-                    start.col
-                );
 
             const value =
                 String(
-                    sh.حجرې[key]
-                        ?.متن ??
+                    sh.حجرې[
+                        cellKey(
+                            start.row,
+                            start.col
+                        )
+                    ]?.متن ??
                     ""
                 )
                 .replaceAll(
@@ -4286,10 +6322,12 @@ function autoSum() {
                     ""
                 );
 
+
             const number =
                 Number(
                     value
                 );
+
 
             if (
                 Number.isFinite(
@@ -4305,20 +6343,24 @@ function autoSum() {
         }
     );
 
+
     const first =
         selected[0];
 
-    const key =
-        cellKey(
-            first.row,
-            first.col
-        );
 
     mutate(
         () => {
 
+            const key =
+                cellKey(
+                    first.row,
+                    first.col
+                );
+
+
             sh.حجرې[key] =
                 {
+
                     ...normalizeCell(
                         sh.حجرې[key]
                     ),
@@ -4335,6 +6377,7 @@ function autoSum() {
 
         }
     );
+
 
     showMessage(
         `ټولټال: ${total}`,
@@ -4358,9 +6401,15 @@ function applyFilter(
             "tbody"
         );
 
-    if (!body) {
+
+    if (
+        !body
+    ) {
+
         return;
+
     }
+
 
     const query =
         clean(
@@ -4368,45 +6417,42 @@ function applyFilter(
         )
         .toLowerCase();
 
+
     Array.from(
         body.rows
     ).forEach(
         row => {
 
-            const wrappers =
-                row.querySelectorAll(
-                    ".فورمیک-خانه-پوښ"
-                );
-
             let text =
                 "";
 
-            wrappers.forEach(
+
+            row.querySelectorAll(
+                ".فورمیک-خانه-پوښ"
+            )
+            .forEach(
                 wrapper => {
 
-                    const col =
+                    if (
                         Number(
                             wrapper.dataset.col
-                        );
-
-                    if (
-                        col ===
+                        ) ===
                         columnIndex
                     ) {
 
-                        const textarea =
-                            wrapper.querySelector(
-                                "textarea"
-                            );
-
                         text +=
-                            textarea?.value ||
+                            wrapper
+                                .querySelector(
+                                    "textarea"
+                                )
+                                ?.value ||
                             "";
 
                     }
 
                 }
             );
+
 
             row.style.display =
                 !query ||
@@ -4432,17 +6478,20 @@ function findText() {
 
     const query =
         window.prompt(
-            "په فورمیک کې څه لټوئ🔭؟",
+            "په فورمیک کې څه لټوئ؟",
             ""
         );
 
+
     if (
-        query === null
+        query ===
+        null
     ) {
 
         return;
 
     }
+
 
     const needle =
         clean(
@@ -4450,21 +6499,35 @@ function findText() {
         )
         .toLowerCase();
 
-    if (!needle) {
+
+    if (
+        !needle
+    ) {
+
         return;
+
     }
+
 
     const sh =
         getSheet();
 
-    if (!sh) {
+
+    if (
+        !sh
+    ) {
+
         return;
+
     }
+
 
     let found =
         null;
 
+
     searchLoop:
+
     for (
         let row = 0;
         row < sh.کرښې;
@@ -4484,19 +6547,19 @@ function findText() {
                     col
                 );
 
-            const key =
-                cellKey(
-                    start.row,
-                    start.col
-                );
 
             const text =
                 String(
-                    sh.حجرې[key]
-                        ?.متن ??
+                    sh.حجرې[
+                        cellKey(
+                            start.row,
+                            start.col
+                        )
+                    ]?.متن ??
                     ""
                 )
                 .toLowerCase();
+
 
             if (
                 text.includes(
@@ -4505,12 +6568,15 @@ function findText() {
             ) {
 
                 found = {
+
                     row:
                         start.row,
 
                     col:
                         start.col
+
                 };
+
 
                 break searchLoop;
 
@@ -4520,10 +6586,13 @@ function findText() {
 
     }
 
-    if (!found) {
+
+    if (
+        !found
+    ) {
 
         showMessage(
-            "ستاغوشتل سوی معلومات پیدا نه شول حتمًا داپه ډیټابیس کی ثبت ندي یاته پلټنه غلطه. کوي 😇.",
+            "غوښتل شوي معلومات پیدا نه شول.",
             "warning"
         );
 
@@ -4531,23 +6600,30 @@ function findText() {
 
     }
 
-    selected = [
-        found
-    ];
+
+    selected =
+        [
+            found
+        ];
+
 
     updateSelectionUI();
 
+
     syncToolbar();
+
 
     const target =
         els.table?.querySelector(
             `.فورمیک-خانه-پوښ[data-row="${found.row}"][data-col="${found.col}"] textarea`
         );
 
+
     target?.focus();
 
+
     showMessage(
-        "ستاله خوا غوشتل سوي معلومات پیدا شول👏.",
+        "غوښتل شوي معلومات پیدا شول.",
         "success"
     );
 
@@ -4568,6 +6644,7 @@ function formatPainter() {
 
     }
 
+
     if (
         selected.length !==
         1
@@ -4582,19 +6659,23 @@ function formatPainter() {
 
     }
 
+
     const target =
         window.prompt(
-            "د هدف خانه په دې شکل ولیکئ: 2,3",
+            "د هدف خانه داسې ولیکئ: 2,3",
             ""
         );
 
+
     if (
-        target === null
+        target ===
+        null
     ) {
 
         return;
 
     }
+
 
     const parts =
         target
@@ -4606,18 +6687,22 @@ function formatPainter() {
                     )
             );
 
+
     if (
-        parts.length !== 2 ||
+        parts.length !==
+            2 ||
+
         !Number.isInteger(
             parts[0]
         ) ||
+
         !Number.isInteger(
             parts[1]
         )
     ) {
 
         showMessage(
-            "د هدف خانه نښه غلطه ده.",
+            "د هدف خانه بڼه غلطه ده.",
             "danger"
         );
 
@@ -4625,28 +6710,41 @@ function formatPainter() {
 
     }
 
+
     const targetRow =
-        parts[0] - 1;
+        parts[0] -
+        1;
+
 
     const targetCol =
-        parts[1] - 1;
+        parts[1] -
+        1;
+
 
     const sh =
         getSheet();
 
-    if (!sh) {
+
+    if (
+        !sh
+    ) {
+
         return;
+
     }
+
 
     if (
         targetRow < 0 ||
         targetCol < 0 ||
-        targetRow >= sh.کرښې ||
-        targetCol >= sh.ستنې.length
+        targetRow >=
+            sh.کرښې ||
+        targetCol >=
+            sh.ستنې.length
     ) {
 
         showMessage(
-            "د هدف خانه د جدول څخه بهر ده.",
+            "د هدف خانه له جدول څخه بهر ده.",
             "danger"
         );
 
@@ -4654,8 +6752,10 @@ function formatPainter() {
 
     }
 
+
     const source =
         selected[0];
+
 
     const sourceCell =
         normalizeCell(
@@ -4667,19 +6767,24 @@ function formatPainter() {
             ]
         );
 
-    const targetKey =
-        cellKey(
-            targetRow,
-            targetCol
-        );
 
     mutate(
         () => {
 
+            const targetKey =
+                cellKey(
+                    targetRow,
+                    targetCol
+                );
+
+
             const targetCell =
                 normalizeCell(
-                    sh.حجرې[targetKey]
+                    sh.حجرې[
+                        targetKey
+                    ]
                 );
+
 
             sh.حجرې[targetKey] =
                 {
@@ -4721,121 +6826,29 @@ function formatPainter() {
 
                 };
 
+
             selected = [
+
                 {
+
                     row:
                         targetRow,
 
                     col:
                         targetCol
+
                 }
+
             ];
 
         }
     );
 
+
     showMessage(
         "Formatting انتقال شو.",
         "success"
     );
-
-}
-
-
-/* =====================================================
-   UNDO
-===================================================== */
-
-function undo() {
-
-    if (
-        !isSuper()
-    ) {
-
-        return;
-
-    }
-
-    if (
-        !undoStack.length
-    ) {
-
-        showMessage(
-            "د Undo لپاره پخوانی بدلون نشته.",
-            "warning"
-        );
-
-        return;
-
-    }
-
-    redoStack.push(
-        snapshot()
-    );
-
-    state =
-        normalizeState(
-            undoStack.pop()
-        );
-
-    currentSheetId =
-        state.شیتونه[0]
-            ?.پېژند || "";
-
-    selected = [];
-
-    renderAll();
-
-    scheduleSave();
-
-}
-
-
-/* =====================================================
-   REDO
-===================================================== */
-
-function redo() {
-
-    if (
-        !isSuper()
-    ) {
-
-        return;
-
-    }
-
-    if (
-        !redoStack.length
-    ) {
-
-        showMessage(
-            "د Redo لپاره بدلون نشته.",
-            "warning"
-        );
-
-        return;
-
-    }
-
-    undoStack.push(
-        snapshot()
-    );
-
-    state =
-        normalizeState(
-            redoStack.pop()
-        );
-
-    currentSheetId =
-        state.شیتونه[0]
-            ?.پېژند || "";
-
-    selected = [];
-
-    renderAll();
-
-    scheduleSave();
 
 }
 
@@ -4849,45 +6862,38 @@ function updatePermissions() {
     const disabled =
         !isSuper();
 
+
     [
 
         els.newSheet,
         els.newCol,
         els.newRow,
         els.save,
+        els.permanentSave,
         els.deleteSheet,
-
         els.copy,
         els.cut,
         els.paste,
         els.clear,
-
         els.bold,
         els.italic,
         els.underline,
         els.wrap,
-
         els.allBorders,
         els.noBorders,
         els.outerBorder,
-
         els.number,
         els.percent,
         els.thousands,
         els.sum,
-
         els.painter,
         els.clearFormat,
-
         els.merge,
         els.unmerge,
-
         els.rowUp,
         els.rowDown,
-
         els.colLeft,
         els.colRight,
-
         els.font,
         els.size,
         els.fontColor,
@@ -4898,7 +6904,9 @@ function updatePermissions() {
     ].forEach(
         element => {
 
-            if (element) {
+            if (
+                element
+            ) {
 
                 element.disabled =
                     disabled;
@@ -4908,7 +6916,10 @@ function updatePermissions() {
         }
     );
 
-    if (els.status) {
+
+    if (
+        els.status
+    ) {
 
         els.status.textContent =
             isSuper()
@@ -4917,16 +6928,46 @@ function updatePermissions() {
 
     }
 
-    if (els.statusText) {
 
-        els.statusText.textContent =
-            isSuper()
-                ? "ټول Formic امکانات فعال دي او بدلونونه ډیـټابـیس ته تلـپاتې خوندي کېږي."
-                : "یوازې کتنه فعاله ده.";
+    if (
+        els.statusText
+    ) {
+
+        if (
+            !isSuper()
+        ) {
+
+            els.statusText.textContent =
+                "یوازې کتنه فعاله ده.";
+
+        } else if (
+            navigator.onLine ===
+            false
+        ) {
+
+            els.statusText.textContent =
+                "انټرنېټ لنډمهاله نشته؛ Formic محلي بدلونونه ساتي.";
+
+        } else if (
+            pendingSave
+        ) {
+
+            els.statusText.textContent =
+                "بدلونونه د Firebase سره د همغږۍ لپاره چمتو دي.";
+
+        } else {
+
+            els.statusText.textContent =
+                "ټول Formic امکانات فعال دي او بدلونونه Firebase ته تلپاتې خوندي کېږي.";
+
+        }
 
     }
 
-    if (els.count) {
+
+    if (
+        els.count
+    ) {
 
         els.count.textContent =
             `${toPashtoDigits(
@@ -4936,337 +6977,6 @@ function updatePermissions() {
     }
 
 }
-
-
-/* =====================================================
-   FIRESTORE SAVE
-===================================================== */
-
-function scheduleSave() {
-
-    if (
-        !isSuper()
-    ) {
-
-        return;
-
-    }
-
-    clearTimeout(
-        saveTimer
-    );
-
-    saveTimer =
-        setTimeout(
-            () => {
-
-                saveToFirestore(
-                    true
-                );
-
-            },
-            700
-        );
-
-}
-
-
-async function saveToFirestore(
-    auto = false
-) {
-
-    if (
-        !isSuper()
-    ) {
-
-        return;
-
-    }
-
-    if (
-        saveBusy
-    ) {
-
-        saveAgain =
-            true;
-
-        return;
-
-    }
-
-    saveBusy =
-        true;
-
-    if (
-        !auto &&
-        els.save
-    ) {
-
-        els.save.disabled =
-            true;
-
-        els.save.textContent =
-            "⏳ خوندي کېږي...";
-
-    }
-
-    try {
-
-        await setDoc(
-            formicDoc,
-            {
-
-                شیتونه:
-                    deep(
-                        state.شیتونه
-                    ),
-
-                تازه_کولو_وخت:
-                    serverTimestamp(),
-
-                بدلون_ورکوونکی:
-                    currentUser?.uid ||
-                    "",
-
-                بدلون_ورکوونکی_برېښنالیک:
-                    currentUser?.email ||
-                    ""
-
-            },
-            {
-                merge:
-                    true
-            }
-        );
-
-        if (
-            !auto
-        ) {
-
-            showMessage(
-                "فورمیک په بریالیتوب د کره کمیسیون ډیټابیس ته خوندي شو.",
-                "success"
-            );
-
-        }
-
-    } catch (
-        error
-    ) {
-
-        console.error(
-            "FORMIC SAVE ERROR:",
-            error
-        );
-
-        if (
-            error?.code ===
-            "permission-denied"
-        ) {
-
-            showMessage(
-                "Firestore اجازه نه ورکوي. د Superadmin رول او Rules وګورئ.",
-                "danger"
-            );
-
-        } else {
-
-            showMessage(
-                "فورمیک Firebase ته خوندي نه شو.",
-                "danger"
-            );
-
-        }
-
-    } finally {
-
-        saveBusy =
-            false;
-
-        if (
-            !auto &&
-            els.save
-        ) {
-
-            els.save.disabled =
-                !isSuper();
-
-            els.save.textContent =
-                "💾 خوندي کول";
-
-        }
-
-        if (
-            saveAgain
-        ) {
-
-            saveAgain =
-                false;
-
-            scheduleSave();
-
-        }
-
-    }
-
-}
-
-
-/* =====================================================
-   FIRESTORE LOAD
-===================================================== */
-
-async function loadFormic() {
-
-    try {
-
-        const result =
-            await getDoc(
-                formicDoc
-            );
-
-        if (
-            result.exists()
-        ) {
-
-            state =
-                normalizeState(
-                    result.data()
-                );
-
-        } else {
-
-            state =
-                normalizeState(
-                    {}
-                );
-
-            if (
-                isSuper()
-            ) {
-
-                await saveToFirestore(
-                    true
-                );
-
-            }
-
-        }
-
-    } catch (
-        error
-    ) {
-
-        console.error(
-            "FORMIC LOAD ERROR:",
-            error
-        );
-
-        state =
-            normalizeState(
-                {}
-            );
-
-        if (
-            error?.code ===
-            "permission-denied"
-        ) {
-
-            showMessage(
-                "Firestore د Formic معلوماتو لوستلو اجازه نه ورکوي.",
-                "warning"
-            );
-
-        } else {
-
-            showMessage(
-                "د Formic معلومات ترلاسه نه شول؛ بنسټیز جدول ښکاره شو.",
-                "warning"
-            );
-
-        }
-
-    }
-
-    currentSheetId =
-        state.شیتونه[0]
-            ?.پېژند || "";
-
-    selected = [];
-
-    renderAll();
-
-}
-
-
-/* =====================================================
-   KEYBOARD
-===================================================== */
-
-safeEvent(
-    document,
-    "keydown",
-    event => {
-
-        const ctrl =
-            event.ctrlKey ||
-            event.metaKey;
-
-        if (!ctrl) {
-            return;
-        }
-
-        const key =
-            event.key.toLowerCase();
-
-        if (
-            key === "z"
-        ) {
-
-            event.preventDefault();
-
-            undo();
-
-        } else if (
-            key === "y"
-        ) {
-
-            event.preventDefault();
-
-            redo();
-
-        } else if (
-            key === "c"
-        ) {
-
-            event.preventDefault();
-
-            copySelection(
-                false
-            );
-
-        } else if (
-            key === "x"
-        ) {
-
-            event.preventDefault();
-
-            copySelection(
-                true
-            );
-
-        } else if (
-            key === "v"
-        ) {
-
-            event.preventDefault();
-
-            pasteSelection();
-
-        }
-
-    }
-);
 
 
 /* =====================================================
@@ -5285,6 +6995,7 @@ safeEvent(
         )
 );
 
+
 safeEvent(
     els.size,
     "change",
@@ -5299,6 +7010,7 @@ safeEvent(
         )
 );
 
+
 safeEvent(
     els.fontColor,
     "input",
@@ -5310,6 +7022,7 @@ safeEvent(
             }
         )
 );
+
 
 safeEvent(
     els.fillColor,
@@ -5323,6 +7036,7 @@ safeEvent(
         )
 );
 
+
 safeEvent(
     els.hAlign,
     "change",
@@ -5334,6 +7048,7 @@ safeEvent(
             }
         )
 );
+
 
 safeEvent(
     els.vAlign,
@@ -5347,6 +7062,7 @@ safeEvent(
         )
 );
 
+
 safeEvent(
     els.bold,
     "click",
@@ -5355,6 +7071,7 @@ safeEvent(
             "bold"
         )
 );
+
 
 safeEvent(
     els.italic,
@@ -5365,6 +7082,7 @@ safeEvent(
         )
 );
 
+
 safeEvent(
     els.underline,
     "click",
@@ -5374,6 +7092,7 @@ safeEvent(
         )
 );
 
+
 safeEvent(
     els.wrap,
     "click",
@@ -5382,6 +7101,7 @@ safeEvent(
             "wrap"
         )
 );
+
 
 safeEvent(
     els.allBorders,
@@ -5395,6 +7115,7 @@ safeEvent(
         )
 );
 
+
 safeEvent(
     els.noBorders,
     "click",
@@ -5406,6 +7127,7 @@ safeEvent(
             }
         )
 );
+
 
 safeEvent(
     els.outerBorder,
@@ -5419,6 +7141,7 @@ safeEvent(
         )
 );
 
+
 safeEvent(
     els.number,
     "click",
@@ -5427,6 +7150,7 @@ safeEvent(
             "number"
         )
 );
+
 
 safeEvent(
     els.percent,
@@ -5437,6 +7161,7 @@ safeEvent(
         )
 );
 
+
 safeEvent(
     els.thousands,
     "click",
@@ -5446,11 +7171,13 @@ safeEvent(
         )
 );
 
+
 safeEvent(
     els.sum,
     "click",
     autoSum
 );
+
 
 safeEvent(
     els.copy,
@@ -5461,6 +7188,7 @@ safeEvent(
         )
 );
 
+
 safeEvent(
     els.cut,
     "click",
@@ -5470,11 +7198,13 @@ safeEvent(
         )
 );
 
+
 safeEvent(
     els.paste,
     "click",
     pasteSelection
 );
+
 
 safeEvent(
     els.clear,
@@ -5482,11 +7212,13 @@ safeEvent(
     clearContents
 );
 
+
 safeEvent(
     els.clearFormat,
     "click",
     clearFormat
 );
+
 
 safeEvent(
     els.painter,
@@ -5494,11 +7226,13 @@ safeEvent(
     formatPainter
 );
 
+
 safeEvent(
     els.find,
     "click",
     findText
 );
+
 
 safeEvent(
     els.merge,
@@ -5506,11 +7240,13 @@ safeEvent(
     mergeSelected
 );
 
+
 safeEvent(
     els.unmerge,
     "click",
     unmergeSelected
 );
+
 
 safeEvent(
     els.rowUp,
@@ -5521,6 +7257,7 @@ safeEvent(
         )
 );
 
+
 safeEvent(
     els.rowDown,
     "click",
@@ -5530,6 +7267,7 @@ safeEvent(
         )
 );
 
+
 safeEvent(
     els.colLeft,
     "click",
@@ -5538,6 +7276,7 @@ safeEvent(
             "left"
         )
 );
+
 
 safeEvent(
     els.colRight,
@@ -5559,11 +7298,13 @@ safeEvent(
     addSheet
 );
 
+
 safeEvent(
     els.newCol,
     "click",
     addColumn
 );
+
 
 safeEvent(
     els.newRow,
@@ -5571,19 +7312,25 @@ safeEvent(
     addRow
 );
 
+
 safeEvent(
     els.deleteSheet,
     "click",
     deleteSheet
 );
 
+
 safeEvent(
     els.save,
     "click",
-    () =>
-        saveToFirestore(
-            false
-        )
+    manualSave
+);
+
+
+safeEvent(
+    els.permanentSave,
+    "click",
+    manualSave
 );
 
 
@@ -5594,33 +7341,34 @@ safeEvent(
 safeEvent(
     $("dashboardBtn"),
     "click",
-    () => {
-
+    () =>
         location.href =
-            "./dashboard.html";
-
-    }
+            "./dashboard.html"
 );
+
 
 safeEvent(
     $("refreshBtn"),
     "click",
-    () => {
-
-        location.reload();
-
-    }
+    () =>
+        location.reload()
 );
+
 
 safeEvent(
     $("logoutBtn"),
     "click",
     async () => {
 
+        pageLeaving =
+            true;
+
+
         try {
 
             const result =
                 await logoutUser();
+
 
             if (
                 result?.success
@@ -5633,6 +7381,11 @@ safeEvent(
 
             }
 
+
+            pageLeaving =
+                false;
+
+
             showMessage(
                 result?.message ||
                 "له سیستم څخه وتل ناکام شول.",
@@ -5643,10 +7396,15 @@ safeEvent(
             error
         ) {
 
+            pageLeaving =
+                false;
+
+
             console.error(
                 "LOGOUT ERROR:",
                 error
             );
+
 
             showMessage(
                 "له سیستم څخه وتل ناکام شول.",
@@ -5660,7 +7418,7 @@ safeEvent(
 
 
 /* =====================================================
-   SIDEBAR NAVIGATION
+   SIDEBAR
 ===================================================== */
 
 const navigation = {
@@ -5715,6 +7473,301 @@ Object.entries(
 
 
 /* =====================================================
+   KEYBOARD
+===================================================== */
+
+safeEvent(
+    document,
+    "keydown",
+    event => {
+
+        const ctrl =
+            event.ctrlKey ||
+            event.metaKey;
+
+
+        if (
+            !ctrl
+        ) {
+
+            return;
+
+        }
+
+
+        const key =
+            event.key.toLowerCase();
+
+
+        if (
+            key ===
+            "z"
+        ) {
+
+            event.preventDefault();
+
+            undo();
+
+        } else if (
+            key ===
+            "y"
+        ) {
+
+            event.preventDefault();
+
+            redo();
+
+        } else if (
+            key ===
+            "c"
+        ) {
+
+            event.preventDefault();
+
+            copySelection(
+                false
+            );
+
+        } else if (
+            key ===
+            "x"
+        ) {
+
+            event.preventDefault();
+
+            copySelection(
+                true
+            );
+
+        } else if (
+            key ===
+            "v"
+        ) {
+
+            event.preventDefault();
+
+            pasteSelection();
+
+        }
+
+    }
+);
+
+
+/* =====================================================
+   UNDO
+===================================================== */
+
+function undo() {
+
+    if (
+        !isSuper()
+    ) {
+
+        return;
+
+    }
+
+
+    if (
+        !undoStack.length
+    ) {
+
+        showMessage(
+            "د Undo لپاره پخوانی بدلون نشته.",
+            "warning"
+        );
+
+        return;
+
+    }
+
+
+    redoStack.push(
+        snapshot()
+    );
+
+
+    state =
+        normalizeState(
+            undoStack.pop()
+        );
+
+
+    currentSheetId =
+        state.شیتونه[0]
+            ?.پېژند ||
+        "";
+
+
+    selected =
+        [];
+
+
+    renderAll();
+
+
+    markChanged();
+
+}
+
+
+/* =====================================================
+   REDO
+===================================================== */
+
+function redo() {
+
+    if (
+        !isSuper()
+    ) {
+
+        return;
+
+    }
+
+
+    if (
+        !redoStack.length
+    ) {
+
+        showMessage(
+            "د Redo لپاره بدلون نشته.",
+            "warning"
+        );
+
+        return;
+
+    }
+
+
+    undoStack.push(
+        snapshot()
+    );
+
+
+    state =
+        normalizeState(
+            redoStack.pop()
+        );
+
+
+    currentSheetId =
+        state.شیتونه[0]
+            ?.پېژند ||
+        "";
+
+
+    selected =
+        [];
+
+
+    renderAll();
+
+
+    markChanged();
+
+}
+
+
+/* =====================================================
+   GLOBAL ERROR
+===================================================== */
+
+window.addEventListener(
+    "error",
+    event => {
+
+        console.error(
+            "FORMIC GLOBAL ERROR:",
+            event.error ||
+            event.message
+        );
+
+
+        if (
+            isAbortError(
+                event.error
+            )
+        ) {
+
+            return;
+
+        }
+
+
+        showMessage(
+            "❌ په Formic کې ناڅاپي تېروتنه رامنځته شوه.",
+            "danger"
+        );
+
+    }
+);
+
+
+window.addEventListener(
+    "unhandledrejection",
+    event => {
+
+        console.error(
+            "FORMIC UNHANDLED PROMISE:",
+            event.reason
+        );
+
+
+        if (
+            isRetryableError(
+                event.reason
+            )
+        ) {
+
+            if (
+                pendingSnapshot
+            ) {
+
+                pendingSave =
+                    true;
+
+
+                scheduleRetry(
+                    false
+                );
+
+            }
+
+
+            return;
+
+        }
+
+
+        showMessage(
+            firebaseErrorText(
+                event.reason
+            ),
+            "danger"
+        );
+
+    }
+);
+
+
+/* =====================================================
+   PAGE LEAVE
+===================================================== */
+
+window.addEventListener(
+    "beforeunload",
+    () => {
+
+        pageLeaving =
+            true;
+
+    }
+);
+
+
+/* =====================================================
    AUTH
 ===================================================== */
 
@@ -5723,7 +7776,9 @@ listenAuth(
 
         try {
 
-            if (!session) {
+            if (
+                !session
+            ) {
 
                 location.href =
                     "./index.html";
@@ -5732,9 +7787,11 @@ listenAuth(
 
             }
 
+
             currentUser =
                 session.user ||
                 session;
+
 
             currentRole =
                 clean(
@@ -5745,10 +7802,6 @@ listenAuth(
                 )
                 .toLowerCase();
 
-
-            /* -----------------------------------------
-               FALLBACK ROLE LOOKUP
-            ----------------------------------------- */
 
             if (
                 !currentRole &&
@@ -5765,6 +7818,7 @@ listenAuth(
                                 currentUser.uid
                             )
                         );
+
 
                     if (
                         adminSnap.exists()
@@ -5793,10 +7847,6 @@ listenAuth(
             }
 
 
-            /* -----------------------------------------
-               SETTINGS
-            ----------------------------------------- */
-
             try {
 
                 await initializeSettings();
@@ -5813,10 +7863,6 @@ listenAuth(
             }
 
 
-            /* -----------------------------------------
-               FORMIC LOAD
-            ----------------------------------------- */
-
             await loadFormic();
 
         } catch (
@@ -5824,23 +7870,34 @@ listenAuth(
         ) {
 
             console.error(
-                "FORMIC AUTH START ERROR:",
+                "FORMIC AUTH START:",
                 error
             );
+
 
             state =
                 normalizeState(
                     {}
                 );
 
+
             currentSheetId =
                 state.شیتونه[0]
-                    ?.پېژند || "";
+                    ?.پېژند ||
+                "";
+
+
+            selected =
+                [];
+
 
             renderAll();
 
+
             showMessage(
-                "د فورمیک د سیستم د پیل پر مهال ستونزه رامنځته شوه.",
+                firebaseErrorText(
+                    error
+                ),
                 "danger"
             );
 
