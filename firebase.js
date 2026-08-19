@@ -13,7 +13,8 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
 
 import {
-    getFirestore
+    initializeFirestore,
+    persistentLocalCache
 } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
 import {
@@ -39,28 +40,55 @@ const firebaseConfig = {
 // Initialize Firebase
 // ==========================================
 
-const app = initializeApp(firebaseConfig);
+const app =
+    initializeApp(
+        firebaseConfig
+    );
 
 
 // ==========================================
 // Firebase Authentication
 // ==========================================
 
-const auth = getAuth(app);
+const auth =
+    getAuth(
+        app
+    );
 
 
 // ==========================================
 // Firebase Firestore
+//
+// Persistent Local Cache
+//
+// د Formic لپاره مهم:
+// - د آنلاین لنډمهاله ستونزې پر مهال
+//   محلي cache کاروي.
+// - د pending بدلونونو د ساتلو زمینه برابروي.
+// - د شبکې بېرته راتلو سره
+//   Firestore synchronization ته زمینه برابروي.
+//
+// د نورو سیستمونو جوړښت نه بدلوي.
 // ==========================================
 
-const db = getFirestore(app);
+const db =
+    initializeFirestore(
+        app,
+        {
+            localCache:
+                persistentLocalCache()
+        }
+    );
 
 
 // ==========================================
 // Firebase Storage
 // ==========================================
 
-const storage = getStorage(app);
+const storage =
+    getStorage(
+        app
+    );
 
 
 // ==========================================
