@@ -1,14 +1,30 @@
 <!DOCTYPE html>
 <html lang="ps" dir="rtl">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#0B6B36">
-    <title>ادمین - د افغانستان اسلامي امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس💻</title>
-    <link rel="stylesheet" href="./style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="theme-color"
+        content="#0B6B36"
+    >
+
+    <title>
+        ادمین - د افغانستان اسلامي امارت د کره کمیسیون د ثبت او مدیریت سیسټم
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="./style.css"
+    >
 
     <style>
+
         .admin-grid {
             display: grid;
             grid-template-columns: 1.1fr 1fr;
@@ -22,58 +38,52 @@
 
         .admin-table-actions {
             display: flex;
-            gap: 8px;
+            align-items: center;
+            gap: 5px;
             flex-wrap: wrap;
+            direction: rtl;
         }
 
-        .admin-table-actions .btn {
-            min-height: 38px;
-            padding: 7px 11px;
-            font-size: 13px;
+        .admin-table-actions .btn,
+        .admin-role-select {
+            width: auto !important;
+            min-width: 0 !important;
+            height: 34px;
+            min-height: 34px;
+            padding: 5px 8px;
+            font-size: 11px;
+            font-weight: 800;
+            line-height: 1.2;
+            white-space: nowrap;
+            flex: 0 0 auto;
+            border-radius: 8px;
         }
 
         .admin-role-select {
-            min-width: 145px;
+            min-width: 105px;
         }
 
         .admin-inline {
             display: flex;
-            gap: 10px;
             align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            direction: rtl;
+        }
+
+        .admin-between {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
             flex-wrap: wrap;
         }
 
         .admin-mini-note {
             color: var(--muted-color);
-            font-size: 13px;
-            margin-top: 6px;
-        }
-
-        .field-row {
-            display: grid;
-            grid-template-columns: 1.3fr 1fr auto auto auto;
-            gap: 10px;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .field-row .form-control {
-            min-height: 42px;
-        }
-
-        .field-badge {
-            white-space: nowrap;
-        }
-
-        .switch-wrap {
-            display: inline-flex;
-            gap: 6px;
-            align-items: center;
-            justify-content: center;
-            padding: 8px 10px;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            background: var(--card-bg);
+            font-size: 12px;
+            line-height: 1.8;
+            margin-top: 7px;
         }
 
         .record-filter {
@@ -83,7 +93,8 @@
 
         .privacy-grid {
             display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
+            grid-template-columns:
+                repeat(3, minmax(0, 1fr));
             gap: 10px;
         }
 
@@ -96,358 +107,963 @@
 
         .privacy-card strong {
             display: block;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .switch-wrap {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            min-height: 32px;
+            padding: 5px 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 9px;
+            background: var(--card-bg);
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .field-table th,
+        .field-table td {
+            vertical-align: middle;
+            text-align: right;
+        }
+
+        .field-label-input {
+            min-width: 175px;
+        }
+
+        .field-section-select {
+            min-width: 135px;
+        }
+
+        .field-order-buttons {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+
+        .field-order-buttons .btn {
+            width: 32px !important;
+            min-width: 32px !important;
+            height: 32px;
+            padding: 0 !important;
+            border-radius: 7px;
+        }
+
+        .field-protected {
+            white-space: nowrap;
         }
 
         .records-lock {
-            padding: 14px;
-            border-radius: 14px;
+            padding: 13px;
+            border-radius: 13px;
             border: 1px solid var(--border-color);
             background: var(--card-bg);
         }
 
-        @media (max-width: 900px) {
-            .admin-grid {
-                grid-template-columns: 1fr;
-            }
+        .system-note-box {
+            margin-top: 10px;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            background: var(--surface-alt);
+            color: var(--muted-color);
+            font-size: 12px;
+            line-height: 1.9;
+        }
 
-            .field-row {
+        .form-actions {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            flex-wrap: wrap;
+            direction: rtl;
+        }
+
+        .form-actions .btn {
+            width: auto !important;
+            min-width: 0 !important;
+            height: 34px;
+            min-height: 34px;
+            padding: 5px 9px;
+            font-size: 11px;
+            font-weight: 800;
+            white-space: nowrap;
+            flex: 0 0 auto;
+            border-radius: 8px;
+        }
+
+        #addFieldBtn,
+        #saveFieldsBtn,
+        #resetFieldsBtn,
+        #savePrivacyBtn,
+        #createAdminBtn,
+        #clearAdminFormBtn {
+            width: auto !important;
+            min-width: 0 !important;
+            max-width: max-content;
+        }
+
+        @media (max-width: 900px) {
+
+            .admin-grid {
                 grid-template-columns: 1fr;
             }
 
             .privacy-grid {
                 grid-template-columns: 1fr;
             }
+
         }
+
+        @media (max-width: 650px) {
+
+            .admin-table-actions {
+                overflow-x: auto;
+                flex-wrap: nowrap;
+                max-width: 100%;
+                padding-bottom: 2px;
+            }
+
+            .form-actions {
+                overflow-x: auto;
+                flex-wrap: nowrap;
+                max-width: 100%;
+                padding-bottom: 2px;
+            }
+
+            .field-label-input,
+            .field-section-select {
+                min-width: 130px;
+            }
+
+        }
+
     </style>
+
 </head>
+
 <body>
-    <header class="main-header">
-        <div class="header-brand">
-            <div class="header-logo">👥</div>
-            <div class="header-title" data-system-name>Hafz Admin Online System</div>
+
+<header class="main-header">
+
+    <div class="header-brand">
+
+        <div class="header-logo">
+            👥
         </div>
 
-        <div class="header-actions">
-            <button type="button" id="dashboardBtn" title="کورپاڼه" aria-label="کورپاڼه">🏠</button>
-            <button type="button" id="refreshBtn" title="ریفریش" aria-label="ریفریش">🔄</button>
-            <button type="button" id="logoutBtn" title="وتل" aria-label="وتل">🚪</button>
+        <div
+            class="header-title"
+            data-system-name
+        >
+            د افغانستان اسلامي امارت د کره کمیسیون د ثبت او مدیریت سیسټم
         </div>
-    </header>
 
-    <div class="app-layout">
-        <aside class="sidebar">
-            <div class="sidebar-title">اصلي مینو</div>
-            <nav class="sidebar-menu">
-                <button type="button" id="dashboardMenuBtn">📊 کورپاڼه</button>
-           <button
-    type="button"
-    id="formicMenuBtn"
->
-    📋 فورمیک
-</button>
-               
-                
-                <button type="button" id="registerMenuBtn">📝 نوی ثبت</button>
-                <button type="button" id="searchMenuBtn">🔍 لټون</button>
-                <button type="button" id="reportsMenuBtn">📄 راپورونه</button>
-                <button type="button" class="active" id="adminMenuBtn">👮ادمین</button>
-                <button type="button" id="settingsMenuBtn">⚙️ تنظیمات</button>
-            </nav>
-        </aside>
-
-        <main class="main-content">
-            <div class="page">
-                <section class="page-header">
-                    <h1 class="page-title">👥 د ادمین مدیریت</h1>
-                    <p class="page-description">د کاروونکو نقش، ثبت شوو کسانو edit، او د فیلډونو تنظیمات مدیریت کړئ.</p>
-                </section>
-
-                <div id="adminMessage" class="alert" style="display:none;" role="alert" aria-live="polite"></div>
-
-                <section class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-label">ټول ادمین پروفایلونه</div>
-                        <div class="stat-value" id="totalAdmins">0</div>
-                    </div>
-
-                    <div class="stat-card">
-                        <div class="stat-label">فعال پروفایلونه</div>
-                        <div class="stat-value" id="activeAdmins">0</div>
-                    </div>
-
-                    <div class="stat-card">
-                        <div class="stat-label">ستر اډمینان👮</div>
-                        <div class="stat-value" id="superAdmins">0</div>
-                    </div>
-
-                    <div class="stat-card">
-                        <div class="stat-label">اډمینان 👲👳</div>
-                        <div class="stat-value" id="adminsCount">0</div>
-                    </div>
-
-                    <div class="stat-card">
-                        <div class="stat-label">ټول ریکارډونه 📚</div>
-                        <div class="stat-value" id="totalRecords">0</div>
-                    </div>
-
-                    <div class="stat-card">
-                        <div class="stat-label">Editable📔ریکارډونه</div>
-                        <div class="stat-value" id="editableRecords">0</div>
-                    </div>
-
-                    <div class="stat-card">
-                        <div class="stat-label">Locked📕ریکارډونه</div>
-                        <div class="stat-value" id="lockedRecords">0</div>
-                    </div>
-
-                    <div class="stat-card">
-                        <div class="stat-label">پټ ریکارډونه 📓</div>
-                        <div class="stat-value" id="hiddenRecords">0</div>
-                    </div>
-                </section>
-
-                <div class="admin-grid">
-                    <section class="card">
-                        <h2 style="font-size:20px;font-weight:800;margin-bottom:12px;">👤 زما معلومات</h2>
-
-                        <div class="table-container">
-                            <table>
-                                <tbody>
-                                    <tr><th>UID</th><td id="currentUid">—</td></tr>
-                                    <tr><th>ایمیل</th><td id="currentEmail">—</td></tr>
-                                    <tr><th>نوم</th><td id="currentName">—</td></tr>
-                                    <tr><th>صلاحیت</th><td id="currentRole">—</td></tr>
-                                    <tr><th>حالت</th><td id="currentStatus">—</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <div class="admin-mini-note" id="permissionNote"></div>
-                    </section>
-
-                    <section class="card">
-                        <h2 style="font-size:20px;font-weight:800;margin-bottom:12px;">➕ نوی ادمین پروفایل</h2>
-
-                        <form id="createAdminForm" novalidate>
-                            <div class="form-grid">
-                                <div class="form-group">
-                                    <label class="form-label" for="adminUid">
-                                        UID <span class="required">*</span>
-                                    </label>
-                                    <input
-                                        id="adminUid"
-                                        type="text"
-                                        class="form-control"
-                                        placeholder="د Firebase Authentication UID"
-                                        autocomplete="off"
-                                        maxlength="120"
-                                    >
-                                </div>
-
-                                <div class="form-group">
-                                    <label class="form-label" for="adminEmail">
-                                        ایمیل <span class="required">*</span>
-                                    </label>
-                                    <input
-                                        id="adminEmail"
-                                        type="email"
-                                        class="form-control"
-                                        placeholder="admin@example.com"
-                                        autocomplete="off"
-                                    >
-                                </div>
-
-                                <div class="form-group">
-                                    <label class="form-label" for="adminName">نوم</label>
-                                    <input
-                                        id="adminName"
-                                        type="text"
-                                        class="form-control"
-                                        placeholder="د کاروونکي نوم"
-                                        autocomplete="off"
-                                    >
-                                </div>
-
-                                <div class="form-group">
-                                    <label class="form-label" for="adminRole">
-                                        صلاحیت <span class="required">*</span>
-                                    </label>
-                                    <select id="adminRole" class="form-control">
-                                        <option value="user">کاروونکی</option>
-                                        <option value="admin">اډمین 👲</option>
-                                        <option value="superadmin">ستر اډمین👮</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="form-actions">
-                                <button type="submit" class="btn btn-primary" id="createAdminBtn">
-                                    ➕ پروفایل جوړول
-                                </button>
-
-                                <button type="reset" class="btn btn-secondary" id="clearAdminFormBtn">
-                                    🧹 پاکول
-                                </button>
-                            </div>
-                        </form>
-
-                        <div class="admin-mini-note">
-                            دا فورم د موجود Firebase Authentication کاروونکي لپاره یوازې Firestore profile جوړوي.
-                        </div>
-                    </section>
-
-                    <section class="card admin-grid-full">
-                        <div class="admin-inline" style="justify-content:space-between;margin-bottom:12px;">
-                            <div>
-                                <h2 style="font-size:20px;font-weight:800;">📋 د ادمین پروفایلونو لست</h2>
-                                <p style="color:var(--muted-color);font-size:13px;">صلاحیت بدلول، فعال/غیر فعال کول او حذف کول.</p>
-                            </div>
-
-                            <div class="badge badge-info" id="adminsBadge">چمتو</div>
-                        </div>
-
-                        <div class="table-container">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>نوم</th>
-                                        <th>ایمیل</th>
-                                        <th>UID</th>
-                                        <th>صلاحیت</th>
-                                        <th>حالت</th>
-                                        <th>عملیات</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="adminsTableBody">
-                                    <tr>
-                                        <td colspan="6" class="text-center">د معلوماتو د لوډ کېدو په تمه...</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </section>
-
-                    <section class="card admin-grid-full">
-                        <div class="admin-inline" style="justify-content:space-between;margin-bottom:12px;">
-                            <div>
-                                <h2 style="font-size:20px;font-weight:800;">📝 د ثبت شوو کسانو مدیریت</h2>
-                                <p style="color:var(--muted-color);font-size:13px;">Edit، lock/unlock او record visibility.</p>
-                            </div>
-
-                            <div class="admin-inline">
-                                <input
-                                    type="text"
-                                    id="recordFilter"
-                                    class="form-control record-filter"
-                                    placeholder="د فورمي نمبر، نوم یا تذکرې له مخې لټون"
-                                    autocomplete="off"
-                                >
-                                <div class="badge badge-info" id="recordsBadge">چمتو</div>
-                            </div>
-                        </div>
-
-                        <div id="recordsLockBox" class="records-lock" style="display:none;">
-                            <strong>ریکارډونه پټ دي.</strong>
-                            <p class="admin-mini-note">دا حالت د Super Admin د global privacy lock له امله فعال دی.</p>
-                        </div>
-
-                        <div class="table-container" id="recordsTableWrap">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>فورم نمبر</th>
-                                        <th>نوم</th>
-                                        <th>تذکره</th>
-                                        <th>کټګوري</th>
-                                        <th>Editable</th>
-                                        <th>Visibility</th>
-                                        <th>عملیات</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="recordsTableBody">
-                                    <tr>
-                                        <td colspan="7" class="text-center">د معلوماتو د لوډ کېدو په تمه...</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </section>
-
-                    <section class="card admin-grid-full">
-                        <div class="admin-inline" style="justify-content:space-between;margin-bottom:12px;">
-                            <div>
-                                <h2 style="font-size:20px;font-weight:800;">🔒 Global Privacy Lock</h2>
-                                <p style="color:var(--muted-color);font-size:13px;">یوازې سوفراډمین دا برخه بدلولی شی ته داصلاحیت نلری.</p>
-                            </div>
-
-                            <div class="badge badge-warning" id="privacyBadge">چمتو</div>
-                        </div>
-
-                        <div class="privacy-grid">
-                            <div class="privacy-card">
-                                <strong>له نورو ادمینانو پټ</strong>
-                                <label class="switch-wrap">
-                                    <input type="checkbox" id="hideFromAdmins">
-                                    <span>فعالول</span>
-                                </label>
-                            </div>
-
-                            <div class="privacy-card">
-                                <strong>له کارکوونکو پټ</strong>
-                                <label class="switch-wrap">
-                                    <input type="checkbox" id="hideFromStaff">
-                                    <span>فعالول</span>
-                                </label>
-                            </div>
-
-                            <div class="privacy-card">
-                                <strong>له عامو کاروونکو پټ</strong>
-                                <label class="switch-wrap">
-                                    <input type="checkbox" id="hideFromUsers">
-                                    <span>فعالول</span>
-                                </label>
-                            </div>
-                        </div>
-
-                        <div class="form-actions" style="margin-top:14px;">
-                            <button type="button" class="btn btn-primary" id="savePrivacyBtn">💾 خوندي کول</button>
-                        </div>
-                    </section>
-
-                    <section class="card admin-grid-full">
-                        <div class="admin-inline" style="justify-content:space-between;margin-bottom:12px;">
-                            <div>
-                                <h2 style="font-size:20px;font-weight:800;">🧩 د فیلډونو تنظیمات</h2>
-                                <p style="color:var(--muted-color);font-size:13px;">required / hidden / custom fields</p>
-                            </div>
-
-                            <div class="admin-inline">
-                                <div class="badge badge-info" id="fieldsBadge">چمتو</div>
-                                <button type="button" class="btn btn-secondary" id="addFieldBtn">➕ نوی فیلډ</button>
-                            </div>
-                        </div>
-
-                        <div id="fieldsTable"></div>
-
-                        <div class="form-actions" style="margin-top:14px;">
-                            <button type="button" class="btn btn-primary" id="saveFieldsBtn">💾 فیلډونه خوندي کول</button>
-                            <button type="button" class="btn btn-secondary" id="resetFieldsBtn">↩ د اصل حالت</button>
-                        </div>
-
-                        <div class="admin-mini-note">
-                            دا تنظیمات په ډیټابیس کې خوندي کېږي او وروسته د register/search/users په پاڼو کې کارول کېدای شي.
-                        </div>
-                    </section>
-                </div>
-            </div>
-        </main>
     </div>
 
-    <footer class="footer">
-        Hafz Admin Online System
-    </footer>
+    <div class="header-actions">
 
-    <script type="module" src="./admin.js"></script>
+        <button
+            type="button"
+            id="dashboardBtn"
+            title="کورپاڼه"
+            aria-label="کورپاڼه"
+        >
+            🏠
+        </button>
+
+        <button
+            type="button"
+            id="refreshBtn"
+            title="تازه کول"
+            aria-label="تازه کول"
+        >
+            🔄
+        </button>
+
+        <button
+            type="button"
+            id="logoutBtn"
+            title="وتل"
+            aria-label="وتل"
+        >
+            🚪
+        </button>
+
+    </div>
+
+</header>
+
+
+<div class="app-layout">
+
+    <aside class="sidebar">
+
+        <div class="sidebar-title">
+            اصلي مینو
+        </div>
+
+        <nav class="sidebar-menu">
+
+            <button
+                type="button"
+                id="dashboardMenuBtn"
+            >
+                📊 کورپاڼه
+            </button>
+
+            <button
+                type="button"
+                id="formicMenuBtn"
+            >
+                📋 فورمیک
+            </button>
+
+            <button
+                type="button"
+                id="registerMenuBtn"
+            >
+                📝 نوی ثبت
+            </button>
+
+            <button
+                type="button"
+                id="searchMenuBtn"
+            >
+                🔍 لټون
+            </button>
+
+            <button
+                type="button"
+                id="reportsMenuBtn"
+            >
+                📄 راپورونه
+            </button>
+
+            <button
+                type="button"
+                class="active"
+                id="adminMenuBtn"
+            >
+                👮 ادمین
+            </button>
+
+            <button
+                type="button"
+                id="settingsMenuBtn"
+            >
+                ⚙️ تنظیمات
+            </button>
+
+        </nav>
+
+    </aside>
+
+
+    <main class="main-content">
+
+        <div class="page">
+
+            <section class="page-header">
+
+                <h1 class="page-title">
+                    👮 د ادمین مدیریت
+                </h1>
+
+                <p class="page-description">
+                    د اډمینانو، ریکارډونو، محرمیت او فیلډونو آنلاین اصلي مدیریت.
+                </p>
+
+            </section>
+
+
+            <div
+                id="adminMessage"
+                class="alert"
+                style="display:none;"
+                role="alert"
+                aria-live="polite"
+            ></div>
+
+
+            <section class="stats-grid">
+
+                <div class="stat-card">
+                    <div class="stat-label">
+                        👥 ټول اډمینان
+                    </div>
+                    <div
+                        class="stat-value"
+                        id="totalAdmins"
+                    >
+                        0
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-label">
+                        🟢 فعال اډمینان
+                    </div>
+                    <div
+                        class="stat-value"
+                        id="activeAdmins"
+                    >
+                        0
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-label">
+                        🛡️ ستر اډمینان
+                    </div>
+                    <div
+                        class="stat-value"
+                        id="superAdmins"
+                    >
+                        0
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-label">
+                        👮 اډمینان
+                    </div>
+                    <div
+                        class="stat-value"
+                        id="adminsCount"
+                    >
+                        0
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-label">
+                        📚 ټول ریکارډونه
+                    </div>
+                    <div
+                        class="stat-value"
+                        id="totalRecords"
+                    >
+                        0
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-label">
+                        ✏️ سمون وړ
+                    </div>
+                    <div
+                        class="stat-value"
+                        id="editableRecords"
+                    >
+                        0
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-label">
+                        🔒 قفل شوي
+                    </div>
+                    <div
+                        class="stat-value"
+                        id="lockedRecords"
+                    >
+                        0
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-label">
+                        🙈 پټ ریکارډونه
+                    </div>
+                    <div
+                        class="stat-value"
+                        id="hiddenRecords"
+                    >
+                        0
+                    </div>
+                </div>
+
+            </section>
+
+
+            <div class="admin-grid">
+
+
+                <!-- زما معلومات -->
+                <section class="card">
+
+                    <h2 style="
+                        font-size:20px;
+                        font-weight:800;
+                        margin-bottom:12px;
+                    ">
+                        👤 زما معلومات
+                    </h2>
+
+                    <div class="table-container">
+
+                        <table>
+
+                            <tbody>
+
+                                <tr>
+                                    <th>🆔 پېژندشمېره</th>
+                                    <td id="currentUid">—</td>
+                                </tr>
+
+                                <tr>
+                                    <th>📧 ایمیل</th>
+                                    <td id="currentEmail">—</td>
+                                </tr>
+
+                                <tr>
+                                    <th>👤 نوم</th>
+                                    <td id="currentName">—</td>
+                                </tr>
+
+                                <tr>
+                                    <th>🛡️ صلاحیت</th>
+                                    <td id="currentRole">—</td>
+                                </tr>
+
+                                <tr>
+                                    <th>🟢 حالت</th>
+                                    <td id="currentStatus">—</td>
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                    <div
+                        class="admin-mini-note"
+                        id="permissionNote"
+                    ></div>
+
+                </section>
+
+
+                <!-- نوی اډمین -->
+                <section class="card">
+
+                    <h2 style="
+                        font-size:20px;
+                        font-weight:800;
+                        margin-bottom:12px;
+                    ">
+                        ➕ نوی اډمین پروفایل
+                    </h2>
+
+                    <form
+                        id="createAdminForm"
+                        novalidate
+                    >
+
+                        <div class="form-grid">
+
+                            <div class="form-group">
+
+                                <label
+                                    class="form-label"
+                                    for="adminUid"
+                                >
+                                    🆔 د حساب پېژندشمېره
+                                    <span class="required">*</span>
+                                </label>
+
+                                <input
+                                    id="adminUid"
+                                    type="text"
+                                    class="form-control"
+                                    placeholder="د Firebase حساب پېژندشمېره"
+                                    autocomplete="off"
+                                    maxlength="120"
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label
+                                    class="form-label"
+                                    for="adminEmail"
+                                >
+                                    📧 ایمیل
+                                    <span class="required">*</span>
+                                </label>
+
+                                <input
+                                    id="adminEmail"
+                                    type="email"
+                                    class="form-control"
+                                    placeholder="admin@example.com"
+                                    autocomplete="off"
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label
+                                    class="form-label"
+                                    for="adminName"
+                                >
+                                    👤 نوم
+                                </label>
+
+                                <input
+                                    id="adminName"
+                                    type="text"
+                                    class="form-control"
+                                    placeholder="د کاروونکي نوم"
+                                    autocomplete="off"
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label
+                                    class="form-label"
+                                    for="adminRole"
+                                >
+                                    🛡️ صلاحیت
+                                    <span class="required">*</span>
+                                </label>
+
+                                <select
+                                    id="adminRole"
+                                    class="form-control"
+                                >
+                                    <option value="user">
+                                        👤 کاروونکی
+                                    </option>
+
+                                    <option value="admin">
+                                        👮 اډمین
+                                    </option>
+
+                                    <option value="superadmin">
+                                        🛡️ ستر اډمین
+                                    </option>
+                                </select>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="form-actions">
+
+                            <button
+                                type="submit"
+                                class="btn btn-primary"
+                                id="createAdminBtn"
+                            >
+                                ➕ جوړول
+                            </button>
+
+                            <button
+                                type="reset"
+                                class="btn btn-secondary"
+                                id="clearAdminFormBtn"
+                            >
+                                🧹 پاکول
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </section>
+
+
+                <!-- اډمینان -->
+                <section class="card admin-grid-full">
+
+                    <div
+                        class="admin-between"
+                        style="margin-bottom:12px;"
+                    >
+
+                        <div>
+
+                            <h2 style="
+                                font-size:20px;
+                                font-weight:800;
+                            ">
+                                👥 د اډمین پروفایلونو لست
+                            </h2>
+
+                            <p class="admin-mini-note">
+                                یوازې ستر اډمین د اډمینانو صلاحیت، حالت او حذف اداره کوي.
+                            </p>
+
+                        </div>
+
+                        <div
+                            class="badge badge-info"
+                            id="adminsBadge"
+                        >
+                            چمتو
+                        </div>
+
+                    </div>
+
+
+                    <div class="table-container">
+
+                        <table>
+
+                            <thead>
+
+                                <tr>
+                                    <th>👤 نوم</th>
+                                    <th>📧 ایمیل</th>
+                                    <th>🆔 پېژندشمېره</th>
+                                    <th>🛡️ صلاحیت</th>
+                                    <th>🟢 حالت</th>
+                                    <th>⚙️ عملیات</th>
+                                </tr>
+
+                            </thead>
+
+                            <tbody id="adminsTableBody">
+
+                                <tr>
+                                    <td
+                                        colspan="6"
+                                        class="text-center"
+                                    >
+                                        معلومات لوډېږي...
+                                    </td>
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </section>
+
+
+                <!-- Records -->
+                <section class="card admin-grid-full">
+
+                    <div
+                        class="admin-between"
+                        style="margin-bottom:12px;"
+                    >
+
+                        <div>
+
+                            <h2 style="
+                                font-size:20px;
+                                font-weight:800;
+                            ">
+                                📚 د ثبت شوو کسانو مدیریت
+                            </h2>
+
+                            <p class="admin-mini-note">
+                                🔒 قفل، 👁️ ښکاره/پټ، ✏️ سمون او 🗑️ حذف.
+                            </p>
+
+                        </div>
+
+                        <div class="admin-inline">
+
+                            <input
+                                id="recordFilter"
+                                type="text"
+                                class="form-control record-filter"
+                                placeholder="🔍 د فورمي نمبر، نوم یا تذکرې له مخې لټون"
+                                autocomplete="off"
+                            >
+
+                            <div
+                                class="badge badge-info"
+                                id="recordsBadge"
+                            >
+                                چمتو
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        id="recordsLockBox"
+                        class="records-lock"
+                        style="display:none;"
+                    >
+                        🔒 ریکارډونه پټ دي.
+                    </div>
+
+
+                    <div
+                        class="table-container"
+                        id="recordsTableWrap"
+                    >
+
+                        <table>
+
+                            <thead>
+
+                                <tr>
+                                    <th>📄 فورم نمبر</th>
+                                    <th>👤 نوم</th>
+                                    <th>🪪 تذکره</th>
+                                    <th>📂 کټګوري</th>
+                                    <th>✏️ سمون</th>
+                                    <th>👁️ حالت</th>
+                                    <th>⚙️ عملیات</th>
+                                </tr>
+
+                            </thead>
+
+                            <tbody id="recordsTableBody">
+
+                                <tr>
+                                    <td
+                                        colspan="7"
+                                        class="text-center"
+                                    >
+                                        معلومات لوډېږي...
+                                    </td>
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </section>
+
+
+                <!-- Privacy -->
+                <section class="card admin-grid-full">
+
+                    <div
+                        class="admin-between"
+                        style="margin-bottom:12px;"
+                    >
+
+                        <div>
+
+                            <h2 style="
+                                font-size:20px;
+                                font-weight:800;
+                            ">
+                                🔒 د محرمیت عمومي تنظیمات
+                            </h2>
+
+                            <p class="admin-mini-note">
+                                یوازې ستر اډمین د دې برخې بدلون کولی شي.
+                            </p>
+
+                        </div>
+
+                        <div
+                            class="badge badge-warning"
+                            id="privacyBadge"
+                        >
+                            چمتو
+                        </div>
+
+                    </div>
+
+
+                    <div class="privacy-grid">
+
+                        <div class="privacy-card">
+                            <strong>👮 له نورو اډمینانو پټ</strong>
+
+                            <label class="switch-wrap">
+                                <input
+                                    type="checkbox"
+                                    id="hideFromAdmins"
+                                >
+                                <span>فعال</span>
+                            </label>
+                        </div>
+
+
+                        <div class="privacy-card">
+                            <strong>👥 له کارکوونکو پټ</strong>
+
+                            <label class="switch-wrap">
+                                <input
+                                    type="checkbox"
+                                    id="hideFromStaff"
+                                >
+                                <span>فعال</span>
+                            </label>
+                        </div>
+
+
+                        <div class="privacy-card">
+                            <strong>👤 له عامو کاروونکو پټ</strong>
+
+                            <label class="switch-wrap">
+                                <input
+                                    type="checkbox"
+                                    id="hideFromUsers"
+                                >
+                                <span>فعال</span>
+                            </label>
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        class="form-actions"
+                        style="margin-top:12px;"
+                    >
+
+                        <button
+                            type="button"
+                            class="btn btn-primary"
+                            id="savePrivacyBtn"
+                        >
+                            💾 خوندي کول
+                        </button>
+
+                    </div>
+
+                </section>
+
+
+                <!-- Fields -->
+                <section class="card admin-grid-full">
+
+                    <div
+                        class="admin-between"
+                        style="margin-bottom:12px;"
+                    >
+
+                        <div>
+
+                            <h2 style="
+                                font-size:20px;
+                                font-weight:800;
+                            ">
+                                🧩 د فیلډونو اصلي آنلاین مدیریت
+                            </h2>
+
+                            <p class="admin-mini-note">
+                                نوم، اجباري، ښکاره/پټ، قفل، برخه او موقعیت له همدې ځایه ټاکئ.
+                            </p>
+
+                        </div>
+
+
+                        <div class="admin-inline">
+
+                            <div
+                                class="badge badge-info"
+                                id="fieldsBadge"
+                            >
+                                چمتو
+                            </div>
+
+                            <button
+                                type="button"
+                                class="btn btn-secondary"
+                                id="addFieldBtn"
+                            >
+                                ➕ نوی فیلډ
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <div id="fieldsTable">
+
+                        <div class="records-lock">
+                            🧩 د فیلډونو معلومات لوډېږي...
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        class="form-actions"
+                        style="margin-top:12px;"
+                    >
+
+                        <button
+                            type="button"
+                            class="btn btn-primary"
+                            id="saveFieldsBtn"
+                        >
+                            💾 فیلډونه خوندي کول
+                        </button>
+
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            id="resetFieldsBtn"
+                        >
+                            ↩ اصلي حالت
+                        </button>
+
+                    </div>
+
+
+                    <div class="system-note-box">
+
+                        <strong>
+                            ✅ آنلاین اصلي حالت:
+                        </strong>
+
+                        د فیلډونو ټول بدلونونه په
+                        <b>Firestore / settings/system</b>
+                        کې ذخیره کېږي.
+                        د Refresh یا سیستم بیا پرانیستلو وروسته هم هماغه تنظیمات بېرته لوډېږي.
+
+                    </div>
+
+                </section>
+
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+
+<footer class="footer">
+
+    <span data-system-name>
+        د افغانستان اسلامي امارت د کره کمیسیون د ثبت او مدیریت سیسټم
+    </span>
+
+</footer>
+
+
+<script
+    type="module"
+    src="./admin.js"
+></script>
+
 </body>
 </html>
