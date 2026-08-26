@@ -1300,6 +1300,158 @@
             font-size: 9px;
         }
 
+        /* =====================================================
+           WHATSAPP SUPPORT
+           یوازې نوی اضافه شوی برخه
+        ===================================================== */
+
+        .kr-whatsapp-section {
+            margin-top: 15px;
+            margin-bottom: 8px;
+        }
+
+        .kr-whatsapp-card {
+            position: relative;
+            overflow: hidden;
+            padding: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            border: 1px solid rgba(37,211,102,.22);
+            border-radius: 18px;
+            background:
+                radial-gradient(
+                    circle at 100% 0%,
+                    rgba(37,211,102,.16),
+                    transparent 34%
+                ),
+                linear-gradient(
+                    135deg,
+                    var(--surface-color),
+                    var(--surface-alt)
+                );
+            box-shadow:
+                0 12px 32px rgba(4,34,19,.07);
+        }
+
+        .kr-whatsapp-card::before {
+            content: "";
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            left: -85px;
+            bottom: -100px;
+            border-radius: 50%;
+            background: rgba(37,211,102,.08);
+            pointer-events: none;
+        }
+
+        .kr-whatsapp-content {
+            position: relative;
+            z-index: 2;
+            min-width: 0;
+        }
+
+        .kr-whatsapp-title {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .kr-whatsapp-icon {
+            width: 43px;
+            height: 43px;
+            flex: 0 0 43px;
+            display: grid;
+            place-items: center;
+            border-radius: 13px;
+            color: #fff;
+            background:
+                linear-gradient(
+                    135deg,
+                    #25D366,
+                    #1EBE5D
+                );
+            box-shadow:
+                0 8px 20px rgba(37,211,102,.22);
+            font-size: 21px;
+        }
+
+        .kr-whatsapp-title strong {
+            display: block;
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+        .kr-whatsapp-title span {
+            display: block;
+            margin-top: 2px;
+            color: var(--muted-color);
+            font-size: 7px;
+        }
+
+        .kr-whatsapp-description {
+            margin: 8px 0 0;
+            color: var(--muted-color);
+            font-size: 7px;
+            line-height: 1.8;
+        }
+
+        .kr-whatsapp-number {
+            margin-top: 4px;
+            direction: ltr;
+            unicode-bidi: isolate;
+            color: #1EBE5D;
+            font-size: 7px;
+            font-weight: 900;
+        }
+
+        .kr-whatsapp-button {
+            position: relative;
+            z-index: 2;
+            min-height: 44px;
+            padding: 0 17px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex: 0 0 auto;
+            border: 0;
+            border-radius: 12px;
+            color: #fff !important;
+            background:
+                linear-gradient(
+                    135deg,
+                    #25D366,
+                    #1EBE5D
+                );
+            box-shadow:
+                0 10px 24px rgba(37,211,102,.20);
+            text-decoration: none !important;
+            font-size: 8px;
+            font-weight: 900;
+            transition:
+                transform .2s ease,
+                box-shadow .2s ease,
+                filter .2s ease;
+        }
+
+        .kr-whatsapp-button:hover {
+            transform: translateY(-2px);
+            box-shadow:
+                0 15px 30px rgba(37,211,102,.28);
+            filter: brightness(1.03);
+        }
+
+        .kr-whatsapp-button:active {
+            transform: translateY(0);
+        }
+
+        .kr-whatsapp-button i {
+            font-size: 16px;
+        }
+
         /* ---------- Responsive ---------- */
 
         @media (max-width:1250px) {
@@ -1350,6 +1502,7 @@
                 grid-template-columns:
                     1fr 1fr;
             }
+
         }
 
         @media (max-width:650px) {
@@ -1414,6 +1567,16 @@
                 width:100%;
                 justify-content:center;
             }
+
+            .kr-whatsapp-card {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .kr-whatsapp-button {
+                width: 100%;
+            }
+
         }
 
     </style>
@@ -1511,14 +1674,16 @@
                 class="active"
                 id="dashboardMenuBtn"
             >
-                    کـورپاڼـه 💒
+                💒  کـــورپــاڼــه
             </button>
-<button
-    type="button"
-    id="formicMenuBtn"
->
-    📗 فورمیک
-</button>
+
+            <button
+                type="button"
+                id="formicMenuBtn"
+            >
+                📗 فورمیک
+            </button>
+
             <button
                 type="button"
                 id="registerMenuBtn"
@@ -2299,7 +2464,6 @@
                     id="prayerGrid"
                 >
 
-
                     <div class="kr-prayer-item">
 
                         <i class="fa-solid fa-star-and-crescent"></i>
@@ -2412,7 +2576,6 @@
                         </small>
 
                     </div>
-
 
                 </div>
 
@@ -2879,6 +3042,78 @@
                         </strong>
 
                     </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =================================================
+                 WHATSAPP DIRECT CONTACT
+                 د Dashboard په آخر کې مستقیم WhatsApp
+            ================================================== -->
+
+            <section class="kr-whatsapp-section">
+
+                <div class="kr-whatsapp-card">
+
+                    <div class="kr-whatsapp-content">
+
+                        <div class="kr-whatsapp-title">
+
+                            <div class="kr-whatsapp-icon">
+
+                                <i class="fa-brands fa-whatsapp"></i>
+
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    مستقیم WhatsApp اړیکه
+                                </strong>
+
+                                <span>
+                                    د سیستم له داخل څخه مستقیم تماس
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <p class="kr-whatsapp-description">
+
+                            د مرستې، پوښتنې، ستونزې یا عمومي اړیکې لپاره
+                            لاندې تڼۍ کېکاږئ. WhatsApp به مستقیم پرانستل شي.
+
+                        </p>
+
+
+                        <div class="kr-whatsapp-number">
+
+                            +93 705 965 475
+
+                        </div>
+
+                    </div>
+
+
+                    <a
+                        id="dashboardWhatsAppButton"
+                        class="kr-whatsapp-button"
+                        href="https://wa.me/93705965475?text=%D8%B3%D9%84%D8%A7%D9%85%D8%8C%20%D8%B2%D9%87%20%D8%B3%D8%AA%D8%A7%D8%B3%D9%88%20%D8%AF%20%D8%B3%DB%8C%D8%B3%D8%AA%D9%85%20%D9%84%D9%87%20%D9%84%D8%A7%D8%B1%DB%90%20%D8%A7%DA%93%DB%8C%DA%A9%D9%87%20%D9%86%DB%8C%D8%B3%D9%85.%20%D9%85%D9%87%D8%B1%D8%A8%D8%A7%D9%86%D9%8A%20%D9%88%DA%A9%DA%93%D8%A6%20%D9%85%D8%B1%D8%B3%D8%AA%D9%87%20%D9%88%DA%A9%DA%93%D8%A6."
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="په WhatsApp کې مستقیمه اړیکه"
+                    >
+
+                        <i class="fa-brands fa-whatsapp"></i>
+
+                        WhatsApp ته اړیکه
+
+                    </a>
 
                 </div>
 
