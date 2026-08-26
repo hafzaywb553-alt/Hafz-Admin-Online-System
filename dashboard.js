@@ -1171,7 +1171,7 @@ const TRANSLATIONS = {
 
         sidebar: "اصلي مینو",
 
-        dashboard: "ډشبورډ",
+        dashboard: "کـــورپــاڼـه",
 
         register: "نوی ثبت",
 
@@ -1932,7 +1932,7 @@ function applySettingsText() {
     if (dashboardBtn) {
 
         dashboardBtn.textContent =
-            `📊 ${t("dashboard")}`;
+            `💒 ${t("dashboard")}`;
 
     }
 
