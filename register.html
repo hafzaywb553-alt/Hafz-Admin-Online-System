@@ -1,32 +1,99 @@
-<!DOCTYPE html><html lang="ps" dir="rtl">
+<!DOCTYPE html>
+<html lang="ps" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"><title>
-    نوی ثبت - د افغانستان اسلامي امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس
-</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0B6B36">
 
-<link rel="stylesheet" href="./style.css">
+    <title>
+        نوی ثبت - د افغانستان اسلامي امارت د کره کمیسیون د ثبت او مدیریت سیسټم
+    </title>
 
-</head><body><!-- ==========================================
-     Header
-     ========================================== -->
+    <link rel="stylesheet" href="./style.css">
+
+    <style>
+        #dynamicCustomFieldsSection {
+            margin-top: 14px;
+        }
+
+        #dynamicCustomFieldsGrid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .dynamic-field-locked {
+            opacity: .72;
+        }
+
+        .dynamic-field-locked input,
+        .dynamic-field-locked textarea,
+        .dynamic-field-locked select {
+            cursor: not-allowed;
+        }
+
+        .online-hidden-field {
+            display: none !important;
+        }
+
+        @media (max-width: 700px) {
+            #dynamicCustomFieldsGrid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
 
 <header class="main-header">
 
     <div class="header-brand">
-        <div class="header-logo">🛡️</div>
+
+        <div class="header-logo">
+            🛡️
+        </div>
 
         <div>
-            <div class="header-title" data-system-name>
-                Hafz Admin Online System
+            <div
+                class="header-title"
+                data-system-name
+            >
+                د افغانستان اسلامي امارت د کره کمیسیون د ثبت او مدیریت سیسټم
             </div>
         </div>
+
     </div>
 
     <div class="header-actions">
-        <button type="button" id="dashboardBtn" title="Dashboard">🏠</button>
-        <button type="button" id="refreshBtn" title="ریفریش">🔄</button>
-        <button type="button" id="logoutBtn" title="وتل">🚪</button>
+
+        <button
+            type="button"
+            id="dashboardBtn"
+            title="کورپاڼه"
+            aria-label="کورپاڼه"
+        >
+            🏠
+        </button>
+
+        <button
+            type="button"
+            id="refreshBtn"
+            title="تازه کول"
+            aria-label="تازه کول"
+        >
+            🔄
+        </button>
+
+        <button
+            type="button"
+            id="logoutBtn"
+            title="وتل"
+            aria-label="وتل"
+        >
+            🚪
+        </button>
+
     </div>
 
 </header>
@@ -42,32 +109,53 @@
 
         <nav class="sidebar-menu">
 
-            <button type="button" id="dashboardMenuBtn">
-                📊 Dashboard
+            <button
+                type="button"
+                id="dashboardMenuBtn"
+            >
+                📊 کورپاڼه
             </button>
-<button
-    type="button"
-    id="formicMenuBtn"
->
-    📋 فورمیک
-</button>
-            <button type="button" class="active" id="registerMenuBtn">
+
+            <button
+                type="button"
+                id="formicMenuBtn"
+            >
+                📋 فورمیک
+            </button>
+
+            <button
+                type="button"
+                class="active"
+                id="registerMenuBtn"
+            >
                 📝 نوی ثبت
             </button>
 
-            <button type="button" id="searchMenuBtn">
+            <button
+                type="button"
+                id="searchMenuBtn"
+            >
                 🔍 لټون
             </button>
 
-            <button type="button" id="reportsMenuBtn">
+            <button
+                type="button"
+                id="reportsMenuBtn"
+            >
                 📄 راپورونه
             </button>
 
-            <button type="button" id="adminMenuBtn">
-                👥 Admin
+            <button
+                type="button"
+                id="adminMenuBtn"
+            >
+                👮 ادمین
             </button>
 
-            <button type="button" id="settingsMenuBtn">
+            <button
+                type="button"
+                id="settingsMenuBtn"
+            >
                 ⚙️ تنظیمات
             </button>
 
@@ -97,6 +185,8 @@
                 id="formMessage"
                 class="alert"
                 style="display:none;"
+                role="alert"
+                aria-live="polite"
             ></div>
 
 
@@ -119,16 +209,27 @@
                 >
 
 
-                <section class="form-section">
+                <!-- د فورم معلومات -->
+                <section
+                    class="form-section"
+                    id="sectionPerson"
+                    data-field-section="person"
+                >
 
                     <div class="form-section-title">
                         📋 د فورم معلومات
                     </div>
 
-                    <div class="form-grid">
+                    <div
+                        class="form-grid"
+                        data-field-host="person"
+                        id="personFieldHost"
+                    >
 
-                        <div class="form-group">
-
+                        <div
+                            class="form-group"
+                            data-field-key="formNumber"
+                        >
                             <label
                                 class="form-label"
                                 for="formNumber"
@@ -154,12 +255,13 @@
                                 class="form-error"
                                 id="formNumberError"
                             ></div>
-
                         </div>
 
 
-                        <div class="form-group">
-
+                        <div
+                            class="form-group"
+                            data-field-key="firstName"
+                        >
                             <label
                                 class="form-label"
                                 for="firstName"
@@ -182,12 +284,13 @@
                                 class="form-error"
                                 id="firstNameError"
                             ></div>
-
                         </div>
 
 
-                        <div class="form-group">
-
+                        <div
+                            class="form-group"
+                            data-field-key="lastName"
+                        >
                             <label
                                 class="form-label"
                                 for="lastName"
@@ -208,12 +311,13 @@
                                 class="form-error"
                                 id="lastNameError"
                             ></div>
-
                         </div>
 
 
-                        <div class="form-group">
-
+                        <div
+                            class="form-group"
+                            data-field-key="fatherName"
+                        >
                             <label
                                 class="form-label"
                                 for="fatherName"
@@ -236,12 +340,13 @@
                                 class="form-error"
                                 id="fatherNameError"
                             ></div>
-
                         </div>
 
 
-                        <div class="form-group">
-
+                        <div
+                            class="form-group"
+                            data-field-key="grandfatherName"
+                        >
                             <label
                                 class="form-label"
                                 for="grandfatherName"
@@ -264,17 +369,18 @@
                                 class="form-error"
                                 id="grandfatherNameError"
                             ></div>
-
                         </div>
 
 
-                        <div class="form-group">
-
+                        <div
+                            class="form-group"
+                            data-field-key="englishName"
+                        >
                             <label
                                 class="form-label"
                                 for="englishName"
                             >
-                                Name
+                                انګلیسي نوم
                             </label>
 
                             <input
@@ -282,7 +388,7 @@
                                 name="englishName"
                                 type="text"
                                 class="form-control"
-                                placeholder="Name"
+                                placeholder="انګلیسي نوم"
                                 maxlength="100"
                                 autocomplete="off"
                                 dir="ltr"
@@ -292,17 +398,18 @@
                                 class="form-error"
                                 id="englishNameError"
                             ></div>
-
                         </div>
 
 
-                        <div class="form-group">
-
+                        <div
+                            class="form-group"
+                            data-field-key="englishLastName"
+                        >
                             <label
                                 class="form-label"
                                 for="englishLastName"
                             >
-                                Last Name
+                                انګلیسي تخلص
                             </label>
 
                             <input
@@ -310,7 +417,7 @@
                                 name="englishLastName"
                                 type="text"
                                 class="form-control"
-                                placeholder="Last Name"
+                                placeholder="انګلیسي تخلص"
                                 maxlength="200"
                                 autocomplete="off"
                                 dir="ltr"
@@ -320,17 +427,18 @@
                                 class="form-error"
                                 id="englishLastNameError"
                             ></div>
-
                         </div>
 
 
-                        <div class="form-group">
-
+                        <div
+                            class="form-group"
+                            data-field-key="englishFatherName"
+                        >
                             <label
                                 class="form-label"
                                 for="englishFatherName"
                             >
-                                Father Name
+                                د پلار انګلیسي نوم
                             </label>
 
                             <input
@@ -338,7 +446,7 @@
                                 name="englishFatherName"
                                 type="text"
                                 class="form-control"
-                                placeholder="Father Name"
+                                placeholder="د پلار انګلیسي نوم"
                                 maxlength="100"
                                 autocomplete="off"
                                 dir="ltr"
@@ -348,17 +456,18 @@
                                 class="form-error"
                                 id="englishFatherNameError"
                             ></div>
-
                         </div>
 
 
-                        <div class="form-group">
-
+                        <div
+                            class="form-group"
+                            data-field-key="englishGrandfatherName"
+                        >
                             <label
                                 class="form-label"
                                 for="englishGrandfatherName"
                             >
-                                Grandfather Name
+                                د نیکه انګلیسي نوم
                             </label>
 
                             <input
@@ -366,7 +475,7 @@
                                 name="englishGrandfatherName"
                                 type="text"
                                 class="form-control"
-                                placeholder="Grandfather Name"
+                                placeholder="د نیکه انګلیسي نوم"
                                 maxlength="100"
                                 autocomplete="off"
                                 dir="ltr"
@@ -376,27 +485,36 @@
                                 class="form-error"
                                 id="englishGrandfatherNameError"
                             ></div>
-
                         </div>
 
 
-                        <!-- ==================================
-                             Tazkira Type
-                             یوازې د انتخاب اجباري کول
-                             ================================== -->
-
-                        <div class="form-group full">
+                      <div
+    class="form-group full"
+    id="tazkiraType"
+    data-field-key="tazkiraType"
+>
 
                             <label class="form-label">
                                 د تذکرې ډول
                                 <span class="required">*</span>
                             </label>
 
-                            <div style="display:flex;gap:14px;flex-wrap:wrap;">
+                            <div
+                                style="
+                                    display:flex;
+                                    gap:14px;
+                                    flex-wrap:wrap;
+                                "
+                            >
 
                                 <label
                                     class="form-control"
-                                    style="display:flex;align-items:center;gap:8px;cursor:pointer;"
+                                    style="
+                                        display:flex;
+                                        align-items:center;
+                                        gap:8px;
+                                        cursor:pointer;
+                                    "
                                 >
                                     <input
                                         type="radio"
@@ -405,15 +523,18 @@
                                         value="electronic"
                                         required
                                     >
-
                                     <span>برقي تذکیره</span>
-
                                 </label>
 
 
                                 <label
                                     class="form-control"
-                                    style="display:flex;align-items:center;gap:8px;cursor:pointer;"
+                                    style="
+                                        display:flex;
+                                        align-items:center;
+                                        gap:8px;
+                                        cursor:pointer;
+                                    "
                                 >
                                     <input
                                         type="radio"
@@ -422,9 +543,7 @@
                                         value="paper"
                                         required
                                     >
-
                                     <span>کاغذي تذکیره</span>
-
                                 </label>
 
                             </div>
@@ -440,13 +559,13 @@
                         <div
                             class="form-group"
                             id="electronicTazkiraGroup"
+                            data-field-key="tazkira"
                         >
-
                             <label
                                 class="form-label"
                                 for="tazkira"
                             >
-                                د تذکرې نمبر
+                                د برقي تذکرې نمبر
                                 <span
                                     class="required"
                                     id="electronicTazkiraRequired"
@@ -469,21 +588,20 @@
                                 class="form-error"
                                 id="tazkiraError"
                             ></div>
-
                         </div>
 
 
                         <div
                             class="form-group"
                             id="paperTazkiraNumberGroup"
+                            data-field-key="paperTazkiraNumber"
                             style="display:none;"
                         >
-
                             <label
                                 class="form-label"
                                 for="paperTazkiraNumber"
                             >
-                                د تذکرې نمبر
+                                د کاغذي تذکرې ګڼه
                                 <span
                                     class="required"
                                     id="paperTazkiraNumberRequired"
@@ -503,16 +621,15 @@
                                 class="form-error"
                                 id="paperTazkiraNumberError"
                             ></div>
-
                         </div>
 
 
                         <div
                             class="form-group"
                             id="paperJildGroup"
+                            data-field-key="paperTazkiraVolume"
                             style="display:none;"
                         >
-
                             <label
                                 class="form-label"
                                 for="paperTazkiraVolume"
@@ -537,16 +654,15 @@
                                 class="form-error"
                                 id="paperTazkiraVolumeError"
                             ></div>
-
                         </div>
 
 
                         <div
                             class="form-group"
                             id="paperSafhaGroup"
+                            data-field-key="paperTazkiraPage"
                             style="display:none;"
                         >
-
                             <label
                                 class="form-label"
                                 for="paperTazkiraPage"
@@ -571,16 +687,15 @@
                                 class="form-error"
                                 id="paperTazkiraPageError"
                             ></div>
-
                         </div>
 
 
                         <div
                             class="form-group"
                             id="paperGanaGroup"
+                            data-field-key="paperTazkiraGana"
                             style="display:none;"
                         >
-
                             <label
                                 class="form-label"
                                 for="paperTazkiraGana"
@@ -605,12 +720,13 @@
                                 class="form-error"
                                 id="paperTazkiraGanaError"
                             ></div>
-
                         </div>
 
 
-                        <div class="form-group">
-
+                        <div
+                            class="form-group"
+                            data-field-key="birthDate"
+                        >
                             <label
                                 class="form-label"
                                 for="birthDate"
@@ -636,12 +752,13 @@
                                 class="form-error"
                                 id="birthDateError"
                             ></div>
-
                         </div>
 
 
-                        <div class="form-group">
-
+                        <div
+                            class="form-group"
+                            data-field-key="age"
+                        >
                             <label
                                 class="form-label"
                                 for="age"
@@ -666,12 +783,13 @@
                                 class="form-error"
                                 id="ageError"
                             ></div>
-
                         </div>
 
 
-                        <div class="form-group">
-
+                        <div
+                            class="form-group"
+                            data-field-key="phone"
+                        >
                             <label
                                 class="form-label"
                                 for="phone"
@@ -687,16 +805,18 @@
                                 placeholder="د تلیفون شمېره"
                                 inputmode="tel"
                             >
-
                         </div>
 
                     </div>
-
                 </section>
 
 
-                <section class="form-section">
-
+                <!-- اصلي ځای -->
+                <section
+                    class="form-section"
+                    id="sectionOriginalLocation"
+                    data-field-section="originalLocation"
+                >
                     <div class="form-section-title">
                         📍 اصلي ځای
                     </div>
@@ -707,10 +827,15 @@
                             د اصلي اوسېدنې معلومات
                         </div>
 
-                        <div class="form-grid">
+                        <div
+                            class="form-grid"
+                            data-field-host="originalLocation"
+                        >
 
-                            <div class="form-group">
-
+                            <div
+                                class="form-group"
+                                data-field-key="originalProvince"
+                            >
                                 <label
                                     class="form-label"
                                     for="originalProvince"
@@ -733,12 +858,13 @@
                                     class="form-error"
                                     id="originalProvinceError"
                                 ></div>
-
                             </div>
 
 
-                            <div class="form-group">
-
+                            <div
+                                class="form-group"
+                                data-field-key="originalDistrict"
+                            >
                                 <label
                                     class="form-label"
                                     for="originalDistrict"
@@ -760,12 +886,13 @@
                                     class="form-error"
                                     id="originalDistrictError"
                                 ></div>
-
                             </div>
 
 
-                            <div class="form-group">
-
+                            <div
+                                class="form-group"
+                                data-field-key="originalVillage"
+                            >
                                 <label
                                     class="form-label"
                                     for="originalVillage"
@@ -787,18 +914,19 @@
                                     class="form-error"
                                     id="originalVillageError"
                                 ></div>
-
                             </div>
 
                         </div>
-
                     </div>
-
                 </section>
 
 
-                <section class="form-section">
-
+                <!-- فعلي ځای -->
+                <section
+                    class="form-section"
+                    id="sectionCurrentLocation"
+                    data-field-section="currentLocation"
+                >
                     <div class="form-section-title">
                         📍 فعلي ځای
                     </div>
@@ -809,10 +937,15 @@
                             د اوسني اوسېدنې معلومات
                         </div>
 
-                        <div class="form-grid">
+                        <div
+                            class="form-grid"
+                            data-field-host="currentLocation"
+                        >
 
-                            <div class="form-group">
-
+                            <div
+                                class="form-group"
+                                data-field-key="currentProvince"
+                            >
                                 <label
                                     class="form-label"
                                     for="currentProvince"
@@ -835,12 +968,13 @@
                                     class="form-error"
                                     id="currentProvinceError"
                                 ></div>
-
                             </div>
 
 
-                            <div class="form-group">
-
+                            <div
+                                class="form-group"
+                                data-field-key="currentDistrict"
+                            >
                                 <label
                                     class="form-label"
                                     for="currentDistrict"
@@ -862,12 +996,13 @@
                                     class="form-error"
                                     id="currentDistrictError"
                                 ></div>
-
                             </div>
 
 
-                            <div class="form-group">
-
+                            <div
+                                class="form-group"
+                                data-field-key="currentVillage"
+                            >
                                 <label
                                     class="form-label"
                                     for="currentVillage"
@@ -889,26 +1024,32 @@
                                     class="form-error"
                                     id="currentVillageError"
                                 ></div>
-
                             </div>
 
                         </div>
-
                     </div>
-
                 </section>
 
 
-                <section class="form-section">
-
+                <!-- کار -->
+                <section
+                    class="form-section"
+                    id="sectionWork"
+                    data-field-section="work"
+                >
                     <div class="form-section-title">
                         💼 د کار او اړوند معلومات
                     </div>
 
-                    <div class="form-grid">
+                    <div
+                        class="form-grid"
+                        data-field-host="work"
+                    >
 
-                        <div class="form-group">
-
+                        <div
+                            class="form-group"
+                            data-field-key="currentJob"
+                        >
                             <label
                                 class="form-label"
                                 for="currentJob"
@@ -924,12 +1065,13 @@
                                 placeholder="اوسنی دنده ولیکئ"
                                 maxlength="200"
                             >
-
                         </div>
 
 
-                        <div class="form-group">
-
+                        <div
+                            class="form-group"
+                            data-field-key="groupLeader"
+                        >
                             <label
                                 class="form-label"
                                 for="groupLeader"
@@ -952,12 +1094,13 @@
                                 class="form-error"
                                 id="groupLeaderError"
                             ></div>
-
                         </div>
 
 
-                        <div class="form-group">
-
+                        <div
+                            class="form-group"
+                            data-field-key="category"
+                        >
                             <label
                                 class="form-label"
                                 for="category"
@@ -972,7 +1115,6 @@
                                 class="form-control"
                                 required
                             >
-
                                 <option value="">
                                     کټګوري انتخاب کړئ
                                 </option>
@@ -992,34 +1134,30 @@
                                 <option value="بعدالفتح">
                                     بعدالفتح
                                 </option>
-
                             </select>
 
                             <div
                                 class="form-error"
                                 id="categoryError"
                             ></div>
-
                         </div>
 
 
                         <div
                             class="form-group full"
                             id="jihadiHistoryGroup"
+                            data-field-key="jihadiHistory"
                         >
-
                             <label
                                 class="form-label"
                                 for="jihadiHistory"
                             >
                                 جهادي سابقه
-
                                 <span
                                     class="required"
                                     id="jihadiRequired"
                                     style="display:none;"
                                 >*</span>
-
                             </label>
 
                             <textarea
@@ -1039,24 +1177,31 @@
                                 class="form-error"
                                 id="jihadiHistoryError"
                             ></div>
-
                         </div>
 
                     </div>
-
                 </section>
 
 
-                <section class="form-section">
-
+                <!-- PDF -->
+                <section
+                    class="form-section"
+                    id="sectionPdf"
+                    data-field-section="pdf"
+                >
                     <div class="form-section-title">
                         📄 د PDF معلومات
                     </div>
 
-                    <div class="form-grid">
+                    <div
+                        class="form-grid"
+                        data-field-host="pdf"
+                    >
 
-                        <div class="form-group">
-
+                        <div
+                            class="form-group"
+                            data-field-key="pdfCreationDate"
+                        >
                             <label
                                 class="form-label"
                                 for="pdfCreationDate"
@@ -1077,14 +1222,34 @@
                                 class="form-error"
                                 id="pdfCreationDateError"
                             ></div>
-
                         </div>
 
                     </div>
+                </section>
+
+
+                <!-- Custom -->
+                <section
+                    class="form-section"
+                    id="dynamicCustomFieldsSection"
+                    data-field-section="custom"
+                    style="display:none;"
+                >
+
+                    <div class="form-section-title">
+                        🧩 اضافي معلومات
+                    </div>
+
+                    <div
+                        class="form-grid"
+                        id="dynamicCustomFieldsGrid"
+                        data-field-host="custom"
+                    ></div>
 
                 </section>
 
 
+                <!-- Actions -->
                 <section class="form-section">
 
                     <div class="form-actions">
@@ -1110,7 +1275,7 @@
                             class="btn btn-secondary"
                             id="backBtn"
                         >
-                            ⬅ شاته
+                            ⬅️ شاته
                         </button>
 
                     </div>
@@ -1120,252 +1285,22 @@
             </form>
 
         </div>
-
     </main>
 
 </div>
 
 
 <footer class="footer">
-    Hafz Admin Online System
+    <span data-system-name>
+        د افغانستان اسلامي امارت د کره کمیسیون د ثبت او مدیریت سیسټم
+    </span>
 </footer>
 
 
-<!-- ==========================================
-     یوازې د تذکرې ډول او جهادي سابقې کنټرول
-     ========================================== -->
-
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-
-        /* ==============================
-           Tazkira
-           ============================== */
-
-        const electronicRadio =
-            document.getElementById("tazkiraTypeElectronic");
-
-        const paperRadio =
-            document.getElementById("tazkiraTypePaper");
-
-        const electronicGroup =
-            document.getElementById("electronicTazkiraGroup");
-
-        const paperNumberGroup =
-            document.getElementById("paperTazkiraNumberGroup");
-
-        const paperJildGroup =
-            document.getElementById("paperJildGroup");
-
-        const paperSafhaGroup =
-            document.getElementById("paperSafhaGroup");
-
-        const paperGanaGroup =
-            document.getElementById("paperGanaGroup");
-
-
-        const electronicTazkira =
-            document.getElementById("tazkira");
-
-        const paperTazkiraNumber =
-            document.getElementById("paperTazkiraNumber");
-
-        const paperTazkiraVolume =
-            document.getElementById("paperTazkiraVolume");
-
-        const paperTazkiraPage =
-            document.getElementById("paperTazkiraPage");
-
-        const paperTazkiraGana =
-            document.getElementById("paperTazkiraGana");
-
-
-        const electronicTazkiraRequired =
-            document.getElementById("electronicTazkiraRequired");
-
-        const paperTazkiraNumberRequired =
-            document.getElementById("paperTazkiraNumberRequired");
-
-        const paperTazkiraVolumeRequired =
-            document.getElementById("paperTazkiraVolumeRequired");
-
-        const paperTazkiraPageRequired =
-            document.getElementById("paperTazkiraPageRequired");
-
-        const paperTazkiraGanaRequired =
-            document.getElementById("paperTazkiraGanaRequired");
-
-
-        function updateTazkiraFields() {
-
-            const isPaper =
-                paperRadio.checked;
-
-
-            electronicGroup.style.display =
-                isPaper ? "none" : "";
-
-            paperNumberGroup.style.display =
-                isPaper ? "" : "none";
-
-            paperJildGroup.style.display =
-                isPaper ? "" : "none";
-
-            paperSafhaGroup.style.display =
-                isPaper ? "" : "none";
-
-            paperGanaGroup.style.display =
-                isPaper ? "" : "none";
-
-
-            /*
-             * د برقي تذکرې حالت
-             */
-
-            electronicTazkira.required =
-                !isPaper;
-
-            electronicTazkiraRequired.style.display =
-                !isPaper ? "" : "none";
-
-
-            /*
-             * د کاغذي تذکرې حالت
-             */
-
-            paperTazkiraNumber.required =
-                isPaper;
-
-            paperTazkiraVolume.required =
-                isPaper;
-
-            paperTazkiraPage.required =
-                isPaper;
-
-            paperTazkiraGana.required =
-                isPaper;
-
-
-            paperTazkiraNumberRequired.style.display =
-                isPaper ? "" : "none";
-
-            paperTazkiraVolumeRequired.style.display =
-                isPaper ? "" : "none";
-
-            paperTazkiraPageRequired.style.display =
-                isPaper ? "" : "none";
-
-            paperTazkiraGanaRequired.style.display =
-                isPaper ? "" : "none";
-
-
-            /*
-             * د پټې تذکرې خانې required لرې کول
-             */
-
-            if (!isPaper) {
-
-                paperTazkiraNumber.required = false;
-                paperTazkiraVolume.required = false;
-                paperTazkiraPage.required = false;
-                paperTazkiraGana.required = false;
-
-            }
-
-        }
-
-
-        electronicRadio.addEventListener(
-            "change",
-            updateTazkiraFields
-        );
-
-        paperRadio.addEventListener(
-            "change",
-            updateTazkiraFields
-        );
-
-        updateTazkiraFields();
-
-
-        /* ==============================
-           Jihadi History
-           ============================== */
-
-        const category =
-            document.getElementById("category");
-
-        const jihadiHistory =
-            document.getElementById("jihadiHistory");
-
-        const jihadiRequired =
-            document.getElementById("jihadiRequired");
-
-
-        function updateJihadiHistory() {
-
-            const isMujahid =
-                category.value === "مجاهد";
-
-
-            if (isMujahid) {
-
-                /*
-                 * مجاهد:
-                 * خانه خلاصه او اجباري ده
-                 */
-
-                jihadiHistory.disabled = false;
-                jihadiHistory.required = true;
-
-                jihadiRequired.style.display = "";
-
-                jihadiHistory.style.cursor = "text";
-
-            } else {
-
-                /*
-                 * نورې ټولې کټګورۍ:
-                 * خانه قلف ده او معلومات نه مني
-                 */
-
-                jihadiHistory.value = "";
-                jihadiHistory.disabled = true;
-                jihadiHistory.required = false;
-
-                jihadiRequired.style.display = "none";
-
-                jihadiHistory.style.cursor = "not-allowed";
-            }
-        }
-
-
-        category.addEventListener(
-            "change",
-            updateJihadiHistory
-        );
-
-
-        /*
-         * د پاڼې په لومړي ځل پرانیستلو کې
-         * د جهادي یوازې دا نوی صلاحیت به اضافه کېږي:
-یوازې Super Admin وکولای شي نوی فیلډ اضافه کړي.
-یوازې Super Admin وکولای شي فیلډ حذف کړي.
-یوازې Super Admin وکولای شي فیلډ قلف/Lock کړي.
-یوازې Super Admin وکولای شي فیلډ پټ/Hide کړي.
-یوازې Super Admin وکولای شي فیلډ اجباري کړي او * علامه ورسره ښکاره شي.
-یوازې Super Admin وکولای شي فیلډ غیر اجباري کړي.
-د نورو Admin/User لپاره به دا اختیارونه نه ښکاري.
-بدلونونه به آنلاین په Firebase/Firestore کې ذخیره او د ټولو وسیلو سره همغږي کېږي. ""حالت ټاکل
-         */
-
-        updateJihadiHistory();
-
-    });
-</script>
-
-
-<script type="module" src="./register.js"></script>
+<script
+    type="module"
+    src="./register.js"
+></script>
 
 </body>
 </html>
