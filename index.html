@@ -572,8 +572,7 @@
 
 
         /* ============================================================
-           VISUAL ENERGY LAYER
-           ډېرې نرۍ او جلا رنګې کرښې
+           VISUAL ENERGY
         ============================================================ */
 
         .energy-layer {
@@ -786,7 +785,7 @@
 
 
         /* ============================================================
-           INDIVIDUAL LINE POSITIONS
+           LINE POSITIONS
         ============================================================ */
 
         .line-01{
@@ -951,7 +950,7 @@
 
 
         /* ============================================================
-           MANY COLORED DOTS
+           DOTS
         ============================================================ */
 
         .network-dots {
@@ -1005,52 +1004,41 @@
             box-shadow:0 0 5px rgba(37,136,255,.45);
         }
 
-
         .dot-cyan {
             background:#25DFFF;
             box-shadow:0 0 5px rgba(37,223,255,.45);
         }
-
 
         .dot-green {
             background:#23EFA2;
             box-shadow:0 0 5px rgba(35,239,162,.45);
         }
 
-
         .dot-yellow {
             background:#FFD45A;
             box-shadow:0 0 5px rgba(255,212,90,.40);
         }
-
 
         .dot-red {
             background:#FF6879;
             box-shadow:0 0 5px rgba(255,104,121,.38);
         }
 
-
         .dot-purple {
             background:#A779FF;
             box-shadow:0 0 5px rgba(167,121,255,.40);
         }
-
 
         .dot-orange {
             background:#FF9D45;
             box-shadow:0 0 5px rgba(255,157,69,.38);
         }
 
-
         .dot-pink {
             background:#FF72C9;
             box-shadow:0 0 5px rgba(255,114,201,.36);
         }
 
-
-        /* ============================================================
-           DOT POSITIONS
-        ============================================================ */
 
         .dot-01{left:8%;top:12%;--dot-speed:18s}
         .dot-02{left:17%;top:20%;--dot-speed:22s}
@@ -1612,7 +1600,7 @@
 
 
         /* ============================================================
-           THEME
+           THEME BUTTON
         ============================================================ */
 
         .theme-switch {
@@ -1756,6 +1744,378 @@
 
 
         /* ============================================================
+           CLOCK + DATE
+        ============================================================ */
+
+        .date-time-box {
+
+            position:
+                absolute;
+
+            top:
+                72px;
+
+            left:
+                18px;
+
+            z-index:
+                42;
+
+            width:
+                255px;
+
+            padding:
+                8px;
+
+            border:
+                1px solid
+                rgba(91,174,208,.14);
+
+            border-radius:
+                11px;
+
+            background:
+                rgba(5,19,32,.82);
+
+            box-shadow:
+                0 6px 18px
+                rgba(0,0,0,.14);
+
+        }
+
+
+        html.light-mode .date-time-box {
+
+            border-color:
+                rgba(42,101,81,.14);
+
+            background:
+                rgba(255,255,255,.90);
+
+            box-shadow:
+                0 6px 18px
+                rgba(18,77,59,.07);
+
+        }
+
+
+        .live-clock {
+
+            min-height:
+                36px;
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                center;
+
+            gap:
+                7px;
+
+            direction:
+                ltr;
+
+            color:
+                #E9F9FF;
+
+            font-family:
+                Arial,
+                sans-serif;
+
+            font-size:
+                16px;
+
+            font-weight:
+                800;
+
+            white-space:
+                nowrap;
+
+        }
+
+
+        .live-clock i {
+
+            color:
+                #23EFA2;
+
+            font-size:
+                14px;
+
+        }
+
+
+        #clockPeriod {
+
+            color:
+                #25DFFF;
+
+            font-size:
+                13px;
+
+            font-weight:
+                900;
+
+        }
+
+
+        html.light-mode .live-clock {
+
+            color:
+                #17382F;
+
+        }
+
+
+        html.light-mode .live-clock i {
+
+            color:
+                #168B61;
+
+        }
+
+
+        html.light-mode #clockPeriod {
+
+            color:
+                #147C9B;
+
+        }
+
+
+        .date-display {
+
+            width:
+                100%;
+
+            min-height:
+                40px;
+
+            margin-top:
+                5px;
+
+            padding:
+                4px 7px;
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                center;
+
+            gap:
+                7px;
+
+            border:
+                1px solid
+                rgba(91,174,208,.11);
+
+            border-radius:
+                8px;
+
+            background:
+                rgba(4,17,29,.66);
+
+            color:
+                #C8D8DF;
+
+            font-size:
+                15px;
+
+            font-weight:
+                800;
+
+            line-height:
+                1.45;
+
+            text-align:
+                center;
+
+        }
+
+
+        .date-display:hover {
+
+            border-color:
+                rgba(37,223,255,.25);
+
+            color:
+                #F1FCFF;
+
+        }
+
+
+        .date-display i {
+
+            color:
+                #23EFA2;
+
+            font-size:
+                14px;
+
+            flex:
+                0 0 auto;
+
+        }
+
+
+        html.light-mode .date-display {
+
+            border-color:
+                rgba(42,101,81,.12);
+
+            background:
+                rgba(250,253,251,.88);
+
+            color:
+                #36574D;
+
+        }
+
+
+        html.light-mode .date-display:hover {
+
+            color:
+                #173F31;
+
+        }
+
+
+        .date-types {
+
+            display:
+                grid;
+
+            grid-template-columns:
+                repeat(3,1fr);
+
+            gap:
+                5px;
+
+            margin-top:
+                6px;
+
+        }
+
+
+        .date-types[hidden] {
+
+            display:
+                none;
+
+        }
+
+
+        .date-types button {
+
+            min-width:
+                0;
+
+            min-height:
+                34px;
+
+            padding:
+                3px;
+
+            border:
+                1px solid
+                rgba(91,174,208,.12);
+
+            border-radius:
+                7px;
+
+            background:
+                rgba(5,20,33,.72);
+
+            color:
+                #8198A5;
+
+            font-size:
+                11px;
+
+            font-weight:
+                800;
+
+            line-height:
+                1.4;
+
+        }
+
+
+        .date-types button:hover {
+
+            color:
+                #ECFCFF;
+
+            border-color:
+                rgba(37,223,255,.24);
+
+        }
+
+
+        .date-types button.active {
+
+            color:
+                #00140C;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #25DFFF,
+                    #23EFA2
+                );
+
+            border-color:
+                rgba(35,239,162,.38);
+
+        }
+
+
+        html.light-mode .date-types button {
+
+            background:
+                rgba(255,255,255,.90);
+
+            color:
+                #58736A;
+
+            border-color:
+                rgba(42,101,81,.13);
+
+        }
+
+
+        html.light-mode .date-types button:hover {
+
+            color:
+                #173F31;
+
+        }
+
+
+        html.light-mode .date-types button.active {
+
+            color:
+                #073629;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #A9EEF1,
+                    #A7F4D2
+                );
+
+        }
+
+
+        /* ============================================================
            THIN STATIC COLOR LINES
         ============================================================ */
 
@@ -1841,7 +2201,7 @@
 
 
         /* ============================================================
-           SLOW SINGLE SCAN
+           SLOW SCAN
         ============================================================ */
 
         .login-area::after {
@@ -2349,26 +2709,17 @@
 
 
         html.light-mode .brand-shield i {
-
-            color:
-                #168B61;
-
+            color:#168B61;
         }
 
 
         html.light-mode .brand-small {
-
-            color:
-                #167B59;
-
+            color:#167B59;
         }
 
 
         html.light-mode .brand-name {
-
-            color:
-                #1D4035;
-
+            color:#1D4035;
         }
 
 
@@ -2428,18 +2779,12 @@
 
 
         html.light-mode .login-heading h1 {
-
-            color:
-                #102F26;
-
+            color:#102F26;
         }
 
 
         html.light-mode .login-heading p {
-
-            color:
-                #5C746C;
-
+            color:#5C746C;
         }
 
 
@@ -2526,18 +2871,12 @@
 
 
         html.light-mode .secure-state {
-
-            color:
-                #5C746C;
-
+            color:#5C746C;
         }
 
 
         html.light-mode .secure-code {
-
-            color:
-                #71877F;
-
+            color:#71877F;
         }
 
 
@@ -2574,18 +2913,12 @@
 
 
         .required {
-
-            color:
-                #36EFA4;
-
+            color:#36EFA4;
         }
 
 
         .input-wrap {
-
-            position:
-                relative;
-
+            position:relative;
         }
 
 
@@ -2601,9 +2934,7 @@
                 15px;
 
             transform:
-                translateY(
-                    -50%
-                );
+                translateY(-50%);
 
             color:
                 #66808E;
@@ -2679,10 +3010,7 @@
 
 
         .form-control:hover {
-
-            border-color:
-                rgba(49,219,255,.28);
-
+            border-color:rgba(49,219,255,.28);
         }
 
 
@@ -2702,18 +3030,12 @@
 
 
         html.light-mode .form-label {
-
-            color:
-                #315047;
-
+            color:#315047;
         }
 
 
         html.light-mode .input-icon {
-
-            color:
-                #59766C;
-
+            color:#59766C;
         }
 
 
@@ -2732,10 +3054,7 @@
 
 
         html.light-mode .form-control::placeholder {
-
-            color:
-                #82978F;
-
+            color:#82978F;
         }
 
 
@@ -2770,9 +3089,7 @@
                 50%;
 
             transform:
-                translateY(
-                    -50%
-                );
+                translateY(-50%);
 
             width:
                 38px;
@@ -2816,18 +3133,12 @@
 
 
         html.light-mode .password-button {
-
-            color:
-                #5C776E;
-
+            color:#5C776E;
         }
 
 
         html.light-mode .password-button:hover {
-
-            color:
-                #15895F;
-
+            color:#15895F;
         }
 
 
@@ -2862,17 +3173,13 @@
 
 
         .login-message.show {
-
-            display:
-                block;
-
+            display:block;
         }
 
 
         .login-message.error {
 
-            color:
-                #FFAFB9;
+            color:#FFAFB9;
 
             border:
                 1px solid
@@ -2886,8 +3193,7 @@
 
         .login-message.success {
 
-            color:
-                #9AFFCD;
+            color:#9AFFCD;
 
             border:
                 1px solid
@@ -2996,18 +3302,12 @@
 
             0%,
             72% {
-
-                left:
-                    -120px;
-
+                left:-120px;
             }
 
             88%,
             100% {
-
-                left:
-                    125%;
-
+                left:125%;
             }
 
         }
@@ -3232,18 +3532,12 @@
 
 
         html.light-mode .security-info-item {
-
-            color:
-                #617A71;
-
+            color:#617A71;
         }
 
 
         html.light-mode .security-info-item i {
-
-            color:
-                #188F63;
-
+            color:#188F63;
         }
 
 
@@ -3323,10 +3617,7 @@
 
 
         .image-modal.show {
-
-            display:
-                flex;
-
+            display:flex;
         }
 
 
@@ -3533,6 +3824,20 @@
             }
 
 
+            .date-time-box {
+
+                top:
+                    62px;
+
+                left:
+                    10px;
+
+                width:
+                    220px;
+
+            }
+
+
             .visual-title {
 
                 display:
@@ -3680,7 +3985,6 @@
 
         /* ============================================================
            SMALL MOBILE
-           د سرعت لپاره اضافي حرکت بند
         ============================================================ */
 
         @media (max-width:600px) {
@@ -3716,7 +4020,7 @@
                     69vh;
 
                 padding:
-                    68px 16px 30px;
+                    130px 16px 30px;
 
             }
 
@@ -3745,11 +4049,55 @@
             }
 
 
-            /*
-                موبایل کې:
-                لویې متحرکې رڼاوې نه شته
-                خو نرۍ کرښې/نقطې ډېرې سپکې دي
-            */
+            .date-time-box {
+
+                top:
+                    56px;
+
+                left:
+                    8px;
+
+                width:
+                    198px;
+
+                padding:
+                    7px;
+
+            }
+
+
+            .live-clock {
+
+                min-height:
+                    31px;
+
+                font-size:
+                    15px;
+
+            }
+
+
+            .date-display {
+
+                min-height:
+                    38px;
+
+                font-size:
+                    14px;
+
+            }
+
+
+            .date-types button {
+
+                min-height:
+                    31px;
+
+                font-size:
+                    10px;
+
+            }
+
 
             .background-light {
 
@@ -4035,6 +4383,14 @@
             }
 
 
+            .date-time-box {
+
+                width:
+                    184px;
+
+            }
+
+
             .brand-small,
             .brand-name {
 
@@ -4056,7 +4412,6 @@
 
         /* ============================================================
            REDUCED MOTION
-           مهم: متن/آیکن نه ورکېږي
         ============================================================ */
 
         @media (prefers-reduced-motion:reduce) {
@@ -4119,15 +4474,10 @@
             ></div>
 
 
-            <!-- ====================================================
-                 MANY THIN COLORED LINES
-            ==================================================== -->
-
             <div
                 class="energy-layer"
                 aria-hidden="true"
             >
-
 
                 <span class="energy-line blue line-01"></span>
                 <span class="energy-line cyan line-02"></span>
@@ -4149,19 +4499,13 @@
                 <span class="energy-line orange line-15"></span>
                 <span class="energy-line pink line-16"></span>
 
-
             </div>
 
-
-            <!-- ====================================================
-                 MANY COLORED DOTS
-            ==================================================== -->
 
             <div
                 class="network-dots"
                 aria-hidden="true"
             >
-
 
                 <span class="network-dot dot-blue dot-01"></span>
                 <span class="network-dot dot-cyan dot-02"></span>
@@ -4197,7 +4541,6 @@
                 <span class="network-dot dot-red dot-29"></span>
                 <span class="network-dot dot-purple dot-30"></span>
 
-
             </div>
 
 
@@ -4207,47 +4550,32 @@
             ></div>
 
 
-            <!-- ====================================================
-                 VISUAL TITLE
-            ==================================================== -->
-
             <div class="visual-title">
-
 
                 <small>
                     پرمختللی خوندي سیستم
                 </small>
 
-
                 <strong>
                     ډیجیټل دفاع
                 </strong>
-
 
                 <span>
                     د مرکزي معلوماتي سیستم خوندي لاسرسی
                 </span>
 
-
             </div>
 
 
-            <!-- ====================================================
-                 HUD 1
-            ==================================================== -->
-
             <div class="hud one">
-
 
                 <div class="hud-label">
                     د تصدیق حالت
                 </div>
 
-
                 <div class="hud-value">
                     خوندي لاسرسی فعال دی
                 </div>
-
 
                 <div class="hud-progress">
 
@@ -4257,26 +4585,18 @@
 
                 </div>
 
-
             </div>
 
 
-            <!-- ====================================================
-                 HUD 2
-            ==================================================== -->
-
             <div class="hud two">
-
 
                 <div class="hud-label">
                     امنیتي څارنه
                 </div>
 
-
                 <div class="hud-value">
                     سیستم فعال او څارل کېږي
                 </div>
-
 
                 <div class="hud-progress">
 
@@ -4286,26 +4606,18 @@
 
                 </div>
 
-
             </div>
 
 
-            <!-- ====================================================
-                 HUD 3
-            ==================================================== -->
-
             <div class="hud three">
-
 
                 <div class="hud-label">
                     د معلوماتو ساتنه
                 </div>
 
-
                 <div class="hud-value">
                     کوډ شوې اړیکه
                 </div>
-
 
                 <div class="hud-progress">
 
@@ -4315,16 +4627,10 @@
 
                 </div>
 
-
             </div>
 
 
-            <!-- ====================================================
-                 SECURITY PILLS
-            ==================================================== -->
-
             <div class="visual-security">
-
 
                 <div class="security-pill">
 
@@ -4352,7 +4658,6 @@
 
                 </div>
 
-
             </div>
 
 
@@ -4379,7 +4684,6 @@
                 title="روښانه حالت فعالول"
             >
 
-
                 <i
                     id="themeToggleIcon"
                     class="fa-solid fa-sun"
@@ -4395,8 +4699,100 @@
 
                 </span>
 
-
             </button>
+
+
+
+            <!-- ====================================================
+                 CLOCK + DATE
+            ==================================================== -->
+
+            <div
+                id="dateTimeBox"
+                class="date-time-box"
+            >
+
+                <div
+                    id="liveClock"
+                    class="live-clock"
+                    aria-live="polite"
+                >
+
+                    <i
+                        class="fa-regular fa-clock"
+                        aria-hidden="true"
+                    ></i>
+
+                    <span
+                        id="clockValue"
+                    >
+                        12:00:00
+                    </span>
+
+                    <span
+                        id="clockPeriod"
+                    >
+                        AM
+                    </span>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    id="dateDisplay"
+                    class="date-display"
+                    aria-expanded="false"
+                    aria-controls="dateTypes"
+                    title="د تاریخ ډول بدلول"
+                >
+
+                    <i
+                        class="fa-regular fa-calendar-days"
+                        aria-hidden="true"
+                    ></i>
+
+                    <span
+                        id="dateValue"
+                    >
+                        تاریخ چمتو کېږي...
+                    </span>
+
+                </button>
+
+
+                <div
+                    id="dateTypes"
+                    class="date-types"
+                    hidden
+                >
+
+                    <button
+                        type="button"
+                        data-calendar="persian"
+                    >
+                        هجري شمسي
+                    </button>
+
+
+                    <button
+                        type="button"
+                        data-calendar="islamic"
+                    >
+                        هجري قمري
+                    </button>
+
+
+                    <button
+                        type="button"
+                        data-calendar="gregorian"
+                    >
+                        میلادي
+                    </button>
+
+                </div>
+
+            </div>
 
 
 
@@ -4409,21 +4805,17 @@
                 aria-hidden="true"
             >
 
-
                 <div
                     class="signal-orbit one"
                 ></div>
-
 
                 <div
                     class="signal-orbit two"
                 ></div>
 
-
                 <div
                     class="signal-orbit three"
                 ></div>
-
 
             </div>
 
@@ -4436,21 +4828,15 @@
             <div class="login-content">
 
 
-                <!-- =================================================
-                     BRAND
-                ================================================= -->
-
                 <div class="system-brand">
 
 
                     <div class="brand-shield">
 
-
                         <i
                             class="fa-solid fa-shield-halved"
                             aria-hidden="true"
                         ></i>
-
 
                     </div>
 
@@ -4482,10 +4868,6 @@
 
 
 
-                <!-- =================================================
-                     HEADING
-                ================================================== -->
-
                 <div class="login-heading">
 
 
@@ -4505,10 +4887,6 @@
                 </div>
 
 
-
-                <!-- =================================================
-                     SECURE STATUS
-                ================================================== -->
 
                 <div class="secure-top">
 
@@ -4536,17 +4914,11 @@
 
 
 
-                <!-- =================================================
-                     LOGIN FORM
-                ================================================== -->
-
                 <form
                     id="loginForm"
                     novalidate
                 >
 
-
-                    <!-- EMAIL -->
 
                     <div class="form-group">
 
@@ -4593,8 +4965,6 @@
                     </div>
 
 
-
-                    <!-- PASSWORD -->
 
                     <div class="form-group">
 
@@ -4659,8 +5029,6 @@
 
 
 
-                    <!-- MESSAGE -->
-
                     <div
                         id="loginMessage"
                         class="login-message"
@@ -4668,8 +5036,6 @@
                     ></div>
 
 
-
-                    <!-- LOGIN -->
 
                     <button
                         type="submit"
@@ -4690,8 +5056,6 @@
                     </button>
 
 
-
-                    <!-- SECONDARY -->
 
                     <div class="secondary-actions">
 
@@ -4724,10 +5088,6 @@
                 </form>
 
 
-
-                <!-- =================================================
-                     SECURITY INFO
-                ================================================== -->
 
                 <div class="security-info">
 
@@ -4786,10 +5146,6 @@
                 </div>
 
 
-
-                <!-- =================================================
-                     FOOTER
-                ================================================== -->
 
                 <footer class="login-footer">
 
@@ -4859,7 +5215,7 @@
 
 
 <!-- ============================================================
-     AUTHENTICATION + THEME
+     AUTHENTICATION + THEME + DATE
 ============================================================ -->
 
 <script type="module">
@@ -4987,6 +5343,10 @@
 
     const THEME_STORAGE_KEY =
         "registration_engine_theme";
+
+
+    const CALENDAR_STORAGE_KEY =
+        "registration_engine_calendar_type";
 
 
     /* ========================================================
@@ -5190,19 +5550,11 @@
     }
 
 
-    /* ========================================================
-       INITIAL THEME
-    ======================================================== */
-
     applyTheme(
         getSavedTheme(),
         false
     );
 
-
-    /* ========================================================
-       THEME TOGGLE
-    ======================================================== */
 
     themeToggle?.addEventListener(
         "click",
@@ -5223,6 +5575,633 @@
                 true
             );
 
+        }
+    );
+
+
+    /* ========================================================
+       DATE + CLOCK ELEMENTS
+    ======================================================== */
+
+    const dateTimeBox =
+        document.getElementById(
+            "dateTimeBox"
+        );
+
+
+    const clockValue =
+        document.getElementById(
+            "clockValue"
+        );
+
+
+    const clockPeriod =
+        document.getElementById(
+            "clockPeriod"
+        );
+
+
+    const dateDisplay =
+        document.getElementById(
+            "dateDisplay"
+        );
+
+
+    const dateValue =
+        document.getElementById(
+            "dateValue"
+        );
+
+
+    const dateTypes =
+        document.getElementById(
+            "dateTypes"
+        );
+
+
+    const dateButtons =
+        Array.from(
+            document.querySelectorAll(
+                "#dateTypes [data-calendar]"
+            )
+        );
+
+
+    const CALENDAR_VALUES = {
+
+        persian:
+            true,
+
+        islamic:
+            true,
+
+        gregorian:
+            true
+
+    };
+
+
+    let selectedCalendar =
+        "gregorian";
+
+
+    /* ========================================================
+       LOAD SAVED CALENDAR
+    ======================================================== */
+
+    try {
+
+        const savedCalendar =
+            localStorage.getItem(
+                CALENDAR_STORAGE_KEY
+            );
+
+
+        if (
+            CALENDAR_VALUES[
+                savedCalendar
+            ]
+        ) {
+
+            selectedCalendar =
+                savedCalendar;
+
+        }
+
+    }
+
+    catch (error) {
+
+        console.warn(
+            "Calendar storage read error:",
+            error
+        );
+
+    }
+
+
+    /* ========================================================
+       GET CALENDAR PARTS
+    ======================================================== */
+
+    function getCalendarParts(
+        date,
+        calendar
+    ) {
+
+        try {
+
+            const formatter =
+                new Intl.DateTimeFormat(
+                    `en-US-u-ca-${calendar}`,
+                    {
+                        day:
+                            "numeric",
+
+                        month:
+                            "numeric",
+
+                        year:
+                            "numeric"
+                    }
+                );
+
+
+            const parts =
+                formatter.formatToParts(
+                    date
+                );
+
+
+            const result = {};
+
+
+            parts.forEach(
+                part => {
+
+                    if (
+                        part.type ===
+                        "day"
+                    ) {
+
+                        result.day =
+                            part.value;
+
+                    }
+
+
+                    if (
+                        part.type ===
+                        "month"
+                    ) {
+
+                        result.month =
+                            part.value;
+
+                    }
+
+
+                    if (
+                        part.type ===
+                        "year"
+                    ) {
+
+                        result.year =
+                            part.value;
+
+                    }
+
+                }
+            );
+
+
+            return result;
+
+        }
+
+        catch (error) {
+
+            console.warn(
+                "Calendar formatting error:",
+                error
+            );
+
+
+            return null;
+
+        }
+
+    }
+
+
+    /* ========================================================
+       NUMERIC GREGORIAN DATE
+       مثال: 2026/7/5
+    ======================================================== */
+
+    function formatGregorianDate(
+        date
+    ) {
+
+        return [
+
+            date.getFullYear(),
+
+            date.getMonth() + 1,
+
+            date.getDate()
+
+        ].join(
+            "/"
+        );
+
+    }
+
+
+    /* ========================================================
+       NUMERIC PERSIAN DATE
+       مثال: 1405/9/10
+    ======================================================== */
+
+    function formatPersianDate(
+        date
+    ) {
+
+        const parts =
+            getCalendarParts(
+                date,
+                "persian"
+            );
+
+
+        if (
+            !parts
+        ) {
+
+            return formatGregorianDate(
+                date
+            );
+
+        }
+
+
+        return [
+
+            parts.year,
+
+            parts.month,
+
+            parts.day
+
+        ].join(
+            "/"
+        );
+
+    }
+
+
+    /* ========================================================
+       NUMERIC ISLAMIC DATE
+       مثال: 1448/10/20
+    ======================================================== */
+
+    function formatIslamicDate(
+        date
+    ) {
+
+        const parts =
+            getCalendarParts(
+                date,
+                "islamic"
+            );
+
+
+        if (
+            !parts
+        ) {
+
+            return formatGregorianDate(
+                date
+            );
+
+        }
+
+
+        return [
+
+            parts.year,
+
+            parts.month,
+
+            parts.day
+
+        ].join(
+            "/"
+        );
+
+    }
+
+
+    /* ========================================================
+       SELECTED DATE
+    ======================================================== */
+
+    function getSelectedDate(
+        date
+    ) {
+
+        switch (
+            selectedCalendar
+        ) {
+
+            case "persian":
+
+                return formatPersianDate(
+                    date
+                );
+
+
+            case "islamic":
+
+                return formatIslamicDate(
+                    date
+                );
+
+
+            case "gregorian":
+
+            default:
+
+                return formatGregorianDate(
+                    date
+                );
+
+        }
+
+    }
+
+
+    /* ========================================================
+       ACTIVE CALENDAR BUTTON
+    ======================================================== */
+
+    function updateCalendarButtons() {
+
+        dateButtons.forEach(
+            button => {
+
+                button.classList.toggle(
+                    "active",
+                    button.dataset.calendar ===
+                    selectedCalendar
+                );
+
+            }
+        );
+
+    }
+
+
+    /* ========================================================
+       UPDATE LIVE CLOCK + DATE
+    ======================================================== */
+
+    function updateClockAndDate() {
+
+        const now =
+            new Date();
+
+
+        let hours =
+            now.getHours();
+
+
+        const minutes =
+            String(
+                now.getMinutes()
+            ).padStart(
+                2,
+                "0"
+            );
+
+
+        const seconds =
+            String(
+                now.getSeconds()
+            ).padStart(
+                2,
+                "0"
+            );
+
+
+        const period =
+            hours >= 12
+                ? "PM"
+                : "AM";
+
+
+        hours =
+            hours % 12;
+
+
+        if (
+            hours === 0
+        ) {
+
+            hours =
+                12;
+
+        }
+
+
+        if (
+            clockValue
+        ) {
+
+            clockValue.textContent =
+                `${String(hours).padStart(2,"0")}:${minutes}:${seconds}`;
+
+        }
+
+
+        if (
+            clockPeriod
+        ) {
+
+            clockPeriod.textContent =
+                period;
+
+        }
+
+
+        if (
+            dateValue
+        ) {
+
+            dateValue.textContent =
+                getSelectedDate(
+                    now
+                );
+
+        }
+
+
+        updateCalendarButtons();
+
+    }
+
+
+    /* ========================================================
+       OPEN / CLOSE DATE OPTIONS
+    ======================================================== */
+
+    dateDisplay?.addEventListener(
+        "click",
+        event => {
+
+            event.stopPropagation();
+
+
+            const willOpen =
+                dateTypes.hidden === true;
+
+
+            dateTypes.hidden =
+                !willOpen;
+
+
+            dateDisplay.setAttribute(
+                "aria-expanded",
+                willOpen
+                    ? "true"
+                    : "false"
+            );
+
+
+            updateCalendarButtons();
+
+        }
+    );
+
+
+    /* ========================================================
+       SELECT DATE CATEGORY
+    ======================================================== */
+
+    dateButtons.forEach(
+        button => {
+
+            button.addEventListener(
+                "click",
+                event => {
+
+                    event.stopPropagation();
+
+
+                    const selected =
+                        button.dataset.calendar;
+
+
+                    if (
+                        !CALENDAR_VALUES[
+                            selected
+                        ]
+                    ) {
+
+                        return;
+
+                    }
+
+
+                    selectedCalendar =
+                        selected;
+
+
+                    try {
+
+                        localStorage.setItem(
+                            CALENDAR_STORAGE_KEY,
+                            selectedCalendar
+                        );
+
+                    }
+
+                    catch (error) {
+
+                        console.warn(
+                            "Calendar storage write error:",
+                            error
+                        );
+
+                    }
+
+
+                    updateClockAndDate();
+
+
+                    /*
+                       له انتخاب وروسته
+                       د انتخاباتو لست پټېږي.
+                    */
+
+                    dateTypes.hidden =
+                        true;
+
+
+                    dateDisplay.setAttribute(
+                        "aria-expanded",
+                        "false"
+                    );
+
+                }
+            );
+
+        }
+    );
+
+
+    /* ========================================================
+       OUTSIDE CLICK
+    ======================================================== */
+
+    document.addEventListener(
+        "click",
+        event => {
+
+            if (
+                dateTimeBox &&
+                !dateTimeBox.contains(
+                    event.target
+                )
+            ) {
+
+                if (
+                    dateTypes
+                ) {
+
+                    dateTypes.hidden =
+                        true;
+
+                }
+
+
+                dateDisplay?.setAttribute(
+                    "aria-expanded",
+                    "false"
+                );
+
+            }
+
+        }
+    );
+
+
+    /* ========================================================
+       INITIALIZE DATE
+    ======================================================== */
+
+    updateClockAndDate();
+
+
+    const dateClockInterval =
+        window.setInterval(
+            updateClockAndDate,
+            1000
+        );
+
+
+    window.addEventListener(
+        "beforeunload",
+        () => {
+
+            window.clearInterval(
+                dateClockInterval
+            );
+
+        },
+        {
+            once:
+                true
         }
     );
 
