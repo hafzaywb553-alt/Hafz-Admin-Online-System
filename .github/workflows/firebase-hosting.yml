@@ -29,5 +29,25 @@ jobs:
       - name: Install Firebase CLI
         run: npm install -g firebase-tools
 
+      - name: Update version.json
+        run: |
+          python - <<'PY2'
+          import json
+          import os
+          from pathlib import Path
+
+          version = os.environ.get("GITHUB_SHA", "")[:7]
+          if not version:
+              raise SystemExit("GITHUB_SHA not available")
+
+          Path("version.json").write_text(
+              json.dumps(
+                  {"version": version},
+                  ensure_ascii=False,
+                  indent=2
+              ) + "\n"
+          )
+          PY2
+
       - name: Deploy Firebase Hosting
         run: firebase deploy --only hosting --project hafz-admin-online-system

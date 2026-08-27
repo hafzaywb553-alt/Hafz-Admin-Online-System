@@ -16,6 +16,7 @@
 
         // هر ځل چې نوې نسخه خپروې، دا شمېره بدلوه.
         VERSION: "1.0.1",
+        REMOTE_VERSION_URL: "./version.json",
 
         // Service Worker فایل
         SERVICE_WORKER: "./sw.js",
@@ -379,22 +380,68 @@
     // Detect New Version
     // ==========================================
 
-    function checkLocalVersion() {
+    async function checkRemoteVersion() {
 
-        const savedVersion =
-            localStorage.getItem(
-                PWA_CONFIG.VERSION_KEY
+        try {
+
+            const response = await fetch(
+                `${PWA_CONFIG.REMOTE_VERSION_URL}?t=${Date.now()}`,
+                {
+                    cache: "no-store"
+                }
             );
 
+            if (!response.ok) {
+                return;
+            }
 
-        if (
-            savedVersion !==
-            PWA_CONFIG.VERSION
-        ) {
+            const data = await response.json();
 
-            localStorage.setItem(
-                PWA_CONFIG.VERSION_KEY,
-                PWA_CONFIG.VERSION
+            const remoteVersion =
+                normalizeText(data?.version);
+
+            if (!remoteVersion) {
+                return;
+            }
+
+            const savedVersion =
+                localStorage.getItem(
+                    PWA_CONFIG.VERSION_KEY
+                );
+
+            if (!savedVersion) {
+
+                localStorage.setItem(
+                    PWA_CONFIG.VERSION_KEY,
+                    remoteVersion
+                );
+
+                return;
+            }
+
+            if (savedVersion !== remoteVersion) {
+
+                localStorage.setItem(
+                    PWA_CONFIG.VERSION_KEY,
+                    remoteVersion
+                );
+
+                showUpdateMessage(
+                    "د سیستم نوې نسخه خپره شوې ده. سیستم تازه کېږي..."
+                );
+
+                setTimeout(
+                    () => window.location.reload(),
+                    1200
+                );
+
+            }
+
+        } catch (error) {
+
+            console.error(
+                "Remote version check failed:",
+                error
             );
 
         }
@@ -672,7 +719,14 @@
         "DOMContentLoaded",
         async () => {
 
-            checkLocalVersion();
+            await checkRemoteVersion();
+
+            setInterval(
+                () => {
+                    checkRemoteVersion();
+                },
+                60 * 1000
+            );
 
             setupControllerChange();
 
