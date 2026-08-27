@@ -1,0 +1,3174 @@
+<!DOCTYPE html>
+<html lang="ps" dir="rtl">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="theme-color"
+        content="#0B6B36"
+    >
+
+    <title>
+        د افغانستان اسلامي امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس | Dashboard
+    </title>
+
+    <!-- اصلي Global CSS -->
+    <link
+        rel="stylesheet"
+        href="./style.css"
+    >
+
+    <!-- Icons -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    >
+
+    <style>
+
+        /* =====================================================
+           DASHBOARD ADDITIONAL DESIGN
+           اصلي style.css نه خرابوي
+        ===================================================== */
+
+        .kr-dashboard {
+            position: relative;
+            z-index: 1;
+        }
+
+        .kr-dashboard .main-content {
+            padding: 18px 22px 30px;
+        }
+
+        .kr-dashboard .page {
+            max-width: 1900px;
+        }
+
+        /* ---------- Page Header ---------- */
+
+        .kr-page-head {
+            margin-bottom: 14px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 14px;
+        }
+
+        .kr-page-head h1 {
+            margin: 0;
+            font-size: clamp(23px, 2vw, 31px);
+            font-weight: 900;
+            line-height: 1.4;
+        }
+
+        .kr-page-head p {
+            margin: 4px 0 0;
+            color: var(--muted-color);
+            font-size: 11px;
+        }
+
+        .kr-live-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 9px;
+            border-radius: 999px;
+            color: var(--primary-color);
+            background: var(--primary-light);
+            font-size: 8px;
+            font-weight: 900;
+        }
+
+        .kr-live-pill i {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(11,107,54,.08);
+        }
+
+        /* ---------- Hero ---------- */
+
+        .kr-hero {
+            min-height: 265px;
+            margin-bottom: 15px;
+            padding: 28px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            overflow: hidden;
+            position: relative;
+            border-radius: 21px;
+            color: #fff;
+            background:
+                radial-gradient(
+                    circle at 75% 0%,
+                    rgba(89,213,140,.20),
+                    transparent 31%
+                ),
+                radial-gradient(
+                    circle at 0% 100%,
+                    rgba(36,107,206,.16),
+                    transparent 29%
+                ),
+                linear-gradient(
+                    135deg,
+                    #061B11,
+                    #0B2B1D 55%,
+                    #145536
+                );
+            box-shadow: 0 20px 60px rgba(4,41,21,.18);
+        }
+
+        .kr-hero::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            opacity: .11;
+            background-image:
+                linear-gradient(
+                    rgba(255,255,255,.08) 1px,
+                    transparent 1px
+                ),
+                linear-gradient(
+                    90deg,
+                    rgba(255,255,255,.08) 1px,
+                    transparent 1px
+                );
+            background-size: 30px 30px;
+        }
+
+        .kr-hero-copy {
+            max-width: 760px;
+            position: relative;
+            z-index: 3;
+        }
+
+        .kr-hero-tag {
+            width: fit-content;
+            padding: 5px 9px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid rgba(255,255,255,.12);
+            border-radius: 999px;
+            background: rgba(255,255,255,.06);
+            font-size: 8px;
+        }
+
+        .kr-hero-copy h2 {
+            margin: 11px 0 0;
+            font-size: clamp(22px, 2.2vw, 31px);
+            line-height: 1.4;
+            font-weight: 900;
+        }
+
+        .kr-hero-copy h2 span {
+            color: #68D698;
+        }
+
+        .kr-hero-copy p {
+            margin: 7px 0 0;
+            max-width: 700px;
+            color: rgba(255,255,255,.62);
+            font-size: 10px;
+            line-height: 1.9;
+        }
+
+        .kr-hero-actions {
+            margin-top: 17px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .kr-hero-button {
+            min-height: 40px;
+            padding: 0 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            border-radius: 10px;
+            text-decoration: none !important;
+            font-size: 8px;
+            font-weight: 900;
+            transition: .2s ease;
+        }
+
+        .kr-hero-button:hover {
+            transform: translateY(-2px);
+        }
+
+        .kr-hero-button.primary {
+            color: #fff;
+            background:
+                linear-gradient(
+                    135deg,
+                    #18A75E,
+                    #08713B
+                );
+        }
+
+        .kr-hero-button.secondary {
+            color: #fff;
+            border: 1px solid rgba(255,255,255,.13);
+            background: rgba(255,255,255,.07);
+        }
+
+        .kr-hero-visual {
+            width: 290px;
+            height: 220px;
+            flex: 0 0 290px;
+            position: relative;
+            display: grid;
+            place-items: center;
+            z-index: 3;
+        }
+
+        .kr-core {
+            width: 122px;
+            height: 122px;
+            display: grid;
+            place-items: center;
+            border-radius: 50%;
+            background:
+                radial-gradient(
+                    circle,
+                    rgba(83,205,137,.40),
+                    rgba(11,107,54,.08) 63%,
+                    transparent 65%
+                );
+            border: 1px solid rgba(255,255,255,.12);
+            box-shadow: 0 0 70px rgba(66,192,119,.24);
+        }
+
+        .kr-core-inner {
+            width: 61px;
+            height: 61px;
+            display: grid;
+            place-items: center;
+            border-radius: 18px;
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(255,255,255,.16),
+                    rgba(255,255,255,.03)
+                );
+            border: 1px solid rgba(255,255,255,.13);
+            font-size: 24px;
+        }
+
+        .kr-orbit {
+            position: absolute;
+            border: 1px solid rgba(255,255,255,.10);
+            border-radius: 50%;
+        }
+
+        .kr-orbit.one {
+            width: 180px;
+            height: 180px;
+            animation: krSpin 15s linear infinite;
+        }
+
+        .kr-orbit.two {
+            width: 228px;
+            height: 228px;
+            border-style: dashed;
+            animation: krSpin 21s linear infinite reverse;
+        }
+
+        @keyframes krSpin {
+            to { transform: rotate(360deg); }
+        }
+
+        .kr-floating {
+            position: absolute;
+            min-width: 70px;
+            min-height: 36px;
+            padding: 5px 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid rgba(255,255,255,.13);
+            border-radius: 10px;
+            background: rgba(255,255,255,.08);
+            backdrop-filter: blur(10px);
+            color: #fff;
+            font-size: 7px;
+            animation: krFloat 4s ease-in-out infinite;
+        }
+
+        .kr-floating i {
+            color: #75D69A;
+        }
+
+        .kr-floating.a {
+            right: 5px;
+            top: 24px;
+        }
+
+        .kr-floating.b {
+            left: 2px;
+            top: 60px;
+            animation-delay: .8s;
+        }
+
+        .kr-floating.c {
+            right: 22px;
+            bottom: 4px;
+            animation-delay: 1.3s;
+        }
+
+        @keyframes krFloat {
+            0%,100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+
+        /* ---------- KPI ---------- */
+
+        .kr-kpi-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(4,minmax(0,1fr));
+            gap: 12px;
+            margin: 14px 0;
+        }
+
+        .kr-kpi {
+            min-height: 178px;
+            padding: 16px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            background: var(--surface-color);
+            box-shadow: 0 10px 28px rgba(4,34,19,.06);
+            transition: .22s ease;
+        }
+
+        .kr-kpi:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 17px 39px rgba(4,34,19,.12);
+        }
+
+        .kr-kpi::before {
+            content: "";
+            position: absolute;
+            width: 160px;
+            height: 160px;
+            top: -92px;
+            left: -78px;
+            border-radius: 50%;
+        }
+
+        .kr-kpi.blue::before {
+            background: rgba(36,107,206,.09);
+        }
+
+        .kr-kpi.green::before {
+            background: rgba(11,107,54,.09);
+        }
+
+        .kr-kpi.orange::before {
+            background: rgba(212,123,9,.10);
+        }
+
+        .kr-kpi.red::before {
+            background: rgba(180,35,24,.09);
+        }
+
+        .kr-kpi-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            z-index: 2;
+        }
+
+        .kr-icon {
+            width: 47px;
+            height: 47px;
+            display: grid;
+            place-items: center;
+            border-radius: 13px;
+            font-size: 17px;
+        }
+
+        .kr-icon.blue {
+            color: #246BCE;
+            background: #EAF3FF;
+        }
+
+        .kr-icon.green {
+            color: #0B6B36;
+            background: #E9F8EF;
+        }
+
+        .kr-icon.orange {
+            color: #D47B09;
+            background: #FFF4DF;
+        }
+
+        .kr-icon.red {
+            color: #B42318;
+            background: #FFF0EE;
+        }
+
+        .kr-kpi-badge {
+            padding: 4px 7px;
+            border-radius: 999px;
+            font-size: 6px;
+            font-weight: 900;
+        }
+
+        .kr-kpi-badge.blue {
+            color: #246BCE;
+            background: #EAF3FF;
+        }
+
+        .kr-kpi-badge.green {
+            color: #0B6B36;
+            background: #E9F8EF;
+        }
+
+        .kr-kpi-badge.orange {
+            color: #D47B09;
+            background: #FFF4DF;
+        }
+
+        .kr-kpi-number {
+            margin-top: 17px;
+            font-size: 26px;
+            line-height: 1;
+            font-weight: 900;
+            position: relative;
+            z-index: 2;
+        }
+
+        .kr-kpi-label {
+            margin-top: 7px;
+            font-size: 10px;
+            font-weight: 900;
+        }
+
+        .kr-kpi-description {
+            margin-top: 2px;
+            color: var(--muted-color);
+            font-size: 7px;
+        }
+
+        .kr-kpi-progress {
+            position: absolute;
+            left: 15px;
+            right: 15px;
+            bottom: 12px;
+            height: 4px;
+            border-radius: 999px;
+            overflow: hidden;
+            background: var(--surface-alt);
+        }
+
+        .kr-kpi-progress span {
+            display: block;
+            height: 100%;
+            border-radius: inherit;
+        }
+
+        .kr-kpi.blue .kr-kpi-progress span {
+            width: 86%;
+            background: linear-gradient(90deg,#5E9CF2,#246BCE);
+        }
+
+        .kr-kpi.green .kr-kpi-progress span {
+            width: 75%;
+            background: linear-gradient(90deg,#58D294,#0B6B36);
+        }
+
+        .kr-kpi.orange .kr-kpi-progress span {
+            width: 47%;
+            background: linear-gradient(90deg,#F2C45E,#D47B09);
+        }
+
+        .kr-kpi.red .kr-kpi-progress span {
+            width: 22%;
+            background: linear-gradient(90deg,#EA7C74,#B42318);
+        }
+
+        /* ---------- Date Cards ---------- */
+
+        .kr-date-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(4,minmax(0,1fr));
+            gap: 10px;
+            margin: 14px 0;
+        }
+
+        .kr-date-card {
+            min-height: 110px;
+            padding: 13px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            background: var(--surface-color);
+            box-shadow: 0 9px 26px rgba(5,34,19,.06);
+        }
+
+        .kr-date-card::after {
+            content: "";
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            right: -52px;
+            bottom: -52px;
+            border-radius: 50%;
+        }
+
+        .kr-date-card.solar::after {
+            background: rgba(11,107,54,.08);
+        }
+
+        .kr-date-card.lunar::after {
+            background: rgba(116,86,200,.09);
+        }
+
+        .kr-date-card.gregorian::after {
+            background: rgba(36,107,206,.08);
+        }
+
+        .kr-date-card.time::after {
+            background: rgba(212,123,9,.09);
+        }
+
+        .kr-date-icon {
+            width: 37px;
+            height: 37px;
+            display: grid;
+            place-items: center;
+            border-radius: 10px;
+            margin-bottom: 7px;
+        }
+
+        .solar .kr-date-icon {
+            color: #0B6B36;
+            background: #E9F8EF;
+        }
+
+        .lunar .kr-date-icon {
+            color: #7656C8;
+            background: #F1ECFF;
+        }
+
+        .gregorian .kr-date-icon {
+            color: #246BCE;
+            background: #EAF3FF;
+        }
+
+        .time .kr-date-icon {
+            color: #D47B09;
+            background: #FFF4DF;
+        }
+
+        .kr-date-label {
+            color: var(--muted-color);
+            font-size: 7px;
+        }
+
+        .kr-date-value {
+            margin-top: 2px;
+            position: relative;
+            z-index: 2;
+            font-size: 11px;
+            font-weight: 900;
+        }
+
+        .kr-date-sub {
+            margin-top: 1px;
+            color: var(--muted-color);
+            font-size: 6px;
+        }
+
+        .kr-ampm {
+            color: #D47B09;
+            font-weight: 900;
+            direction: ltr;
+            unicode-bidi: isolate;
+        }
+
+        /* ---------- Mini Information ---------- */
+
+        .kr-mini-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(4,minmax(0,1fr));
+            gap: 10px;
+            margin: 14px 0;
+        }
+
+        .kr-mini-card {
+            min-height: 88px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            background: var(--surface-color);
+            box-shadow: 0 9px 26px rgba(5,34,19,.05);
+        }
+
+        .kr-mini-icon {
+            width: 39px;
+            height: 39px;
+            flex: 0 0 39px;
+            display: grid;
+            place-items: center;
+            border-radius: 10px;
+        }
+
+        .kr-mini-icon.clock {
+            color: #D47B09;
+            background: #FFF4DF;
+        }
+
+        .kr-mini-icon.duration {
+            color: #246BCE;
+            background: #EAF3FF;
+        }
+
+        .kr-mini-icon.story {
+            color: #7656C8;
+            background: #F1ECFF;
+        }
+
+        .kr-mini-icon.heart {
+            color: #D84C82;
+            background: #FFF0F6;
+        }
+
+        .kr-mini-content {
+            min-width: 0;
+        }
+
+        .kr-mini-content span {
+            display: block;
+            color: var(--muted-color);
+            font-size: 6px;
+        }
+
+        .kr-mini-content strong {
+            display: block;
+            margin-top: 2px;
+            font-size: 10px;
+        }
+
+        /* ---------- Weather ---------- */
+
+        .kr-weather-grid {
+            display: grid;
+            grid-template-columns:
+                1.2fr
+                repeat(3,minmax(0,1fr));
+            gap: 10px;
+        }
+
+        .kr-weather-main {
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-height: 92px;
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--surface-color),
+                    var(--surface-alt)
+                );
+        }
+
+        .kr-weather-icon {
+            width: 55px;
+            height: 55px;
+            flex: 0 0 55px;
+            display: grid;
+            place-items: center;
+            border-radius: 16px;
+            color: #246BCE;
+            background: #EAF3FF;
+            font-size: 24px;
+        }
+
+        .kr-weather-main strong {
+            display: block;
+            font-size: 13px;
+        }
+
+        .kr-weather-main span {
+            display: block;
+            margin-top: 2px;
+            color: var(--muted-color);
+            font-size: 7px;
+        }
+
+        /* ---------- Prayer ---------- */
+
+        .kr-prayer {
+            margin: 14px 0;
+            padding: 16px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            border-radius: 17px;
+            background:
+                radial-gradient(
+                    circle at 100% 0%,
+                    rgba(11,107,54,.09),
+                    transparent 30%
+                ),
+                var(--surface-color);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .kr-prayer-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 13px;
+        }
+
+        .kr-prayer-title {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .kr-prayer-icon {
+            width: 40px;
+            height: 40px;
+            display: grid;
+            place-items: center;
+            border-radius: 11px;
+            color: #0B6B36;
+            background: #E9F8EF;
+        }
+
+        .kr-prayer-title strong {
+            display: block;
+            font-size: 11px;
+        }
+
+        .kr-prayer-title span {
+            display: block;
+            margin-top: 2px;
+            color: var(--muted-color);
+            font-size: 7px;
+        }
+
+        .kr-prayer-controls {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .kr-select {
+            min-height: 33px;
+            padding: 5px 9px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--surface-color);
+            color: var(--text-color);
+            outline: 0;
+            font-size: 7px;
+        }
+
+        .kr-prayer-countdown {
+            padding: 7px 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border-radius: 10px;
+            color: #0B6B36;
+            background: #E9F8EF;
+            font-size: 8px;
+            font-weight: 900;
+        }
+
+        .kr-prayer-countdown strong {
+            direction: ltr;
+            unicode-bidi: isolate;
+        }
+
+        .kr-prayer-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(6,minmax(0,1fr));
+            gap: 8px;
+        }
+
+        .kr-prayer-item {
+            min-height: 83px;
+            padding: 10px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            background: var(--surface-alt);
+            transition: .2s ease;
+        }
+
+        .kr-prayer-item.active {
+            color: #fff;
+            border-color: transparent;
+            background:
+                linear-gradient(
+                    145deg,
+                    #0B6B36,
+                    #07552A
+                );
+            box-shadow:
+                0 10px 24px rgba(11,107,54,.18);
+        }
+
+        .kr-prayer-item i {
+            font-size: 13px;
+        }
+
+        .kr-prayer-item strong {
+            display: block;
+            margin-top: 5px;
+            font-size: 8px;
+        }
+
+        .kr-prayer-item span {
+            display: block;
+            margin-top: 3px;
+            direction: ltr;
+            unicode-bidi: isolate;
+            font-size: 9px;
+            font-weight: 900;
+        }
+
+        .kr-prayer-item small {
+            display: block;
+            margin-top: 2px;
+            opacity: .7;
+            font-size: 5px;
+        }
+
+        .kr-prayer-footer {
+            margin-top: 10px;
+            padding-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .kr-prayer-footer span {
+            color: var(--muted-color);
+            font-size: 7px;
+        }
+
+        .kr-adhan-button {
+            min-height: 32px;
+            padding: 0 9px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            border: 0;
+            border-radius: 8px;
+            color: #fff;
+            background:
+                linear-gradient(
+                    135deg,
+                    #0B6B36,
+                    #07552A
+                );
+            font-size: 7px;
+            font-weight: 900;
+        }
+
+        .kr-qibla {
+            padding: 6px 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            border-radius: 999px;
+            color: #246BCE;
+            background: #EAF3FF;
+            font-size: 6px;
+            font-weight: 900;
+        }
+
+        /* ---------- Islamic Center ---------- */
+
+        .kr-islamic-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(3,minmax(0,1fr));
+            gap: 10px;
+            margin: 14px 0;
+        }
+
+        .kr-islamic-card {
+            min-height: 105px;
+            padding: 13px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            background: var(--surface-color);
+            box-shadow: 0 8px 24px rgba(5,34,19,.05);
+        }
+
+        .kr-islamic-card::after {
+            content: "";
+            position: absolute;
+            width: 90px;
+            height: 90px;
+            left: -42px;
+            bottom: -45px;
+            border-radius: 50%;
+            background: rgba(11,107,54,.06);
+        }
+
+        .kr-islamic-card i {
+            width: 36px;
+            height: 36px;
+            display: grid;
+            place-items: center;
+            border-radius: 10px;
+            color: #0B6B36;
+            background: #E9F8EF;
+        }
+
+        .kr-islamic-card strong {
+            display: block;
+            margin-top: 7px;
+            font-size: 9px;
+        }
+
+        .kr-islamic-card span {
+            display: block;
+            margin-top: 3px;
+            color: var(--muted-color);
+            font-size: 7px;
+            line-height: 1.7;
+        }
+
+        /* ---------- Social Hub ---------- */
+
+        .kr-social {
+            margin: 14px 0;
+            display: grid;
+            grid-template-columns:
+                minmax(0,1.2fr)
+                minmax(310px,.8fr);
+            gap: 12px;
+        }
+
+        .kr-social-panel {
+            min-width: 0;
+            padding: 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 17px;
+            background: var(--surface-color);
+            box-shadow: 0 10px 28px rgba(4,34,19,.06);
+        }
+
+        .kr-social-head {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .kr-social-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .kr-social-title-icon {
+            width: 38px;
+            height: 38px;
+            display: grid;
+            place-items: center;
+            border-radius: 10px;
+            color: #D84C82;
+            background: #FFF0F6;
+        }
+
+        .kr-social-title strong {
+            display: block;
+            font-size: 10px;
+        }
+
+        .kr-social-title span {
+            display: block;
+            color: var(--muted-color);
+            font-size: 6px;
+        }
+
+        .kr-comment-form {
+            padding: 9px;
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            background: var(--surface-alt);
+        }
+
+        .kr-comment-input {
+            flex: 1;
+            min-width: 0;
+            min-height: 40px;
+            max-height: 120px;
+            resize: vertical;
+            padding: 9px;
+            border: 0;
+            outline: 0;
+            background: transparent;
+            color: var(--text-color);
+            font-size: 8px;
+        }
+
+        .kr-comment-send {
+            min-height: 37px;
+            padding: 0 11px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            border: 0;
+            border-radius: 8px;
+            color: #fff;
+            background:
+                linear-gradient(
+                    135deg,
+                    #0B6B36,
+                    #07552A
+                );
+            font-size: 7px;
+            font-weight: 900;
+        }
+
+        .kr-comments-list {
+            margin-top: 10px;
+            display: grid;
+            gap: 7px;
+            max-height: 440px;
+            overflow-y: auto;
+        }
+
+        .kr-comment {
+            padding: 10px;
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 11px;
+            background: var(--surface-color);
+        }
+
+        .kr-comment-avatar {
+            width: 35px;
+            height: 35px;
+            display: grid;
+            place-items: center;
+            border-radius: 50%;
+            color: #fff;
+            background:
+                linear-gradient(
+                    145deg,
+                    #5B9A7A,
+                    #235139
+                );
+            font-size: 11px;
+        }
+
+        .kr-comment-body {
+            min-width: 0;
+        }
+
+        .kr-comment-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 7px;
+        }
+
+        .kr-comment-top strong {
+            font-size: 7px;
+        }
+
+        .kr-comment-top small {
+            color: var(--muted-color);
+            font-size: 5px;
+        }
+
+        .kr-comment-text {
+            margin-top: 2px;
+            color: var(--text-color);
+            font-size: 7px;
+            line-height: 1.8;
+            overflow-wrap: anywhere;
+        }
+
+        .kr-comment-actions {
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .kr-react {
+            min-height: 25px;
+            padding: 0 7px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            border: 1px solid var(--border-color);
+            border-radius: 999px;
+            background: var(--surface-color);
+            color: var(--muted-color);
+            font-size: 6px;
+        }
+
+        .kr-react:hover {
+            background: var(--surface-alt);
+        }
+
+        .kr-react.active {
+            color: #D84C82;
+            border-color: rgba(216,76,130,.18);
+            background: #FFF0F6;
+        }
+
+        .kr-react.like.active {
+            color: #246BCE;
+            border-color: rgba(36,107,206,.18);
+            background: #EAF3FF;
+        }
+
+        /* ---------- Online fast worker ---------- */
+
+        .kr-online-panel {
+            min-width: 0;
+        }
+
+        .kr-fast-user {
+            padding: 9px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 11px;
+            background: var(--surface-alt);
+            transition: .18s ease;
+        }
+
+        .kr-fast-user:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .kr-fast-avatar {
+            width: 38px;
+            height: 38px;
+            flex: 0 0 38px;
+            display: grid;
+            place-items: center;
+            border-radius: 50%;
+            background: var(--primary-light);
+            border: 1px solid var(--border-color);
+        }
+
+        .kr-fast-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .kr-fast-info strong {
+            display: block;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 7px;
+        }
+
+        .kr-fast-info span {
+            display: block;
+            margin-top: 1px;
+            direction: ltr;
+            text-align: start;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: var(--muted-color);
+            font-size: 5px;
+        }
+
+        .kr-fast-status {
+            padding: 4px 6px;
+            border-radius: 999px;
+            color: var(--primary-color);
+            background: var(--primary-light);
+            font-size: 5px;
+            font-weight: 900;
+        }
+
+        /* ---------- Decorative center ---------- */
+
+        .kr-decor-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(4,minmax(0,1fr));
+            gap: 10px;
+            margin: 14px 0;
+        }
+
+        .kr-decor-card {
+            min-height: 78px;
+            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 13px;
+            background: var(--surface-color);
+            box-shadow: 0 8px 24px rgba(5,34,19,.05);
+        }
+
+        .kr-decor-icon {
+            width: 38px;
+            height: 38px;
+            display: grid;
+            place-items: center;
+            border-radius: 10px;
+        }
+
+        .kr-decor-icon.star {
+            color: #D9A526;
+            background: #FFF8DE;
+        }
+
+        .kr-decor-icon.heart {
+            color: #D84C82;
+            background: #FFF0F6;
+        }
+
+        .kr-decor-icon.line {
+            color: #246BCE;
+            background: #EAF3FF;
+        }
+
+        .kr-decor-icon.face {
+            color: #0B6B36;
+            background: #E9F8EF;
+        }
+
+        .kr-decor-text strong {
+            display: block;
+            font-size: 8px;
+        }
+
+        .kr-decor-text span {
+            display: block;
+            color: var(--muted-color);
+            font-size: 6px;
+        }
+
+        .kr-stars {
+            color: #D9A526;
+            letter-spacing: 1px;
+            font-size: 9px;
+        }
+
+        /* =====================================================
+           WHATSAPP SUPPORT
+           یوازې نوی اضافه شوی برخه
+        ===================================================== */
+
+        .kr-whatsapp-section {
+            margin-top: 15px;
+            margin-bottom: 8px;
+        }
+
+        .kr-whatsapp-card {
+            position: relative;
+            overflow: hidden;
+            padding: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            border: 1px solid rgba(37,211,102,.22);
+            border-radius: 18px;
+            background:
+                radial-gradient(
+                    circle at 100% 0%,
+                    rgba(37,211,102,.16),
+                    transparent 34%
+                ),
+                linear-gradient(
+                    135deg,
+                    var(--surface-color),
+                    var(--surface-alt)
+                );
+            box-shadow:
+                0 12px 32px rgba(4,34,19,.07);
+        }
+
+        .kr-whatsapp-card::before {
+            content: "";
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            left: -85px;
+            bottom: -100px;
+            border-radius: 50%;
+            background: rgba(37,211,102,.08);
+            pointer-events: none;
+        }
+
+        .kr-whatsapp-content {
+            position: relative;
+            z-index: 2;
+            min-width: 0;
+        }
+
+        .kr-whatsapp-title {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .kr-whatsapp-icon {
+            width: 43px;
+            height: 43px;
+            flex: 0 0 43px;
+            display: grid;
+            place-items: center;
+            border-radius: 13px;
+            color: #fff;
+            background:
+                linear-gradient(
+                    135deg,
+                    #25D366,
+                    #1EBE5D
+                );
+            box-shadow:
+                0 8px 20px rgba(37,211,102,.22);
+            font-size: 21px;
+        }
+
+        .kr-whatsapp-title strong {
+            display: block;
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+        .kr-whatsapp-title span {
+            display: block;
+            margin-top: 2px;
+            color: var(--muted-color);
+            font-size: 7px;
+        }
+
+        .kr-whatsapp-description {
+            margin: 8px 0 0;
+            color: var(--muted-color);
+            font-size: 7px;
+            line-height: 1.8;
+        }
+
+        .kr-whatsapp-number {
+            margin-top: 4px;
+            direction: ltr;
+            unicode-bidi: isolate;
+            color: #1EBE5D;
+            font-size: 7px;
+            font-weight: 900;
+        }
+
+        .kr-whatsapp-button {
+            position: relative;
+            z-index: 2;
+            min-height: 44px;
+            padding: 0 17px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex: 0 0 auto;
+            border: 0;
+            border-radius: 12px;
+            color: #fff !important;
+            background:
+                linear-gradient(
+                    135deg,
+                    #25D366,
+                    #1EBE5D
+                );
+            box-shadow:
+                0 10px 24px rgba(37,211,102,.20);
+            text-decoration: none !important;
+            font-size: 8px;
+            font-weight: 900;
+            transition:
+                transform .2s ease,
+                box-shadow .2s ease,
+                filter .2s ease;
+        }
+
+        .kr-whatsapp-button:hover {
+            transform: translateY(-2px);
+            box-shadow:
+                0 15px 30px rgba(37,211,102,.28);
+            filter: brightness(1.03);
+        }
+
+        .kr-whatsapp-button:active {
+            transform: translateY(0);
+        }
+
+        .kr-whatsapp-button i {
+            font-size: 16px;
+        }
+
+        /* ---------- Responsive ---------- */
+
+        @media (max-width:1250px) {
+
+            .kr-kpi-grid,
+            .kr-date-grid,
+            .kr-mini-grid,
+            .kr-decor-grid {
+                grid-template-columns:
+                    repeat(2,minmax(0,1fr));
+            }
+
+            .kr-prayer-grid {
+                grid-template-columns:
+                    repeat(3,minmax(0,1fr));
+            }
+
+            .kr-social {
+                grid-template-columns:1fr;
+            }
+
+            .kr-weather-grid {
+                grid-template-columns:
+                    repeat(2,minmax(0,1fr));
+            }
+
+            .kr-weather-main {
+                grid-column:1 / -1;
+            }
+        }
+
+        @media (max-width:950px) {
+
+            .kr-hero-visual {
+                display:none;
+            }
+
+            .dashboard-search {
+                display:none;
+            }
+
+            .kr-online-list,
+            .online-users-list {
+                grid-template-columns:1fr !important;
+            }
+
+            .kr-islamic-grid {
+                grid-template-columns:
+                    1fr 1fr;
+            }
+
+        }
+
+        @media (max-width:650px) {
+
+            .kr-dashboard .main-content {
+                padding:
+                    13px 11px 22px;
+            }
+
+            .kr-page-head {
+                align-items:flex-start;
+            }
+
+            .kr-hero {
+                min-height:250px;
+                padding:20px;
+            }
+
+            .kr-hero-copy h2 {
+                font-size:21px;
+            }
+
+            .kr-hero-copy p {
+                font-size:8px;
+            }
+
+            .kr-hero-actions {
+                flex-direction:column;
+                align-items:stretch;
+            }
+
+            .kr-hero-button {
+                width:100%;
+            }
+
+            .kr-kpi-grid,
+            .kr-date-grid,
+            .kr-mini-grid,
+            .kr-decor-grid,
+            .kr-islamic-grid,
+            .kr-weather-grid {
+                grid-template-columns:1fr;
+            }
+
+            .kr-prayer-grid {
+                grid-template-columns:
+                    repeat(2,minmax(0,1fr));
+            }
+
+            .kr-prayer-head,
+            .kr-prayer-footer {
+                flex-direction:column;
+                align-items:flex-start;
+            }
+
+            .kr-comment-form {
+                flex-direction:column;
+                align-items:stretch;
+            }
+
+            .kr-comment-send {
+                width:100%;
+                justify-content:center;
+            }
+
+            .kr-whatsapp-card {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .kr-whatsapp-button {
+                width: 100%;
+            }
+
+        }
+
+    </style>
+<link
+    rel="manifest"
+    href="./manifest.json"
+>
+
+<meta
+    name="theme-color"
+    content="#0B6B36"
+>
+
+<meta
+    name="mobile-web-app-capable"
+    content="yes"
+>
+
+<meta
+    name="apple-mobile-web-app-capable"
+    content="yes"
+>
+
+<meta
+    name="apple-mobile-web-app-status-bar-style"
+    content="default"
+>
+</head>
+
+
+<body>
+
+
+<!-- =========================================================
+     ORIGINAL HEADER
+========================================================== -->
+
+<header class="main-header">
+
+    <div class="header-brand">
+
+        <div class="header-logo">
+            🛡️
+        </div>
+
+        <div
+            class="header-title"
+            data-system-name
+        >
+            د افغانستان اسلامي امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس
+        </div>
+
+    </div>
+
+
+    <div class="header-actions">
+
+        <button
+            type="button"
+            id="homeBtn"
+            title="کور"
+        >
+            🏠
+        </button>
+
+        <button
+            type="button"
+            id="backBtn"
+            title="شاته"
+        >
+            ⬅️
+        </button>
+
+        <button
+            type="button"
+            id="refreshBtn"
+            title="ریفریش"
+        >
+            🔄
+        </button>
+
+        <button
+            type="button"
+            id="logoutBtn"
+            title="وتل"
+        >
+            🚪
+        </button>
+
+    </div>
+
+</header>
+
+
+
+<!-- =========================================================
+     ORIGINAL APP LAYOUT
+========================================================== -->
+
+<div class="app-layout kr-dashboard">
+
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+
+        <div
+            class="sidebar-title"
+            id="sidebarTitle"
+        >
+            اصلي مینو
+        </div>
+
+        <nav class="sidebar-menu">
+
+            <button
+                type="button"
+                class="active"
+                id="dashboardMenuBtn"
+            >
+                💒  کـــورپــاڼــه
+            </button>
+
+            <button
+                type="button"
+                id="formicMenuBtn"
+            >
+                📗 فورمیک
+            </button>
+
+            <button
+                type="button"
+                id="registerMenuBtn"
+            >
+                💻 نوی ثبت
+            </button>
+
+            <button
+                type="button"
+                id="searchMenuBtn"
+            >
+                🔍 لټون
+            </button>
+
+            <button
+                type="button"
+                id="reportsMenuBtn"
+            >
+                📙 راپورونه
+            </button>
+
+            <button
+                type="button"
+                id="adminMenuBtn"
+            >
+                👥دسوفراډمین او ساده اډمین دصلاحیتونو برخه
+            </button>
+
+            <button
+                type="button"
+                id="settingsMenuBtn"
+            >
+                ⚙️ تنظیمات
+            </button>
+
+        </nav>
+
+    </aside>
+
+
+
+    <!-- MAIN -->
+
+    <main class="main-content">
+
+        <div class="page">
+
+
+            <!-- PAGE HEAD -->
+
+            <section class="kr-page-head">
+
+                <div>
+
+                    <h1 id="pageTitle">
+                        Dashboard
+                    </h1>
+
+                    <p id="welcomeText">
+                        سیستم ته ښه راغلاست
+                    </p>
+
+                </div>
+
+
+                <div class="kr-live-pill">
+
+                    <i></i>
+
+                    LIVE SYSTEM
+
+                </div>
+
+            </section>
+
+
+            <div
+                id="dashboardMessage"
+                class="alert"
+                hidden
+            ></div>
+
+
+
+            <!-- HERO -->
+
+            <section class="kr-hero">
+
+                <div class="kr-hero-copy">
+
+                    <div class="kr-hero-tag">
+
+                        <i class="fa-solid fa-sparkles"></i>
+
+                        مرکزي مدیریت
+
+                    </div>
+
+                    <h2>
+
+                        د کره کمیسیون
+                        <br>
+
+                        <span>
+                            د فورمو ثبت او مدیریت ډیټابیس
+                        </span>
+
+                    </h2>
+
+                    <p>
+
+                        د فورمو ثبت، لټون، آنلاین کارکوونکي،
+                        لمونځ او اذان، هوا، وختونه، ټولنیز
+                        تعامل او نور مهم معلومات په یوه مرکزي ځای کې.
+
+                    </p>
+
+                    <div class="kr-hero-actions">
+
+                        <a
+                            href="./register.html"
+                            class="kr-hero-button primary"
+                        >
+                            <i class="fa-solid fa-file-circle-plus"></i>
+                            نوې فورمه ثبت کړه
+                        </a>
+
+                        <a
+                            href="./search.html"
+                            class="kr-hero-button secondary"
+                        >
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            فورمه ولټوه
+                        </a>
+
+                    </div>
+
+                </div>
+
+
+                <div class="kr-hero-visual">
+
+                    <div class="kr-core">
+
+                        <div class="kr-core-inner">
+
+                            <i class="fa-solid fa-chart-pie"></i>
+
+                        </div>
+
+                    </div>
+
+                    <div class="kr-orbit one"></div>
+                    <div class="kr-orbit two"></div>
+
+                    <div class="kr-floating a">
+
+                        <i class="fa-solid fa-circle-check"></i>
+
+                        فعال
+
+                    </div>
+
+                    <div class="kr-floating b">
+
+                        <i class="fa-solid fa-mosque"></i>
+
+                        لمونځ
+
+                    </div>
+
+                    <div class="kr-floating c">
+
+                        <i class="fa-solid fa-users"></i>
+
+                        <span id="heroOnlineCount">0</span>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- KPI -->
+
+            <section class="kr-kpi-grid">
+
+
+                <div class="kr-kpi blue">
+
+                    <div class="kr-kpi-top">
+
+                        <div class="kr-icon blue">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+
+                        <div class="kr-kpi-badge blue">
+                            DATABASE
+                        </div>
+
+                    </div>
+
+                    <div
+                        class="kr-kpi-number"
+                        id="recordsCount"
+                    >
+                        0
+                    </div>
+
+                    <div
+                        class="kr-kpi-label"
+                        id="totalRecordsLabel"
+                    >
+                        ټول ثبت شوي کسان
+                    </div>
+
+                    <div class="kr-kpi-description">
+                        د Firestore ټول ریکارډونه
+                    </div>
+
+                    <div class="kr-kpi-progress">
+                        <span></span>
+                    </div>
+
+                </div>
+
+
+
+                <div class="kr-kpi green">
+
+                    <div class="kr-kpi-top">
+
+                        <div class="kr-icon green">
+                            <i class="fa-solid fa-wifi"></i>
+                        </div>
+
+                        <div class="kr-kpi-badge green">
+                            LIVE
+                        </div>
+
+                    </div>
+
+                    <div
+                        class="kr-kpi-number"
+                        id="onlineUsersCount"
+                    >
+                        0
+                    </div>
+
+                    <div
+                        class="kr-kpi-label"
+                        id="onlineUsersLabel"
+                    >
+                        اوس آنلاین کسان
+                    </div>
+
+                    <div class="kr-kpi-description">
+                        د Presence له مخې فعال کسان
+                    </div>
+
+                    <div class="kr-kpi-progress">
+                        <span></span>
+                    </div>
+
+                </div>
+
+
+
+                <div class="kr-kpi blue">
+
+                    <div class="kr-kpi-top">
+
+                        <div class="kr-icon blue">
+                            <i class="fa-solid fa-envelope"></i>
+                        </div>
+
+                        <div class="kr-kpi-badge blue">
+                            ACCOUNT
+                        </div>
+
+                    </div>
+
+                    <div
+                        class="kr-kpi-number ltr-text"
+                        id="currentUserEmail"
+                        style="
+                            font-size:14px;
+                            margin-top:21px;
+                            overflow-wrap:anywhere;
+                        "
+                    >
+                        —
+                    </div>
+
+                    <div
+                        class="kr-kpi-label"
+                        id="myEmailLabel"
+                    >
+                        زما ایمیل
+                    </div>
+
+                    <div class="kr-kpi-description">
+                        اوسنی Auth Account
+                    </div>
+
+                    <div class="kr-kpi-progress">
+                        <span></span>
+                    </div>
+
+                </div>
+
+
+
+                <div class="kr-kpi green">
+
+                    <div class="kr-kpi-top">
+
+                        <div class="kr-icon green">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+
+                        <div class="kr-kpi-badge green">
+                            SECURE
+                        </div>
+
+                    </div>
+
+                    <div style="margin-top:19px;">
+
+                        <div
+                            class="badge badge-success"
+                            id="myStatusBadge"
+                        >
+                            🟢 آنلاین
+                        </div>
+
+                    </div>
+
+                    <div
+                        class="kr-kpi-label"
+                        id="myStatusLabel"
+                    >
+                        زما حالت
+                    </div>
+
+                    <div class="kr-kpi-description">
+                        Auth + Presence حالت
+                    </div>
+
+                    <div class="kr-kpi-progress">
+                        <span></span>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- DATES -->
+
+            <section class="kr-date-grid">
+
+                <div class="kr-date-card solar">
+
+                    <div class="kr-date-icon">
+                        <i class="fa-solid fa-sun"></i>
+                    </div>
+
+                    <div class="kr-date-label">
+                        هجري شمسي
+                    </div>
+
+                    <div
+                        class="kr-date-value"
+                        id="solarDate"
+                    >
+                        ---
+                    </div>
+
+                    <div class="kr-date-sub">
+                        لمریز
+                    </div>
+
+                </div>
+
+
+                <div class="kr-date-card lunar">
+
+                    <div class="kr-date-icon">
+                        <i class="fa-solid fa-moon"></i>
+                    </div>
+
+                    <div class="kr-date-label">
+                        هجري قمري
+                    </div>
+
+                    <div
+                        class="kr-date-value"
+                        id="lunarDate"
+                    >
+                        ---
+                    </div>
+
+                    <div class="kr-date-sub">
+                        قمري
+                    </div>
+
+                </div>
+
+
+                <div class="kr-date-card gregorian">
+
+                    <div class="kr-date-icon">
+                        <i class="fa-regular fa-calendar-days"></i>
+                    </div>
+
+                    <div class="kr-date-label">
+                        عیسوي میلادي
+                    </div>
+
+                    <div
+                        class="kr-date-value"
+                        id="gregorianDate"
+                    >
+                        ---
+                    </div>
+
+                    <div class="kr-date-sub">
+                        Gregorian
+                    </div>
+
+                </div>
+
+
+                <div class="kr-date-card time">
+
+                    <div class="kr-date-icon">
+                        <i class="fa-regular fa-clock"></i>
+                    </div>
+
+                    <div class="kr-date-label">
+                        اوسنی وخت
+                    </div>
+
+                    <div
+                        class="kr-date-value"
+                        id="ampmTime"
+                    >
+                        ---
+                    </div>
+
+                    <div class="kr-date-sub kr-ampm">
+                        <span id="ampmLabel">AM</span>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- LOGIN / DURATION -->
+
+            <section class="kr-mini-grid">
+
+                <div class="kr-mini-card">
+
+                    <div class="kr-mini-icon clock">
+                        <i class="fa-solid fa-right-to-bracket"></i>
+                    </div>
+
+                    <div class="kr-mini-content">
+
+                        <span>
+                            د ننوتلو وخت
+                        </span>
+
+                        <strong id="loginTime">
+                            ---
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="kr-mini-card">
+
+                    <div class="kr-mini-icon duration">
+                        <i class="fa-solid fa-stopwatch"></i>
+                    </div>
+
+                    <div class="kr-mini-content">
+
+                        <span>
+                            له ننوتلو تېر شوی وخت
+                        </span>
+
+                        <strong id="loginDuration">
+                            00:00:00
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="kr-mini-card">
+
+                    <div class="kr-mini-icon story">
+                        <i class="fa-solid fa-book-open"></i>
+                    </div>
+
+                    <div class="kr-mini-content">
+
+                        <span>
+                            د نن Stories
+                        </span>
+
+                        <strong>
+                            <span id="storyCount">0</span>
+                            کیسې
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="kr-mini-card">
+
+                    <div class="kr-mini-icon heart">
+                        <i class="fa-solid fa-heart"></i>
+                    </div>
+
+                    <div class="kr-mini-content">
+
+                        <span>
+                            ټول تعامل
+                        </span>
+
+                        <strong>
+                            ❤️ <span id="heartCount">0</span>
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- WEATHER -->
+
+            <section class="card dashboard-card">
+
+                <div class="dashboard-card-header">
+
+                    <div>
+
+                        <h2 class="dashboard-card-title">
+                            🌤️ د هوا اوسنی حالت
+                        </h2>
+
+                        <p class="dashboard-card-description">
+                            د ټاکل شوي ولایت اوسنی هوايي وضعیت
+                        </p>
+
+                    </div>
+
+                    <div
+                        class="badge badge-info"
+                        id="weatherUpdated"
+                    >
+                        Live
+                    </div>
+
+                </div>
+
+
+                <div class="kr-weather-grid">
+
+                    <div class="kr-weather-main">
+
+                        <div
+                            class="kr-weather-icon"
+                            id="weatherIcon"
+                        >
+                            <i class="fa-solid fa-cloud-sun"></i>
+                        </div>
+
+                        <div>
+
+                            <strong id="weatherDescription">
+                                ---
+                            </strong>
+
+                            <span>
+                                <span id="weatherProvinceName">
+                                    کابل
+                                </span>
+                                · افغانستان
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="dashboard-info-item">
+
+                        <div class="dashboard-info-label">
+                            تودوخه
+                        </div>
+
+                        <strong id="weatherTemperature">
+                            -- °C
+                        </strong>
+
+                    </div>
+
+
+                    <div class="dashboard-info-item">
+
+                        <div class="dashboard-info-label">
+                            رطوبت
+                        </div>
+
+                        <strong id="weatherHumidity">
+                            -- %
+                        </strong>
+
+                    </div>
+
+
+                    <div class="dashboard-info-item">
+
+                        <div class="dashboard-info-label">
+                            باد
+                        </div>
+
+                        <strong id="weatherWind">
+                            -- km/h
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- PRAYER CENTER -->
+
+            <section class="kr-prayer">
+
+                <div class="kr-prayer-head">
+
+                    <div class="kr-prayer-title">
+
+                        <div class="kr-prayer-icon">
+                            <i class="fa-solid fa-mosque"></i>
+                        </div>
+
+                        <div>
+
+                            <strong>
+                                د لمانځه او اذان مرکز
+                            </strong>
+
+                            <span>
+                                د افغانستان د ټولو ولایتونو ملاتړ
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="kr-prayer-controls">
+
+                        <select
+                            id="provinceSelect"
+                            class="kr-select"
+                            aria-label="ولایت"
+                        ></select>
+
+
+                        <select
+                            id="calculationMethod"
+                            class="kr-select"
+                            aria-label="Calculation Method"
+                        >
+
+                            <option value="1">
+                                Karachi Method
+                            </option>
+
+                            <option value="3">
+                                Muslim World League
+                            </option>
+
+                            <option value="5">
+                                Egypt
+                            </option>
+
+                            <option value="4">
+                                Umm Al-Qura
+                            </option>
+
+                        </select>
+
+
+                        <select
+                            id="asrSchool"
+                            class="kr-select"
+                            aria-label="Asr School"
+                        >
+
+                            <option value="1">
+                                حنفي عصر
+                            </option>
+
+                            <option value="0">
+                                شافعي عصر
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+
+                <div class="kr-prayer-head">
+
+                    <div
+                        class="kr-prayer-countdown"
+                    >
+
+                        <i class="fa-regular fa-clock"></i>
+
+                        راتلونکی:
+
+                        <strong id="nextPrayerName">
+                            ---
+                        </strong>
+
+                        <strong id="nextPrayerCountdown">
+                            --:--:--
+                        </strong>
+
+                    </div>
+
+
+                    <div class="kr-qibla">
+
+                        <i class="fa-solid fa-compass"></i>
+
+                        قبله:
+
+                        <strong id="qiblaDirection">
+                            ---
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="kr-prayer-grid"
+                    id="prayerGrid"
+                >
+
+                    <div class="kr-prayer-item">
+
+                        <i class="fa-solid fa-star-and-crescent"></i>
+
+                        <strong>
+                            فجر
+                        </strong>
+
+                        <span>
+                            --
+                        </span>
+
+                        <small>
+                            Fajr
+                        </small>
+
+                    </div>
+
+
+                    <div class="kr-prayer-item">
+
+                        <i class="fa-solid fa-sun"></i>
+
+                        <strong>
+                            لمر ختل
+                        </strong>
+
+                        <span>
+                            --
+                        </span>
+
+                        <small>
+                            Sunrise
+                        </small>
+
+                    </div>
+
+
+                    <div class="kr-prayer-item">
+
+                        <i class="fa-solid fa-sun"></i>
+
+                        <strong>
+                            غرمه
+                        </strong>
+
+                        <span>
+                            --
+                        </span>
+
+                        <small>
+                            Dhuhr
+                        </small>
+
+                    </div>
+
+
+                    <div class="kr-prayer-item">
+
+                        <i class="fa-solid fa-cloud-sun"></i>
+
+                        <strong>
+                            مازیګر
+                        </strong>
+
+                        <span>
+                            --
+                        </span>
+
+                        <small>
+                            Asr
+                        </small>
+
+                    </div>
+
+
+                    <div class="kr-prayer-item">
+
+                        <i class="fa-solid fa-sunset"></i>
+
+                        <strong>
+                            ماښام
+                        </strong>
+
+                        <span>
+                            --
+                        </span>
+
+                        <small>
+                            Maghrib
+                        </small>
+
+                    </div>
+
+
+                    <div class="kr-prayer-item">
+
+                        <i class="fa-solid fa-moon"></i>
+
+                        <strong>
+                            ماخستن
+                        </strong>
+
+                        <span>
+                            --
+                        </span>
+
+                        <small>
+                            Isha
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <div class="kr-prayer-footer">
+
+                    <span id="prayerMeta">
+                        د لمانځه وختونه ترلاسه کېږي...
+                    </span>
+
+
+                    <button
+                        type="button"
+                        class="kr-adhan-button"
+                        id="adhanButton"
+                    >
+
+                        <i class="fa-solid fa-volume-high"></i>
+
+                        د اذان پاڼه خلاصه کړه
+
+                    </button>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- ISLAMIC INFORMATION -->
+
+            <section class="kr-islamic-grid">
+
+
+                <div class="kr-islamic-card">
+
+                    <i class="fa-solid fa-star-and-crescent"></i>
+
+                    <strong>
+                        د نن ذکر
+                    </strong>
+
+                    <span>
+                        سُبْحَانَ اللَّهِ وَبِحَمْدِهِ،
+                        سُبْحَانَ اللَّهِ الْعَظِيمِ
+                    </span>
+
+                </div>
+
+
+                <div class="kr-islamic-card">
+
+                    <i class="fa-solid fa-quote-right"></i>
+
+                    <strong>
+                        ډاډ ورکوونکې جمله
+                    </strong>
+
+                    <span id="comfortMessage">
+                        ستونزه هر څومره لویه وي،
+                        د الله رحمت تر هغې لوی دی.
+                    </span>
+
+                </div>
+
+
+                <div class="kr-islamic-card">
+
+                    <i class="fa-solid fa-feather"></i>
+
+                    <strong>
+                        ښکلی لنډ شعر
+                    </strong>
+
+                    <span id="poemMessage">
+                        د هیلو څراغ چې روښانه وساتې،
+                        د لارې تیاره ورو ورو ختمېږي.
+                    </span>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- DECORATIVE -->
+
+            <section class="kr-decor-grid">
+
+                <div class="kr-decor-card">
+
+                    <div class="kr-decor-icon star">
+                        <i class="fa-solid fa-star"></i>
+                    </div>
+
+                    <div class="kr-decor-text">
+
+                        <strong>
+                            د نن نمره
+                        </strong>
+
+                        <span class="kr-stars">
+                            ★★★★★
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="kr-decor-card">
+
+                    <div class="kr-decor-icon heart">
+                        <i class="fa-solid fa-heart"></i>
+                    </div>
+
+                    <div class="kr-decor-text">
+
+                        <strong>
+                            مینه او تعامل
+                        </strong>
+
+                        <span>
+                            <span id="interactionCount">0</span>
+                            تعاملونه
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="kr-decor-card">
+
+                    <div class="kr-decor-icon line">
+                        <i class="fa-solid fa-chart-line"></i>
+                    </div>
+
+                    <div class="kr-decor-text">
+
+                        <strong>
+                            Live Activity
+                        </strong>
+
+                        <span>
+                            سیستم فعال دی
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="kr-decor-card">
+
+                    <div class="kr-decor-icon face">
+                        <i class="fa-solid fa-face-smile-beam"></i>
+                    </div>
+
+                    <div class="kr-decor-text">
+
+                        <strong>
+                            حالت
+                        </strong>
+
+                        <span>
+                            Stable · Online
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- SOCIAL HUB -->
+
+            <section class="kr-social">
+
+
+                <!-- COMMENTS -->
+
+                <article class="kr-social-panel">
+
+                    <div class="kr-social-head">
+
+                        <div class="kr-social-title">
+
+                            <div class="kr-social-title-icon">
+
+                                <i class="fa-solid fa-comments"></i>
+
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    د کارکوونکو Live ټولنیز مرکز
+                                </strong>
+
+                                <span>
+                                    تبصره، Reply، Like او ❤️ Heart
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <span
+                            class="badge badge-success"
+                            id="commentOnlineBadge"
+                        >
+                            Online
+                        </span>
+
+                    </div>
+
+
+                    <form
+                        class="kr-comment-form"
+                        id="commentForm"
+                    >
+
+                        <textarea
+                            id="commentInput"
+                            class="kr-comment-input"
+                            maxlength="500"
+                            placeholder="خپل پیغام، نظر یا سلام دلته ولیکئ..."
+                            required
+                        ></textarea>
+
+
+                        <button
+                            type="submit"
+                            class="kr-comment-send"
+                            id="commentSend"
+                        >
+
+                            <i class="fa-solid fa-paper-plane"></i>
+
+                            ولیږه
+
+                        </button>
+
+                    </form>
+
+
+                    <div
+                        class="kr-comments-list"
+                        id="commentsList"
+                    >
+
+                        <div
+                            class="search-empty"
+                            id="commentsLoading"
+                        >
+                            Live تبصرې ترلاسه کېږي...
+                        </div>
+
+                    </div>
+
+                </article>
+
+
+
+                <!-- ONLINE WORKERS -->
+
+                <article class="kr-social-panel kr-online-panel">
+
+                    <div class="kr-social-head">
+
+                        <div class="kr-social-title">
+
+                            <div
+                                class="kr-social-title-icon"
+                                style="
+                                    color:#0B6B36;
+                                    background:#E9F8EF;
+                                "
+                            >
+
+                                <i class="fa-solid fa-user-group"></i>
+
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    چټک آنلاین کارکوونکي
+                                </strong>
+
+                                <span>
+                                    څوک همدا اوس Online دي؟
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        id="fastOnlineUsers"
+                        style="
+                            display:grid;
+                            gap:7px;
+                        "
+                    >
+
+                        <div class="search-empty">
+                            آنلاین کسان ترلاسه کېږي...
+                        </div>
+
+                    </div>
+
+                </article>
+
+            </section>
+
+
+
+            <!-- GENERAL ONLINE USERS -->
+
+            <section class="card dashboard-card">
+
+                <div class="dashboard-card-header">
+
+                    <div>
+
+                        <h2
+                            class="dashboard-card-title"
+                            id="onlinePeopleTitle"
+                        >
+                            🟢 آنلاین کسان
+                        </h2>
+
+                        <p
+                            class="dashboard-card-description"
+                            id="onlinePeopleDescription"
+                        >
+                            ټول هغه کسان چې اوس سیستم ته داخل دي
+                        </p>
+
+                    </div>
+
+
+                    <div
+                        class="badge badge-success"
+                        id="onlineUsersBadge"
+                    >
+                        0 آنلاین
+                    </div>
+
+                </div>
+
+
+                <div id="onlineUsersList">
+
+                    <div
+                        class="search-empty"
+                        id="onlineUsersLoading"
+                    >
+                        د آنلاین کسانو معلومات ترلاسه کېږي...
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- SYSTEM INFORMATION -->
+
+            <section class="card dashboard-card">
+
+                <div class="dashboard-card-header">
+
+                    <div>
+
+                        <h2
+                            class="dashboard-card-title"
+                            id="systemInformationTitle"
+                        >
+                            ℹ️ د سیستم معلومات
+                        </h2>
+
+                        <p class="dashboard-card-description">
+                            تخنیکي او عمومي حالت
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="dashboard-info-grid">
+
+                    <div class="dashboard-info-item">
+
+                        <div
+                            class="dashboard-info-label"
+                            id="systemLabel"
+                        >
+                            سیستم
+                        </div>
+
+                        <strong data-system-name>
+                            د افغانستان اسلامي امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس
+                        </strong>
+
+                    </div>
+
+
+                    <div class="dashboard-info-item">
+
+                        <div
+                            class="dashboard-info-label"
+                            id="onlineUpdateLabel"
+                        >
+                            د آنلاین کسانو تازه کول
+                        </div>
+
+                        <strong id="automaticLabel">
+                            اتومات
+                        </strong>
+
+                    </div>
+
+
+                    <div class="dashboard-info-item">
+
+                        <div
+                            class="dashboard-info-label"
+                            id="dataStatusLabel"
+                        >
+                            د معلوماتو حالت
+                        </div>
+
+                        <strong>
+                            Firestore
+                        </strong>
+
+                    </div>
+
+
+                    <div class="dashboard-info-item">
+
+                        <div
+                            class="dashboard-info-label"
+                            id="dateTimeLabel"
+                        >
+                            اوسنی تاریخ او ساعت
+                        </div>
+
+                        <strong
+                            class="clock-box"
+                            id="currentDateTime"
+                        >
+                            —
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =================================================
+                 WHATSAPP DIRECT CONTACT
+                 د Dashboard په آخر کې مستقیم WhatsApp
+            ================================================== -->
+
+            <section class="kr-whatsapp-section">
+
+                <div class="kr-whatsapp-card">
+
+                    <div class="kr-whatsapp-content">
+
+                        <div class="kr-whatsapp-title">
+
+                            <div class="kr-whatsapp-icon">
+
+                                <i class="fa-brands fa-whatsapp"></i>
+
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    مستقیم WhatsApp اړیکه
+                                </strong>
+
+                                <span>
+                                    د سیستم له داخل څخه مستقیم تماس
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <p class="kr-whatsapp-description">
+
+                            د مرستې، پوښتنې، ستونزې یا عمومي اړیکې لپاره
+                            لاندې تڼۍ کېکاږئ. WhatsApp به مستقیم پرانستل شي.
+
+                        </p>
+
+
+                        <div class="kr-whatsapp-number">
+
+                            +93 705 965 475
+
+                        </div>
+
+                    </div>
+
+
+                    <a
+                        id="dashboardWhatsAppButton"
+                        class="kr-whatsapp-button"
+                        href="https://wa.me/93705965475?text=%D8%B3%D9%84%D8%A7%D9%85%D8%8C%20%D8%B2%D9%87%20%D8%B3%D8%AA%D8%A7%D8%B3%D9%88%20%D8%AF%20%D8%B3%DB%8C%D8%B3%D8%AA%D9%85%20%D9%84%D9%87%20%D9%84%D8%A7%D8%B1%DB%90%20%D8%A7%DA%93%DB%8C%DA%A9%D9%87%20%D9%86%DB%8C%D8%B3%D9%85.%20%D9%85%D9%87%D8%B1%D8%A8%D8%A7%D9%86%D9%8A%20%D9%88%DA%A9%DA%93%D8%A6%20%D9%85%D8%B1%D8%B3%D8%AA%D9%87%20%D9%88%DA%A9%DA%93%D8%A6."
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="په WhatsApp کې مستقیمه اړیکه"
+                    >
+
+                        <i class="fa-brands fa-whatsapp"></i>
+
+                        WhatsApp ته اړیکه
+
+                    </a>
+
+                </div>
+
+            </section>
+
+
+        </div>
+
+    </main>
+
+</div>
+
+
+
+<footer class="footer">
+
+    <span data-system-name>
+        د افغانستان اسلامي امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس
+    </span>
+
+</footer>
+
+
+
+<script
+    type="module"
+    src="./dashboard.js"
+></script>
+
+<script
+    src="./pwa.js"
+></script>
+</body>
+
+</html>

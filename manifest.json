@@ -1,0 +1,27 @@
+{
+  "name": "د افغانستان اسلامي امارت د کره کمیسیون د ثبت او مدیریت سیسټم",
+  "short_name": "کره کمیسیون",
+  "description": "د فورمو د ثبت، مدیریت او آنلاین معلوماتو سیسټم",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#0B6B36",
+  "lang": "ps",
+  "dir": "rtl",
+  "icons": [
+    {
+      "src": "./icons/app-logo-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icons/app-logo-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

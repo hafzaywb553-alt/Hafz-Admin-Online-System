@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="ps" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="theme-color"
+        content="#0f766e"
+    >
+
+    <title>
+        د کاروونکو مدیریت - Hafz Admin Online System
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="css/style.css"
+    >
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family:
+                "Noto Naskh Arabic",
+                "Noto Sans Arabic",
+                Arial,
+                sans-serif;
+            background: #f5f7fa;
+            color: #1f2937;
+        }
+
+        .users-page {
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        .users-header {
+            background: #0f766e;
+            color: white;
+            padding: 18px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, .12);
+        }
+
+        .users-header-inner {
+            width: min(1200px, 100%);
+            margin: auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .users-title h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .users-title p {
+            margin: 5px 0 0;
+            opacity: .9;
+            font-size: 14px;
+        }
+
+        .current-admin {
+            background: rgba(255,255,255,.12);
+            padding: 10px 14px;
+            border-radius: 10px;
+            text-align: left;
+            direction: ltr;
+            font-size: 13px;
+        }
+
+        .users-container {
+            width: min(1200px, 100%);
+            margin: 25px auto;
+            padding: 0 15px;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 15px rgba(0,0,0,.06);
+        }
+
+        .panel-title {
+            margin: 0 0 18px;
+            font-size: 20px;
+            color: #0f766e;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .field label {
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .field input,
+        .field select {
+            width: 100%;
+            padding: 11px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 9px;
+            font-size: 15px;
+            outline: none;
+            background: white;
+        }
+
+        .field input:focus,
+        .field select:focus {
+            border-color: #0f766e;
+            box-shadow: 0 0 0 2px rgba(15,118,110,.12);
+        }
+
+        .buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        button {
+            border: 0;
+            border-radius: 9px;
+            padding: 11px 16px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: #0f766e;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #64748b;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #dc2626;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #d97706;
+            color: white;
+        }
+
+        .btn-success {
+            background: #16a34a;
+            color: white;
+        }
+
+        button:disabled {
+            opacity: .55;
+            cursor: not-allowed;
+        }
+
+        .search-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .search-row input {
+            flex: 1;
+            min-width: 220px;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 9px;
+            font-size: 15px;
+        }
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 950px;
+        }
+
+        th,
+        td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: right;
+            vertical-align: middle;
+        }
+
+        th {
+            background: #f1f5f9;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        tr:hover td {
+            background: #f8fafc;
+        }
+
+        .role {
+            display: inline-block;
+            padding: 5px 9px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .role-superadmin {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .role-admin {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .role-user {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 5px 9px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .status-active {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-inactive {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .row-actions {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .row-actions button {
+            padding: 7px 10px;
+            font-size: 12px;
+        }
+
+        .message {
+            display: none;
+            padding: 12px 15px;
+            border-radius: 9px;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .message.show {
+            display: block;
+        }
+
+        .message.success {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .message.error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .message.info {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 30px;
+            color: #64748b;
+            font-weight: 700;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 30px;
+            color: #64748b;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .edit-box {
+            border: 1px solid #dbeafe;
+            background: #f8fbff;
+        }
+
+        .uid-text {
+            direction: ltr;
+            text-align: left;
+            font-family: monospace;
+            font-size: 12px;
+            max-width: 170px;
+            overflow-wrap: anywhere;
+        }
+
+        .email-text {
+            direction: ltr;
+            text-align: left;
+        }
+
+        @media (max-width: 700px) {
+
+            .users-header-inner {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .current-admin {
+                text-align: right;
+            }
+
+            .panel {
+                padding: 14px;
+            }
+
+            .users-title h1 {
+                font-size: 20px;
+            }
+        }
+    </style>
+<link
+    rel="manifest"
+    href="./manifest.json"
+>
+
+<meta
+    name="theme-color"
+    content="#0B6B36"
+>
+
+<meta
+    name="mobile-web-app-capable"
+    content="yes"
+>
+
+<meta
+    name="apple-mobile-web-app-capable"
+    content="yes"
+>
+
+<meta
+    name="apple-mobile-web-app-status-bar-style"
+    content="default"
+>
+
+</head>
+
+
+<body>
+
+<div class="users-page">
+
+    <!-- =====================================
+         HEADER
+    ====================================== -->
+
+    <header class="users-header">
+
+        <div class="users-header-inner">
+
+            <div class="users-title">
+
+                <h1>
+                    👥 د کاروونکو مدیریت
+                </h1>
+
+                <p>
+                    Hafz Admin Online System
+                </p>
+
+            </div>
+
+            <div
+                id="currentAdminBox"
+                class="current-admin"
+            >
+                Loading...
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <!-- =====================================
+         MAIN
+    ====================================== -->
+
+    <main class="users-container">
+
+        <!-- Message -->
+
+        <div
+            id="messageBox"
+            class="message"
+        ></div>
+
+
+        <!-- =================================
+             ACCESS DENIED
+        ================================== -->
+
+        <section
+            id="accessDenied"
+            class="panel hidden"
+        >
+
+            <h2 class="panel-title">
+                🚫 د لاسرسي اجازه نشته
+            </h2>
+
+            <p>
+                دا پاڼه یوازې Super Admin ته د کاروونکو
+                د مدیریت اجازه ورکوي.
+            </p>
+
+        </section>
+
+
+        <!-- =================================
+             ADD USER PROFILE
+        ================================== -->
+
+        <section
+            id="addUserPanel"
+            class="panel hidden"
+        >
+
+            <h2 class="panel-title">
+                ➕ نوی کاروونکی
+            </h2>
+
+            <p>
+                دلته د هغه Firebase Authentication حساب
+                Profile ثبتېږي چې UID یې موجود وي.
+            </p>
+
+            <div class="form-grid">
+
+                <div class="field">
+
+                    <label for="userUid">
+                        Firebase UID *
+                    </label>
+
+                    <input
+                        id="userUid"
+                        type="text"
+                        autocomplete="off"
+                        placeholder="Firebase UID"
+                    >
+
+                </div>
+
+
+                <div class="field">
+
+                    <label for="userEmail">
+                        ایمیل *
+                    </label>
+
+                    <input
+                        id="userEmail"
+                        type="email"
+                        autocomplete="off"
+                        placeholder="example@gmail.com"
+                    >
+
+                </div>
+
+
+                <div class="field">
+
+                    <label for="userName">
+                        نوم
+                    </label>
+
+                    <input
+                        id="userName"
+                        type="text"
+                        autocomplete="off"
+                        placeholder="د کاروونکي نوم"
+                    >
+
+                </div>
+
+
+                <div class="field">
+
+                    <label for="userRole">
+                        Role *
+                    </label>
+
+                    <select id="userRole">
+
+                        <option value="user">
+                            User
+                        </option>
+
+                        <option value="admin">
+                            Admin
+                        </option>
+
+                        <option value="superadmin">
+                            Super Admin
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+
+            <div class="buttons">
+
+                <button
+                    id="createUserBtn"
+                    class="btn-primary"
+                    type="button"
+                >
+                    ➕ Profile ثبتول
+                </button>
+
+                <button
+                    id="clearCreateBtn"
+                    class="btn-secondary"
+                    type="button"
+                >
+                    پاکول
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================
+             EDIT USER
+        ================================== -->
+
+        <section
+            id="editUserPanel"
+            class="panel edit-box hidden"
+        >
+
+            <h2 class="panel-title">
+                ✏️ د کاروونکي معلومات اصلاح
+            </h2>
+
+            <input
+                id="editUid"
+                type="hidden"
+            >
+
+            <div class="form-grid">
+
+                <div class="field">
+
+                    <label for="editName">
+                        نوم
+                    </label>
+
+                    <input
+                        id="editName"
+                        type="text"
+                    >
+
+                </div>
+
+
+                <div class="field">
+
+                    <label for="editEmail">
+                        ایمیل
+                    </label>
+
+                    <input
+                        id="editEmail"
+                        type="email"
+                    >
+
+                </div>
+
+
+                <div class="field">
+
+                    <label for="editRole">
+                        Role
+                    </label>
+
+                    <select id="editRole">
+
+                        <option value="user">
+                            User
+                        </option>
+
+                        <option value="admin">
+                            Admin
+                        </option>
+
+                        <option value="superadmin">
+                            Super Admin
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="field">
+
+                    <label for="editActive">
+                        حالت
+                    </label>
+
+                    <select id="editActive">
+
+                        <option value="true">
+                            فعال
+                        </option>
+
+                        <option value="false">
+                            غیر فعال
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+
+            <div class="buttons">
+
+                <button
+                    id="saveEditBtn"
+                    class="btn-success"
+                    type="button"
+                >
+                    💾 معلومات ساتل
+                </button>
+
+                <button
+                    id="cancelEditBtn"
+                    class="btn-secondary"
+                    type="button"
+                >
+                    لغوه
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================
+             USERS LIST
+        ================================== -->
+
+        <section
+            id="usersPanel"
+            class="panel hidden"
+        >
+
+            <h2 class="panel-title">
+                👥 ټول کاروونکي
+            </h2>
+
+
+            <div class="search-row">
+
+                <input
+                    id="usersSearch"
+                    type="search"
+                    placeholder="د نوم، ایمیل، UID یا Role له مخې لټون..."
+                    autocomplete="off"
+                >
+
+                <button
+                    id="refreshUsersBtn"
+                    class="btn-primary"
+                    type="button"
+                >
+                    🔄 تازه کول
+                </button>
+
+            </div>
+
+
+            <div
+                id="usersLoading"
+                class="loading hidden"
+            >
+                ⏳ د کاروونکو معلومات ترلاسه کېږي...
+            </div>
+
+
+            <div
+                id="usersEmpty"
+                class="empty hidden"
+            >
+                تر اوسه کوم کاروونکی ونه موندل شو.
+            </div>
+
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                #
+                            </th>
+
+                            <th>
+                                نوم
+                            </th>
+
+                            <th>
+                                ایمیل
+                            </th>
+
+                            <th>
+                                Role
+                            </th>
+
+                            <th>
+                                حالت
+                            </th>
+
+                            <th>
+                                UID
+                            </th>
+
+                            <th>
+                                عملیات
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody
+                        id="usersTableBody"
+                    ></tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<!-- =====================================
+     JAVASCRIPT
+====================================== -->
+
+<script
+    type="module"
+    src="./users.js"
+></script>
+<script
+    src="./pwa.js"
+></script>
+</body>
+</html>

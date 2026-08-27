@@ -1,0 +1,1518 @@
+<!DOCTYPE html>
+<html lang="ps" dir="rtl">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
+>
+
+<meta
+    name="theme-color"
+    content="#0B6B36"
+>
+
+<title>
+    فورمیک - د افغانستان اسلامي امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس
+</title>
+
+<link
+    rel="stylesheet"
+    href="./style.css"
+>
+
+<style>
+
+/* =====================================================
+   GLOBAL
+===================================================== */
+
+html,
+body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+.app-layout,
+.main-content,
+.page,
+.card {
+    min-width: 0;
+    max-width: 100%;
+}
+
+.main-content {
+    overflow-x: hidden;
+}
+
+
+/* =====================================================
+   FORMIC PAGE
+===================================================== */
+
+.فورمیک-پاڼه {
+    display: grid;
+    gap: 14px;
+    width: 100%;
+    min-width: 0;
+}
+
+.فورمیک-سرلیک {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+.فورمیک-سرلیک > div:first-child {
+    min-width: 0;
+    flex: 1 1 280px;
+}
+
+.فورمیک-سرلیک h1 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 900;
+    line-height: 1.5;
+}
+
+.فورمیک-سرلیک p {
+    margin: 6px 0 0;
+    color: var(--muted-color);
+    font-size: 13px;
+    line-height: 1.9;
+}
+
+
+/* =====================================================
+   TOP BUTTONS
+===================================================== */
+
+.فورمیک-وسایل {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    width: 100%;
+    min-width: 0;
+}
+
+.فورمیک-وسایل .btn {
+    min-height: 40px;
+    width: auto;
+    white-space: nowrap;
+    flex: 0 1 auto;
+}
+
+
+/* =====================================================
+   STATUS
+===================================================== */
+
+.فورمیک-حالت {
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    background: var(--surface-color);
+}
+
+.فورمیک-حالت strong {
+    display: block;
+    margin-bottom: 4px;
+}
+
+.فورمیک-حالت span {
+    color: var(--muted-color);
+    font-size: 12px;
+    line-height: 1.8;
+}
+
+
+/* =====================================================
+   HOME TOOLBAR
+===================================================== */
+
+.فورمیک-دکمه-وېش {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--surface-alt);
+    min-width: 0;
+}
+
+.فورمیک-ګروپ {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 5px;
+    min-width: 0;
+}
+
+.فورمیک-ګروپ-سرلیک {
+    font-size: 11px;
+    font-weight: 900;
+    color: var(--muted-color);
+    padding: 0 4px;
+    white-space: nowrap;
+}
+
+.فورمیک-کوچنی-تڼۍ {
+    min-width: 35px;
+    min-height: 35px;
+    padding: 0 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--surface-color);
+    color: var(--text-color);
+    cursor: pointer;
+    font-weight: 800;
+    flex: 0 0 auto;
+}
+
+.فورمیک-کوچنی-تڼۍ:hover {
+    background: var(--surface-alt);
+}
+
+.فورمیک-کوچنی-تڼۍ.فعال {
+    background: #0B6B36;
+    color: #fff;
+    border-color: #0B6B36;
+}
+
+.فورمیک-کوچنی-تڼۍ:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+.فورمیک-انتخاب {
+    min-height: 35px;
+    min-width: 92px;
+    max-width: 180px;
+    padding: 5px 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--surface-color);
+    color: var(--text-color);
+    outline: none;
+}
+
+.فورمیک-انتخاب:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+}
+
+.فورمیک-رنګ {
+    width: 42px;
+    height: 35px;
+    padding: 2px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--surface-color);
+    cursor: pointer;
+}
+
+.فورمیک-رنګ:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+}
+
+
+/* =====================================================
+   SHEETS
+===================================================== */
+
+.فورمیک-شیتونه {
+    display: flex;
+    gap: 6px;
+    overflow: auto;
+    padding: 10px;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--surface-alt);
+    min-width: 0;
+    max-width: 100%;
+    -webkit-overflow-scrolling: touch;
+}
+
+.فورمیک-شیت {
+    flex: 0 0 auto;
+    min-height: 38px;
+    padding: 7px 13px;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--surface-color);
+    color: var(--text-color);
+    cursor: pointer;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.فورمیک-شیت.فعال {
+    color: #fff;
+    background:
+        linear-gradient(
+            135deg,
+            #0B6B36,
+            #07552A
+        );
+    border-color: transparent;
+}
+
+
+/* =====================================================
+   TABLE
+===================================================== */
+
+.فورمیک-جدول-چوکاټ {
+    width: 100%;
+    max-width: 100%;
+    overflow: auto;
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    background: var(--surface-color);
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+}
+
+.فورمیک-جدول {
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: fixed;
+    width: max-content;
+    min-width: 900px;
+}
+
+.فورمیک-جدول th,
+.فورمیک-جدول td {
+    border: 1px solid var(--border-color);
+    padding: 0;
+    position: relative;
+    vertical-align: top;
+    overflow: visible;
+}
+
+.فورمیک-جدول thead th {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    background: var(--surface-color);
+}
+
+
+/* =====================================================
+   ROW HEADER
+===================================================== */
+
+.فورمیک-شمېره {
+    width: 70px !important;
+    min-width: 70px !important;
+    max-width: 70px !important;
+    position: sticky !important;
+    right: 0 !important;
+    z-index: 40 !important;
+    background: var(--surface-alt) !important;
+    text-align: center;
+    padding: 0 !important;
+}
+
+.فورمیک-کرښې-سر {
+    width: 100%;
+    height: 100%;
+    min-height: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    user-select: none;
+}
+
+.فورمیک-کرښې-شمېره {
+    font-size: 12px;
+    font-weight: 900;
+    line-height: 1;
+}
+
+.فورمیک-کرښې-حذف {
+    width: 24px;
+    height: 22px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: var(--surface-color);
+    color: var(--text-color);
+    cursor: pointer;
+    padding: 0;
+}
+
+.فورمیک-کرښې-حذف:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+.فورمیک-کرښې-ریز-پورته,
+.فورمیک-کرښې-ریز-لاندې {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 9px;
+    z-index: 80;
+    cursor: ns-resize;
+}
+
+.فورمیک-کرښې-ریز-پورته {
+    top: -4px;
+}
+
+.فورمیک-کرښې-ریز-لاندې {
+    bottom: -4px;
+}
+
+.فورمیک-کرښې-ریز-پورته:hover,
+.فورمیک-کرښې-ریز-لاندې:hover {
+    background: rgba(11,107,54,.2);
+}
+
+
+/* =====================================================
+   COLUMN HEADER
+===================================================== */
+
+.فورمیک-سر-خانه {
+    position: relative;
+    padding: 8px;
+    background: var(--surface-alt);
+    min-width: 0;
+}
+
+.فورمیک-سر-تڼۍ {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    min-width: 0;
+    margin-bottom: 6px;
+}
+
+.فورمیک-ستون-نوم {
+    flex: 1;
+    min-width: 60px;
+    width: 100%;
+    min-height: 35px;
+    padding: 6px 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--surface-color);
+    color: var(--text-color);
+    outline: none;
+    font-weight: 800;
+}
+
+.فورمیک-ستون-نوم:disabled {
+    opacity: .7;
+    cursor: not-allowed;
+}
+
+.فورمیک-ستون-حذف {
+    min-width: 32px;
+    width: 32px;
+    height: 35px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--surface-color);
+    cursor: pointer;
+}
+
+.فورمیک-ستون-حذف:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+
+/* =====================================================
+   COLUMN RESIZE
+===================================================== */
+
+.فورمیک-ستون-ریز-چپ,
+.فورمیک-ستون-ریز-راست {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 9px;
+    z-index: 90;
+    cursor: ew-resize;
+}
+
+.فورمیک-ستون-ریز-چپ {
+    left: -4px;
+}
+
+.فورمیک-ستون-ریز-راست {
+    right: -4px;
+}
+
+.فورمیک-ستون-ریز-چپ:hover,
+.فورمیک-ستون-ریز-راست:hover {
+    background: rgba(11,107,54,.2);
+}
+
+
+/* =====================================================
+   FILTER
+===================================================== */
+
+.فورمیک-فلټر-برخه {
+    display: flex;
+    gap: 5px;
+    width: 100%;
+    align-items: center;
+}
+
+.فورمیک-فلټر-تڼۍ {
+    width: 33px;
+    min-width: 33px;
+    height: 33px;
+    border: 1px solid var(--border-color);
+    border-radius: 7px;
+    background: var(--surface-color);
+    cursor: pointer;
+}
+
+.فورمیک-فلټر-تڼۍ.فعال {
+    background: #0B6B36;
+    color: #fff;
+}
+
+.فورمیک-فلټر {
+    flex: 1;
+    width: 100%;
+    min-height: 33px;
+    padding: 5px 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 7px;
+    background: var(--surface-color);
+    color: var(--text-color);
+    outline: none;
+    font-size: 12px;
+}
+
+.فورمیک-فلټر[hidden] {
+    display: none !important;
+}
+
+
+/* =====================================================
+   CELLS
+===================================================== */
+
+.فورمیک-خانه-پوښ {
+    width: 100%;
+    height: 100%;
+    min-height: 44px;
+    display: flex;
+    overflow: hidden;
+}
+
+.فورمیک-خانه {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 44px;
+    padding: 8px;
+    border: 0;
+    outline: none;
+    resize: none;
+    background: transparent;
+    color: var(--text-color);
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+.فورمیک-خانه:disabled {
+    cursor: default;
+}
+
+.فورمیک-خانه:focus {
+    box-shadow:
+        inset 0 0 0 2px
+        rgba(11,107,54,.2);
+}
+
+.فورمیک-خانه-پوښ.انتخاب-شوی {
+    box-shadow:
+        inset 0 0 0 2px
+        #0B6B36;
+    background:
+        rgba(11,107,54,.05);
+}
+
+
+/* =====================================================
+   ERROR / WARNING AUTO NAVIGATION
+===================================================== */
+
+#فورمیکپیغام {
+    scroll-margin-top: 90px;
+    position: relative;
+}
+
+#فورمیکپیغام.alert-danger,
+#فورمیکپیغام.alert-warning,
+#فورمیکپیغام.alert-error {
+    animation:
+        فورمیک-اخطار
+        .45s ease;
+}
+
+@keyframes فورمیک-اخطار {
+
+    0% {
+        transform: translateY(-8px);
+        opacity: .35;
+    }
+
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+
+}
+
+
+/* =====================================================
+   PERMANENT SAVE
+===================================================== */
+
+.فورمیک-تلپاتې-خوندي {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    z-index: 9999;
+
+    min-width: 150px;
+    min-height: 48px;
+
+    padding: 9px 15px;
+
+    border: 0;
+    border-radius: 14px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #0B6B36,
+            #07552A
+        );
+
+    color: #fff;
+
+    box-shadow:
+        0 8px 26px
+        rgba(0,0,0,.20);
+
+    cursor: pointer;
+
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 900;
+
+    transition:
+        transform .15s ease,
+        opacity .15s ease;
+}
+
+.فورمیک-تلپاتې-خوندي:hover {
+    transform: translateY(-2px);
+}
+
+.فورمیک-تلپاتې-خوندي:active {
+    transform: translateY(0);
+}
+
+.فورمیک-تلپاتې-خوندي:disabled {
+    opacity: .55;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.فورمیک-تلپاتې-خوندي.خوندي-کېږي {
+    cursor: wait;
+}
+
+
+/* =====================================================
+   FOOTER
+===================================================== */
+
+.فورمیک-پټه {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 10px 12px;
+    border-top: 1px solid var(--border-color);
+    background: var(--surface-alt);
+}
+
+.فورمیک-شمېر {
+    color: var(--muted-color);
+    font-size: 12px;
+}
+
+.فورمیک-تشریح {
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    background: var(--surface-alt);
+    line-height: 1.9;
+    font-size: 13px;
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width: 700px) {
+
+    .فورمیک-سرلیک h1 {
+        font-size: 22px;
+    }
+
+    .فورمیک-وسایل {
+        display: grid;
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(0, 1fr)
+            );
+        gap: 6px;
+    }
+
+    .فورمیک-وسایل .btn {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .فورمیک-ګروپ {
+        display: grid;
+        grid-template-columns:
+            repeat(
+                4,
+                minmax(0, 1fr)
+            );
+        width: 100%;
+    }
+
+    .فورمیک-ګروپ-سرلیک {
+        grid-column: 1 / -1;
+    }
+
+    .فورمیک-ګروپ .فورمیک-کوچنی-تڼۍ,
+    .فورمیک-ګروپ .فورمیک-انتخاب {
+        width: 100%;
+        min-width: 0;
+        max-width: none;
+    }
+
+    .فورمیک-رنګ {
+        width: 100%;
+    }
+
+    .فورمیک-جدول {
+        min-width: 760px;
+    }
+
+    .فورمیک-تلپاتې-خوندي {
+        right: 10px;
+        bottom: 10px;
+        min-width: 128px;
+        min-height: 44px;
+        font-size: 13px;
+    }
+
+}
+
+
+@media (max-width: 430px) {
+
+    .فورمیک-وسایل {
+        grid-template-columns:
+            1fr;
+    }
+
+    .فورمیک-ګروپ {
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(0, 1fr)
+            );
+    }
+
+}
+
+</style>
+<link
+    rel="manifest"
+    href="./manifest.json"
+>
+
+<meta
+    name="theme-color"
+    content="#0B6B36"
+>
+
+<meta
+    name="mobile-web-app-capable"
+    content="yes"
+>
+
+<meta
+    name="apple-mobile-web-app-capable"
+    content="yes"
+>
+
+<meta
+    name="apple-mobile-web-app-status-bar-style"
+    content="default"
+>
+</head>
+
+
+<body>
+
+
+<header class="main-header">
+
+    <div class="header-brand">
+
+        <div class="header-logo">
+            📋
+        </div>
+
+        <div
+            class="header-title"
+            data-system-name
+        >
+            د افغانستان اسلامي امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس
+        </div>
+
+    </div>
+
+
+    <div class="header-actions">
+
+        <button
+            type="button"
+            id="dashboardBtn"
+        >
+            🏠
+        </button>
+
+        <button
+            type="button"
+            id="refreshBtn"
+        >
+            🔄
+        </button>
+
+        <button
+            type="button"
+            id="logoutBtn"
+        >
+            🚪
+        </button>
+
+    </div>
+
+</header>
+
+
+<div class="app-layout">
+
+
+    <aside class="sidebar">
+
+        <div class="sidebar-title">
+            اصلي مینو
+        </div>
+
+
+        <nav class="sidebar-menu">
+
+            <button
+                type="button"
+                id="dashboardMenuBtn"
+            >
+                📊 ډشبورډ
+            </button>
+
+
+            <button
+                type="button"
+                id="registerMenuBtn"
+            >
+                📝 نوی ثبت
+            </button>
+
+
+            <button
+                type="button"
+                id="searchMenuBtn"
+            >
+                🔍 لټون
+            </button>
+
+
+            <button
+                type="button"
+                class="active"
+                id="formicMenuBtn"
+            >
+                📋 فورمیک
+            </button>
+
+
+            <button
+                type="button"
+                id="reportsMenuBtn"
+            >
+                📄 راپورونه
+            </button>
+
+
+            <button
+                type="button"
+                id="adminMenuBtn"
+            >
+                👥 اداره
+            </button>
+
+
+            <button
+                type="button"
+                id="settingsMenuBtn"
+            >
+                ⚙️ تنظیمات
+            </button>
+
+        </nav>
+
+    </aside>
+
+
+    <main class="main-content">
+
+        <div class="page فورمیک-پاڼه">
+
+
+            <section class="فورمیک-سرلیک">
+
+                <div>
+
+                    <h1>
+                        📋 فورمیک
+                    </h1>
+
+                    <p>
+                        د جدولونو، شیتونو، خانونو او معلوماتو د منظم مدیریت برخه.
+                    </p>
+
+                </div>
+
+
+                <div class="فورمیک-وسایل">
+
+                    <button
+                        type="button"
+                        class="btn btn-primary"
+                        id="نویشیت"
+                    >
+                        ➕ نوی شیت
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        id="نوېستون"
+                    >
+                        ➕ نوی ستون
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        id="نوېکرښه"
+                    >
+                        ➕ نوې کرښه
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        id="کرښه_پورته"
+                    >
+                        ⬆️ کرښه پورته
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        id="کرښه_لاندې"
+                    >
+                        ⬇️ کرښه لاندې
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        id="ستون_چپ_نوی"
+                    >
+                        ⬅️ نوی ستون چپ
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        id="ستون_راست_نوی"
+                    >
+                        ➡️ نوی ستون راست
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        id="خانېیوځای"
+                    >
+                        🔗 Merge
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        id="خانېجلا"
+                    >
+                        ↗️ Unmerge
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="btn btn-primary"
+                        id="خونديکول"
+                    >
+                        💾 خوندي کول
+                    </button>
+
+                </div>
+
+            </section>
+
+
+            <div
+                id="فورمیکپیغام"
+                class="alert"
+                hidden
+                role="alert"
+                aria-live="assertive"
+            ></div>
+
+
+            <section class="card">
+
+
+                <div class="فورمیک-حالت">
+
+                    <strong id="سترحالت">
+                        فورمیک چمتو دی
+                    </strong>
+
+
+                    <span id="حالتتشریح">
+                        د Formic حالت...
+                    </span>
+
+                </div>
+
+
+                <div class="فورمیک-دکمه-وېش">
+
+
+                    <div class="فورمیک-ګروپ">
+
+                        <span class="فورمیک-ګروپ-سرلیک">
+                            کلیپ بورډ
+                        </span>
+
+
+                        <button
+                            type="button"
+                            class="فورمیک-کوچنی-تڼۍ"
+                            id="کاپي"
+                        >
+                            📋
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="فورمیک-کوچنی-تڼۍ"
+                            id="پرېکول"
+                        >
+                            ✂️
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="فورمیک-کوچنی-تڼۍ"
+                            id="نښلول"
+                        >
+                            📌
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="فورمیک-کوچنی-تڼۍ"
+                            id="پاکول"
+                        >
+                            🧹
+                        </button>
+
+                    </div>
+
+
+                    <div class="فورمیک-ګروپ">
+
+                        <span class="فورمیک-ګروپ-سرلیک">
+                            لیک
+                        </span>
+
+
+                        <select
+                            id="دخط"
+                            class="فورمیک-انتخاب"
+                        >
+
+                            <option value="Noto Naskh Arabic">
+                                Noto Naskh Arabic
+                            </option>
+
+                            <option value="Tahoma">
+                                Tahoma
+                            </option>
+
+                            <option value="Arial">
+                                Arial
+                            </option>
+
+                            <option value="Verdana">
+                                Verdana
+                            </option>
+
+                            <option value="Georgia">
+                                Georgia
+                            </option>
+
+                        </select>
+
+
+                        <select
+                            id="دلیکاندازه"
+                            class="فورمیک-انتخاب"
+                        >
+
+                            <option value="10">
+                                10
+                            </option>
+
+                            <option value="12">
+                                12
+                            </option>
+
+                            <option
+                                value="14"
+                                selected
+                            >
+                                14
+                            </option>
+
+                            <option value="16">
+                                16
+                            </option>
+
+                            <option value="18">
+                                18
+                            </option>
+
+                            <option value="20">
+                                20
+                            </option>
+
+                            <option value="22">
+                                22
+                            </option>
+
+                            <option value="26">
+                                26
+                            </option>
+
+                            <option value="30">
+                                30
+                            </option>
+
+                            <option value="36">
+                                36
+                            </option>
+
+                        </select>
+
+
+                        <button
+                            type="button"
+                            class="فورمیک-کوچنی-تڼۍ"
+                            id="غلظت"
+                        >
+                            <b>غ</b>
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="فورمیک-کوچنی-تڼۍ"
+                            id="کږلیک"
+                        >
+                            <i>ک</i>
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="فورمیک-کوچنی-تڼۍ"
+                            id="لاندېکرښه"
+                        >
+                            <u>ل</u>
+                        </button>
+
+                    </div>
+
+
+                    <div class="فورمیک-ګروپ">
+
+                        <span class="فورمیک-ګروپ-سرلیک">
+                            رنګ
+                        </span>
+
+
+                        <input
+                            type="color"
+                            id="دلیکټاکليکړنګ"
+                            class="فورمیک-رنګ"
+                            value="#1F2937"
+                        >
+
+
+                        <input
+                            type="color"
+                            id="دخانېشالید"
+                            class="فورمیک-رنګ"
+                            value="#FFFFFF"
+                        >
+
+                    </div>
+
+
+                    <div class="فورمیک-ګروپ">
+
+                        <span class="فورمیک-ګروپ-سرلیک">
+                            سمون
+                        </span>
+
+
+                        <select
+                            id="دافقيبرابرول"
+                            class="فورمیک-انتخاب"
+                        >
+
+                            <option value="right">
+                                ښي
+                            </option>
+
+                            <option value="center">
+                                منځ
+                            </option>
+
+                            <option value="left">
+                                چپ
+                            </option>
+
+                        </select>
+
+
+                        <select
+                            id="دعموديبرابرول"
+                            class="فورمیک-انتخاب"
+                        >
+
+                            <option value="top">
+                                پورته
+                            </option>
+
+                            <option
+                                value="middle"
+                                selected
+                            >
+                                منځ
+                            </option>
+
+                            <option value="bottom">
+                                لاندې
+                            </option>
+
+                        </select>
+
+
+                        <button
+                            type="button"
+                            class="فورمیک-کوچنی-تڼۍ"
+                            id="تاوول"
+                        >
+                            ↩
+                        </button>
+
+                    </div>
+
+
+                    <div class="فورمیک-ګروپ">
+
+                        <span class="فورمیک-ګروپ-سرلیک">
+                            سرحد
+                        </span>
+
+
+                        <button
+                            type="button"
+                            class="فورمیک-کوچنی-تڼۍ"
+                            id="ټولسرحدونه"
+                        >
+                            ▦
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="فورمیک-کوچنی-تڼۍ"
+                            id="بېسرحد"
+                        >
+                            □
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="فورمیک-کوچنی-تڼۍ"
+                            id="بهرنیسرحد"
+                        >
+                            ▣
+                        </button>
+
+                    </div>
+
+
+                    <div class="فورمیک-ګروپ">
+
+                        <span class="فورمیک-ګروپ-سرلیک">
+                            شمېرې
+                        </span>
+
+
+                        <button
+                            type="button"
+                            class="فورمیک-کوچنی-تڼۍ"
+                            id="عموميشمېر"
+                        >
+                            123
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="فورمیک-کوچنی-تڼۍ"
+                            id="سلنه"
+                        >
+                            %
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="فورمیک-کوچنی-تڼۍ"
+                            id="زرمیش"
+                        >
+                            1,000
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="فورمیک-کوچنی-تڼۍ"
+                            id="ټولول"
+                        >
+                            Σ
+                        </button>
+
+                    </div>
+
+
+                    <div class="فورمیک-ګروپ">
+
+                        <span class="فورمیک-ګروپ-سرلیک">
+                            سمون
+                        </span>
+
+
+                        <button
+                            type="button"
+                            class="فورمیک-کوچنی-تڼۍ"
+                            id="فارمیټ_پینټر"
+                        >
+                            🖌️
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="فورمیک-کوچنی-تڼۍ"
+                            id="فارمیټ_پاک"
+                        >
+                            🧽
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="فورمیک-کوچنی-تڼۍ"
+                            id="لټون"
+                        >
+                            🔍
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="فورمیک-شیتونه"
+                    id="شیتونوځای"
+                ></div>
+
+
+                <div class="فورمیک-جدول-چوکاټ">
+
+                    <table
+                        class="فورمیک-جدول"
+                        id="فورمیکجدول"
+                    ></table>
+
+                </div>
+
+
+                <div class="فورمیک-پټه">
+
+                    <span
+                        class="فورمیک-شمېر"
+                        id="دشمېرښود"
+                    >
+                        ۰ شیتونه
+                    </span>
+
+
+                    <button
+                        type="button"
+                        class="btn btn-danger"
+                        id="شیتحذف"
+                    >
+                        🗑️ اوسنی شیت حذف کړه
+                    </button>
+
+                </div>
+
+            </section>
+
+
+            <section class="فورمیک-تشریح">
+
+                <strong>
+                    یادونه:
+                </strong>
+
+                د څو خانونو د انتخاب لپاره
+                Shift + Click وکاروئ.
+
+                د کرښې یا ستون پر څنډه
+                Drag کول د هغې اندازه بدلوي.
+
+                ټول مهم بدلونونه د Superadmin لپاره
+                Firebase ته تلپاتې خوندي کېږي.
+
+            </section>
+
+        </div>
+
+    </main>
+
+</div>
+
+
+<!-- تلپاتې Save -->
+
+<button
+    type="button"
+    id="تلپاتېخونديکول"
+    class="فورمیک-تلپاتې-خوندي"
+    title="تلپاتې خوندي کول"
+>
+    💾 تلپاتې خوندي کول
+</button>
+
+
+<footer class="footer">
+
+    <span data-system-name>
+        د افغانستان اسلامي امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس
+    </span>
+
+</footer>
+
+
+<script
+    type="module"
+    src="./formic.js"
+></script>
+<script
+    src="./pwa.js"
+></script>
+</body>
+
+</html>
