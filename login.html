@@ -1,854 +1,6904 @@
 <!DOCTYPE html>
 <html lang="ps" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#0B6B36">
-    <title>د ننوتلو پاڼه - د افغانستان اسلامي امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس💻</title>
 
-    <link rel="stylesheet" href="./style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover"
+    >
+
+    <meta
+        name="theme-color"
+        content="#020915"
+        id="themeColorMeta"
+    >
+
+    <meta
+        name="color-scheme"
+        content="dark light"
+    >
+
+    <meta
+        name="description"
+        content="د افغانستان اسلامي امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس"
+    >
+
+    <meta
+        name="mobile-web-app-capable"
+        content="yes"
+    >
+
+    <meta
+        name="apple-mobile-web-app-capable"
+        content="yes"
+    >
+
+    <meta
+        name="apple-mobile-web-app-status-bar-style"
+        content="black-translucent"
+    >
+
+    <link
+        rel="manifest"
+        href="./manifest.json"
+    >
+
+    <title>
+        د خوندي ننوتلو پاڼه
+    </title>
+
+
+    <!-- ============================================================
+         SYSTEM CSS
+    ============================================================ -->
+
+    <link
+        rel="stylesheet"
+        href="./style.css"
+    >
+
+
+    <!-- ============================================================
+         PASHTO FONT
+    ============================================================ -->
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet"
+    >
+
+
+    <!-- ============================================================
+         FONT AWESOME
+    ============================================================ -->
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    >
+
 
     <style>
+
+        /* ============================================================
+           ROOT
+        ============================================================ */
+
+        :root {
+
+            --bg:
+                #02060D;
+
+            --panel:
+                #03111C;
+
+            --panel-2:
+                #051623;
+
+            --text:
+                #F4FBFF;
+
+            --muted:
+                #8EA4B4;
+
+            --muted-2:
+                #607686;
+
+            --green:
+                #23EFA2;
+
+            --green-light:
+                #79FFD0;
+
+            --cyan:
+                #25DFFF;
+
+            --blue:
+                #2588FF;
+
+            --red:
+                #FF6879;
+
+            --yellow:
+                #FFD45A;
+
+            --purple:
+                #A779FF;
+
+            --orange:
+                #FF9D45;
+
+            --pink:
+                #FF72C9;
+
+            --border:
+                rgba(111,212,255,.18);
+
+            --shadow:
+                0 24px 55px rgba(0,0,0,.42);
+
+        }
+
+
+        /* ============================================================
+           LIGHT MODE
+        ============================================================ */
+
+        html.light-mode {
+
+            --bg:
+                #EEF5F3;
+
+            --panel:
+                #F8FCFA;
+
+            --panel-2:
+                #EAF3EF;
+
+            --text:
+                #102C25;
+
+            --muted:
+                #58736A;
+
+            --muted-2:
+                #718A82;
+
+            --border:
+                rgba(31,115,88,.16);
+
+            --shadow:
+                0 22px 50px rgba(24,70,57,.14);
+
+        }
+
+
+        /* ============================================================
+           RESET
+        ============================================================ */
+
+        *,
+        *::before,
+        *::after {
+
+            box-sizing:
+                border-box;
+
+        }
+
+
+        html {
+
+            width:
+                100%;
+
+            min-width:
+                100%;
+
+            height:
+                100%;
+
+            min-height:
+                100%;
+
+            margin:
+                0;
+
+            padding:
+                0;
+
+            background:
+                var(--bg);
+
+        }
+
+
         body {
-            min-height: 100vh;
-            background: linear-gradient(180deg, rgba(11,107,54,0.08), rgba(245,247,246,1));
+
+            width:
+                100%;
+
+            min-width:
+                100%;
+
+            min-height:
+                100vh;
+
+            min-height:
+                100dvh;
+
+            margin:
+                0;
+
+            padding:
+                0;
+
+            background:
+                var(--bg);
+
+            color:
+                var(--text);
+
+            font-family:
+                "Noto Naskh Arabic",
+                Tahoma,
+                Arial,
+                sans-serif;
+
+            overflow-x:
+                hidden;
+
+            -webkit-font-smoothing:
+                antialiased;
+
+            text-rendering:
+                optimizeLegibility;
+
         }
 
-        .login-shell {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 18px;
+
+        button,
+        input {
+
+            font-family:
+                inherit;
+
         }
 
-        .login-card {
-            width: 100%;
-            max-width: 460px;
-            background: var(--surface-color);
-            border: 1px solid var(--border-color);
-            border-radius: 18px;
-            box-shadow: 0 12px 36px rgba(0,0,0,0.10);
-            padding: 24px;
+
+        button {
+
+            cursor:
+                pointer;
+
         }
 
-        .profile-wrap {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 14px;
+
+        /* ============================================================
+           FULL PAGE
+        ============================================================ */
+
+        .login-page {
+
+            position:
+                relative;
+
+            width:
+                100%;
+
+            min-width:
+                100%;
+
+            min-height:
+                100vh;
+
+            min-height:
+                100dvh;
+
+            margin:
+                0;
+
+            padding:
+                0;
+
+            overflow:
+                hidden;
+
+            isolation:
+                isolate;
+
+            background:
+
+                linear-gradient(
+                    135deg,
+                    #01050B,
+                    #03111D 52%,
+                    #020913
+                );
+
         }
 
-        .profile-avatar {
-            width: 110px;
-            height: 110px;
-            border-radius: 50%;
-            object-fit: cover;
-            object-position: center top;
-            border: 4px solid var(--primary-color);
-            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
-            cursor: zoom-in;
-            background: #fff;
+
+        html.light-mode .login-page {
+
+            background:
+
+                linear-gradient(
+                    135deg,
+                    #EAF2EF,
+                    #F7FAF9 52%,
+                    #E4EFEB
+                );
+
         }
 
-        .login-title {
-            text-align: center;
-            font-size: 24px;
-            font-weight: 900;
-            margin-top: 8px;
-            line-height: 1.5;
-            color: var(--text-color);
+
+        /* ============================================================
+           BACKGROUND GRID
+        ============================================================ */
+
+        .background-grid {
+
+            position:
+                absolute;
+
+            inset:
+                0;
+
+            z-index:
+                0;
+
+            pointer-events:
+                none;
+
+            opacity:
+                .12;
+
+            background-image:
+
+                linear-gradient(
+                    rgba(37,223,255,.035) 1px,
+                    transparent 1px
+                ),
+
+                linear-gradient(
+                    90deg,
+                    rgba(37,223,255,.035) 1px,
+                    transparent 1px
+                );
+
+            background-size:
+                48px 48px;
+
+            mask-image:
+                linear-gradient(
+                    to bottom,
+                    #000,
+                    transparent 92%
+                );
+
         }
 
-        .system-name {
-            font-weight: 900;
+
+        html.light-mode .background-grid {
+
+            opacity:
+                .07;
+
+            background-image:
+
+                linear-gradient(
+                    rgba(20,125,93,.04) 1px,
+                    transparent 1px
+                ),
+
+                linear-gradient(
+                    90deg,
+                    rgba(20,125,93,.04) 1px,
+                    transparent 1px
+                );
+
         }
 
-        .login-subtitle {
-            text-align: center;
-            color: var(--muted-color);
-            margin-top: 6px;
-            margin-bottom: 14px;
-            font-size: 14px;
-            line-height: 1.8;
+
+        /* ============================================================
+           HEAVY GLOW
+           بشپړ حذف
+        ============================================================ */
+
+        .background-light {
+
+            display:
+                none !important;
+
         }
 
-        .login-note {
-            margin-top: 14px;
-            padding: 12px 14px;
-            border-radius: 10px;
-            background: var(--primary-light);
-            color: var(--primary-dark);
-            font-size: 13px;
-            line-height: 1.8;
+
+        /* ============================================================
+           FULLSCREEN FRAME
+        ============================================================ */
+
+        .login-frame {
+
+            position:
+                relative;
+
+            z-index:
+                5;
+
+            display:
+                grid;
+
+            width:
+                100%;
+
+            min-width:
+                100%;
+
+            min-height:
+                100vh;
+
+            min-height:
+                100dvh;
+
+            margin:
+                0;
+
+            padding:
+                0;
+
+            overflow:
+                hidden;
+
+            direction:
+                ltr;
+
+            border:
+                0;
+
+            border-radius:
+                0;
+
+            background:
+                var(--panel);
+
+            box-shadow:
+                none;
+
         }
 
-        .contact-note {
-            margin-top: 10px;
-            padding: 12px 14px;
-            border-radius: 10px;
-            background: rgba(46, 144, 250, 0.10);
-            color: var(--text-color);
-            border: 1px solid rgba(46, 144, 250, 0.18);
-            font-size: 13px;
-            line-height: 1.8;
+
+        /* ============================================================
+           VISUAL AREA
+        ============================================================ */
+
+        .visual-area {
+
+            position:
+                relative;
+
+            min-width:
+                0;
+
+            min-height:
+                100%;
+
+            overflow:
+                hidden;
+
+            direction:
+                ltr;
+
+            background:
+                #03111E;
+
         }
 
-        .form-message {
-            padding: 11px 14px;
-            border-radius: 10px;
-            font-weight: 700;
-            font-size: 14px;
-            line-height: 1.7;
-            margin-top: 2px;
+
+        .main-photo {
+
+            position:
+                absolute;
+
+            inset:
+                0;
+
+            width:
+                100%;
+
+            height:
+                100%;
+
+            object-fit:
+                cover;
+
+            object-position:
+                center center;
+
+            z-index:
+                2;
+
+            filter:
+                saturate(.96)
+                contrast(1.02)
+                brightness(.88);
+
+            transform:
+                scale(1.008);
+
         }
 
-        .form-message.success {
-            background: #E8F5EE;
-            color: #11682F;
-            border: 1px solid #B8DEC6;
+
+        .photo-overlay {
+
+            position:
+                absolute;
+
+            inset:
+                0;
+
+            z-index:
+                3;
+
+            background:
+
+                linear-gradient(
+                    90deg,
+                    rgba(0,8,16,.14),
+                    rgba(0,8,16,.46)
+                ),
+
+                linear-gradient(
+                    180deg,
+                    rgba(2,10,18,.05),
+                    rgba(2,9,17,.56)
+                );
+
         }
 
-        .form-message.error {
-            background: #FDECEC;
-            color: #8F1D15;
-            border: 1px solid #F3C4C0;
+
+        /* ============================================================
+           VISUAL ENERGY
+        ============================================================ */
+
+        .energy-layer {
+
+            position:
+                absolute;
+
+            inset:
+                0;
+
+            z-index:
+                4;
+
+            overflow:
+                hidden;
+
+            pointer-events:
+                none;
+
         }
 
-        .login-button,
-        .forgot-password-button,
-        .whatsapp-button {
-            width: 100%;
+
+        .energy-line {
+
+            position:
+                absolute;
+
+            height:
+                1px;
+
+            width:
+                34%;
+
+            border-radius:
+                999px;
+
+            opacity:
+                .46;
+
+            transform:
+                translate3d(
+                    0,
+                    0,
+                    0
+                )
+                rotate(-17deg);
+
+            animation:
+                lineTravel
+                var(--speed)
+                linear
+                infinite;
+
+            will-change:
+                transform;
+
         }
 
-        /* WhatsApp */
-        .whatsapp-button {
-            min-height: 44px;
-            margin-top: 10px;
-            background: #25D366 !important;
-            color: #ffffff !important;
-            font-weight: 800;
-            border-radius: 10px;
-            border: 1px solid #1ebe5d !important;
-            box-shadow: none;
-            cursor: pointer;
+
+        .energy-line.blue {
+
+            background:
+                linear-gradient(
+                    90deg,
+                    transparent,
+                    rgba(37,136,255,.08),
+                    #2588FF,
+                    rgba(37,136,255,.28),
+                    transparent
+                );
+
+            box-shadow:
+                0 0 5px
+                rgba(37,136,255,.18);
+
         }
+
+
+        .energy-line.cyan {
+
+            background:
+                linear-gradient(
+                    90deg,
+                    transparent,
+                    rgba(37,223,255,.08),
+                    #25DFFF,
+                    rgba(37,223,255,.28),
+                    transparent
+                );
+
+            box-shadow:
+                0 0 5px
+                rgba(37,223,255,.18);
+
+        }
+
+
+        .energy-line.green {
+
+            background:
+                linear-gradient(
+                    90deg,
+                    transparent,
+                    rgba(35,239,162,.08),
+                    #23EFA2,
+                    rgba(35,239,162,.28),
+                    transparent
+                );
+
+            box-shadow:
+                0 0 5px
+                rgba(35,239,162,.18);
+
+        }
+
+
+        .energy-line.yellow {
+
+            background:
+                linear-gradient(
+                    90deg,
+                    transparent,
+                    rgba(255,212,90,.07),
+                    #FFD45A,
+                    rgba(255,212,90,.24),
+                    transparent
+                );
+
+            box-shadow:
+                0 0 5px
+                rgba(255,212,90,.16);
+
+        }
+
+
+        .energy-line.red {
+
+            background:
+                linear-gradient(
+                    90deg,
+                    transparent,
+                    rgba(255,104,121,.07),
+                    #FF6879,
+                    rgba(255,104,121,.24),
+                    transparent
+                );
+
+            box-shadow:
+                0 0 5px
+                rgba(255,104,121,.16);
+
+        }
+
+
+        .energy-line.purple {
+
+            background:
+                linear-gradient(
+                    90deg,
+                    transparent,
+                    rgba(167,121,255,.07),
+                    #A779FF,
+                    rgba(167,121,255,.24),
+                    transparent
+                );
+
+            box-shadow:
+                0 0 5px
+                rgba(167,121,255,.16);
+
+        }
+
+
+        .energy-line.orange {
+
+            background:
+                linear-gradient(
+                    90deg,
+                    transparent,
+                    rgba(255,157,69,.07),
+                    #FF9D45,
+                    rgba(255,157,69,.23),
+                    transparent
+                );
+
+            box-shadow:
+                0 0 5px
+                rgba(255,157,69,.14);
+
+        }
+
+
+        .energy-line.pink {
+
+            background:
+                linear-gradient(
+                    90deg,
+                    transparent,
+                    rgba(255,114,201,.06),
+                    #FF72C9,
+                    rgba(255,114,201,.22),
+                    transparent
+                );
+
+            box-shadow:
+                0 0 5px
+                rgba(255,114,201,.14);
+
+        }
+
+
+        /* ============================================================
+           LINE POSITIONS
+        ============================================================ */
+
+        .line-01{
+            top:9%;
+            left:-32%;
+            --speed:15s;
+        }
+
+        .line-02{
+            top:15%;
+            left:-41%;
+            width:42%;
+            --speed:17s;
+        }
+
+        .line-03{
+            top:21%;
+            left:-28%;
+            width:29%;
+            --speed:13s;
+        }
+
+        .line-04{
+            top:28%;
+            left:-45%;
+            width:38%;
+            --speed:19s;
+        }
+
+        .line-05{
+            top:35%;
+            left:-34%;
+            width:46%;
+            --speed:16s;
+        }
+
+        .line-06{
+            top:42%;
+            left:-40%;
+            width:31%;
+            --speed:14s;
+        }
+
+        .line-07{
+            top:49%;
+            left:-29%;
+            width:40%;
+            --speed:18s;
+        }
+
+        .line-08{
+            top:56%;
+            left:-47%;
+            width:37%;
+            --speed:20s;
+        }
+
+        .line-09{
+            top:63%;
+            left:-31%;
+            width:44%;
+            --speed:16s;
+        }
+
+        .line-10{
+            top:70%;
+            left:-43%;
+            width:32%;
+            --speed:13s;
+        }
+
+        .line-11{
+            top:77%;
+            left:-35%;
+            width:48%;
+            --speed:19s;
+        }
+
+        .line-12{
+            top:84%;
+            left:-48%;
+            width:35%;
+            --speed:15s;
+        }
+
+        .line-13{
+            top:91%;
+            left:-30%;
+            width:43%;
+            --speed:17s;
+        }
+
+        .line-14{
+            top:12%;
+            left:-55%;
+            width:26%;
+            --speed:21s;
+        }
+
+        .line-15{
+            top:38%;
+            left:-57%;
+            width:28%;
+            --speed:22s;
+        }
+
+        .line-16{
+            top:68%;
+            left:-52%;
+            width:30%;
+            --speed:23s;
+        }
+
+
+        @keyframes lineTravel {
+
+            0% {
+
+                transform:
+                    translate3d(
+                        0,
+                        0,
+                        0
+                    )
+                    rotate(-17deg);
+
+                opacity:
+                    0;
+
+            }
+
+            10% {
+
+                opacity:
+                    .42;
+
+            }
+
+            72% {
+
+                opacity:
+                    .46;
+
+            }
+
+            100% {
+
+                transform:
+                    translate3d(
+                        330%,
+                        0,
+                        0
+                    )
+                    rotate(-17deg);
+
+                opacity:
+                    0;
+
+            }
+
+        }
+
+
+        /* ============================================================
+           DOTS
+        ============================================================ */
+
+        .network-dots {
+
+            position:
+                absolute;
+
+            inset:
+                0;
+
+            z-index:
+                5;
+
+            pointer-events:
+                none;
+
+        }
+
+
+        .network-dot {
+
+            position:
+                absolute;
+
+            width:
+                4px;
+
+            height:
+                4px;
+
+            border-radius:
+                50%;
+
+            opacity:
+                .46;
+
+            will-change:
+                transform;
+
+            animation:
+                dotFloat
+                var(--dot-speed)
+                linear
+                infinite;
+
+        }
+
+
+        .dot-blue {
+            background:#2588FF;
+            box-shadow:0 0 5px rgba(37,136,255,.45);
+        }
+
+        .dot-cyan {
+            background:#25DFFF;
+            box-shadow:0 0 5px rgba(37,223,255,.45);
+        }
+
+        .dot-green {
+            background:#23EFA2;
+            box-shadow:0 0 5px rgba(35,239,162,.45);
+        }
+
+        .dot-yellow {
+            background:#FFD45A;
+            box-shadow:0 0 5px rgba(255,212,90,.40);
+        }
+
+        .dot-red {
+            background:#FF6879;
+            box-shadow:0 0 5px rgba(255,104,121,.38);
+        }
+
+        .dot-purple {
+            background:#A779FF;
+            box-shadow:0 0 5px rgba(167,121,255,.40);
+        }
+
+        .dot-orange {
+            background:#FF9D45;
+            box-shadow:0 0 5px rgba(255,157,69,.38);
+        }
+
+        .dot-pink {
+            background:#FF72C9;
+            box-shadow:0 0 5px rgba(255,114,201,.36);
+        }
+
+
+        .dot-01{left:8%;top:12%;--dot-speed:18s}
+        .dot-02{left:17%;top:20%;--dot-speed:22s}
+        .dot-03{left:29%;top:14%;--dot-speed:19s}
+        .dot-04{left:41%;top:26%;--dot-speed:25s}
+        .dot-05{left:56%;top:11%;--dot-speed:21s}
+        .dot-06{left:68%;top:20%;--dot-speed:23s}
+        .dot-07{left:82%;top:14%;--dot-speed:20s}
+        .dot-08{left:91%;top:28%;--dot-speed:27s}
+
+        .dot-09{left:12%;top:34%;--dot-speed:24s}
+        .dot-10{left:23%;top:42%;--dot-speed:19s}
+        .dot-11{left:35%;top:38%;--dot-speed:26s}
+        .dot-12{left:48%;top:46%;--dot-speed:22s}
+        .dot-13{left:61%;top:36%;--dot-speed:28s}
+        .dot-14{left:74%;top:44%;--dot-speed:20s}
+        .dot-15{left:88%;top:39%;--dot-speed:24s}
+
+        .dot-16{left:7%;top:56%;--dot-speed:21s}
+        .dot-17{left:19%;top:64%;--dot-speed:29s}
+        .dot-18{left:32%;top:58%;--dot-speed:23s}
+        .dot-19{left:45%;top:68%;--dot-speed:27s}
+        .dot-20{left:58%;top:57%;--dot-speed:19s}
+        .dot-21{left:71%;top:66%;--dot-speed:25s}
+        .dot-22{left:84%;top:59%;--dot-speed:22s}
+        .dot-23{left:94%;top:72%;--dot-speed:30s}
+
+        .dot-24{left:10%;top:79%;--dot-speed:26s}
+        .dot-25{left:24%;top:86%;--dot-speed:21s}
+        .dot-26{left:38%;top:76%;--dot-speed:28s}
+        .dot-27{left:51%;top:89%;--dot-speed:24s}
+        .dot-28{left:64%;top:80%;--dot-speed:20s}
+        .dot-29{left:77%;top:91%;--dot-speed:27s}
+        .dot-30{left:90%;top:83%;--dot-speed:23s}
+
+
+        @keyframes dotFloat {
+
+            0% {
+
+                transform:
+                    translate3d(
+                        0,
+                        0,
+                        0
+                    )
+                    scale(.80);
+
+                opacity:
+                    .10;
+
+            }
+
+            18% {
+
+                opacity:
+                    .54;
+
+            }
+
+            45% {
+
+                transform:
+                    translate3d(
+                        24px,
+                        -18px,
+                        0
+                    )
+                    scale(1);
+
+                opacity:
+                    .46;
+
+            }
+
+            72% {
+
+                transform:
+                    translate3d(
+                        -16px,
+                        20px,
+                        0
+                    )
+                    scale(.92);
+
+                opacity:
+                    .38;
+
+            }
+
+            100% {
+
+                transform:
+                    translate3d(
+                        8px,
+                        -26px,
+                        0
+                    )
+                    scale(.78);
+
+                opacity:
+                    .10;
+
+            }
+
+        }
+
+
+        /* ============================================================
+           SHIELD
+        ============================================================ */
+
+        .visual-shield {
+
+            position:
+                absolute;
+
+            z-index:
+                6;
+
+            width:
+                330px;
+
+            height:
+                330px;
+
+            left:
+                50%;
+
+            top:
+                51%;
+
+            transform:
+                translate(
+                    -50%,
+                    -50%
+                );
+
+            border:
+                1px solid
+                rgba(88,218,255,.10);
+
+            clip-path:
+                polygon(
+                    50% 0,
+                    92% 17%,
+                    92% 60%,
+                    77% 82%,
+                    50% 100%,
+                    23% 82%,
+                    8% 60%,
+                    8% 17%
+                );
+
+            background:
+                rgba(35,239,162,.018);
+
+            box-shadow:
+                0 0 18px
+                rgba(39,224,255,.025);
+
+        }
+
+
+        /* ============================================================
+           VISUAL TITLE
+        ============================================================ */
+
+        .visual-title {
+
+            position:
+                absolute;
+
+            z-index:
+                8;
+
+            top:
+                35px;
+
+            left:
+                36px;
+
+            direction:
+                ltr;
+
+            font-family:
+                Arial,
+                sans-serif;
+
+        }
+
+
+        .visual-title small {
+
+            display:
+                block;
+
+            color:
+                rgba(234,249,255,.74);
+
+            font-size:
+                16px;
+
+            letter-spacing:
+                1.5px;
+
+        }
+
+
+        .visual-title strong {
+
+            display:
+                block;
+
+            margin-top:
+                7px;
+
+            color:
+                #46F2A7;
+
+            font-size:
+                clamp(
+                    34px,
+                    3.4vw,
+                    50px
+                );
+
+            line-height:
+                1.05;
+
+            font-weight:
+                900;
+
+        }
+
+
+        .visual-title span {
+
+            display:
+                block;
+
+            margin-top:
+                10px;
+
+            color:
+                rgba(220,240,250,.66);
+
+            font-size:
+                16px;
+
+        }
+
+
+        /* ============================================================
+           HUD
+        ============================================================ */
+
+        .hud {
+
+            position:
+                absolute;
+
+            z-index:
+                9;
+
+            min-width:
+                210px;
+
+            padding:
+                13px 15px;
+
+            border:
+                1px solid
+                rgba(92,215,255,.13);
+
+            border-radius:
+                10px;
+
+            background:
+                rgba(3,13,23,.68);
+
+            box-shadow:
+                0 10px 22px
+                rgba(0,0,0,.22);
+
+            direction:
+                ltr;
+
+            font-family:
+                Arial,
+                sans-serif;
+
+        }
+
+
+        .hud.one {
+
+            top:
+                24%;
+
+            left:
+                25px;
+
+        }
+
+
+        .hud.two {
+
+            right:
+                24px;
+
+            top:
+                40%;
+
+        }
+
+
+        .hud.three {
+
+            left:
+                29px;
+
+            bottom:
+                20%;
+
+        }
+
+
+        .hud-label {
+
+            color:
+                #668292;
+
+            font-size:
+                13px;
+
+        }
+
+
+        .hud-value {
+
+            margin-top:
+                4px;
+
+            color:
+                #E9F9FF;
+
+            font-size:
+                16px;
+
+            font-weight:
+                800;
+
+        }
+
+
+        .hud-progress {
+
+            height:
+                4px;
+
+            margin-top:
+                9px;
+
+            overflow:
+                hidden;
+
+            border-radius:
+                999px;
+
+            background:
+                rgba(255,255,255,.08);
+
+        }
+
+
+        .hud-progress span {
+
+            display:
+                block;
+
+            height:
+                100%;
+
+            border-radius:
+                inherit;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #2687FF,
+                    #2AE7FF,
+                    #25F0A1
+                );
+
+        }
+
+
+        /* ============================================================
+           SECURITY
+        ============================================================ */
+
+        .visual-security {
+
+            position:
+                absolute;
+
+            z-index:
+                9;
+
+            left:
+                30px;
+
+            right:
+                30px;
+
+            bottom:
+                27px;
+
+            display:
+                flex;
+
+            justify-content:
+                center;
+
+            gap:
+                10px;
+
+            flex-wrap:
+                wrap;
+
+            direction:
+                ltr;
+
+        }
+
+
+        .security-pill {
+
+            min-height:
+                38px;
+
+            padding:
+                0 13px;
+
+            display:
+                inline-flex;
+
+            align-items:
+                center;
+
+            gap:
+                7px;
+
+            border:
+                1px solid
+                rgba(101,214,255,.12);
+
+            border-radius:
+                999px;
+
+            background:
+                rgba(2,12,22,.50);
+
+            color:
+                #8FA6B4;
+
+            font-family:
+                Arial,
+                sans-serif;
+
+            font-size:
+                14px;
+
+        }
+
+
+        .security-pill i {
+
+            width:
+                6px;
+
+            height:
+                6px;
+
+            border-radius:
+                50%;
+
+            background:
+                #29F0A0;
+
+            box-shadow:
+                0 0 6px
+                #29F0A0;
+
+        }
+
+
+        /* ============================================================
+           LOGIN AREA
+        ============================================================ */
+
+        .login-area {
+
+            position:
+                relative;
+
+            min-width:
+                0;
+
+            min-height:
+                100%;
+
+            direction:
+                rtl;
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                center;
+
+            padding:
+                74px 46px 46px;
+
+            overflow:
+                hidden;
+
+            isolation:
+                isolate;
+
+            background:
+
+                linear-gradient(
+                    180deg,
+                    #020A13,
+                    #03111C 50%,
+                    #020914
+                );
+
+        }
+
+
+        html.light-mode .login-area {
+
+            background:
+
+                linear-gradient(
+                    180deg,
+                    #F8FCFA,
+                    #EFF6F2 50%,
+                    #E8F1ED
+                );
+
+        }
+
+
+        /* ============================================================
+           THEME BUTTON
+        ============================================================ */
+
+        .theme-switch {
+
+            position:
+                absolute;
+
+            top:
+                18px;
+
+            left:
+                18px;
+
+            z-index:
+                40;
+
+            min-width:
+                145px;
+
+            height:
+                46px;
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                center;
+
+            gap:
+                9px;
+
+            padding:
+                0 15px;
+
+            border:
+                1px solid
+                rgba(91,174,208,.17);
+
+            border-radius:
+                11px;
+
+            background:
+                rgba(5,19,32,.82);
+
+            color:
+                #C1D2DA;
+
+            font-size:
+                16px;
+
+            font-weight:
+                800;
+
+            line-height:
+                1;
+
+            box-shadow:
+                0 6px 16px
+                rgba(0,0,0,.16);
+
+        }
+
+
+        .theme-switch:hover {
+
+            border-color:
+                rgba(37,223,255,.30);
+
+            color:
+                #F2FCFF;
+
+        }
+
+
+        .theme-switch i {
+
+            display:
+                block;
+
+            width:
+                18px;
+
+            height:
+                18px;
+
+            line-height:
+                18px;
+
+            font-size:
+                16px;
+
+            opacity:
+                1;
+
+            visibility:
+                visible;
+
+        }
+
+
+        .theme-switch span {
+
+            opacity:
+                1;
+
+            visibility:
+                visible;
+
+            white-space:
+                nowrap;
+
+        }
+
+
+        html.light-mode .theme-switch {
+
+            border-color:
+                rgba(42,101,81,.16);
+
+            background:
+                rgba(255,255,255,.88);
+
+            color:
+                #49695E;
+
+        }
+
+
+        html.light-mode .theme-switch:hover {
+
+            border-color:
+                rgba(25,139,96,.28);
+
+            color:
+                #174A38;
+
+        }
+
+
+        /* ============================================================
+           CLOCK + DATE
+        ============================================================ */
+
+        .date-time-box {
+
+            position:
+                absolute;
+
+            top:
+                72px;
+
+            left:
+                18px;
+
+            z-index:
+                42;
+
+            width:
+                255px;
+
+            padding:
+                8px;
+
+            border:
+                1px solid
+                rgba(91,174,208,.14);
+
+            border-radius:
+                11px;
+
+            background:
+                rgba(5,19,32,.82);
+
+            box-shadow:
+                0 6px 18px
+                rgba(0,0,0,.14);
+
+        }
+
+
+        html.light-mode .date-time-box {
+
+            border-color:
+                rgba(42,101,81,.14);
+
+            background:
+                rgba(255,255,255,.90);
+
+            box-shadow:
+                0 6px 18px
+                rgba(18,77,59,.07);
+
+        }
+
+
+        .live-clock {
+
+            min-height:
+                36px;
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                center;
+
+            gap:
+                7px;
+
+            direction:
+                ltr;
+
+            color:
+                #E9F9FF;
+
+            font-family:
+                Arial,
+                sans-serif;
+
+            font-size:
+                16px;
+
+            font-weight:
+                800;
+
+            white-space:
+                nowrap;
+
+        }
+
+
+        .live-clock i {
+
+            color:
+                #23EFA2;
+
+            font-size:
+                14px;
+
+        }
+
+
+        #clockPeriod {
+
+            color:
+                #25DFFF;
+
+            font-size:
+                13px;
+
+            font-weight:
+                900;
+
+        }
+
+
+        html.light-mode .live-clock {
+
+            color:
+                #17382F;
+
+        }
+
+
+        html.light-mode .live-clock i {
+
+            color:
+                #168B61;
+
+        }
+
+
+        html.light-mode #clockPeriod {
+
+            color:
+                #147C9B;
+
+        }
+
+
+        .date-display {
+
+            width:
+                100%;
+
+            min-height:
+                40px;
+
+            margin-top:
+                5px;
+
+            padding:
+                4px 7px;
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                center;
+
+            gap:
+                7px;
+
+            border:
+                1px solid
+                rgba(91,174,208,.11);
+
+            border-radius:
+                8px;
+
+            background:
+                rgba(4,17,29,.66);
+
+            color:
+                #C8D8DF;
+
+            font-size:
+                15px;
+
+            font-weight:
+                800;
+
+            line-height:
+                1.45;
+
+            text-align:
+                center;
+
+        }
+
+
+        .date-display:hover {
+
+            border-color:
+                rgba(37,223,255,.25);
+
+            color:
+                #F1FCFF;
+
+        }
+
+
+        .date-display i {
+
+            color:
+                #23EFA2;
+
+            font-size:
+                14px;
+
+            flex:
+                0 0 auto;
+
+        }
+
+
+        html.light-mode .date-display {
+
+            border-color:
+                rgba(42,101,81,.12);
+
+            background:
+                rgba(250,253,251,.88);
+
+            color:
+                #36574D;
+
+        }
+
+
+        html.light-mode .date-display:hover {
+
+            color:
+                #173F31;
+
+        }
+
+
+        .date-types {
+
+            display:
+                grid;
+
+            grid-template-columns:
+                repeat(3,1fr);
+
+            gap:
+                5px;
+
+            margin-top:
+                6px;
+
+        }
+
+
+        .date-types[hidden] {
+
+            display:
+                none;
+
+        }
+
+
+        .date-types button {
+
+            min-width:
+                0;
+
+            min-height:
+                34px;
+
+            padding:
+                3px;
+
+            border:
+                1px solid
+                rgba(91,174,208,.12);
+
+            border-radius:
+                7px;
+
+            background:
+                rgba(5,20,33,.72);
+
+            color:
+                #8198A5;
+
+            font-size:
+                11px;
+
+            font-weight:
+                800;
+
+            line-height:
+                1.4;
+
+        }
+
+
+        .date-types button:hover {
+
+            color:
+                #ECFCFF;
+
+            border-color:
+                rgba(37,223,255,.24);
+
+        }
+
+
+        .date-types button.active {
+
+            color:
+                #00140C;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #25DFFF,
+                    #23EFA2
+                );
+
+            border-color:
+                rgba(35,239,162,.38);
+
+        }
+
+
+        html.light-mode .date-types button {
+
+            background:
+                rgba(255,255,255,.90);
+
+            color:
+                #58736A;
+
+            border-color:
+                rgba(42,101,81,.13);
+
+        }
+
+
+        html.light-mode .date-types button:hover {
+
+            color:
+                #173F31;
+
+        }
+
+
+        html.light-mode .date-types button.active {
+
+            color:
+                #073629;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #A9EEF1,
+                    #A7F4D2
+                );
+
+        }
+
+
+        /* ============================================================
+           THIN STATIC COLOR LINES
+        ============================================================ */
+
+        .login-area::before {
+
+            content:
+                "";
+
+            position:
+                absolute;
+
+            inset:
+                0;
+
+            z-index:
+                0;
+
+            pointer-events:
+                none;
+
+            opacity:
+                .12;
+
+            background:
+
+                linear-gradient(
+                    27deg,
+                    transparent 0,
+                    transparent 17%,
+                    rgba(37,223,255,.07) 17.05%,
+                    transparent 17.14%
+                ),
+
+                linear-gradient(
+                    153deg,
+                    transparent 0,
+                    transparent 29%,
+                    rgba(35,239,162,.06) 29.05%,
+                    transparent 29.14%
+                ),
+
+                linear-gradient(
+                    21deg,
+                    transparent 0,
+                    transparent 43%,
+                    rgba(255,212,90,.05) 43.05%,
+                    transparent 43.14%
+                ),
+
+                linear-gradient(
+                    159deg,
+                    transparent 0,
+                    transparent 57%,
+                    rgba(167,121,255,.045) 57.05%,
+                    transparent 57.14%
+                ),
+
+                linear-gradient(
+                    25deg,
+                    transparent 0,
+                    transparent 73%,
+                    rgba(255,104,121,.04) 73.05%,
+                    transparent 73.14%
+                ),
+
+                linear-gradient(
+                    145deg,
+                    transparent 0,
+                    transparent 88%,
+                    rgba(255,157,69,.035) 88.05%,
+                    transparent 88.14%
+                );
+
+        }
+
+
+        html.light-mode .login-area::before {
+
+            opacity:
+                .05;
+
+        }
+
+
+        /* ============================================================
+           SLOW SCAN
+        ============================================================ */
+
+        .login-area::after {
+
+            content:
+                "";
+
+            position:
+                absolute;
+
+            top:
+                0;
+
+            bottom:
+                0;
+
+            left:
+                -7%;
+
+            width:
+                3%;
+
+            z-index:
+                1;
+
+            pointer-events:
+                none;
+
+            background:
+
+                linear-gradient(
+                    90deg,
+                    transparent,
+                    rgba(37,223,255,.035),
+                    rgba(35,239,162,.045),
+                    transparent
+                );
+
+            transform:
+                skewX(-6deg);
+
+            animation:
+                slowScan
+                35s
+                linear
+                infinite;
+
+            will-change:
+                left;
+
+        }
+
+
+        @keyframes slowScan {
+
+            from {
+
+                left:
+                    -7%;
+
+            }
+
+            to {
+
+                left:
+                    107%;
+
+            }
+
+        }
+
+
+        /* ============================================================
+           LOGIN ORBIT FIELD
+        ============================================================ */
+
+        .signal-orbits {
+
+            position:
+                absolute;
+
+            inset:
+                0;
+
+            z-index:
+                2;
+
+            pointer-events:
+                none;
+
+            overflow:
+                hidden;
+
+        }
+
+
+        .signal-orbit {
+
+            position:
+                absolute;
+
+            border:
+                1px solid
+                rgba(37,223,255,.028);
+
+            border-radius:
+                50%;
+
+            will-change:
+                transform;
+
+        }
+
+
+        .signal-orbit.one {
+
+            width:
+                340px;
+
+            height:
+                340px;
+
+            right:
+                -170px;
+
+            top:
+                -120px;
+
+            animation:
+                orbitOne
+                110s
+                linear
+                infinite;
+
+        }
+
+
+        .signal-orbit.two {
+
+            width:
+                300px;
+
+            height:
+                300px;
+
+            left:
+                -150px;
+
+            bottom:
+                -110px;
+
+            border-color:
+                rgba(35,239,162,.026);
+
+            animation:
+                orbitTwo
+                125s
+                linear
+                infinite;
+
+        }
+
+
+        .signal-orbit.three {
+
+            width:
+                220px;
+
+            height:
+                220px;
+
+            right:
+                -110px;
+
+            bottom:
+                10%;
+
+            border-color:
+                rgba(255,212,90,.022);
+
+            animation:
+                orbitThree
+                95s
+                linear
+                infinite;
+
+        }
+
+
+        .signal-orbit::before {
+
+            content:
+                "";
+
+            position:
+                absolute;
+
+            width:
+                4px;
+
+            height:
+                4px;
+
+            top:
+                50%;
+
+            left:
+                0;
+
+            transform:
+                translate(
+                    -50%,
+                    -50%
+                );
+
+            border-radius:
+                50%;
+
+            background:
+                #25DFFF;
+
+            box-shadow:
+                0 0 5px
+                rgba(37,223,255,.42);
+
+        }
+
+
+        .signal-orbit::after {
+
+            content:
+                "";
+
+            position:
+                absolute;
+
+            width:
+                3px;
+
+            height:
+                3px;
+
+            top:
+                0;
+
+            left:
+                50%;
+
+            transform:
+                translate(
+                    -50%,
+                    -50%
+                );
+
+            border-radius:
+                50%;
+
+            background:
+                #23EFA2;
+
+            box-shadow:
+                0 0 5px
+                rgba(35,239,162,.38);
+
+        }
+
+
+        .signal-orbit.two::before {
+
+            background:
+                #FFD45A;
+
+            box-shadow:
+                0 0 5px
+                rgba(255,212,90,.36);
+
+        }
+
+
+        .signal-orbit.two::after {
+
+            background:
+                #A779FF;
+
+            box-shadow:
+                0 0 5px
+                rgba(167,121,255,.36);
+
+        }
+
+
+        .signal-orbit.three::before {
+
+            background:
+                #FF6879;
+
+            box-shadow:
+                0 0 5px
+                rgba(255,104,121,.34);
+
+        }
+
+
+        .signal-orbit.three::after {
+
+            background:
+                #FF9D45;
+
+            box-shadow:
+                0 0 5px
+                rgba(255,157,69,.34);
+
+        }
+
+
+        @keyframes orbitOne {
+
+            from {
+
+                transform:
+                    rotate(0deg);
+
+            }
+
+            to {
+
+                transform:
+                    rotate(360deg);
+
+            }
+
+        }
+
+
+        @keyframes orbitTwo {
+
+            from {
+
+                transform:
+                    rotate(360deg);
+
+            }
+
+            to {
+
+                transform:
+                    rotate(0deg);
+
+            }
+
+        }
+
+
+        @keyframes orbitThree {
+
+            from {
+
+                transform:
+                    rotate(0deg);
+
+            }
+
+            to {
+
+                transform:
+                    rotate(360deg);
+
+            }
+
+        }
+
+
+        /* ============================================================
+           LOGIN CONTENT
+        ============================================================ */
+
+        .login-content {
+
+            width:
+                min(
+                    100%,
+                    560px
+                );
+
+            position:
+                relative;
+
+            z-index:
+                10;
+
+        }
+
+
+        /* ============================================================
+           BRAND
+        ============================================================ */
+
+        .system-brand {
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            gap:
+                14px;
+
+            margin-bottom:
+                26px;
+
+        }
+
+
+        .brand-shield {
+
+            width:
+                58px;
+
+            height:
+                58px;
+
+            flex:
+                0 0 58px;
+
+            display:
+                grid;
+
+            place-items:
+                center;
+
+            border:
+                1px solid
+                rgba(46,224,255,.30);
+
+            border-radius:
+                14px;
+
+            background:
+                rgba(30,130,210,.10);
+
+        }
+
+
+        .brand-shield i {
+
+            color:
+                #47F4AA;
+
+            font-size:
+                25px;
+
+            opacity:
+                1;
+
+            visibility:
+                visible;
+
+        }
+
+
+        .brand-small {
+
+            color:
+                #4CE8AA;
+
+            font-size:
+                16px;
+
+            font-weight:
+                800;
+
+        }
+
+
+        .brand-name {
+
+            margin-top:
+                2px;
+
+            color:
+                #DDEBF2;
+
+            font-size:
+                16px;
+
+            line-height:
+                1.75;
+
+            font-weight:
+                800;
+
+        }
+
+
+        html.light-mode .brand-shield {
+
+            border-color:
+                rgba(21,125,91,.18);
+
+            background:
+                #FFFFFF;
+
+        }
+
+
+        html.light-mode .brand-shield i {
+            color:#168B61;
+        }
+
+
+        html.light-mode .brand-small {
+            color:#167B59;
+        }
+
+
+        html.light-mode .brand-name {
+            color:#1D4035;
+        }
+
+
+        /* ============================================================
+           HEADING
+        ============================================================ */
+
+        .login-heading {
+
+            margin-bottom:
+                22px;
+
+        }
+
+
+        .login-heading h1 {
+
+            margin:
+                0;
+
+            font-size:
+                46px;
+
+            line-height:
+                1.2;
+
+            font-weight:
+                900;
+
+            color:
+                #F4FBFF;
+
+            opacity:
+                1;
+
+            visibility:
+                visible;
+
+        }
+
+
+        .login-heading p {
+
+            margin:
+                10px 0 0;
+
+            color:
+                #8FA6B4;
+
+            font-size:
+                16px;
+
+            line-height:
+                2;
+
+        }
+
+
+        html.light-mode .login-heading h1 {
+            color:#102F26;
+        }
+
+
+        html.light-mode .login-heading p {
+            color:#5C746C;
+        }
+
+
+        /* ============================================================
+           SECURE
+        ============================================================ */
+
+        .secure-top {
+
+            margin-bottom:
+                20px;
+
+            display:
+                flex;
+
+            justify-content:
+                space-between;
+
+            align-items:
+                center;
+
+            gap:
+                12px;
+
+        }
+
+
+        .secure-state {
+
+            display:
+                inline-flex;
+
+            align-items:
+                center;
+
+            gap:
+                8px;
+
+            color:
+                #9CB0BB;
+
+            font-size:
+                16px;
+
+        }
+
+
+        .secure-dot {
+
+            width:
+                8px;
+
+            height:
+                8px;
+
+            flex:
+                0 0 8px;
+
+            border-radius:
+                50%;
+
+            background:
+                #29F0A0;
+
+            box-shadow:
+                0 0 7px
+                #29F0A0;
+
+        }
+
+
+        .secure-code {
+
+            color:
+                #587380;
+
+            font-family:
+                monospace;
+
+            font-size:
+                14px;
+
+        }
+
+
+        html.light-mode .secure-state {
+            color:#5C746C;
+        }
+
+
+        html.light-mode .secure-code {
+            color:#71877F;
+        }
+
+
+        /* ============================================================
+           FORM
+        ============================================================ */
+
+        .form-group {
+
+            margin-bottom:
+                18px;
+
+        }
+
+
+        .form-label {
+
+            display:
+                block;
+
+            margin-bottom:
+                8px;
+
+            color:
+                #C4D2D9;
+
+            font-size:
+                16px;
+
+            font-weight:
+                800;
+
+        }
+
+
+        .required {
+            color:#36EFA4;
+        }
+
+
+        .input-wrap {
+            position:relative;
+        }
+
+
+        .input-icon {
+
+            position:
+                absolute;
+
+            top:
+                50%;
+
+            right:
+                15px;
+
+            transform:
+                translateY(-50%);
+
+            color:
+                #66808E;
+
+            pointer-events:
+                none;
+
+            z-index:
+                2;
+
+            font-size:
+                17px;
+
+            opacity:
+                1;
+
+            visibility:
+                visible;
+
+        }
+
+
+        .form-control {
+
+            width:
+                100%;
+
+            min-height:
+                58px;
+
+            padding:
+                0 48px 0 52px;
+
+            border:
+                1px solid
+                rgba(108,188,225,.18);
+
+            outline:
+                none;
+
+            border-radius:
+                12px;
+
+            background:
+                rgba(5,20,33,.82);
+
+            color:
+                #F2FBFF;
+
+            font-size:
+                16px;
+
+            font-weight:
+                600;
+
+            transition:
+                border-color .18s ease,
+                background-color .18s ease,
+                box-shadow .18s ease;
+
+        }
+
+
+        .form-control::placeholder {
+
+            color:
+                #6B808B;
+
+            opacity:
+                1;
+
+        }
+
+
+        .form-control:hover {
+            border-color:rgba(49,219,255,.28);
+        }
+
+
+        .form-control:focus {
+
+            border-color:
+                rgba(44,237,163,.48);
+
+            background:
+                rgba(7,27,43,.94);
+
+            box-shadow:
+                0 0 0 3px
+                rgba(44,237,163,.045);
+
+        }
+
+
+        html.light-mode .form-label {
+            color:#315047;
+        }
+
+
+        html.light-mode .input-icon {
+            color:#59766C;
+        }
+
+
+        html.light-mode .form-control {
+
+            border-color:
+                rgba(38,104,83,.18);
+
+            background:
+                rgba(255,255,255,.90);
+
+            color:
+                #17382F;
+
+        }
+
+
+        html.light-mode .form-control::placeholder {
+            color:#82978F;
+        }
+
+
+        html.light-mode .form-control:focus {
+
+            border-color:
+                rgba(22,145,98,.50);
+
+            background:
+                #FFFFFF;
+
+            box-shadow:
+                0 0 0 3px
+                rgba(24,150,104,.06);
+
+        }
+
+
+        /* ============================================================
+           PASSWORD BUTTON
+        ============================================================ */
+
+        .password-button {
+
+            position:
+                absolute;
+
+            left:
+                7px;
+
+            top:
+                50%;
+
+            transform:
+                translateY(-50%);
+
+            width:
+                38px;
+
+            height:
+                38px;
+
+            display:
+                grid;
+
+            place-items:
+                center;
+
+            border:
+                0;
+
+            border-radius:
+                8px;
+
+            background:
+                transparent;
+
+            color:
+                #6C828D;
+
+            font-size:
+                17px;
+
+        }
+
+
+        .password-button:hover {
+
+            color:
+                #52F3AF;
+
+            background:
+                rgba(44,237,163,.05);
+
+        }
+
+
+        html.light-mode .password-button {
+            color:#5C776E;
+        }
+
+
+        html.light-mode .password-button:hover {
+            color:#15895F;
+        }
+
+
+        /* ============================================================
+           MESSAGE
+        ============================================================ */
+
+        .login-message {
+
+            display:
+                none;
+
+            margin:
+                8px 0 13px;
+
+            padding:
+                12px 13px;
+
+            border-radius:
+                10px;
+
+            font-size:
+                16px;
+
+            line-height:
+                1.8;
+
+            font-weight:
+                800;
+
+        }
+
+
+        .login-message.show {
+            display:block;
+        }
+
+
+        .login-message.error {
+
+            color:#FFAFB9;
+
+            border:
+                1px solid
+                rgba(255,95,110,.20);
+
+            background:
+                rgba(145,27,48,.10);
+
+        }
+
+
+        .login-message.success {
+
+            color:#9AFFCD;
+
+            border:
+                1px solid
+                rgba(38,238,158,.20);
+
+            background:
+                rgba(20,121,84,.09);
+
+        }
+
+
+        /* ============================================================
+           LOGIN BUTTON
+        ============================================================ */
+
+        .login-button {
+
+            position:
+                relative;
+
+            width:
+                100%;
+
+            min-height:
+                60px;
+
+            border:
+                1px solid
+                rgba(69,238,180,.58);
+
+            border-radius:
+                12px;
+
+            color:
+                #00140C;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #1FC8FF,
+                    #32E9FF,
+                    #2FF0A0
+                );
+
+            box-shadow:
+                0 10px 24px
+                rgba(27,229,166,.12);
+
+            font-size:
+                16px;
+
+            font-weight:
+                900;
+
+            overflow:
+                hidden;
+
+            transition:
+                transform .18s ease,
+                box-shadow .18s ease;
+
+        }
+
+
+        .login-button::after {
+
+            content:
+                "";
+
+            position:
+                absolute;
+
+            top:
+                0;
+
+            bottom:
+                0;
+
+            left:
+                -120px;
+
+            width:
+                70px;
+
+            transform:
+                skewX(-20deg);
+
+            background:
+                linear-gradient(
+                    90deg,
+                    transparent,
+                    rgba(255,255,255,.42),
+                    transparent
+                );
+
+            animation:
+                buttonShine
+                8s
+                ease-in-out
+                infinite;
+
+        }
+
+
+        @keyframes buttonShine {
+
+            0%,
+            72% {
+                left:-120px;
+            }
+
+            88%,
+            100% {
+                left:125%;
+            }
+
+        }
+
+
+        .login-button:hover:not(:disabled) {
+
+            transform:
+                translateY(-1px);
+
+            box-shadow:
+                0 14px 28px
+                rgba(27,229,166,.16);
+
+        }
+
+
+        .login-button:disabled {
+
+            opacity:
+                .66;
+
+            cursor:
+                not-allowed;
+
+        }
+
+
+        /* ============================================================
+           SECONDARY
+        ============================================================ */
+
+        .secondary-actions {
+
+            display:
+                grid;
+
+            grid-template-columns:
+                1fr 1fr;
+
+            gap:
+                10px;
+
+            margin-top:
+                10px;
+
+        }
+
+
+        .secondary-button {
+
+            min-height:
+                50px;
+
+            border:
+                1px solid
+                rgba(91,174,208,.16);
+
+            border-radius:
+                10px;
+
+            color:
+                #91A5B0;
+
+            background:
+                rgba(5,19,32,.78);
+
+            font-size:
+                16px;
+
+            font-weight:
+                800;
+
+        }
+
+
+        .secondary-button:hover {
+
+            color:
+                #E7FAFF;
+
+            border-color:
+                rgba(45,220,255,.25);
+
+            background:
+                rgba(8,29,45,.90);
+
+        }
+
 
         .whatsapp-button:hover {
-            background: #1ebe5d !important;
+
+            color:
+                #B7FFD8;
+
+            border-color:
+                rgba(37,211,102,.32);
+
         }
 
-        .whatsapp-button:disabled {
-            opacity: 0.65;
-            cursor: not-allowed;
+
+        html.light-mode .secondary-button {
+
+            border-color:
+                rgba(42,101,81,.16);
+
+            color:
+                #557168;
+
+            background:
+                rgba(255,255,255,.82);
+
         }
 
-        .forgot-password-button {
-            min-height: 44px;
-            margin-top: 10px;
-            background: transparent;
-            color: var(--primary-color);
-            font-weight: 800;
-            border-radius: 10px;
-            text-decoration: underline;
-            text-underline-offset: 3px;
-            border: 0;
+
+        html.light-mode .secondary-button:hover {
+
+            color:
+                #173F31;
+
+            border-color:
+                rgba(25,139,96,.28);
+
+            background:
+                #FFFFFF;
+
         }
 
-        .footer-min {
-            text-align: center;
-            color: var(--muted-color);
-            font-size: 12px;
-            margin-top: 16px;
-            line-height: 1.8;
+
+        /* ============================================================
+           SECURITY INFO
+        ============================================================ */
+
+        .security-info {
+
+            margin-top:
+                20px;
+
+            padding:
+                13px;
+
+            display:
+                grid;
+
+            grid-template-columns:
+                repeat(3,1fr);
+
+            gap:
+                7px;
+
+            border:
+                1px solid
+                rgba(102,196,229,.10);
+
+            border-radius:
+                11px;
+
+            background:
+                rgba(4,15,26,.56);
+
         }
+
+
+        .security-info-item {
+
+            min-height:
+                50px;
+
+            display:
+                flex;
+
+            flex-direction:
+                column;
+
+            align-items:
+                center;
+
+            justify-content:
+                center;
+
+            gap:
+                4px;
+
+            color:
+                #718993;
+
+            font-size:
+                14px;
+
+            text-align:
+                center;
+
+        }
+
+
+        .security-info-item i {
+
+            color:
+                #3DEAA2;
+
+            font-size:
+                17px;
+
+            opacity:
+                1;
+
+            visibility:
+                visible;
+
+        }
+
+
+        html.light-mode .security-info {
+
+            border-color:
+                rgba(42,105,82,.12);
+
+            background:
+                rgba(255,255,255,.68);
+
+        }
+
+
+        html.light-mode .security-info-item {
+            color:#617A71;
+        }
+
+
+        html.light-mode .security-info-item i {
+            color:#188F63;
+        }
+
+
+        /* ============================================================
+           FOOTER
+        ============================================================ */
+
+        .login-footer {
+
+            margin-top:
+                17px;
+
+            padding-top:
+                12px;
+
+            border-top:
+                1px solid
+                rgba(255,255,255,.06);
+
+            color:
+                #667D88;
+
+            text-align:
+                center;
+
+            font-size:
+                14px;
+
+            line-height:
+                2;
+
+        }
+
+
+        html.light-mode .login-footer {
+
+            border-top-color:
+                rgba(24,72,56,.08);
+
+            color:
+                #667E75;
+
+        }
+
+
+        /* ============================================================
+           IMAGE MODAL
+        ============================================================ */
 
         .image-modal {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.88);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            padding: 18px;
+
+            position:
+                fixed;
+
+            inset:
+                0;
+
+            z-index:
+                9999;
+
+            display:
+                none;
+
+            align-items:
+                center;
+
+            justify-content:
+                center;
+
+            padding:
+                20px;
+
+            background:
+                rgba(0,5,11,.94);
+
         }
+
 
         .image-modal.show {
-            display: flex;
+            display:flex;
         }
 
-        .image-modal-content {
-            max-width: min(92vw, 900px);
-            max-height: 88vh;
-            width: auto;
-            height: auto;
-            object-fit: contain;
-            border-radius: 18px;
-            box-shadow: 0 18px 44px rgba(0, 0, 0, 0.45);
-            background: #111;
+
+        .image-modal img {
+
+            max-width:
+                92vw;
+
+            max-height:
+                88vh;
+
+            object-fit:
+                contain;
+
+            border-radius:
+                17px;
+
+            border:
+                1px solid
+                rgba(73,222,255,.23);
+
+            box-shadow:
+                0 25px 65px
+                rgba(0,0,0,.62);
+
         }
+
 
         .image-modal-close {
-            position: fixed;
-            top: 14px;
-            left: 14px;
-            width: 44px;
-            height: 44px;
-            border: 0;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.12);
-            color: #fff;
-            font-size: 28px;
-            line-height: 1;
-            cursor: pointer;
+
+            position:
+                fixed;
+
+            top:
+                15px;
+
+            left:
+                15px;
+
+            width:
+                46px;
+
+            height:
+                46px;
+
+            display:
+                grid;
+
+            place-items:
+                center;
+
+            border:
+                1px solid
+                rgba(255,255,255,.13);
+
+            border-radius:
+                50%;
+
+            background:
+                rgba(255,255,255,.06);
+
+            color:
+                #fff;
+
+            font-size:
+                28px;
+
         }
+
+
+        /* ============================================================
+           TABLET
+        ============================================================ */
+
+        @media (max-width:1100px) {
+
+            .login-frame {
+
+                grid-template-columns:
+                    1fr 1fr;
+
+            }
+
+
+            .visual-area {
+
+                min-height:
+                    100vh;
+
+                min-height:
+                    100dvh;
+
+            }
+
+
+            .login-area {
+
+                padding:
+                    72px 32px 34px;
+
+            }
+
+        }
+
+
+        /* ============================================================
+           MOBILE
+        ============================================================ */
+
+        @media (max-width:900px) {
+
+            .login-frame {
+
+                display:
+                    flex;
+
+                flex-direction:
+                    column;
+
+                width:
+                    100%;
+
+                min-width:
+                    100%;
+
+                min-height:
+                    100vh;
+
+                min-height:
+                    100dvh;
+
+                margin:
+                    0;
+
+                border:
+                    0;
+
+                border-radius:
+                    0;
+
+            }
+
+
+            .visual-area {
+
+                width:
+                    100%;
+
+                min-height:
+                    38vh;
+
+                height:
+                    38vh;
+
+                max-height:
+                    42vh;
+
+                flex:
+                    0 0 38vh;
+
+                order:
+                    1;
+
+            }
+
+
+            .login-area {
+
+                width:
+                    100%;
+
+                min-height:
+                    62vh;
+
+                flex:
+                    1 1 auto;
+
+                order:
+                    2;
+
+                padding:
+                    72px 24px 42px;
+
+            }
+
+
+            .theme-switch {
+
+                top:
+                    13px;
+
+                left:
+                    13px;
+
+                min-width:
+                    142px;
+
+                height:
+                    44px;
+
+                font-size:
+                    16px;
+
+            }
+
+
+            .date-time-box {
+
+                top:
+                    62px;
+
+                left:
+                    10px;
+
+                width:
+                    220px;
+
+            }
+
+
+            .visual-title {
+
+                display:
+                    none;
+
+            }
+
+
+            .hud {
+
+                display:
+                    none;
+
+            }
+
+
+            .visual-shield {
+
+                width:
+                    230px;
+
+                height:
+                    230px;
+
+            }
+
+
+            .visual-security {
+
+                left:
+                    8px;
+
+                right:
+                    8px;
+
+                bottom:
+                    10px;
+
+                gap:
+                    5px;
+
+            }
+
+
+            .security-pill {
+
+                min-height:
+                    34px;
+
+                padding:
+                    0 9px;
+
+                font-size:
+                    13px;
+
+            }
+
+
+            .line-01,
+            .line-03,
+            .line-05,
+            .line-07,
+            .line-09,
+            .line-11,
+            .line-13 {
+
+                opacity:
+                    .34;
+
+            }
+
+
+            .network-dot {
+
+                width:
+                    3px;
+
+                height:
+                    3px;
+
+            }
+
+
+            .signal-orbit.one {
+
+                width:
+                    250px;
+
+                height:
+                    250px;
+
+                right:
+                    -125px;
+
+                top:
+                    -80px;
+
+                animation-duration:
+                    130s;
+
+            }
+
+
+            .signal-orbit.two {
+
+                width:
+                    220px;
+
+                height:
+                    220px;
+
+                left:
+                    -110px;
+
+                bottom:
+                    -75px;
+
+                animation-duration:
+                    145s;
+
+            }
+
+
+            .signal-orbit.three {
+
+                width:
+                    180px;
+
+                height:
+                    180px;
+
+                right:
+                    -90px;
+
+                bottom:
+                    8%;
+
+                animation-duration:
+                    115s;
+
+            }
+
+        }
+
+
+        /* ============================================================
+           SMALL MOBILE
+        ============================================================ */
+
+        @media (max-width:600px) {
+
+            .background-grid {
+
+                opacity:
+                    .05;
+
+            }
+
+
+            .visual-area {
+
+                min-height:
+                    31vh;
+
+                height:
+                    31vh;
+
+                max-height:
+                    34vh;
+
+                flex-basis:
+                    31vh;
+
+            }
+
+
+            .login-area {
+
+                min-height:
+                    69vh;
+
+                padding:
+                    130px 16px 30px;
+
+            }
+
+
+            .theme-switch {
+
+                top:
+                    10px;
+
+                left:
+                    10px;
+
+                min-width:
+                    132px;
+
+                height:
+                    42px;
+
+                font-size:
+                    15px;
+
+                box-shadow:
+                    0 4px 10px
+                    rgba(0,0,0,.12);
+
+            }
+
+
+            .date-time-box {
+
+                top:
+                    56px;
+
+                left:
+                    8px;
+
+                width:
+                    198px;
+
+                padding:
+                    7px;
+
+            }
+
+
+            .live-clock {
+
+                min-height:
+                    31px;
+
+                font-size:
+                    15px;
+
+            }
+
+
+            .date-display {
+
+                min-height:
+                    38px;
+
+                font-size:
+                    14px;
+
+            }
+
+
+            .date-types button {
+
+                min-height:
+                    31px;
+
+                font-size:
+                    10px;
+
+            }
+
+
+            .background-light {
+
+                display:
+                    none !important;
+
+            }
+
+
+            .login-area::after {
+
+                display:
+                    none;
+
+            }
+
+
+            .login-area::before {
+
+                opacity:
+                    .06;
+
+            }
+
+
+            .energy-line {
+
+                animation-duration:
+                    24s !important;
+
+                opacity:
+                    .28;
+
+            }
+
+
+            .network-dot {
+
+                animation-duration:
+                    34s !important;
+
+                opacity:
+                    .26;
+
+            }
+
+
+            .signal-orbit {
+
+                animation-duration:
+                    150s !important;
+
+            }
+
+
+            .signal-orbit.three {
+
+                display:
+                    none;
+
+            }
+
+
+            .system-brand {
+
+                gap:
+                    12px;
+
+                margin-bottom:
+                    20px;
+
+            }
+
+
+            .brand-shield {
+
+                width:
+                    52px;
+
+                height:
+                    52px;
+
+                flex-basis:
+                    52px;
+
+            }
+
+
+            .brand-shield i {
+
+                font-size:
+                    23px;
+
+            }
+
+
+            .brand-small {
+
+                font-size:
+                    16px;
+
+            }
+
+
+            .brand-name {
+
+                font-size:
+                    16px;
+
+            }
+
+
+            .login-heading {
+
+                margin-bottom:
+                    20px;
+
+            }
+
+
+            .login-heading h1 {
+
+                font-size:
+                    42px;
+
+            }
+
+
+            .login-heading p {
+
+                font-size:
+                    16px;
+
+            }
+
+
+            .secure-top {
+
+                margin-bottom:
+                    18px;
+
+            }
+
+
+            .secure-state {
+
+                font-size:
+                    16px;
+
+            }
+
+
+            .secure-code {
+
+                font-size:
+                    13px;
+
+            }
+
+
+            .form-label {
+
+                font-size:
+                    16px;
+
+            }
+
+
+            .form-control {
+
+                min-height:
+                    58px;
+
+                font-size:
+                    16px;
+
+            }
+
+
+            .login-message {
+
+                font-size:
+                    16px;
+
+            }
+
+
+            .login-button {
+
+                min-height:
+                    60px;
+
+                font-size:
+                    16px;
+
+            }
+
+
+            .secondary-actions {
+
+                grid-template-columns:
+                    1fr;
+
+            }
+
+
+            .secondary-button {
+
+                min-height:
+                    50px;
+
+                font-size:
+                    16px;
+
+            }
+
+
+            .security-info {
+
+                grid-template-columns:
+                    1fr;
+
+            }
+
+
+            .security-info-item {
+
+                font-size:
+                    16px;
+
+                min-height:
+                    48px;
+
+            }
+
+
+            .login-footer {
+
+                font-size:
+                    14px;
+
+            }
+
+
+            .visual-shield {
+
+                width:
+                    180px;
+
+                height:
+                    180px;
+
+            }
+
+        }
+
+
+        /* ============================================================
+           VERY SMALL
+        ============================================================ */
+
+        @media (max-width:380px) {
+
+            .login-area {
+
+                padding-left:
+                    13px;
+
+                padding-right:
+                    13px;
+
+            }
+
+
+            .theme-switch {
+
+                min-width:
+                    126px;
+
+                font-size:
+                    14px;
+
+            }
+
+
+            .date-time-box {
+
+                width:
+                    184px;
+
+            }
+
+
+            .brand-small,
+            .brand-name {
+
+                font-size:
+                    15px;
+
+            }
+
+
+            .login-heading h1 {
+
+                font-size:
+                    40px;
+
+            }
+
+        }
+
+
+        /* ============================================================
+           REDUCED MOTION
+        ============================================================ */
+
+        @media (prefers-reduced-motion:reduce) {
+
+            .energy-line,
+            .network-dot,
+            .signal-orbit,
+            .login-area::after,
+            .login-button::after {
+
+                animation:
+                    none !important;
+
+            }
+
+        }
+
     </style>
-<link
-    rel="manifest"
-    href="./manifest.json"
->
 
-<meta
-    name="theme-color"
-    content="#0B6B36"
->
-
-<meta
-    name="mobile-web-app-capable"
-    content="yes"
->
-
-<meta
-    name="apple-mobile-web-app-capable"
-    content="yes"
->
-
-<meta
-    name="apple-mobile-web-app-status-bar-style"
-    content="default"
->
 </head>
+
 
 <body>
 
-    <main class="login-shell">
 
-        <section class="login-card">
+<div class="login-page">
 
-            <div class="profile-wrap">
-                <img
-                    src="./owner-photo.png"
-                    alt="Profile"
-                    class="profile-avatar"
-                    id="profileAvatar"
-                >
+
+    <div
+        class="background-grid"
+        aria-hidden="true"
+    ></div>
+
+
+    <!-- ============================================================
+         MAIN FRAME
+    ============================================================ -->
+
+    <section class="login-frame">
+
+
+        <!-- ========================================================
+             VISUAL AREA
+        ======================================================== -->
+
+        <section class="visual-area">
+
+
+            <img
+                src="./login-person.png"
+                alt="د سیستم مسؤل انځور"
+                class="main-photo"
+                id="mainPhoto"
+            >
+
+
+            <div
+                class="photo-overlay"
+                aria-hidden="true"
+            ></div>
+
+
+            <div
+                class="energy-layer"
+                aria-hidden="true"
+            >
+
+                <span class="energy-line blue line-01"></span>
+                <span class="energy-line cyan line-02"></span>
+                <span class="energy-line green line-03"></span>
+                <span class="energy-line yellow line-04"></span>
+
+                <span class="energy-line red line-05"></span>
+                <span class="energy-line purple line-06"></span>
+                <span class="energy-line orange line-07"></span>
+                <span class="energy-line pink line-08"></span>
+
+                <span class="energy-line cyan line-09"></span>
+                <span class="energy-line blue line-10"></span>
+                <span class="energy-line green line-11"></span>
+                <span class="energy-line yellow line-12"></span>
+
+                <span class="energy-line red line-13"></span>
+                <span class="energy-line purple line-14"></span>
+                <span class="energy-line orange line-15"></span>
+                <span class="energy-line pink line-16"></span>
+
             </div>
 
-            <h1 class="login-title system-name" data-system-name>
-                د افغانستان اسلامي امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس
-            </h1>
 
-            <p class="login-subtitle">
-                سـیسټم  ته ننوتل
-            </p>
+            <div
+                class="network-dots"
+                aria-hidden="true"
+            >
+
+                <span class="network-dot dot-blue dot-01"></span>
+                <span class="network-dot dot-cyan dot-02"></span>
+                <span class="network-dot dot-green dot-03"></span>
+                <span class="network-dot dot-yellow dot-04"></span>
+                <span class="network-dot dot-red dot-05"></span>
+                <span class="network-dot dot-purple dot-06"></span>
+                <span class="network-dot dot-orange dot-07"></span>
+                <span class="network-dot dot-pink dot-08"></span>
+
+                <span class="network-dot dot-cyan dot-09"></span>
+                <span class="network-dot dot-blue dot-10"></span>
+                <span class="network-dot dot-green dot-11"></span>
+                <span class="network-dot dot-yellow dot-12"></span>
+                <span class="network-dot dot-red dot-13"></span>
+                <span class="network-dot dot-purple dot-14"></span>
+                <span class="network-dot dot-orange dot-15"></span>
+
+                <span class="network-dot dot-pink dot-16"></span>
+                <span class="network-dot dot-blue dot-17"></span>
+                <span class="network-dot dot-cyan dot-18"></span>
+                <span class="network-dot dot-green dot-19"></span>
+                <span class="network-dot dot-yellow dot-20"></span>
+                <span class="network-dot dot-red dot-21"></span>
+                <span class="network-dot dot-purple dot-22"></span>
+                <span class="network-dot dot-orange dot-23"></span>
+
+                <span class="network-dot dot-pink dot-24"></span>
+                <span class="network-dot dot-cyan dot-25"></span>
+                <span class="network-dot dot-blue dot-26"></span>
+                <span class="network-dot dot-green dot-27"></span>
+                <span class="network-dot dot-yellow dot-28"></span>
+                <span class="network-dot dot-red dot-29"></span>
+                <span class="network-dot dot-purple dot-30"></span>
+
+            </div>
 
 
-            <form id="loginForm" class="login-form" novalidate>
+            <div
+                class="visual-shield"
+                aria-hidden="true"
+            ></div>
 
-                <div class="form-group">
 
-                    <label class="form-label" for="email">
-                        ایمیل <span class="required">*</span>
-                    </label>
+            <div class="visual-title">
 
-                    <input
-                        id="email"
-                        name="email"
-                        type="email"
-                        class="form-control"
-                        autocomplete="username"
-                        placeholder="خپل ایمیل ولیکئ"
-                        required
-                    >
+                <small>
+                    پرمختللی خوندي سیستم
+                </small>
+
+                <strong>
+                    ډیجیټل دفاع
+                </strong>
+
+                <span>
+                    د مرکزي معلوماتي سیستم خوندي لاسرسی
+                </span>
+
+            </div>
+
+
+            <div class="hud one">
+
+                <div class="hud-label">
+                    د تصدیق حالت
+                </div>
+
+                <div class="hud-value">
+                    خوندي لاسرسی فعال دی
+                </div>
+
+                <div class="hud-progress">
+
+                    <span
+                        style="width:91%;"
+                    ></span>
+
+                </div>
+
+            </div>
+
+
+            <div class="hud two">
+
+                <div class="hud-label">
+                    امنیتي څارنه
+                </div>
+
+                <div class="hud-value">
+                    سیستم فعال او څارل کېږي
+                </div>
+
+                <div class="hud-progress">
+
+                    <span
+                        style="width:84%;"
+                    ></span>
+
+                </div>
+
+            </div>
+
+
+            <div class="hud three">
+
+                <div class="hud-label">
+                    د معلوماتو ساتنه
+                </div>
+
+                <div class="hud-value">
+                    کوډ شوې اړیکه
+                </div>
+
+                <div class="hud-progress">
+
+                    <span
+                        style="width:96%;"
+                    ></span>
+
+                </div>
+
+            </div>
+
+
+            <div class="visual-security">
+
+                <div class="security-pill">
+
+                    <i></i>
+
+                    خوندي تصدیق
 
                 </div>
 
 
-                <div class="form-group">
+                <div class="security-pill">
 
-                    <label class="form-label" for="password">
-                        پاسورډ <span class="required">*</span>
-                    </label>
+                    <i></i>
 
-                    <input
-                        id="password"
-                        name="password"
-                        type="password"
-                        class="form-control"
-                        autocomplete="current-password"
-                        placeholder="خپل پاسورډ ولیکئ"
-                        required
-                    >
+                    آنلاین سیستم
 
                 </div>
 
 
-                <div
-                    id="loginMessage"
-                    class="form-message"
-                    style="display:none;"
-                    aria-live="polite"
-                ></div>
+                <div class="security-pill">
 
+                    <i></i>
 
-                <button
-                    type="submit"
-                    class="btn btn-primary login-button"
-                    id="loginButton"
-                >
-                    🔐 ننوتل
-                </button>
+                    خوندي ډیټابیس
 
+                </div>
 
-                <button
-                    type="button"
-                    class="forgot-password-button"
-                    id="forgotPasswordButton"
-                >
-                   😱 پاسورډ مو هېر کړی؟
-                </button>
-
-
-                <!-- ======================================
-                     WhatsApp Help Button
-                     ====================================== -->
-
-                <button
-                    type="button"
-                    class="whatsapp-button btn"
-                    id="whatsappButton"
-                >
-                    📱 د واټساف له لارې مرسته وغواړی
-                </button>
-
-            </form>
-
-
-            <div class="contact-note">
-                که د پاسورډ ایمیل نه رسیږي، د WhatsApp له لارې مرسته وغواړه.
-                هلته ستا ایمیل هم ورسره لېږل کېږي.
             </div>
 
-
-            <div class="login-note">
-                د سیستم د ننوتلو لپاره باید ستاسو ایمیل د Admin لست کې موجود وي.
-            </div>
-
-
-            <div class="footer-min system-name">
-                د افغانستان اسلامي امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس
-            </div>
 
         </section>
 
-    </main>
 
 
-    <!-- Image Modal -->
+        <!-- ========================================================
+             LOGIN AREA
+        ======================================================== -->
 
-    <div
-        id="imageModal"
-        class="image-modal"
-        aria-hidden="true"
+        <section class="login-area">
+
+
+            <!-- ====================================================
+                 THEME BUTTON
+            ==================================================== -->
+
+            <button
+                type="button"
+                id="themeToggle"
+                class="theme-switch"
+                aria-label="روښانه حالت فعالول"
+                title="روښانه حالت فعالول"
+            >
+
+                <i
+                    id="themeToggleIcon"
+                    class="fa-solid fa-sun"
+                    aria-hidden="true"
+                ></i>
+
+
+                <span
+                    id="themeToggleText"
+                >
+
+                    روښانه حالت
+
+                </span>
+
+            </button>
+
+
+
+            <!-- ====================================================
+                 CLOCK + DATE
+            ==================================================== -->
+
+            <div
+                id="dateTimeBox"
+                class="date-time-box"
+            >
+
+                <div
+                    id="liveClock"
+                    class="live-clock"
+                    aria-live="polite"
+                >
+
+                    <i
+                        class="fa-regular fa-clock"
+                        aria-hidden="true"
+                    ></i>
+
+                    <span
+                        id="clockValue"
+                    >
+                        12:00:00
+                    </span>
+
+                    <span
+                        id="clockPeriod"
+                    >
+                        AM
+                    </span>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    id="dateDisplay"
+                    class="date-display"
+                    aria-expanded="false"
+                    aria-controls="dateTypes"
+                    title="د تاریخ ډول بدلول"
+                >
+
+                    <i
+                        class="fa-regular fa-calendar-days"
+                        aria-hidden="true"
+                    ></i>
+
+                    <span
+                        id="dateValue"
+                    >
+                        تاریخ چمتو کېږي...
+                    </span>
+
+                </button>
+
+
+                <div
+                    id="dateTypes"
+                    class="date-types"
+                    hidden
+                >
+
+                    <button
+                        type="button"
+                        data-calendar="persian"
+                    >
+                        هجري شمسي
+                    </button>
+
+
+                    <button
+                        type="button"
+                        data-calendar="islamic"
+                    >
+                        هجري قمري
+                    </button>
+
+
+                    <button
+                        type="button"
+                        data-calendar="gregorian"
+                    >
+                        میلادي
+                    </button>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- ====================================================
+                 ORBITS
+            ==================================================== -->
+
+            <div
+                class="signal-orbits"
+                aria-hidden="true"
+            >
+
+                <div
+                    class="signal-orbit one"
+                ></div>
+
+                <div
+                    class="signal-orbit two"
+                ></div>
+
+                <div
+                    class="signal-orbit three"
+                ></div>
+
+            </div>
+
+
+
+            <!-- ====================================================
+                 LOGIN CONTENT
+            ==================================================== -->
+
+            <div class="login-content">
+
+
+                <div class="system-brand">
+
+
+                    <div class="brand-shield">
+
+                        <i
+                            class="fa-solid fa-shield-halved"
+                            aria-hidden="true"
+                        ></i>
+
+                    </div>
+
+
+                    <div>
+
+
+                        <div class="brand-small">
+
+                            خوندي ډیجیټل دروازه
+
+                        </div>
+
+
+                        <div
+                            class="brand-name"
+                            data-system-name
+                        >
+
+                            د افغانستان اسلامي امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس
+
+                        </div>
+
+
+                    </div>
+
+
+                </div>
+
+
+
+                <div class="login-heading">
+
+
+                    <h1>
+                        ننوتل
+                    </h1>
+
+
+                    <p>
+
+                        خپل مجاز حساب ته د خوندي لاسرسي لپاره
+                        لاندې معلومات داخل کړئ.
+
+                    </p>
+
+
+                </div>
+
+
+
+                <div class="secure-top">
+
+
+                    <div class="secure-state">
+
+
+                        <span class="secure-dot"></span>
+
+
+                        اړیکه خوندي ده
+
+
+                    </div>
+
+
+                    <div class="secure-code">
+
+                        خوندي حالت ۰۱
+
+                    </div>
+
+
+                </div>
+
+
+
+                <form
+                    id="loginForm"
+                    novalidate
+                >
+
+
+                    <div class="form-group">
+
+
+                        <label
+                            class="form-label"
+                            for="email"
+                        >
+
+                            ایمیل
+
+                            <span class="required">
+                                *
+                            </span>
+
+                        </label>
+
+
+                        <div class="input-wrap">
+
+
+                            <i
+                                class="fa-solid fa-envelope input-icon"
+                                aria-hidden="true"
+                            ></i>
+
+
+                            <input
+                                id="email"
+                                name="email"
+                                type="email"
+                                class="form-control"
+                                autocomplete="username"
+                                inputmode="email"
+                                spellcheck="false"
+                                placeholder="خپل ایمیل ولیکئ"
+                                required
+                            >
+
+
+                        </div>
+
+
+                    </div>
+
+
+
+                    <div class="form-group">
+
+
+                        <label
+                            class="form-label"
+                            for="password"
+                        >
+
+                            پاسورډ
+
+                            <span class="required">
+                                *
+                            </span>
+
+                        </label>
+
+
+                        <div class="input-wrap">
+
+
+                            <i
+                                class="fa-solid fa-lock input-icon"
+                                aria-hidden="true"
+                            ></i>
+
+
+                            <input
+                                id="password"
+                                name="password"
+                                type="password"
+                                class="form-control"
+                                autocomplete="current-password"
+                                placeholder="خپل پاسورډ ولیکئ"
+                                required
+                            >
+
+
+                            <button
+                                type="button"
+                                id="passwordToggle"
+                                class="password-button"
+                                aria-label="پاسورډ ښکاره یا پټول"
+                                title="پاسورډ ښکاره یا پټول"
+                            >
+
+
+                                <i
+                                    id="passwordIcon"
+                                    class="fa-solid fa-eye"
+                                    aria-hidden="true"
+                                ></i>
+
+
+                            </button>
+
+
+                        </div>
+
+
+                    </div>
+
+
+
+                    <div
+                        id="loginMessage"
+                        class="login-message"
+                        aria-live="polite"
+                    ></div>
+
+
+
+                    <button
+                        type="submit"
+                        class="login-button"
+                        id="loginButton"
+                    >
+
+
+                        <span
+                            id="loginButtonText"
+                        >
+
+                            🔐 خوندي ننوتل
+
+                        </span>
+
+
+                    </button>
+
+
+
+                    <div class="secondary-actions">
+
+
+                        <button
+                            type="button"
+                            class="secondary-button"
+                            id="forgotPasswordButton"
+                        >
+
+                            🔑 پاسورډ مو هېر کړی؟
+
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="secondary-button whatsapp-button"
+                            id="whatsappButton"
+                        >
+
+                            📱 د واټس‌اپ له لارې مرسته
+
+                        </button>
+
+
+                    </div>
+
+
+                </form>
+
+
+
+                <div class="security-info">
+
+
+                    <div class="security-info-item">
+
+
+                        <i
+                            class="fa-solid fa-shield-halved"
+                            aria-hidden="true"
+                        ></i>
+
+
+                        <span>
+                            خوندي تصدیق
+                        </span>
+
+
+                    </div>
+
+
+                    <div class="security-info-item">
+
+
+                        <i
+                            class="fa-solid fa-cloud"
+                            aria-hidden="true"
+                        ></i>
+
+
+                        <span>
+                            آنلاین معلومات
+                        </span>
+
+
+                    </div>
+
+
+                    <div class="security-info-item">
+
+
+                        <i
+                            class="fa-solid fa-user-check"
+                            aria-hidden="true"
+                        ></i>
+
+
+                        <span>
+                            مجاز کاروونکی
+                        </span>
+
+
+                    </div>
+
+
+                </div>
+
+
+
+                <footer class="login-footer">
+
+
+                    <div data-system-name>
+
+                        د افغانستان اسلامي امارت د کره کمیسیون
+                        د فورمو د ثبت او مدیریت ډیټابیس
+
+                    </div>
+
+
+                    <div>
+
+                        ستاسې معلومات د خوندي تصدیق له لارې ساتل کېږي.
+
+                    </div>
+
+
+                </footer>
+
+
+            </div>
+
+
+        </section>
+
+
+    </section>
+
+
+</div>
+
+
+
+<!-- ============================================================
+     IMAGE MODAL
+============================================================ -->
+
+<div
+    id="imageModal"
+    class="image-modal"
+    aria-hidden="true"
+>
+
+
+    <button
+        type="button"
+        id="closeImageModal"
+        class="image-modal-close"
+        aria-label="بندول"
     >
 
-        <button
-            type="button"
-            class="image-modal-close"
-            id="closeImageModal"
-            aria-label="بندول"
-        >
-            ×
-        </button>
+        ×
 
-        <img
-            src="./owner-photo.png"
-            alt="Profile Large"
-            class="image-modal-content"
-        >
-
-    </div>
+    </button>
 
 
-    <script type="module">
-
-        import {
-            loginUser,
-            resetPassword,
-            listenAuth
-        } from "./auth.js";
-
-        import {
-            initializeSettings
-        } from "./settings.js";
+    <img
+        src="./login-person.png"
+        alt="د سیستم مسؤل لوی انځور"
+    >
 
 
-        // ==========================================
-        // Elements
-        // ==========================================
-
-        const loginForm =
-            document.getElementById("loginForm");
-
-        const emailInput =
-            document.getElementById("email");
-
-        const passwordInput =
-            document.getElementById("password");
-
-        const loginButton =
-            document.getElementById("loginButton");
-
-        const loginMessage =
-            document.getElementById("loginMessage");
-
-        const forgotPasswordButton =
-            document.getElementById("forgotPasswordButton");
-
-        const whatsappButton =
-            document.getElementById("whatsappButton");
-
-        const profileAvatar =
-            document.getElementById("profileAvatar");
-
-        const imageModal =
-            document.getElementById("imageModal");
-
-        const closeImageModal =
-            document.getElementById("closeImageModal");
+</div>
 
 
-        // ==========================================
-        // WhatsApp Number
-        // افغانستان:
-        // +93 705 965 475
-        // ==========================================
 
-        const WHATSAPP_NUMBER =
-            "93705965475";
+<!-- ============================================================
+     AUTHENTICATION + THEME + DATE
+============================================================ -->
+
+<script type="module">
 
 
-        // ==========================================
-        // Show Message
-        // ==========================================
+    import {
+        loginUser,
+        resetPassword,
+        listenAuth
+    } from "./auth.js";
 
-        function showMessage(
-            message,
-            type = "error"
+
+    import {
+        initializeSettings
+    } from "./settings.js";
+
+
+    /* ========================================================
+       ELEMENTS
+    ======================================================== */
+
+    const loginForm =
+        document.getElementById(
+            "loginForm"
+        );
+
+
+    const emailInput =
+        document.getElementById(
+            "email"
+        );
+
+
+    const passwordInput =
+        document.getElementById(
+            "password"
+        );
+
+
+    const loginButton =
+        document.getElementById(
+            "loginButton"
+        );
+
+
+    const loginButtonText =
+        document.getElementById(
+            "loginButtonText"
+        );
+
+
+    const loginMessage =
+        document.getElementById(
+            "loginMessage"
+        );
+
+
+    const passwordToggle =
+        document.getElementById(
+            "passwordToggle"
+        );
+
+
+    const passwordIcon =
+        document.getElementById(
+            "passwordIcon"
+        );
+
+
+    const forgotPasswordButton =
+        document.getElementById(
+            "forgotPasswordButton"
+        );
+
+
+    const whatsappButton =
+        document.getElementById(
+            "whatsappButton"
+        );
+
+
+    const imageModal =
+        document.getElementById(
+            "imageModal"
+        );
+
+
+    const closeImageModal =
+        document.getElementById(
+            "closeImageModal"
+        );
+
+
+    const themeToggle =
+        document.getElementById(
+            "themeToggle"
+        );
+
+
+    const themeToggleIcon =
+        document.getElementById(
+            "themeToggleIcon"
+        );
+
+
+    const themeToggleText =
+        document.getElementById(
+            "themeToggleText"
+        );
+
+
+    const themeColorMeta =
+        document.getElementById(
+            "themeColorMeta"
+        );
+
+
+    /* ========================================================
+       CONSTANTS
+    ======================================================== */
+
+    const WHATSAPP_NUMBER =
+        "93705965475";
+
+
+    const THEME_STORAGE_KEY =
+        "registration_engine_theme";
+
+
+    const CALENDAR_STORAGE_KEY =
+        "registration_engine_calendar_type";
+
+
+    /* ========================================================
+       THEME STORAGE
+    ======================================================== */
+
+    function getSavedTheme() {
+
+        try {
+
+            const saved =
+                localStorage.getItem(
+                    THEME_STORAGE_KEY
+                );
+
+
+            if (
+                saved === "light" ||
+                saved === "dark"
+            ) {
+
+                return saved;
+
+            }
+
+        }
+
+        catch (error) {
+
+            console.warn(
+                "Theme read error:",
+                error
+            );
+
+        }
+
+
+        return "dark";
+
+    }
+
+
+    /* ========================================================
+       THEME META
+    ======================================================== */
+
+    function updateThemeMeta(
+        theme
+    ) {
+
+        if (
+            !themeColorMeta
         ) {
 
-            loginMessage.textContent =
-                message;
-
-            loginMessage.className =
-                `form-message ${type}`;
-
-            loginMessage.style.display =
-                "block";
+            return;
 
         }
 
 
-        // ==========================================
-        // Hide Message
-        // ==========================================
+        themeColorMeta.setAttribute(
+            "content",
+            theme === "light"
+                ? "#EEF5F3"
+                : "#020915"
+        );
 
-        function hideMessage() {
-
-            loginMessage.textContent =
-                "";
-
-            loginMessage.style.display =
-                "none";
-
-            loginMessage.className =
-                "form-message";
-
-        }
+    }
 
 
-        // ==========================================
-        // Loading
-        // ==========================================
+    /* ========================================================
+       THEME BUTTON
+    ======================================================== */
 
-        function setLoading(
-            isLoading
+    function updateThemeButton(
+        theme
+    ) {
+
+        if (
+            !themeToggle ||
+            !themeToggleIcon ||
+            !themeToggleText
         ) {
 
-            loginButton.disabled =
-                isLoading;
-
-            forgotPasswordButton.disabled =
-                isLoading;
-
-            whatsappButton.disabled =
-                isLoading;
-
-            loginButton.textContent =
-                isLoading
-                    ? "⏳ د ننوتلو هڅه..."
-                    : "🔐 ننوتل";
+            return;
 
         }
 
 
-        // ==========================================
-        // Open WhatsApp
-        // ==========================================
+        if (
+            theme === "light"
+        ) {
 
-        function openWhatsAppHelp() {
-
-            const email =
-                emailInput.value.trim();
+            themeToggleIcon.className =
+                "fa-solid fa-moon";
 
 
-            const text =
-                email
-                    ? `سلام، زما پاسورډ هېر شوی دی. مهرباني وکړئ مرسته راسره وکړئ. زما ایمیل: ${email}`
-                    : "سلام، زما پاسورډ هېر شوی دی. مهرباني وکړئ مرسته راسره وکړی.";
+            themeToggleText.textContent =
+                "تیاره حالت";
 
 
-            const whatsappUrl =
-                `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${encodeURIComponent(text)}`;
+            themeToggle.setAttribute(
+                "aria-label",
+                "تیاره حالت فعالول"
+            );
 
 
-            // لومړی WhatsApp ته د تګ هڅه
-            window.location.href =
-                whatsappUrl;
+            themeToggle.setAttribute(
+                "title",
+                "تیاره حالت فعالول"
+            );
 
         }
 
+        else {
 
-        // ==========================================
-        // Settings
-        // ==========================================
-
-        await initializeSettings();
+            themeToggleIcon.className =
+                "fa-solid fa-sun";
 
 
-        // ==========================================
-        // Authentication
-        // ==========================================
+            themeToggleText.textContent =
+                "روښانه حالت";
 
-        listenAuth(
-            (session) => {
 
-                if (session) {
+            themeToggle.setAttribute(
+                "aria-label",
+                "روښانه حالت فعالول"
+            );
 
-                    window.location.replace(
-                        "./dashboard.html"
-                    );
+
+            themeToggle.setAttribute(
+                "title",
+                "روښانه حالت فعالول"
+            );
+
+        }
+
+    }
+
+
+    /* ========================================================
+       APPLY THEME
+    ======================================================== */
+
+    function applyTheme(
+        theme,
+        save = true
+    ) {
+
+        const normalizedTheme =
+            theme === "light"
+                ? "light"
+                : "dark";
+
+
+        document.documentElement.classList.toggle(
+            "light-mode",
+            normalizedTheme === "light"
+        );
+
+
+        document.documentElement.setAttribute(
+            "data-theme",
+            normalizedTheme
+        );
+
+
+        updateThemeMeta(
+            normalizedTheme
+        );
+
+
+        updateThemeButton(
+            normalizedTheme
+        );
+
+
+        if (
+            save
+        ) {
+
+            try {
+
+                localStorage.setItem(
+                    THEME_STORAGE_KEY,
+                    normalizedTheme
+                );
+
+            }
+
+            catch (error) {
+
+                console.warn(
+                    "Theme write error:",
+                    error
+                );
+
+            }
+
+        }
+
+    }
+
+
+    applyTheme(
+        getSavedTheme(),
+        false
+    );
+
+
+    themeToggle?.addEventListener(
+        "click",
+        () => {
+
+            const currentTheme =
+                document.documentElement.classList.contains(
+                    "light-mode"
+                )
+                    ? "light"
+                    : "dark";
+
+
+            applyTheme(
+                currentTheme === "light"
+                    ? "dark"
+                    : "light",
+                true
+            );
+
+        }
+    );
+
+
+    /* ========================================================
+       DATE + CLOCK ELEMENTS
+    ======================================================== */
+
+    const dateTimeBox =
+        document.getElementById(
+            "dateTimeBox"
+        );
+
+
+    const clockValue =
+        document.getElementById(
+            "clockValue"
+        );
+
+
+    const clockPeriod =
+        document.getElementById(
+            "clockPeriod"
+        );
+
+
+    const dateDisplay =
+        document.getElementById(
+            "dateDisplay"
+        );
+
+
+    const dateValue =
+        document.getElementById(
+            "dateValue"
+        );
+
+
+    const dateTypes =
+        document.getElementById(
+            "dateTypes"
+        );
+
+
+    const dateButtons =
+        Array.from(
+            document.querySelectorAll(
+                "#dateTypes [data-calendar]"
+            )
+        );
+
+
+    const CALENDAR_VALUES = {
+
+        persian:
+            true,
+
+        islamic:
+            true,
+
+        gregorian:
+            true
+
+    };
+
+
+    let selectedCalendar =
+        "gregorian";
+
+
+    /* ========================================================
+       LOAD SAVED CALENDAR
+    ======================================================== */
+
+    try {
+
+        const savedCalendar =
+            localStorage.getItem(
+                CALENDAR_STORAGE_KEY
+            );
+
+
+        if (
+            CALENDAR_VALUES[
+                savedCalendar
+            ]
+        ) {
+
+            selectedCalendar =
+                savedCalendar;
+
+        }
+
+    }
+
+    catch (error) {
+
+        console.warn(
+            "Calendar storage read error:",
+            error
+        );
+
+    }
+
+
+    /* ========================================================
+       GET CALENDAR PARTS
+    ======================================================== */
+
+    function getCalendarParts(
+        date,
+        calendar
+    ) {
+
+        try {
+
+            const formatter =
+                new Intl.DateTimeFormat(
+                    `en-US-u-ca-${calendar}`,
+                    {
+                        day:
+                            "numeric",
+
+                        month:
+                            "numeric",
+
+                        year:
+                            "numeric"
+                    }
+                );
+
+
+            const parts =
+                formatter.formatToParts(
+                    date
+                );
+
+
+            const result = {};
+
+
+            parts.forEach(
+                part => {
+
+                    if (
+                        part.type ===
+                        "day"
+                    ) {
+
+                        result.day =
+                            part.value;
+
+                    }
+
+
+                    if (
+                        part.type ===
+                        "month"
+                    ) {
+
+                        result.month =
+                            part.value;
+
+                    }
+
+
+                    if (
+                        part.type ===
+                        "year"
+                    ) {
+
+                        result.year =
+                            part.value;
+
+                    }
 
                 }
+            );
+
+
+            return result;
+
+        }
+
+        catch (error) {
+
+            console.warn(
+                "Calendar formatting error:",
+                error
+            );
+
+
+            return null;
+
+        }
+
+    }
+
+
+    /* ========================================================
+       NUMERIC GREGORIAN DATE
+       مثال: 2026/7/5
+    ======================================================== */
+
+    function formatGregorianDate(
+        date
+    ) {
+
+        return [
+
+            date.getFullYear(),
+
+            date.getMonth() + 1,
+
+            date.getDate()
+
+        ].join(
+            "/"
+        );
+
+    }
+
+
+    /* ========================================================
+       NUMERIC PERSIAN DATE
+       مثال: 1405/9/10
+    ======================================================== */
+
+    function formatPersianDate(
+        date
+    ) {
+
+        const parts =
+            getCalendarParts(
+                date,
+                "persian"
+            );
+
+
+        if (
+            !parts
+        ) {
+
+            return formatGregorianDate(
+                date
+            );
+
+        }
+
+
+        return [
+
+            parts.year,
+
+            parts.month,
+
+            parts.day
+
+        ].join(
+            "/"
+        );
+
+    }
+
+
+    /* ========================================================
+       NUMERIC ISLAMIC DATE
+       مثال: 1448/10/20
+    ======================================================== */
+
+    function formatIslamicDate(
+        date
+    ) {
+
+        const parts =
+            getCalendarParts(
+                date,
+                "islamic"
+            );
+
+
+        if (
+            !parts
+        ) {
+
+            return formatGregorianDate(
+                date
+            );
+
+        }
+
+
+        return [
+
+            parts.year,
+
+            parts.month,
+
+            parts.day
+
+        ].join(
+            "/"
+        );
+
+    }
+
+
+    /* ========================================================
+       SELECTED DATE
+    ======================================================== */
+
+    function getSelectedDate(
+        date
+    ) {
+
+        switch (
+            selectedCalendar
+        ) {
+
+            case "persian":
+
+                return formatPersianDate(
+                    date
+                );
+
+
+            case "islamic":
+
+                return formatIslamicDate(
+                    date
+                );
+
+
+            case "gregorian":
+
+            default:
+
+                return formatGregorianDate(
+                    date
+                );
+
+        }
+
+    }
+
+
+    /* ========================================================
+       ACTIVE CALENDAR BUTTON
+    ======================================================== */
+
+    function updateCalendarButtons() {
+
+        dateButtons.forEach(
+            button => {
+
+                button.classList.toggle(
+                    "active",
+                    button.dataset.calendar ===
+                    selectedCalendar
+                );
 
             }
         );
 
-
-        // ==========================================
-        // Login
-        // ==========================================
-
-        loginForm.addEventListener(
-            "submit",
-            async event => {
-
-                event.preventDefault();
-
-                hideMessage();
+    }
 
 
-                const email =
-                    emailInput.value.trim();
+    /* ========================================================
+       UPDATE LIVE CLOCK + DATE
+    ======================================================== */
 
-                const password =
-                    passwordInput.value;
+    function updateClockAndDate() {
 
-
-                if (!email) {
-
-                    showMessage(
-                        "ایمیل ولیکئ."
-                    );
-
-                    emailInput.focus();
-
-                    return;
-
-                }
+        const now =
+            new Date();
 
 
-                if (!password) {
-
-                    showMessage(
-                        "پاسورډ ولیکئ."
-                    );
-
-                    passwordInput.focus();
-
-                    return;
-
-                }
+        let hours =
+            now.getHours();
 
 
-                setLoading(true);
+        const minutes =
+            String(
+                now.getMinutes()
+            ).padStart(
+                2,
+                "0"
+            );
 
 
-                try {
+        const seconds =
+            String(
+                now.getSeconds()
+            ).padStart(
+                2,
+                "0"
+            );
 
-                    const result =
-                        await loginUser(
-                            email,
-                            password
-                        );
+
+        const period =
+            hours >= 12
+                ? "PM"
+                : "AM";
 
 
-                    if (!result.success) {
+        hours =
+            hours % 12;
 
-                        showMessage(
-                            result.message ||
-                            "ننوتل ترسره نه شول."
-                        );
+
+        if (
+            hours === 0
+        ) {
+
+            hours =
+                12;
+
+        }
+
+
+        if (
+            clockValue
+        ) {
+
+            clockValue.textContent =
+                `${String(hours).padStart(2,"0")}:${minutes}:${seconds}`;
+
+        }
+
+
+        if (
+            clockPeriod
+        ) {
+
+            clockPeriod.textContent =
+                period;
+
+        }
+
+
+        if (
+            dateValue
+        ) {
+
+            dateValue.textContent =
+                getSelectedDate(
+                    now
+                );
+
+        }
+
+
+        updateCalendarButtons();
+
+    }
+
+
+    /* ========================================================
+       OPEN / CLOSE DATE OPTIONS
+    ======================================================== */
+
+    dateDisplay?.addEventListener(
+        "click",
+        event => {
+
+            event.stopPropagation();
+
+
+            const willOpen =
+                dateTypes.hidden === true;
+
+
+            dateTypes.hidden =
+                !willOpen;
+
+
+            dateDisplay.setAttribute(
+                "aria-expanded",
+                willOpen
+                    ? "true"
+                    : "false"
+            );
+
+
+            updateCalendarButtons();
+
+        }
+    );
+
+
+    /* ========================================================
+       SELECT DATE CATEGORY
+    ======================================================== */
+
+    dateButtons.forEach(
+        button => {
+
+            button.addEventListener(
+                "click",
+                event => {
+
+                    event.stopPropagation();
+
+
+                    const selected =
+                        button.dataset.calendar;
+
+
+                    if (
+                        !CALENDAR_VALUES[
+                            selected
+                        ]
+                    ) {
 
                         return;
 
                     }
 
 
-                    window.location.replace(
-                        "./dashboard.html"
-                    );
+                    selectedCalendar =
+                        selected;
 
 
-                } catch (error) {
+                    try {
 
-                    console.error(
-                        "Login Page Error:",
-                        error
-                    );
-
-                    showMessage(
-                        "د ننوتلو پر مهال ستونزه رامنځته شوه."
-                    );
-
-                } finally {
-
-                    setLoading(false);
-
-                }
-
-            }
-        );
-
-
-        // ==========================================
-        // Forgot Password
-        // ==========================================
-
-        forgotPasswordButton.addEventListener(
-            "click",
-            async () => {
-
-                hideMessage();
-
-
-                const email =
-                    emailInput.value.trim();
-
-
-                if (!email) {
-
-                    showMessage(
-                        "لومړی خپل ایمیل ولیکئ."
-                    );
-
-                    emailInput.focus();
-
-                    return;
-
-                }
-
-
-                forgotPasswordButton.disabled =
-                    true;
-
-                forgotPasswordButton.textContent =
-                    "⏳ انتظار وکړئ...";
-
-
-                try {
-
-                    const result =
-                        await resetPassword(
-                            email
+                        localStorage.setItem(
+                            CALENDAR_STORAGE_KEY,
+                            selectedCalendar
                         );
 
+                    }
 
-                    if (result.success) {
+                    catch (error) {
 
-                        showMessage(
-                            result.message,
-                            "success"
-                        );
-
-                    } else {
-
-                        showMessage(
-                            result.message ||
-                            "د پاسورډ د بدلولو ایمیل ونه لېږل شو."
+                        console.warn(
+                            "Calendar storage write error:",
+                            error
                         );
 
                     }
 
 
-                } catch (error) {
-
-                    console.error(
-                        "Password Reset Page Error:",
-                        error
-                    );
-
-                    showMessage(
-                        "د پاسورډ د بدلولو ایمیل ونه لېږل شو."
-                    );
-
-                } finally {
-
-                    forgotPasswordButton.disabled =
-                        false;
-
-                    forgotPasswordButton.textContent =
-                        "پاسورډ مو هېر کړی؟";
-
-                }
-
-            }
-        );
+                    updateClockAndDate();
 
 
-        // ==========================================
-        // WhatsApp Button
-        // ==========================================
+                    /*
+                       له انتخاب وروسته
+                       د انتخاباتو لست پټېږي.
+                    */
 
-        whatsappButton.addEventListener(
-            "click",
-            () => {
-
-                hideMessage();
-
-                openWhatsAppHelp();
-
-            }
-        );
+                    dateTypes.hidden =
+                        true;
 
 
-        // ==========================================
-        // Profile Image Modal
-        // ==========================================
-
-        if (
-            profileAvatar &&
-            imageModal &&
-            closeImageModal
-        ) {
-
-            profileAvatar.addEventListener(
-                "click",
-                () => {
-
-                    imageModal.classList.add(
-                        "show"
-                    );
-
-                    imageModal.setAttribute(
-                        "aria-hidden",
+                    dateDisplay.setAttribute(
+                        "aria-expanded",
                         "false"
                     );
 
                 }
             );
 
+        }
+    );
 
-            closeImageModal.addEventListener(
-                "click",
-                () => {
 
-                    imageModal.classList.remove(
-                        "show"
-                    );
+    /* ========================================================
+       OUTSIDE CLICK
+    ======================================================== */
 
-                    imageModal.setAttribute(
-                        "aria-hidden",
-                        "true"
-                    );
+    document.addEventListener(
+        "click",
+        event => {
+
+            if (
+                dateTimeBox &&
+                !dateTimeBox.contains(
+                    event.target
+                )
+            ) {
+
+                if (
+                    dateTypes
+                ) {
+
+                    dateTypes.hidden =
+                        true;
 
                 }
+
+
+                dateDisplay?.setAttribute(
+                    "aria-expanded",
+                    "false"
+                );
+
+            }
+
+        }
+    );
+
+
+    /* ========================================================
+       INITIALIZE DATE
+    ======================================================== */
+
+    updateClockAndDate();
+
+
+    const dateClockInterval =
+        window.setInterval(
+            updateClockAndDate,
+            1000
+        );
+
+
+    window.addEventListener(
+        "beforeunload",
+        () => {
+
+            window.clearInterval(
+                dateClockInterval
+            );
+
+        },
+        {
+            once:
+                true
+        }
+    );
+
+
+    /* ========================================================
+       MESSAGE
+    ======================================================== */
+
+    function showMessage(
+        text,
+        type = "error"
+    ) {
+
+        loginMessage.textContent =
+            text;
+
+
+        loginMessage.className =
+            `login-message show ${type}`;
+
+    }
+
+
+    function hideMessage() {
+
+        loginMessage.textContent =
+            "";
+
+
+        loginMessage.className =
+            "login-message";
+
+    }
+
+
+    /* ========================================================
+       LOADING
+    ======================================================== */
+
+    function setLoading(
+        active
+    ) {
+
+        loginButton.disabled =
+            active;
+
+
+        forgotPasswordButton.disabled =
+            active;
+
+
+        whatsappButton.disabled =
+            active;
+
+
+        loginButtonText.textContent =
+            active
+
+                ? "⏳ حساب تصدیق کېږي..."
+
+                : "🔐 خوندي ننوتل";
+
+    }
+
+
+    /* ========================================================
+       EMAIL VALIDATION
+    ======================================================== */
+
+    function validEmail(
+        email
+    ) {
+
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+            .test(
+                email
+            );
+
+    }
+
+
+    /* ========================================================
+       PASSWORD SHOW / HIDE
+    ======================================================== */
+
+    passwordToggle?.addEventListener(
+        "click",
+        () => {
+
+            const visible =
+                passwordInput.type ===
+                "password";
+
+
+            passwordInput.type =
+                visible
+                    ? "text"
+                    : "password";
+
+
+            passwordIcon.className =
+                visible
+                    ? "fa-solid fa-eye-slash"
+                    : "fa-solid fa-eye";
+
+
+            const label =
+                visible
+                    ? "پاسورډ پټول"
+                    : "پاسورډ ښکاره کول";
+
+
+            passwordToggle.setAttribute(
+                "aria-label",
+                label
             );
 
 
-            imageModal.addEventListener(
-                "click",
-                event => {
-
-                    if (
-                        event.target ===
-                        imageModal
-                    ) {
-
-                        imageModal.classList.remove(
-                            "show"
-                        );
-
-                        imageModal.setAttribute(
-                            "aria-hidden",
-                            "true"
-                        );
-
-                    }
-
-                }
-            );
-
-
-            window.addEventListener(
-                "keydown",
-                event => {
-
-                    if (
-                        event.key ===
-                        "Escape"
-                    ) {
-
-                        imageModal.classList.remove(
-                            "show"
-                        );
-
-                        imageModal.setAttribute(
-                            "aria-hidden",
-                            "true"
-                        );
-
-                    }
-
-                }
+            passwordToggle.setAttribute(
+                "title",
+                label
             );
 
         }
+    );
 
-    </script>
+
+    /* ========================================================
+       LOGIN
+    ======================================================== */
+
+    loginForm?.addEventListener(
+        "submit",
+        async event => {
+
+            event.preventDefault();
+
+
+            hideMessage();
+
+
+            const email =
+                emailInput.value.trim();
+
+
+            const password =
+                passwordInput.value;
+
+
+            if (
+                !email
+            ) {
+
+                showMessage(
+                    "مهرباني وکړئ خپل ایمیل ولیکئ."
+                );
+
+
+                emailInput.focus();
+
+                return;
+
+            }
+
+
+            if (
+                !validEmail(
+                    email
+                )
+            ) {
+
+                showMessage(
+                    "مهرباني وکړئ صحیح ایمیل ولیکئ."
+                );
+
+
+                emailInput.focus();
+
+                return;
+
+            }
+
+
+            if (
+                !password
+            ) {
+
+                showMessage(
+                    "مهرباني وکړئ خپل پاسورډ ولیکئ."
+                );
+
+
+                passwordInput.focus();
+
+                return;
+
+            }
+
+
+            if (
+                !navigator.onLine
+            ) {
+
+                showMessage(
+                    "ستاسې انټرنېټ وصل نه دی."
+                );
+
+
+                return;
+
+            }
+
+
+            setLoading(
+                true
+            );
+
+
+            try {
+
+                const result =
+                    await loginUser(
+                        email,
+                        password
+                    );
+
+
+                if (
+                    !result ||
+                    result.success !== true
+                ) {
+
+                    showMessage(
+                        result?.message ||
+                        "ننوتل بریالي نه شول."
+                    );
+
+
+                    return;
+
+                }
+
+
+                showMessage(
+                    "ستاسې حساب په بریالیتوب تایید شو. ډشبورډ ته ځئ...",
+                    "success"
+                );
+
+
+                setTimeout(
+                    () => {
+
+                        window.location.replace(
+                            "./dashboard.html"
+                        );
+
+                    },
+                    450
+                );
+
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Login Error:",
+                    error
+                );
+
+
+                let message =
+                    "د ننوتلو پر مهال ستونزه رامنځته شوه.";
+
+
+                switch (
+                    error?.code
+                ) {
+
+                    case "auth/invalid-email":
+
+                        message =
+                            "ایمیل ناسم دی.";
+
+                        break;
+
+
+                    case "auth/user-not-found":
+
+                        message =
+                            "دا ایمیل ثبت شوی نه دی.";
+
+                        break;
+
+
+                    case "auth/wrong-password":
+
+                        message =
+                            "پاسورډ ناسم دی.";
+
+                        break;
+
+
+                    case "auth/invalid-credential":
+
+                        message =
+                            "ایمیل یا پاسورډ ناسم دی.";
+
+                        break;
+
+
+                    case "auth/user-disabled":
+
+                        message =
+                            "دا حساب غیر فعال شوی دی.";
+
+                        break;
+
+
+                    case "auth/too-many-requests":
+
+                        message =
+                            "ډېرې ناکامې هڅې شوې دي. لږ وروسته بیا هڅه وکړئ.";
+
+                        break;
+
+
+                    case "auth/network-request-failed":
+
+                        message =
+                            "د انټرنېټ اړیکه ستونزه لري.";
+
+                        break;
+
+
+                    default:
+
+                        message =
+                            error?.message ||
+                            message;
+
+                }
+
+
+                showMessage(
+                    message
+                );
+
+            }
+
+            finally {
+
+                setLoading(
+                    false
+                );
+
+            }
+
+        }
+    );
+
+
+    /* ========================================================
+       PASSWORD RESET
+    ======================================================== */
+
+    forgotPasswordButton?.addEventListener(
+        "click",
+        async () => {
+
+            hideMessage();
+
+
+            const email =
+                emailInput.value.trim();
+
+
+            if (
+                !email
+            ) {
+
+                showMessage(
+                    "لومړی خپل ایمیل ولیکئ."
+                );
+
+
+                emailInput.focus();
+
+                return;
+
+            }
+
+
+            if (
+                !validEmail(
+                    email
+                )
+            ) {
+
+                showMessage(
+                    "مهرباني وکړئ صحیح ایمیل ولیکئ."
+                );
+
+
+                return;
+
+            }
+
+
+            forgotPasswordButton.disabled =
+                true;
+
+
+            const originalText =
+                forgotPasswordButton.textContent;
+
+
+            forgotPasswordButton.textContent =
+                "⏳ د پاسورډ لینک لېږل کېږي...";
+
+
+            try {
+
+                const result =
+                    await resetPassword(
+                        email
+                    );
+
+
+                if (
+                    result?.success
+                ) {
+
+                    showMessage(
+                        result.message ||
+                        "د پاسورډ د بدلولو لینک ستاسې ایمیل ته واستول شو.",
+                        "success"
+                    );
+
+                }
+
+                else {
+
+                    showMessage(
+                        result?.message ||
+                        "د پاسورډ د بدلولو لینک ونه لېږل شو."
+                    );
+
+                }
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Password Reset Error:",
+                    error
+                );
+
+
+                showMessage(
+                    "د پاسورډ د بدلولو پر مهال ستونزه رامنځته شوه."
+                );
+
+            }
+
+            finally {
+
+                forgotPasswordButton.disabled =
+                    false;
+
+
+                forgotPasswordButton.textContent =
+                    originalText;
+
+            }
+
+        }
+    );
+
+
+    /* ========================================================
+       WHATSAPP
+    ======================================================== */
+
+    whatsappButton?.addEventListener(
+        "click",
+        () => {
+
+            const email =
+                emailInput.value.trim();
+
+
+            const message =
+                email
+
+                    ? `سلام، زه د سیستم د ننوتلو ستونزه لرم. زما ایمیل: ${email}`
+
+                    : "سلام، زه د سیستم د ننوتلو ستونزه لرم. مهرباني وکړئ مرسته راسره وکړئ.";
+
+
+            const url =
+                `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${encodeURIComponent(message)}`;
+
+
+            window.open(
+                url,
+                "_blank",
+                "noopener,noreferrer"
+            );
+
+        }
+    );
+
+
+    /* ========================================================
+       ACTIVE SESSION
+    ======================================================== */
+
+    try {
+
+        listenAuth(
+            session => {
+
+                if (
+                    session
+                ) {
+
+                    showMessage(
+                        "ستاسې فعال حساب وموندل شو. ډشبورډ ته ځئ...",
+                        "success"
+                    );
+
+
+                    setTimeout(
+                        () => {
+
+                            window.location.replace(
+                                "./dashboard.html"
+                            );
+
+                        },
+                        350
+                    );
+
+                }
+
+            }
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Auth Listener Error:",
+            error
+        );
+
+    }
+
+
+    /* ========================================================
+       SETTINGS
+    ======================================================== */
+
+    try {
+
+        await initializeSettings();
+
+    }
+
+    catch (error) {
+
+        console.warn(
+            "Settings initialization Error:",
+            error
+        );
+
+    }
+
+
+    /* ========================================================
+       IMAGE MODAL
+    ======================================================== */
+
+    const mainPhoto =
+        document.getElementById(
+            "mainPhoto"
+        );
+
+
+    if (
+        mainPhoto &&
+        imageModal
+    ) {
+
+        mainPhoto.style.cursor =
+            "zoom-in";
+
+
+        mainPhoto.addEventListener(
+            "click",
+            () => {
+
+                imageModal.classList.add(
+                    "show"
+                );
+
+
+                imageModal.setAttribute(
+                    "aria-hidden",
+                    "false"
+                );
+
+            }
+        );
+
+    }
+
+
+    closeImageModal?.addEventListener(
+        "click",
+        () => {
+
+            imageModal.classList.remove(
+                "show"
+            );
+
+
+            imageModal.setAttribute(
+                "aria-hidden",
+                "true"
+            );
+
+        }
+    );
+
+
+    imageModal?.addEventListener(
+        "click",
+        event => {
+
+            if (
+                event.target ===
+                imageModal
+            ) {
+
+                imageModal.classList.remove(
+                    "show"
+                );
+
+
+                imageModal.setAttribute(
+                    "aria-hidden",
+                    "true"
+                );
+
+            }
+
+        }
+    );
+
+
+    window.addEventListener(
+        "keydown",
+        event => {
+
+            if (
+                event.key ===
+                "Escape"
+            ) {
+
+                imageModal?.classList.remove(
+                    "show"
+                );
+
+
+                imageModal?.setAttribute(
+                    "aria-hidden",
+                    "true"
+                );
+
+            }
+
+        }
+    );
+
+
+</script>
+
+
 <script
-    src="./pwa.js"
+    src="./pwa.=js"
 ></script>
+
+
 </body>
+
 </html>
