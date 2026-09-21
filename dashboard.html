@@ -1580,6 +1580,7 @@
         }
 
     </style>
+
 <link
     rel="manifest"
     href="./manifest.json"
@@ -1604,6 +1605,7 @@
     name="apple-mobile-web-app-status-bar-style"
     content="default"
 >
+
 </head>
 
 
@@ -1633,23 +1635,7 @@
 
 
     <div class="header-actions">
-
-        <button
-            type="button"
-            id="homeBtn"
-            title="کور"
-        >
-            🏠
-        </button>
-
-        <button
-            type="button"
-            id="backBtn"
-            title="شاته"
-        >
-            ⬅️
-        </button>
-
+"
         <button
             type="button"
             id="refreshBtn"
@@ -1732,7 +1718,7 @@
                 type="button"
                 id="adminMenuBtn"
             >
-                👥دسوفراډمین او ساده اډمین دصلاحیتونو برخه
+          👥    داډمــنانـوبـرخــه
             </button>
 
             <button
@@ -3160,6 +3146,102 @@
 </footer>
 
 
+<!-- =========================================================
+     یوازې د Sidebar اصلي نومونه ثابت ساتل
+     dashboard.js به یې څو ثانیې وروسته نه بدلوي
+========================================================== -->
+
+<script>
+(function () {
+
+    const FIXED_SIDEBAR_TEXT = {
+
+        sidebarTitle:
+            "اصلي مینو",
+
+        dashboardMenuBtn:
+            "💒  کـــورپــاڼــه",
+
+        formicMenuBtn:
+            "📗 فورمیک",
+
+        registerMenuBtn:
+            "💻 نوی ثبت",
+
+        searchMenuBtn:
+            "🔍 لټون",
+
+        reportsMenuBtn:
+            "📙 راپورونه",
+
+        adminMenuBtn:
+            "👥    داډمــنانـوبـرخــه",
+
+        settingsMenuBtn:
+            "⚙️ تنظیمات"
+
+    };
+
+
+    function restoreSidebarText() {
+
+        Object.keys(FIXED_SIDEBAR_TEXT).forEach(function (id) {
+
+            const element =
+                document.getElementById(id);
+
+            if (!element) {
+                return;
+            }
+
+            const wanted =
+                FIXED_SIDEBAR_TEXT[id];
+
+            if (element.textContent !== wanted) {
+
+                element.textContent =
+                    wanted;
+
+            }
+
+        });
+
+    }
+
+
+    restoreSidebarText();
+
+
+    const sidebarObserver =
+        new MutationObserver(function () {
+
+            restoreSidebarText();
+
+        });
+
+
+    const sidebar =
+        document.querySelector(
+            ".sidebar"
+        );
+
+
+    if (sidebar) {
+
+        sidebarObserver.observe(
+            sidebar,
+            {
+                subtree: true,
+                childList: true,
+                characterData: true
+            }
+        );
+
+    }
+
+})();
+</script>
+
 
 <script
     type="module"
@@ -3169,6 +3251,9 @@
 <script
     src="./pwa.js"
 ></script>
+
+<script type="module" src="./settings-apply.js"></script>
+
 </body>
 
 </html>
