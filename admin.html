@@ -243,31 +243,94 @@
 
         }
 
+
+        /* =========================================================
+           یوازې د موبایل د افقي سکرین ستونزې اصلاح
+           نور اصلي جوړښت او ډیزاین نه بدلوي
+           ========================================================= */
+
+        @media (max-width: 650px) {
+
+            html,
+            body {
+                width: 100%;
+                max-width: 100%;
+                overflow-x: hidden;
+            }
+
+            .main-header,
+            .app-layout,
+            .main-content,
+            .page {
+                max-width: 100%;
+                min-width: 0;
+            }
+
+            .header-brand {
+                min-width: 0;
+                max-width: 100%;
+            }
+
+            .header-title {
+                min-width: 0;
+                max-width: 100%;
+                overflow-wrap: anywhere;
+            }
+
+            .admin-grid,
+            .admin-grid-full,
+            .card,
+            .stats-grid {
+                min-width: 0;
+                max-width: 100%;
+            }
+
+            .admin-inline,
+            .admin-between,
+            .privacy-grid {
+                min-width: 0;
+                max-width: 100%;
+            }
+
+            .record-filter {
+                max-width: 100%;
+                min-width: 0;
+            }
+
+        }
+
+        /* =========================================================
+           د موبایل افقي سکرین اصلاح پای
+           ========================================================= */
+
     </style>
-<link
-    rel="manifest"
-    href="./manifest.json"
->
 
-<meta
-    name="theme-color"
-    content="#0B6B36"
->
 
-<meta
-    name="mobile-web-app-capable"
-    content="yes"
->
+    <link
+        rel="manifest"
+        href="./manifest.json"
+    >
 
-<meta
-    name="apple-mobile-web-app-capable"
-    content="yes"
->
+    <meta
+        name="theme-color"
+        content="#0B6B36"
+    >
 
-<meta
-    name="apple-mobile-web-app-status-bar-style"
-    content="default"
->
+    <meta
+        name="mobile-web-app-capable"
+        content="yes"
+    >
+
+    <meta
+        name="apple-mobile-web-app-capable"
+        content="yes"
+    >
+
+    <meta
+        name="apple-mobile-web-app-status-bar-style"
+        content="default"
+    >
+
 </head>
 
 <body>
@@ -290,15 +353,6 @@
     </div>
 
     <div class="header-actions">
-
-        <button
-            type="button"
-            id="dashboardBtn"
-            title="کورپاڼه"
-            aria-label="کورپاڼه"
-        >
-            🏠
-        </button>
 
         <button
             type="button"
@@ -337,21 +391,21 @@
                 type="button"
                 id="dashboardMenuBtn"
             >
-                📊 کورپاڼه
+                💒 کـــورپــاڼــه
             </button>
 
             <button
                 type="button"
                 id="formicMenuBtn"
             >
-                📋 فورمیک
+                📗 فــورمـیک
             </button>
 
             <button
                 type="button"
                 id="registerMenuBtn"
             >
-                📝 نوی ثبت
+                💻 نوی ثبت
             </button>
 
             <button
@@ -365,7 +419,7 @@
                 type="button"
                 id="reportsMenuBtn"
             >
-                📄 راپورونه
+                📙 راپورونه
             </button>
 
             <button
@@ -373,7 +427,7 @@
                 class="active"
                 id="adminMenuBtn"
             >
-                👮 ادمین
+                👥 داډمــنانـوبـرخـه
             </button>
 
             <button
@@ -669,6 +723,7 @@
                                     id="adminRole"
                                     class="form-control"
                                 >
+
                                     <option value="user">
                                         👤 کاروونکی
                                     </option>
@@ -680,6 +735,7 @@
                                     <option value="superadmin">
                                         🛡️ ستر اډمین
                                     </option>
+
                                 </select>
 
                             </div>
@@ -913,41 +969,68 @@
                     <div class="privacy-grid">
 
                         <div class="privacy-card">
-                            <strong>👮 له نورو اډمینانو پټ</strong>
+
+                            <strong>
+                                👮 له نورو اډمینانو پټ
+                            </strong>
 
                             <label class="switch-wrap">
+
                                 <input
                                     type="checkbox"
                                     id="hideFromAdmins"
                                 >
-                                <span>فعال</span>
+
+                                <span>
+                                    فعال
+                                </span>
+
                             </label>
+
                         </div>
 
 
                         <div class="privacy-card">
-                            <strong>👥 له کارکوونکو پټ</strong>
+
+                            <strong>
+                                👥 له کارکوونکو پټ
+                            </strong>
 
                             <label class="switch-wrap">
+
                                 <input
                                     type="checkbox"
                                     id="hideFromStaff"
                                 >
-                                <span>فعال</span>
+
+                                <span>
+                                    فعال
+                                </span>
+
                             </label>
+
                         </div>
 
 
                         <div class="privacy-card">
-                            <strong>👤 له عامو کاروونکو پټ</strong>
+
+                            <strong>
+                                👤 له عامو کاروونکو پټ
+                            </strong>
 
                             <label class="switch-wrap">
+
                                 <input
                                     type="checkbox"
                                     id="hideFromUsers"
                                 >
-                                <span>فعال</span>
+
+                                <span>
+                                    فعال
+                                </span>
+
                             </label>
+
                         </div>
 
                     </div>
@@ -1059,6 +1142,7 @@
                         د فیلډونو ټول بدلونونه په
                         <b>Firestore / settings/system</b>
                         کې ذخیره کېږي.
+
                         د Refresh یا سیستم بیا پرانیستلو وروسته هم هماغه تنظیمات بېرته لوډېږي.
 
                     </div>
@@ -1082,12 +1166,15 @@
 
 </footer>
 
+
 <script src="./pwa.js"></script>
 
 <script
     type="module"
     src="./admin.js"
 ></script>
+
+<script type="module" src="./settings-apply.js"></script>
 
 </body>
 </html>
