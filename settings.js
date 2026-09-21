@@ -1,8 +1,8 @@
-/* ==========================================
-   د افغانستان اسلامي امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس💻
+/* =========================================================
+   د افغانستان اسلامي امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس
    settings.js
-   System Settings Engine
-========================================== */
+   مرکزي Settings Engine
+   ========================================================= */
 
 import { db } from "./firebase.js";
 
@@ -10,868 +10,3025 @@ import {
     doc,
     getDoc,
     setDoc,
+    onSnapshot,
     serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
 
-// ==========================================
-// Firestore Settings Document
-// ==========================================
+/* =========================================================
+   ثابت معلومات
+========================================================= */
+
+export const SYSTEM_NAME =
+    "د افغانستان اسلامي امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس";
 
 const SETTINGS_COLLECTION = "settings";
 const SETTINGS_DOCUMENT = "system";
-const SETTINGS_CACHE_KEY = "hafz_admin_online_system_settings_v1";
+
+const SETTINGS_CACHE_KEY =
+    "krha_commission_settings_v3";
+
+const OLD_CACHE_KEYS = [
+    "hafz_admin_online_system_settings_v1",
+    "krha_dashboard_settings_v2",
+    "hafz_admin_online_system_language_v1"
+];
 
 
-// ==========================================
-// Default Settings
-// ==========================================
+/* =========================================================
+   Default Settings
+========================================================= */
 
 export const DEFAULT_SETTINGS = {
-    systemName: "د افغانستان اسلامی امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس",
+
+    systemName: SYSTEM_NAME,
+
     language: "ps",
+
+    directionMode: "auto",
+
     calendar: "solar",
+
+    dateFormat: "medium",
+
+    timeFormat: "24h",
+
+    timeZone: "Asia/Kabul",
+
+    weekStart: "saturday",
+
+    numberSystem: "local",
+
     theme: "light",
+
+    background: "natural",
+
     primaryColor: "#0B6B36",
+
+    secondaryColor: "#084D27",
+
+    accentColor: "#19A463",
+
+    infoColor: "#175CD3",
+
+    colorMode: "custom",
+
+    colorPalette: "emerald",
+
     fontScale: "medium",
+
     density: "comfortable",
-    fontFamily: "naskh"
+
+    fontFamily: "naskh",
+
+    radius: "medium",
+
+    shadows: "medium",
+
+    glass: true,
+
+    animations: true,
+
+    reducedMotion: false,
+
+    highContrast: false,
+
+    stickyHeader: true,
+
+    showFooter: true,
+
+    sidebarLabels: true,
+
+    sidebarIcons: true,
+
+    sidebarHover: true,
+
+    headerGlass: true,
+
+    stickyTableHeader: true,
+
+    tableBorders: true,
+
+    tableStripes: true,
+
+    tableHover: true,
+
+    notificationPosition: "top-right",
+
+    cacheEnabled: true,
+
+    realtimeUpdates: true,
+
+    printOrientation: "portrait",
+
+    printMargin: "normal",
+
+    updatedAt: null
 };
 
 
-// ==========================================
-// Supported Languages
-// ==========================================
+/* =========================================================
+   Languages
+========================================================= */
 
 export const LANGUAGES = {
-    ps: { name: "پښتو", direction: "rtl" },
-    fa: { name: "دري", direction: "rtl" },
-    en: { name: "English", direction: "ltr" },
-    ur: { name: "اردو", direction: "rtl" },
-    ar: { name: "العربية", direction: "rtl" }
-};
 
-
-// ==========================================
-// Supported Calendars
-// ==========================================
-
-export const CALENDARS = {
-    solar: { name: "هجري شمسي" },
-    lunar: { name: "هجري قمري" },
-    gregorian: { name: "میلادي" }
-};
-
-
-// ==========================================
-// Supported Themes
-// ==========================================
-
-export const THEMES = {
-    light: { name: "روښانه" },
-    dark: { name: "تیاره" }
-};
-
-
-// ==========================================
-// Font Scales
-// ==========================================
-
-export const FONT_SCALES = {
-    small: { name: "کوچنی", value: 0.94 },
-    medium: { name: "منځنی", value: 1.0 },
-    large: { name: "لوی", value: 1.08 },
-    extraLarge: { name: "ډېر لوی", value: 1.15 }
-};
-
-
-// ==========================================
-// Density Modes
-// ==========================================
-
-export const DENSITIES = {
-    compact: { name: "کم فاصله" },
-    comfortable: { name: "نورمال" },
-    spacious: { name: "زیات فاصله" }
-};
-
-
-// ==========================================
-// Font Families
-// ==========================================
-
-export const FONT_FAMILIES = {
-    naskh: {
-        name: "Noto Naskh Arabic",
-        value: "'Noto Naskh Arabic', Tahoma, Arial, sans-serif"
+    ps: {
+        name: "پښتو",
+        direction: "rtl"
     },
-    sans: {
-        name: "System Sans",
-        value: "Tahoma, Arial, sans-serif"
+
+    fa: {
+        name: "دري",
+        direction: "rtl"
     },
-    arabic: {
-        name: "Arabic",
-        value: "'Noto Naskh Arabic', Tahoma, Arial, sans-serif"
+
+    en: {
+        name: "English",
+        direction: "ltr"
     },
-    pashto: {
-        name: "Pashto",
-        value: "'Noto Naskh Arabic', Tahoma, Arial, sans-serif"
+
+    ur: {
+        name: "اردو",
+        direction: "rtl"
     },
-    urdu: {
-        name: "Urdu",
-        value: "'Noto Naskh Arabic', Tahoma, Arial, sans-serif"
+
+    ar: {
+        name: "العربية",
+        direction: "rtl"
     }
 };
 
 
-// ==========================================
-// Common Translations
-// ==========================================
+/* =========================================================
+   Calendars
+========================================================= */
+
+export const CALENDARS = {
+
+    solar: {
+        name: "هجري شمسي"
+    },
+
+    lunar: {
+        name: "هجري قمري"
+    },
+
+    gregorian: {
+        name: "میلادي"
+    }
+};
+
+
+/* =========================================================
+   Themes
+========================================================= */
+
+export const THEMES = {
+
+    light: {
+        name: "روښانه"
+    },
+
+    dark: {
+        name: "تیاره"
+    },
+
+    auto: {
+        name: "د وسیلې حالت"
+    }
+};
+
+
+/* =========================================================
+   Directions
+========================================================= */
+
+export const DIRECTIONS = {
+
+    auto: {
+        name: "د ژبې له مخې"
+    },
+
+    rtl: {
+        name: "له ښي څخه چپ"
+    },
+
+    ltr: {
+        name: "له چپ څخه ښي"
+    }
+};
+
+
+/* =========================================================
+   Date Formats
+========================================================= */
+
+export const DATE_FORMATS = {
+
+    short: {
+        name: "لنډه"
+    },
+
+    medium: {
+        name: "منځنۍ"
+    },
+
+    long: {
+        name: "تفصیلي"
+    },
+
+    iso: {
+        name: "ISO"
+    }
+};
+
+
+/* =========================================================
+   Time Formats
+========================================================= */
+
+export const TIME_FORMATS = {
+
+    "12h": {
+        name: "۱۲ ساعته"
+    },
+
+    "24h": {
+        name: "۲۴ ساعته"
+    }
+};
+
+
+/* =========================================================
+   Time Zones
+========================================================= */
+
+export const TIME_ZONES = {
+
+    "Asia/Kabul": {
+        name: "کابل - افغانستان"
+    },
+
+    "UTC": {
+        name: "UTC"
+    },
+
+    "Asia/Karachi": {
+        name: "کراچۍ"
+    },
+
+    "Asia/Dubai": {
+        name: "دوبۍ"
+    },
+
+    "Europe/London": {
+        name: "لندن"
+    }
+};
+
+
+/* =========================================================
+   Number Systems
+========================================================= */
+
+export const NUMBER_SYSTEMS = {
+
+    local: {
+        name: "د ژبې له مخې"
+    },
+
+    latin: {
+        name: "لاتیني 0-9"
+    },
+
+    arabicIndic: {
+        name: "عربي ٠-٩"
+    },
+
+    easternArabic: {
+        name: "ختیځې ۰-۹"
+    }
+};
+
+
+/* =========================================================
+   Backgrounds
+========================================================= */
+
+export const BACKGROUNDS = {
+
+    natural: {
+        name: "طبیعي"
+    },
+
+    clean: {
+        name: "پاک"
+    },
+
+    soft: {
+        name: "نرم"
+    },
+
+    flat: {
+        name: "یوشان"
+    },
+
+    night: {
+        name: "شپه يي"
+    }
+};
+
+
+/* =========================================================
+   Font Scales
+========================================================= */
+
+export const FONT_SCALES = {
+
+    small: {
+        name: "کوچنی",
+        value: 0.94
+    },
+
+    medium: {
+        name: "منځنی",
+        value: 1
+    },
+
+    large: {
+        name: "لوی",
+        value: 1.08
+    },
+
+    extraLarge: {
+        name: "ډېر لوی",
+        value: 1.15
+    }
+};
+
+
+/* =========================================================
+   Density
+========================================================= */
+
+export const DENSITIES = {
+
+    compact: {
+        name: "کم فاصله"
+    },
+
+    comfortable: {
+        name: "نورمال"
+    },
+
+    spacious: {
+        name: "زیات فاصله"
+    }
+};
+
+
+/* =========================================================
+   Fonts
+========================================================= */
+
+export const FONT_FAMILIES = {
+
+    naskh: {
+        name: "Noto Naskh Arabic",
+        value:
+            "'Noto Naskh Arabic', Tahoma, Arial, sans-serif"
+    },
+
+    sans: {
+        name: "System Sans",
+        value:
+            "Tahoma, Arial, sans-serif"
+    },
+
+    arabic: {
+        name: "Arabic",
+        value:
+            "'Noto Naskh Arabic', Tahoma, Arial, sans-serif"
+    },
+
+    pashto: {
+        name: "Pashto",
+        value:
+            "'Noto Naskh Arabic', Tahoma, Arial, sans-serif"
+    },
+
+    urdu: {
+        name: "Urdu",
+        value:
+            "'Noto Naskh Arabic', Tahoma, Arial, sans-serif"
+    }
+};
+
+
+/* =========================================================
+   Radius
+========================================================= */
+
+export const RADIUS_MODES = {
+
+    small: {
+        name: "کوچنی",
+        value: "8px"
+    },
+
+    medium: {
+        name: "نورمال",
+        value: "14px"
+    },
+
+    large: {
+        name: "لوی",
+        value: "18px"
+    },
+
+    extraLarge: {
+        name: "ډېر لوی",
+        value: "24px"
+    }
+};
+
+
+/* =========================================================
+   Shadows
+========================================================= */
+
+export const SHADOW_MODES = {
+
+    none: {
+        name: "بې سیوري"
+    },
+
+    soft: {
+        name: "نرم"
+    },
+
+    medium: {
+        name: "منځنی"
+    },
+
+    strong: {
+        name: "پیاوړی"
+    }
+};
+
+
+/* =========================================================
+   Color Modes
+========================================================= */
+
+export const COLOR_MODES = {
+
+    custom: {
+        name: "یوه اصلي رنګ"
+    },
+
+    palette: {
+        name: "څلور رنګیزه مجموعه"
+    }
+};
+
+
+/* =========================================================
+   Color Presets
+========================================================= */
+
+export const COLOR_PRESETS = {
+
+    emerald: {
+        name: "زمردي",
+        colors: [
+            "#0B6B36",
+            "#084D27",
+            "#19A463",
+            "#175CD3"
+        ]
+    },
+
+    ocean: {
+        name: "سمندري",
+        colors: [
+            "#006B76",
+            "#004F57",
+            "#16A6B6",
+            "#1769E0"
+        ]
+    },
+
+    royal: {
+        name: "شاهي",
+        colors: [
+            "#4338CA",
+            "#312E81",
+            "#7C3AED",
+            "#2563EB"
+        ]
+    },
+
+    darkgreen: {
+        name: "ژور شین",
+        colors: [
+            "#14532D",
+            "#052E16",
+            "#16A34A",
+            "#166534"
+        ]
+    },
+
+    sunset: {
+        name: "لمرلوېدنه",
+        colors: [
+            "#C2410C",
+            "#7C2D12",
+            "#EA580C",
+            "#B91C1C"
+        ]
+    },
+
+    slate: {
+        name: "خړ شین",
+        colors: [
+            "#334155",
+            "#1E293B",
+            "#0F766E",
+            "#2563EB"
+        ]
+    }
+};
+
+
+/* =========================================================
+   Notification
+========================================================= */
+
+export const NOTIFICATION_POSITIONS = {
+
+    "top-right": {
+        name: "پورته ښي"
+    },
+
+    "top-left": {
+        name: "پورته چپ"
+    },
+
+    "bottom-right": {
+        name: "لاندې ښي"
+    },
+
+    "bottom-left": {
+        name: "لاندې چپ"
+    },
+
+    "top-center": {
+        name: "پورته منځ"
+    },
+
+    "bottom-center": {
+        name: "لاندې منځ"
+    }
+};
+
+
+/* =========================================================
+   Print
+========================================================= */
+
+export const PRINT_ORIENTATIONS = {
+
+    portrait: {
+        name: "عمودي"
+    },
+
+    landscape: {
+        name: "افقي"
+    }
+};
+
+
+export const PRINT_MARGINS = {
+
+    narrow: {
+        name: "تنګه"
+    },
+
+    normal: {
+        name: "نورمال"
+    },
+
+    wide: {
+        name: "پراخه"
+    }
+};
+
+
+/* =========================================================
+   Translations
+========================================================= */
 
 export const TRANSLATIONS = {
+
     ps: {
-        "app.name": "د افغانستان اسلامي امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس",
-        "common.home": "کور",
-        "common.back": "شاته",
-        "common.refresh": "بیا راژوندي",
-        "common.logout": "وتل",
-        "common.save": "خوندي کول",
-        "common.cancel": "لغوه",
-        "common.search": "لټون",
-        "common.loading": "لوډ کېږي...",
-        "common.noData": "هیڅ معلومات نشته",
-        "common.settings": "تنظیمات",
-        "common.language": "ژبه",
-        "common.theme": "موډ",
-        "common.fontSize": "د لیک اندازه",
-        "common.fontFamily": "فونټ",
-        "menu.dashboard": "ډشبورډ",
-        "menu.newRegister": "نوې ثبت",
+
+        "menu.dashboard": "کورپاڼه",
+        "menu.formic": "فورمیک",
+        "menu.newRegister": "نوی ثبت",
         "menu.search": "لټون",
         "menu.reports": "راپورونه",
-        "menu.admin": "ادمین",
+        "menu.admin": "اډمنانوبرخه",
         "menu.settings": "تنظیمات",
-        "theme.light": "روښانه",
-        "theme.dark": "تیاره",
-        "calendar.solar": "هجري شمسي",
-        "calendar.lunar": "هجري قمري",
-        "calendar.gregorian": "میلادي",
-        "density.compact": "کم فاصله",
-        "density.comfortable": "نورمال",
-        "density.spacious": "زیات فاصله",
-        "fontFamily.naskh": "Noto Naskh Arabic",
-        "fontFamily.sans": "System Sans",
-        "fontFamily.arabic": "Arabic",
-        "fontFamily.pashto": "Pashto",
-        "fontFamily.urdu": "Urdu"
+
+        "settings.title": "⚙️ د سیستم تنظیمات",
+        "settings.description":
+            "د سیستم ټول عمومي تنظیمات له یوې مرکزي برخې څخه اداره کړئ.",
+
+        "save": "💾 تنظیمات خوندي کول",
+        "reset": "🔄 اصلي تنظیمات",
+        "back": "↩️ شاته",
+
+        "language": "ژبه",
+        "calendar": "تقویم",
+        "direction": "د لیک لوری",
+        "dateFormat": "د نېټې بڼه",
+        "timeFormat": "د وخت بڼه",
+        "timeZone": "وخت سیمه",
+        "fontScale": "د لیک اندازه",
+        "density": "د فاصلې حالت",
+        "fontFamily": "فونټ",
+        "theme": "د سیستم بڼه",
+        "background": "د شالید بڼه",
+
+        "share": "📤 د تنظیماتو شریکول",
+        "copyLink": "🔗 د شریکولو لینک",
+
+        "saved": "تنظیمات په بریالیتوب خوندي شول.",
+        "resetDone": "اصلي تنظیمات بېرته فعال شول.",
+        "loadingSettings": "تنظیمات لوډ کېږي...",
+        "linkCopied": "لینک کاپي شو.",
+        "notificationTest":
+            "دا د Settings خبرتیا ازموینه ده."
     },
+
     fa: {
-        "app.name": "د افغانستان اسلامي امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس",
-        "common.home": "خانه",
-        "common.back": "بازگشت",
-        "common.refresh": "نوسازی",
-        "common.logout": "خروج",
-        "common.save": "ذخیره",
-        "common.cancel": "لغو",
-        "common.search": "جستجو",
-        "common.loading": "در حال بارگذاری...",
-        "common.noData": "هیچ داده‌ای موجود نیست",
-        "common.settings": "تنظیمات",
-        "common.language": "زبان",
-        "common.theme": "حالت",
-        "common.fontSize": "اندازه متن",
-        "common.fontFamily": "فونت",
         "menu.dashboard": "داشبورد",
+        "menu.formic": "فرمیک",
         "menu.newRegister": "ثبت جدید",
         "menu.search": "جستجو",
         "menu.reports": "گزارش‌ها",
-        "menu.admin": "ادمین",
+        "menu.admin": "بخش ادمین",
         "menu.settings": "تنظیمات",
-        "theme.light": "روشن",
-        "theme.dark": "تاریک",
-        "calendar.solar": "هجری شمسی",
-        "calendar.lunar": "هجری قمری",
-        "calendar.gregorian": "میلادی",
-        "density.compact": "فشرده",
-        "density.comfortable": "عادی",
-        "density.spacious": "باز",
-        "fontFamily.naskh": "Noto Naskh Arabic",
-        "fontFamily.sans": "System Sans",
-        "fontFamily.arabic": "Arabic",
-        "fontFamily.pashto": "Pashto",
-        "fontFamily.urdu": "Urdu"
+        "settings.title": "⚙️ تنظیمات سیستم",
+        "settings.description":
+            "تمام تنظیمات عمومی سیستم را از یک بخش مرکزی مدیریت کنید.",
+        "save": "💾 ذخیره تنظیمات",
+        "reset": "🔄 تنظیمات اصلی",
+        "back": "↩️ بازگشت",
+        "language": "زبان",
+        "calendar": "تقویم",
+        "direction": "جهت متن",
+        "dateFormat": "فرمت تاریخ",
+        "timeFormat": "فرمت زمان",
+        "timeZone": "منطقه زمانی",
+        "fontScale": "اندازه متن",
+        "density": "فاصله",
+        "fontFamily": "فونت",
+        "theme": "ظاهر سیستم",
+        "background": "پس‌زمینه",
+        "share": "📤 اشتراک تنظیمات",
+        "copyLink": "🔗 لینک اشتراک",
+        "saved": "تنظیمات با موفقیت ذخیره شد.",
+        "resetDone": "تنظیمات اصلی فعال شد.",
+        "loadingSettings": "در حال بارگذاری تنظیمات...",
+        "linkCopied": "لینک کاپی شد.",
+        "notificationTest":
+            "این آزمایش اعلان تنظیمات است."
     },
+
     en: {
-        "app.name": "د افغانستان اسلامي امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس",
-        "common.home": "Home",
-        "common.back": "Back",
-        "common.refresh": "Refresh",
-        "common.logout": "Logout",
-        "common.save": "Save",
-        "common.cancel": "Cancel",
-        "common.search": "Search",
-        "common.loading": "Loading...",
-        "common.noData": "No data available",
-        "common.settings": "Settings",
-        "common.language": "Language",
-        "common.theme": "Theme",
-        "common.fontSize": "Font size",
-        "common.fontFamily": "Font",
         "menu.dashboard": "Dashboard",
-        "menu.newRegister": "New Register",
+        "menu.formic": "Formic",
+        "menu.newRegister": "New Registration",
         "menu.search": "Search",
         "menu.reports": "Reports",
-        "menu.admin": "Admin",
+        "menu.admin": "Administration",
         "menu.settings": "Settings",
-        "theme.light": "Light",
-        "theme.dark": "Dark",
-        "calendar.solar": "Solar Hijri",
-        "calendar.lunar": "Lunar Hijri",
-        "calendar.gregorian": "Gregorian",
-        "density.compact": "Compact",
-        "density.comfortable": "Comfortable",
-        "density.spacious": "Spacious",
-        "fontFamily.naskh": "Noto Naskh Arabic",
-        "fontFamily.sans": "System Sans",
-        "fontFamily.arabic": "Arabic",
-        "fontFamily.pashto": "Pashto",
-        "fontFamily.urdu": "Urdu"
+        "settings.title": "⚙️ System Settings",
+        "settings.description":
+            "Manage the system-wide settings from one central page.",
+        "save": "💾 Save Settings",
+        "reset": "🔄 Default Settings",
+        "back": "↩️ Back",
+        "language": "Language",
+        "calendar": "Calendar",
+        "direction": "Text Direction",
+        "dateFormat": "Date Format",
+        "timeFormat": "Time Format",
+        "timeZone": "Time Zone",
+        "fontScale": "Font Size",
+        "density": "Spacing",
+        "fontFamily": "Font",
+        "theme": "System Theme",
+        "background": "Background",
+        "share": "📤 Share Settings",
+        "copyLink": "🔗 Share Link",
+        "saved": "Settings saved successfully.",
+        "resetDone": "Default settings restored.",
+        "loadingSettings": "Loading settings...",
+        "linkCopied": "Link copied.",
+        "notificationTest":
+            "This is a Settings notification test."
     },
+
     ur: {
-        "app.name": "د افغانستان اسلامي امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس",
-        "common.home": "ہوم",
-        "common.back": "واپس",
-        "common.refresh": "ریفریش",
-        "common.logout": "لاگ آؤٹ",
-        "common.save": "محفوظ کریں",
-        "common.cancel": "منسوخ",
-        "common.search": "تلاش",
-        "common.loading": "لوڈ ہو رہا ہے...",
-        "common.noData": "کوئی ڈیٹا موجود نہیں",
-        "common.settings": "سیٹنگز",
-        "common.language": "زبان",
-        "common.theme": "موڈ",
-        "common.fontSize": "فونٹ سائز",
-        "common.fontFamily": "فونٹ",
         "menu.dashboard": "ڈیش بورڈ",
-        "menu.newRegister": "نئی رجسٹریشن",
+        "menu.formic": "فارمک",
+        "menu.newRegister": "نیا اندراج",
         "menu.search": "تلاش",
         "menu.reports": "رپورٹس",
-        "menu.admin": "ایڈمن",
-        "menu.settings": "سیٹنگز",
-        "theme.light": "روشن",
-        "theme.dark": "تاریک",
-        "calendar.solar": "ہجری شمسی",
-        "calendar.lunar": "ہجری قمری",
-        "calendar.gregorian": "گریگورین",
-        "density.compact": "کم جگہ",
-        "density.comfortable": "نارمل",
-        "density.spacious": "زیادہ جگہ",
-        "fontFamily.naskh": "Noto Naskh Arabic",
-        "fontFamily.sans": "System Sans",
-        "fontFamily.arabic": "Arabic",
-        "fontFamily.pashto": "Pashto",
-        "fontFamily.urdu": "Urdu"
+        "menu.admin": "انتظامیہ",
+        "menu.settings": "ترتیبات",
+        "settings.title": "⚙️ سسٹم کی ترتیبات",
+        "settings.description":
+            "سسٹم کی عمومی ترتیبات ایک مرکزی جگہ سے منظم کریں۔",
+        "save": "💾 ترتیبات محفوظ کریں",
+        "reset": "🔄 اصل ترتیبات",
+        "back": "↩️ واپس",
+        "language": "زبان",
+        "calendar": "تقویم",
+        "direction": "متن کی سمت",
+        "dateFormat": "تاریخ کی شکل",
+        "timeFormat": "وقت کی شکل",
+        "timeZone": "ٹائم زون",
+        "fontScale": "فونٹ سائز",
+        "density": "فاصلہ",
+        "fontFamily": "فونٹ",
+        "theme": "سسٹم انداز",
+        "background": "پس منظر",
+        "share": "📤 ترتیبات شیئر کریں",
+        "copyLink": "🔗 شیئر لنک",
+        "saved": "ترتیبات کامیابی سے محفوظ ہوگئیں۔",
+        "resetDone": "اصل ترتیبات بحال ہوگئیں۔",
+        "loadingSettings": "ترتیبات لوڈ ہورہی ہیں...",
+        "linkCopied": "لنک کاپی ہوگیا۔",
+        "notificationTest":
+            "یہ ترتیبات نوٹیفکیشن ٹیسٹ ہے۔"
     },
+
     ar: {
-        "app.name": "د افغانستان اسلامي امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس",
-        "common.home": "الرئيسية",
-        "common.back": "رجوع",
-        "common.refresh": "تحديث",
-        "common.logout": "تسجيل الخروج",
-        "common.save": "حفظ",
-        "common.cancel": "إلغاء",
-        "common.search": "بحث",
-        "common.loading": "جارٍ التحميل...",
-        "common.noData": "لا توجد بيانات",
-        "common.settings": "الإعدادات",
-        "common.language": "اللغة",
-        "common.theme": "الوضع",
-        "common.fontSize": "حجم الخط",
-        "common.fontFamily": "الخط",
         "menu.dashboard": "لوحة التحكم",
+        "menu.formic": "فورميك",
         "menu.newRegister": "تسجيل جديد",
         "menu.search": "بحث",
-        "menu.reports": "تقارير",
-        "menu.admin": "المسؤول",
+        "menu.reports": "التقارير",
+        "menu.admin": "الإدارة",
         "menu.settings": "الإعدادات",
-        "theme.light": "فاتح",
-        "theme.dark": "داكن",
-        "calendar.solar": "هجري شمسي",
-        "calendar.lunar": "هجري قمري",
-        "calendar.gregorian": "ميلادي",
-        "density.compact": "مضغوط",
-        "density.comfortable": "عادي",
-        "density.spacious": "واسع",
-        "fontFamily.naskh": "Noto Naskh Arabic",
-        "fontFamily.sans": "System Sans",
-        "fontFamily.arabic": "Arabic",
-        "fontFamily.pashto": "Pashto",
-        "fontFamily.urdu": "Urdu"
+        "settings.title": "⚙️ إعدادات النظام",
+        "settings.description":
+            "إدارة إعدادات النظام العامة من صفحة مركزية واحدة.",
+        "save": "💾 حفظ الإعدادات",
+        "reset": "🔄 الإعدادات الأصلية",
+        "back": "↩️ رجوع",
+        "language": "اللغة",
+        "calendar": "التقويم",
+        "direction": "اتجاه النص",
+        "dateFormat": "تنسيق التاريخ",
+        "timeFormat": "تنسيق الوقت",
+        "timeZone": "المنطقة الزمنية",
+        "fontScale": "حجم الخط",
+        "density": "التباعد",
+        "fontFamily": "الخط",
+        "theme": "مظهر النظام",
+        "background": "الخلفية",
+        "share": "📤 مشاركة الإعدادات",
+        "copyLink": "🔗 رابط المشاركة",
+        "saved": "تم حفظ الإعدادات بنجاح.",
+        "resetDone": "تمت استعادة الإعدادات الأصلية.",
+        "loadingSettings": "جارٍ تحميل الإعدادات...",
+        "linkCopied": "تم نسخ الرابط.",
+        "notificationTest":
+            "هذا اختبار لإشعار الإعدادات."
     }
 };
 
 
-// ==========================================
-// Current Settings
-// ==========================================
+/* =========================================================
+   State
+========================================================= */
 
 let currentSettings = {
     ...DEFAULT_SETTINGS
 };
 
+let settingsUnsubscribe = null;
 
-// ==========================================
-// Internal Helpers
-// ==========================================
+let broadcastChannel = null;
 
-function canUseLocalStorage() {
+let initialized = false;
+
+
+/* =========================================================
+   Helpers
+========================================================= */
+
+function hasLocalStorage() {
+
     try {
-        return typeof window !== "undefined" && !!window.localStorage;
+
+        return (
+            typeof window !== "undefined" &&
+            !!window.localStorage
+        );
+
     } catch {
+
         return false;
     }
 }
 
-function isPlainObject(value) {
-    return Object.prototype.toString.call(value) === "[object Object]";
+
+function isObject(value) {
+
+    return (
+        value !== null &&
+        typeof value === "object" &&
+        !Array.isArray(value)
+    );
 }
 
-function cleanHexColor(value, fallback = DEFAULT_SETTINGS.primaryColor) {
-    const color = String(value || "").trim();
-    return /^#[0-9A-Fa-f]{6}$/.test(color) ? color : fallback;
+
+function isValidHexColor(value) {
+
+    return /^#[0-9A-Fa-f]{6}$/.test(
+        String(value || "").trim()
+    );
 }
 
-function normalizeSettingValue(map, value, fallback) {
-    return map[value] ? value : fallback;
+
+function bool(value, fallback) {
+
+    return typeof value === "boolean"
+        ? value
+        : fallback;
 }
 
-function cleanSettings(settings = {}) {
-    const safeInput = isPlainObject(settings) ? settings : {};
-    const merged = {
+
+function valid(map, value, fallback) {
+
+    return map[value]
+        ? value
+        : fallback;
+}
+
+
+function cleanSettings(input = {}) {
+
+    const source =
+        isObject(input)
+            ? input
+            : {};
+
+    let merged = {
         ...DEFAULT_SETTINGS,
-        ...safeInput
+        ...source
     };
 
-    return {
-        ...merged,
-        systemName: String(merged.systemName || DEFAULT_SETTINGS.systemName).trim() || DEFAULT_SETTINGS.systemName,
-        language: normalizeSettingValue(LANGUAGES, merged.language, DEFAULT_SETTINGS.language),
-        calendar: normalizeSettingValue(CALENDARS, merged.calendar, DEFAULT_SETTINGS.calendar),
-        theme: normalizeSettingValue(THEMES, merged.theme, DEFAULT_SETTINGS.theme),
-        primaryColor: cleanHexColor(merged.primaryColor, DEFAULT_SETTINGS.primaryColor),
-        fontScale: normalizeSettingValue(FONT_SCALES, merged.fontScale, DEFAULT_SETTINGS.fontScale),
-        density: normalizeSettingValue(DENSITIES, merged.density, DEFAULT_SETTINGS.density),
-        fontFamily: normalizeSettingValue(FONT_FAMILIES, merged.fontFamily, DEFAULT_SETTINGS.fontFamily)
-    };
+
+    merged.systemName =
+        String(
+            merged.systemName ||
+            SYSTEM_NAME
+        ).trim();
+
+    if (!merged.systemName) {
+        merged.systemName =
+            SYSTEM_NAME;
+    }
+
+
+    merged.language =
+        valid(
+            LANGUAGES,
+            merged.language,
+            DEFAULT_SETTINGS.language
+        );
+
+
+    merged.directionMode =
+        valid(
+            DIRECTIONS,
+            merged.directionMode,
+            DEFAULT_SETTINGS.directionMode
+        );
+
+
+    merged.calendar =
+        valid(
+            CALENDARS,
+            merged.calendar,
+            DEFAULT_SETTINGS.calendar
+        );
+
+
+    merged.dateFormat =
+        valid(
+            DATE_FORMATS,
+            merged.dateFormat,
+            DEFAULT_SETTINGS.dateFormat
+        );
+
+
+    merged.timeFormat =
+        valid(
+            TIME_FORMATS,
+            merged.timeFormat,
+            DEFAULT_SETTINGS.timeFormat
+        );
+
+
+    merged.timeZone =
+        valid(
+            TIME_ZONES,
+            merged.timeZone,
+            DEFAULT_SETTINGS.timeZone
+        );
+
+
+    merged.weekStart =
+        ["saturday", "sunday", "monday"].includes(
+            merged.weekStart
+        )
+            ? merged.weekStart
+            : DEFAULT_SETTINGS.weekStart;
+
+
+    merged.numberSystem =
+        valid(
+            NUMBER_SYSTEMS,
+            merged.numberSystem,
+            DEFAULT_SETTINGS.numberSystem
+        );
+
+
+    merged.theme =
+        valid(
+            THEMES,
+            merged.theme,
+            DEFAULT_SETTINGS.theme
+        );
+
+
+    merged.background =
+        valid(
+            BACKGROUNDS,
+            merged.background,
+            DEFAULT_SETTINGS.background
+        );
+
+
+    merged.fontScale =
+        valid(
+            FONT_SCALES,
+            merged.fontScale,
+            DEFAULT_SETTINGS.fontScale
+        );
+
+
+    merged.density =
+        valid(
+            DENSITIES,
+            merged.density,
+            DEFAULT_SETTINGS.density
+        );
+
+
+    merged.fontFamily =
+        valid(
+            FONT_FAMILIES,
+            merged.fontFamily,
+            DEFAULT_SETTINGS.fontFamily
+        );
+
+
+    merged.colorMode =
+        valid(
+            COLOR_MODES,
+            merged.colorMode,
+            DEFAULT_SETTINGS.colorMode
+        );
+
+
+    merged.colorPalette =
+        valid(
+            COLOR_PRESETS,
+            merged.colorPalette,
+            DEFAULT_SETTINGS.colorPalette
+        );
+
+
+    const colors = [
+        "primaryColor",
+        "secondaryColor",
+        "accentColor",
+        "infoColor"
+    ];
+
+
+    for (const key of colors) {
+
+        merged[key] =
+            isValidHexColor(
+                merged[key]
+            )
+                ? merged[key]
+                : DEFAULT_SETTINGS[key];
+    }
+
+
+    merged.radius =
+        valid(
+            RADIUS_MODES,
+            merged.radius,
+            DEFAULT_SETTINGS.radius
+        );
+
+
+    merged.shadows =
+        valid(
+            SHADOW_MODES,
+            merged.shadows,
+            DEFAULT_SETTINGS.shadows
+        );
+
+
+    merged.notificationPosition =
+        valid(
+            NOTIFICATION_POSITIONS,
+            merged.notificationPosition,
+            DEFAULT_SETTINGS.notificationPosition
+        );
+
+
+    merged.printOrientation =
+        valid(
+            PRINT_ORIENTATIONS,
+            merged.printOrientation,
+            DEFAULT_SETTINGS.printOrientation
+        );
+
+
+    merged.printMargin =
+        valid(
+            PRINT_MARGINS,
+            merged.printMargin,
+            DEFAULT_SETTINGS.printMargin
+        );
+
+
+    merged.glass =
+        bool(
+            merged.glass,
+            DEFAULT_SETTINGS.glass
+        );
+
+    merged.animations =
+        bool(
+            merged.animations,
+            DEFAULT_SETTINGS.animations
+        );
+
+    merged.reducedMotion =
+        bool(
+            merged.reducedMotion,
+            DEFAULT_SETTINGS.reducedMotion
+        );
+
+    merged.highContrast =
+        bool(
+            merged.highContrast,
+            DEFAULT_SETTINGS.highContrast
+        );
+
+    merged.stickyHeader =
+        bool(
+            merged.stickyHeader,
+            DEFAULT_SETTINGS.stickyHeader
+        );
+
+    merged.showFooter =
+        bool(
+            merged.showFooter,
+            DEFAULT_SETTINGS.showFooter
+        );
+
+    merged.sidebarLabels =
+        bool(
+            merged.sidebarLabels,
+            DEFAULT_SETTINGS.sidebarLabels
+        );
+
+    merged.sidebarIcons =
+        bool(
+            merged.sidebarIcons,
+            DEFAULT_SETTINGS.sidebarIcons
+        );
+
+    merged.sidebarHover =
+        bool(
+            merged.sidebarHover,
+            DEFAULT_SETTINGS.sidebarHover
+        );
+
+    merged.headerGlass =
+        bool(
+            merged.headerGlass,
+            DEFAULT_SETTINGS.headerGlass
+        );
+
+    merged.stickyTableHeader =
+        bool(
+            merged.stickyTableHeader,
+            DEFAULT_SETTINGS.stickyTableHeader
+        );
+
+    merged.tableBorders =
+        bool(
+            merged.tableBorders,
+            DEFAULT_SETTINGS.tableBorders
+        );
+
+    merged.tableStripes =
+        bool(
+            merged.tableStripes,
+            DEFAULT_SETTINGS.tableStripes
+        );
+
+    merged.tableHover =
+        bool(
+            merged.tableHover,
+            DEFAULT_SETTINGS.tableHover
+        );
+
+    merged.cacheEnabled =
+        bool(
+            merged.cacheEnabled,
+            DEFAULT_SETTINGS.cacheEnabled
+        );
+
+    merged.realtimeUpdates =
+        bool(
+            merged.realtimeUpdates,
+            DEFAULT_SETTINGS.realtimeUpdates
+        );
+
+
+    if (
+        !merged.sidebarLabels &&
+        !merged.sidebarIcons
+    ) {
+        merged.sidebarLabels = true;
+    }
+
+
+    if (
+        merged.colorMode === "palette"
+    ) {
+
+        const palette =
+            COLOR_PRESETS[
+                merged.colorPalette
+            ];
+
+        if (palette) {
+
+            merged.primaryColor =
+                palette.colors[0];
+
+            merged.secondaryColor =
+                palette.colors[1];
+
+            merged.accentColor =
+                palette.colors[2];
+
+            merged.infoColor =
+                palette.colors[3];
+        }
+    }
+
+
+    return merged;
 }
 
-function readCachedSettings() {
-    try {
-        if (!canUseLocalStorage()) {
-            return null;
-        }
 
-        const raw = window.localStorage.getItem(SETTINGS_CACHE_KEY);
-        if (!raw) {
-            return null;
-        }
+function getSettingsRef() {
 
-        const parsed = JSON.parse(raw);
-        return cleanSettings(parsed);
-    } catch (error) {
-        console.warn("Read Settings Cache Error:", error);
+    return doc(
+        db,
+        SETTINGS_COLLECTION,
+        SETTINGS_DOCUMENT
+    );
+}
+
+
+/* =========================================================
+   Cache
+========================================================= */
+
+function readCache() {
+
+    if (!hasLocalStorage()) {
         return null;
     }
-}
 
-function writeCachedSettings(settings) {
     try {
-        if (!canUseLocalStorage()) {
-            return;
+
+        const raw =
+            localStorage.getItem(
+                SETTINGS_CACHE_KEY
+            );
+
+        if (raw) {
+
+            return cleanSettings(
+                JSON.parse(raw)
+            );
         }
 
-        window.localStorage.setItem(
-            SETTINGS_CACHE_KEY,
-            JSON.stringify(cleanSettings(settings))
-        );
+
+        for (
+            const key of OLD_CACHE_KEYS
+        ) {
+
+            const old =
+                localStorage.getItem(key);
+
+            if (old) {
+
+                const migrated =
+                    cleanSettings(
+                        JSON.parse(old)
+                    );
+
+                writeCache(migrated);
+
+                return migrated;
+            }
+        }
+
     } catch (error) {
-        console.warn("Write Settings Cache Error:", error);
+
+        console.warn(
+            "Settings Cache Read Error:",
+            error
+        );
     }
+
+    return null;
 }
 
-function getSettingsReference() {
-    return doc(db, SETTINGS_COLLECTION, SETTINGS_DOCUMENT);
-}
 
-function getTranslation(language, key) {
-    const langPack = TRANSLATIONS[language] || TRANSLATIONS.ps;
-    return langPack[key] ?? TRANSLATIONS.ps[key] ?? key;
-}
+function writeCache(settings) {
 
-function getFontFamilyValue(fontFamilyKey) {
-    const entry = FONT_FAMILIES[fontFamilyKey] || FONT_FAMILIES[DEFAULT_SETTINGS.fontFamily];
-    return entry?.value || FONT_FAMILIES[DEFAULT_SETTINGS.fontFamily].value;
-}
-
-function setHtmlAttributes(settings) {
-    const language = LANGUAGES[settings.language] || LANGUAGES.ps;
-
-    document.documentElement.lang = settings.language;
-    document.documentElement.dir = language.direction;
-    document.documentElement.dataset.theme = settings.theme;
-    document.documentElement.dataset.language = settings.language;
-    document.documentElement.dataset.fontScale = settings.fontScale;
-    document.documentElement.dataset.density = settings.density;
-    document.documentElement.dataset.fontFamily = settings.fontFamily;
-}
-
-function setBodyAttributes(settings) {
-    if (!document.body) {
+    if (
+        !hasLocalStorage() ||
+        !settings.cacheEnabled
+    ) {
         return;
     }
 
-    document.body.dataset.theme = settings.theme;
-    document.body.dataset.language = settings.language;
-    document.body.dataset.fontScale = settings.fontScale;
-    document.body.dataset.density = settings.density;
-    document.body.dataset.fontFamily = settings.fontFamily;
-}
-
-function setCssVariables(settings) {
-    const fontScale = FONT_SCALES[settings.fontScale]?.value ?? 1.0;
-    const fontFamilyValue = getFontFamilyValue(settings.fontFamily);
-
-    document.documentElement.style.setProperty("--primary-color", settings.primaryColor);
-    document.documentElement.style.setProperty("--font-scale", String(fontScale));
-    document.documentElement.style.setProperty("--ui-density", settings.density);
-    document.documentElement.style.setProperty("--app-font-family", fontFamilyValue);
-
-    if (document.body) {
-        document.body.style.setProperty("--font-scale", String(fontScale));
-        document.body.style.setProperty("--ui-density", settings.density);
-        document.body.style.fontFamily = fontFamilyValue;
-    }
-}
-
-function applySystemName(settings) {
-    const systemNameElements = document.querySelectorAll("[data-system-name]");
-    systemNameElements.forEach((element) => {
-        element.textContent = settings.systemName;
-    });
-}
-
-function applyPageTitle(settings) {
-    const title = settings.systemName || DEFAULT_SETTINGS.systemName;
-    document.title = title;
-}
-
-export function applyTranslations(settings = currentSettings) {
-    const language = settings.language in TRANSLATIONS ? settings.language : "ps";
-
-    const textNodes = document.querySelectorAll("[data-i18n]");
-    textNodes.forEach((element) => {
-        const key = element.getAttribute("data-i18n");
-        if (!key) return;
-
-        const value = getTranslation(language, key);
-
-        if (element.matches("input, textarea")) {
-            element.setAttribute("placeholder", value);
-        } else {
-            element.textContent = value;
-        }
-    });
-
-    const placeholderNodes = document.querySelectorAll("[data-i18n-placeholder]");
-    placeholderNodes.forEach((element) => {
-        const key = element.getAttribute("data-i18n-placeholder");
-        if (!key) return;
-        element.setAttribute("placeholder", getTranslation(language, key));
-    });
-
-    const titleNodes = document.querySelectorAll("[data-i18n-title]");
-    titleNodes.forEach((element) => {
-        const key = element.getAttribute("data-i18n-title");
-        if (!key) return;
-        element.setAttribute("title", getTranslation(language, key));
-    });
-
-    const ariaLabelNodes = document.querySelectorAll("[data-i18n-aria-label]");
-    ariaLabelNodes.forEach((element) => {
-        const key = element.getAttribute("data-i18n-aria-label");
-        if (!key) return;
-        element.setAttribute("aria-label", getTranslation(language, key));
-    });
-}
-
-
-// ==========================================
-// Apply Settings
-// ==========================================
-
-export function applySettings(settings = currentSettings) {
-    const safeSettings = cleanSettings(settings);
-
-    currentSettings = safeSettings;
-    writeCachedSettings(safeSettings);
-
-    setHtmlAttributes(safeSettings);
-    setBodyAttributes(safeSettings);
-    setCssVariables(safeSettings);
-    applySystemName(safeSettings);
-    applyPageTitle(safeSettings);
-    applyTranslations(safeSettings);
-
-    return safeSettings;
-}
-
-
-// ==========================================
-// Load Settings
-// ==========================================
-
-export async function loadSettings() {
     try {
-        const cached = readCachedSettings();
 
-        if (cached) {
-            currentSettings = cleanSettings(cached);
-            applySettings(currentSettings);
-        } else {
-            currentSettings = cleanSettings(currentSettings);
-            applySettings(currentSettings);
-        }
-
-        const settingsRef = getSettingsReference();
-        const snapshot = await getDoc(settingsRef);
-
-        if (!snapshot.exists()) {
-            return currentSettings;
-        }
-
-        currentSettings = cleanSettings(snapshot.data());
-        applySettings(currentSettings);
-
-        return currentSettings;
-    } catch (error) {
-        console.error("Load Settings Error:", error);
-
-        const cached = readCachedSettings();
-        if (cached) {
-            currentSettings = cleanSettings(cached);
-        } else {
-            currentSettings = {
-                ...DEFAULT_SETTINGS
-            };
-        }
-
-        applySettings(currentSettings);
-        return currentSettings;
-    }
-}
-
-
-// ==========================================
-// Save Settings
-// ==========================================
-
-export async function saveSettings(settings = {}) {
-    try {
-        const newSettings = cleanSettings({
-            ...currentSettings,
-            ...settings
-        });
-
-        if (!LANGUAGES[newSettings.language]) {
-            throw new Error("د ژبې انتخاب ناسم دی.");
-        }
-
-        if (!CALENDARS[newSettings.calendar]) {
-            throw new Error("د تقویم انتخاب ناسم دی.");
-        }
-
-        if (!THEMES[newSettings.theme]) {
-            throw new Error("د Theme انتخاب ناسم دی.");
-        }
-
-        if (!FONT_SCALES[newSettings.fontScale]) {
-            throw new Error("د لیک اندازې انتخاب ناسم دی.");
-        }
-
-        if (!DENSITIES[newSettings.density]) {
-            throw new Error("د فاصلې انتخاب ناسم دی.");
-        }
-
-        if (!FONT_FAMILIES[newSettings.fontFamily]) {
-            throw new Error("د فونټ انتخاب ناسم دی.");
-        }
-
-        currentSettings = newSettings;
-        applySettings(currentSettings);
-
-        await setDoc(
-            getSettingsReference(),
-            {
-                ...newSettings,
-                updatedAt: serverTimestamp()
-            },
-            { merge: true }
+        localStorage.setItem(
+            SETTINGS_CACHE_KEY,
+            JSON.stringify(
+                cleanSettings(settings)
+            )
         );
 
-        return {
-            success: true,
-            settings: currentSettings,
-            message: "تنظیمات په بریالیتوب خوندي شول ✅."
-        };
     } catch (error) {
-        console.error("Save Settings Error:", error);
 
-        return {
-            success: false,
-            settings: currentSettings,
-            message: error.message || "تنظیمات خوندي نه شول ❗."
-        };
+        console.warn(
+            "Settings Cache Write Error:",
+            error
+        );
     }
 }
 
 
-// ==========================================
-// Get Current Settings
-// ==========================================
+/* =========================================================
+   CSS / UI Apply
+========================================================= */
 
-export function getSettings() {
+function resolveTheme(theme) {
+
+    if (theme !== "auto") {
+        return theme;
+    }
+
+    try {
+
+        return window.matchMedia(
+            "(prefers-color-scheme: dark)"
+        ).matches
+            ? "dark"
+            : "light";
+
+    } catch {
+
+        return "light";
+    }
+}
+
+
+function getDirection(settings) {
+
+    if (
+        settings.directionMode === "rtl"
+    ) {
+        return "rtl";
+    }
+
+    if (
+        settings.directionMode === "ltr"
+    ) {
+        return "ltr";
+    }
+
+    return (
+        LANGUAGES[
+            settings.language
+        ]?.direction ||
+        "rtl"
+    );
+}
+
+
+function getFontValue(settings) {
+
+    return (
+        FONT_FAMILIES[
+            settings.fontFamily
+        ]?.value ||
+        FONT_FAMILIES.naskh.value
+    );
+}
+
+
+function setRootAttributes(settings) {
+
+    const root =
+        document.documentElement;
+
+    const body =
+        document.body;
+
+
+    const theme =
+        resolveTheme(
+            settings.theme
+        );
+
+
+    root.lang =
+        settings.language;
+
+    root.dir =
+        getDirection(settings);
+
+
+    root.dataset.theme =
+        theme;
+
+    root.dataset.settingsTheme =
+        settings.theme;
+
+    root.dataset.language =
+        settings.language;
+
+    root.dataset.direction =
+        getDirection(settings);
+
+    root.dataset.fontScale =
+        settings.fontScale;
+
+    root.dataset.density =
+        settings.density;
+
+    root.dataset.fontFamily =
+        settings.fontFamily;
+
+    root.dataset.background =
+        settings.background;
+
+    root.dataset.highContrast =
+        String(
+            settings.highContrast
+        );
+
+    root.dataset.reducedMotion =
+        String(
+            settings.reducedMotion
+        );
+
+    root.dataset.animations =
+        String(
+            settings.animations
+        );
+
+    root.dataset.glass =
+        String(
+            settings.glass
+        );
+
+    root.dataset.sidebarLabels =
+        String(
+            settings.sidebarLabels
+        );
+
+    root.dataset.sidebarIcons =
+        String(
+            settings.sidebarIcons
+        );
+
+    root.dataset.sidebarHover =
+        String(
+            settings.sidebarHover
+        );
+
+    root.dataset.stickyHeader =
+        String(
+            settings.stickyHeader
+        );
+
+    root.dataset.showFooter =
+        String(
+            settings.showFooter
+        );
+
+    root.dataset.stickyTableHeader =
+        String(
+            settings.stickyTableHeader
+        );
+
+    root.dataset.tableBorders =
+        String(
+            settings.tableBorders
+        );
+
+    root.dataset.tableStripes =
+        String(
+            settings.tableStripes
+        );
+
+    root.dataset.tableHover =
+        String(
+            settings.tableHover
+        );
+
+    root.dataset.notificationPosition =
+        settings.notificationPosition;
+
+    root.dataset.printOrientation =
+        settings.printOrientation;
+
+    root.dataset.printMargin =
+        settings.printMargin;
+
+
+    if (body) {
+
+        body.dataset.theme =
+            theme;
+
+        body.dataset.language =
+            settings.language;
+
+        body.dataset.direction =
+            getDirection(settings);
+
+        body.dataset.fontScale =
+            settings.fontScale;
+
+        body.dataset.density =
+            settings.density;
+
+        body.dataset.fontFamily =
+            settings.fontFamily;
+    }
+}
+
+
+function setCssVariables(settings) {
+
+    const root =
+        document.documentElement;
+
+
+    const fontScale =
+        FONT_SCALES[
+            settings.fontScale
+        ]?.value || 1;
+
+
+    const radius =
+        RADIUS_MODES[
+            settings.radius
+        ]?.value ||
+        "14px";
+
+
+    let shadowSm =
+        "0 2px 8px rgba(0,0,0,.06)";
+
+    let shadowMd =
+        "0 10px 28px rgba(0,0,0,.10)";
+
+    let shadowLg =
+        "0 18px 42px rgba(0,0,0,.14)";
+
+
+    if (
+        settings.shadows === "none"
+    ) {
+
+        shadowSm =
+            "none";
+
+        shadowMd =
+            "none";
+
+        shadowLg =
+            "none";
+    }
+
+
+    if (
+        settings.shadows === "soft"
+    ) {
+
+        shadowSm =
+            "0 2px 8px rgba(0,0,0,.05)";
+
+        shadowMd =
+            "0 8px 20px rgba(0,0,0,.08)";
+
+        shadowLg =
+            "0 14px 32px rgba(0,0,0,.10)";
+    }
+
+
+    if (
+        settings.shadows === "strong"
+    ) {
+
+        shadowSm =
+            "0 3px 12px rgba(0,0,0,.10)";
+
+        shadowMd =
+            "0 14px 34px rgba(0,0,0,.18)";
+
+        shadowLg =
+            "0 22px 52px rgba(0,0,0,.24)";
+    }
+
+
+    root.style.setProperty(
+        "--primary-color",
+        settings.primaryColor
+    );
+
+    root.style.setProperty(
+        "--primary-dark",
+        settings.secondaryColor
+    );
+
+    root.style.setProperty(
+        "--accent-color",
+        settings.accentColor
+    );
+
+    root.style.setProperty(
+        "--info-color",
+        settings.infoColor
+    );
+
+    root.style.setProperty(
+        "--font-scale",
+        String(fontScale)
+    );
+
+    root.style.setProperty(
+        "--app-font-family",
+        getFontValue(settings)
+    );
+
+    root.style.setProperty(
+        "--radius-sm",
+        `calc(${radius} * .72)`
+    );
+
+    root.style.setProperty(
+        "--radius-md",
+        radius
+    );
+
+    root.style.setProperty(
+        "--radius-lg",
+        `calc(${radius} * 1.28)`
+    );
+
+    root.style.setProperty(
+        "--shadow-sm",
+        shadowSm
+    );
+
+    root.style.setProperty(
+        "--shadow-md",
+        shadowMd
+    );
+
+    root.style.setProperty(
+        "--shadow-lg",
+        shadowLg
+    );
+
+
+    if (
+        document.body
+    ) {
+
+        document.body.style.fontFamily =
+            getFontValue(settings);
+    }
+
+
+    applyBackground(
+        settings
+    );
+
+
+    applyPrintSettings(
+        settings
+    );
+}
+
+
+function applyBackground(settings) {
+
+    const root =
+        document.documentElement;
+
+
+    let background =
+        "linear-gradient(180deg,#FBFCFB 0%,var(--bg-color) 100%)";
+
+
+    if (
+        settings.background === "clean"
+    ) {
+
+        background =
+            "var(--bg-color)";
+    }
+
+
+    if (
+        settings.background === "soft"
+    ) {
+
+        background =
+            "radial-gradient(circle at top right,rgba(11,107,54,.10),transparent 32%),linear-gradient(180deg,#FBFCFB 0%,var(--bg-color) 100%)";
+    }
+
+
+    if (
+        settings.background === "flat"
+    ) {
+
+        background =
+            "var(--bg-color)";
+    }
+
+
+    if (
+        settings.background === "night"
+    ) {
+
+        background =
+            "radial-gradient(circle at top right,rgba(31,127,73,.18),transparent 32%),linear-gradient(180deg,#09100E 0%,#0C1110 100%)";
+    }
+
+
+    root.style.setProperty(
+        "--app-background",
+        background
+    );
+}
+
+
+function applyPrintSettings(settings) {
+
+    document.documentElement.style.setProperty(
+        "--print-orientation",
+        settings.printOrientation
+    );
+
+
+    const marginMap = {
+
+        narrow: "8mm",
+
+        normal: "12mm",
+
+        wide: "20mm"
+    };
+
+
+    document.documentElement.style.setProperty(
+        "--print-margin",
+        marginMap[
+            settings.printMargin
+        ] || "12mm"
+    );
+}
+
+
+/* =========================================================
+   System Name
+========================================================= */
+
+function applySystemName(settings) {
+
+    document
+        .querySelectorAll(
+            "[data-system-name]"
+        )
+        .forEach((element) => {
+
+            element.textContent =
+                settings.systemName;
+        });
+
+
+    document.title =
+        settings.systemName;
+}
+
+
+/* =========================================================
+   Translation
+========================================================= */
+
+export function getTranslation(
+    key,
+    language = currentSettings.language
+) {
+
+    const pack =
+        TRANSLATIONS[
+            language
+        ] ||
+        TRANSLATIONS.ps;
+
+    return (
+        pack[key] ??
+        TRANSLATIONS.ps[key] ??
+        key
+    );
+}
+
+
+export function applyTranslations(
+    settings = currentSettings
+) {
+
+    const language =
+        settings.language in TRANSLATIONS
+            ? settings.language
+            : "ps";
+
+
+    document
+        .querySelectorAll(
+            "[data-i18n]"
+        )
+        .forEach((element) => {
+
+            const key =
+                element.dataset.i18n;
+
+            const value =
+                getTranslation(
+                    key,
+                    language
+                );
+
+            if (
+                element.matches(
+                    "input,textarea"
+                )
+            ) {
+
+                element.placeholder =
+                    value;
+
+            } else {
+
+                element.textContent =
+                    value;
+            }
+        });
+
+
+    document
+        .querySelectorAll(
+            "[data-i18n-title]"
+        )
+        .forEach((element) => {
+
+            element.title =
+                getTranslation(
+                    element.dataset.i18nTitle,
+                    language
+                );
+        });
+
+
+    document
+        .querySelectorAll(
+            "[data-i18n-aria-label]"
+        )
+        .forEach((element) => {
+
+            element.setAttribute(
+                "aria-label",
+                getTranslation(
+                    element.dataset.i18nAriaLabel,
+                    language
+                )
+            );
+        });
+}
+
+
+/* =========================================================
+   Main Apply
+========================================================= */
+
+export function applySettings(
+    settings = currentSettings,
+    options = {}
+) {
+
+    const safe =
+        cleanSettings(
+            settings
+        );
+
+
+    currentSettings =
+        safe;
+
+
+    setRootAttributes(
+        safe
+    );
+
+
+    setCssVariables(
+        safe
+    );
+
+
+    applySystemName(
+        safe
+    );
+
+
+    applyTranslations(
+        safe
+    );
+
+
+    window.dispatchEvent(
+        new CustomEvent(
+            "krha-settings-applied",
+            {
+                detail: {
+                    settings: {
+                        ...safe
+                    },
+
+                    options
+                }
+            }
+        )
+    );
+
+
+    return safe;
+}
+
+
+/* =========================================================
+   Firestore Load
+========================================================= */
+
+export async function loadSettings() {
+
+    const cached =
+        readCache();
+
+
+    if (cached) {
+
+        currentSettings =
+            cleanSettings(
+                cached
+            );
+
+        applySettings(
+            currentSettings,
+            {
+                source: "cache"
+            }
+        );
+    } else {
+
+        currentSettings =
+            cleanSettings(
+                DEFAULT_SETTINGS
+            );
+
+        applySettings(
+            currentSettings,
+            {
+                source: "default"
+            }
+        );
+    }
+
+
+    try {
+
+        const snapshot =
+            await getDoc(
+                getSettingsRef()
+            );
+
+
+        if (
+            snapshot.exists()
+        ) {
+
+            currentSettings =
+                cleanSettings(
+                    snapshot.data()
+                );
+
+            applySettings(
+                currentSettings,
+                {
+                    source: "firestore"
+                }
+            );
+
+
+            writeCache(
+                currentSettings
+            );
+        }
+
+
+    } catch (error) {
+
+        console.warn(
+            "Load Firestore Settings Error:",
+            error
+        );
+    }
+
+
     return {
         ...currentSettings
     };
 }
 
 
-// ==========================================
-// Get One Setting
-// ==========================================
+/* =========================================================
+   Realtime
+========================================================= */
 
-export function getSetting(key) {
-    return currentSettings[key];
+function stopRealtimeListener() {
+
+    if (
+        typeof settingsUnsubscribe ===
+        "function"
+    ) {
+
+        settingsUnsubscribe();
+    }
+
+    settingsUnsubscribe = null;
 }
 
 
-// ==========================================
-// Reset Settings
-// ==========================================
+function startRealtimeListener() {
+
+    stopRealtimeListener();
+
+
+    if (
+        !currentSettings.realtimeUpdates
+    ) {
+        return;
+    }
+
+
+    try {
+
+        settingsUnsubscribe =
+            onSnapshot(
+                getSettingsRef(),
+                (snapshot) => {
+
+                    if (
+                        !snapshot.exists()
+                    ) {
+                        return;
+                    }
+
+
+                    const incoming =
+                        cleanSettings(
+                            snapshot.data()
+                        );
+
+
+                    currentSettings =
+                        incoming;
+
+
+                    writeCache(
+                        incoming
+                    );
+
+
+                    applySettings(
+                        incoming,
+                        {
+                            source:
+                                "realtime"
+                        }
+                    );
+
+
+                    broadcast(
+                        incoming
+                    );
+                },
+
+                (error) => {
+
+                    console.warn(
+                        "Realtime Settings Error:",
+                        error
+                    );
+                }
+            );
+
+    } catch (error) {
+
+        console.warn(
+            "Realtime Settings Setup Error:",
+            error
+        );
+    }
+}
+
+
+/* =========================================================
+   BroadcastChannel
+========================================================= */
+
+function startBroadcastChannel() {
+
+    if (
+        typeof BroadcastChannel ===
+        "undefined"
+    ) {
+        return;
+    }
+
+
+    if (
+        broadcastChannel
+    ) {
+        return;
+    }
+
+
+    try {
+
+        broadcastChannel =
+            new BroadcastChannel(
+                "krha-commission-settings"
+            );
+
+
+        broadcastChannel.onmessage =
+            (event) => {
+
+                const incoming =
+                    event.data?.settings;
+
+
+                if (!incoming) {
+                    return;
+                }
+
+
+                currentSettings =
+                    cleanSettings(
+                        incoming
+                    );
+
+
+                applySettings(
+                    currentSettings,
+                    {
+                        source:
+                            "broadcast"
+                    }
+                );
+            };
+
+    } catch (error) {
+
+        console.warn(
+            "BroadcastChannel Error:",
+            error
+        );
+    }
+}
+
+
+function broadcast(settings) {
+
+    if (
+        !broadcastChannel
+    ) {
+        return;
+    }
+
+
+    try {
+
+        broadcastChannel.postMessage({
+            settings:
+                cleanSettings(
+                    settings
+                )
+        });
+
+    } catch (error) {
+
+        console.warn(
+            "Settings Broadcast Error:",
+            error
+        );
+    }
+}
+
+
+/* =========================================================
+   Save
+========================================================= */
+
+export async function saveSettings(
+    settings = {}
+) {
+
+    try {
+
+        const next =
+            cleanSettings({
+                ...currentSettings,
+                ...settings
+            });
+
+
+        currentSettings =
+            next;
+
+
+        applySettings(
+            currentSettings,
+            {
+                source:
+                    "save"
+            }
+        );
+
+
+        writeCache(
+            currentSettings
+        );
+
+
+        await setDoc(
+            getSettingsRef(),
+            {
+                ...currentSettings,
+                updatedAt:
+                    serverTimestamp()
+            },
+            {
+                merge: true
+            }
+        );
+
+
+        startRealtimeListener();
+        startBroadcastChannel();
+        broadcast(
+            currentSettings
+        );
+
+
+        return {
+
+            success: true,
+
+            settings: {
+                ...currentSettings
+            },
+
+            message:
+                "تنظیمات په بریالیتوب خوندي شول."
+        };
+
+    } catch (error) {
+
+        console.error(
+            "Save Settings Error:",
+            error
+        );
+
+
+        return {
+
+            success: false,
+
+            settings: {
+                ...currentSettings
+            },
+
+            message:
+                error?.message ||
+                "تنظیمات خوندي نه شول."
+        };
+    }
+}
+
+
+/* =========================================================
+   Reset
+========================================================= */
 
 export async function resetSettings() {
-    return saveSettings(DEFAULT_SETTINGS);
+
+    return saveSettings(
+        DEFAULT_SETTINGS
+    );
 }
 
 
-// ==========================================
-// Set Language
-// ==========================================
+/* =========================================================
+   Getters
+========================================================= */
 
-export async function setLanguage(language) {
-    if (!LANGUAGES[language]) {
-        return {
-            success: false,
-            message: "د ژبې انتخاب ناسم دی."
-        };
+export function getSettings() {
+
+    return {
+        ...currentSettings
+    };
+}
+
+
+export function getSetting(
+    key
+) {
+
+    return currentSettings[
+        key
+    ];
+}
+
+
+/* =========================================================
+   Individual Setters
+========================================================= */
+
+export function setLanguage(
+    value
+) {
+
+    return saveSettings({
+        language: value
+    });
+}
+
+
+export function setCalendar(
+    value
+) {
+
+    return saveSettings({
+        calendar: value
+    });
+}
+
+
+export function setTheme(
+    value
+) {
+
+    return saveSettings({
+        theme: value
+    });
+}
+
+
+export function setPrimaryColor(
+    value
+) {
+
+    return saveSettings({
+        primaryColor:
+            value
+    });
+}
+
+
+export function setFontScale(
+    value
+) {
+
+    return saveSettings({
+        fontScale:
+            value
+    });
+}
+
+
+export function setDensity(
+    value
+) {
+
+    return saveSettings({
+        density:
+            value
+    });
+}
+
+
+export function setFontFamily(
+    value
+) {
+
+    return saveSettings({
+        fontFamily:
+            value
+    });
+}
+
+
+/* =========================================================
+   Subscribe API
+========================================================= */
+
+export function subscribeSettings(
+    callback
+) {
+
+    if (
+        typeof callback !== "function"
+    ) {
+
+        return () => {};
     }
 
-    return saveSettings({ language });
+
+    const handler =
+        (event) => {
+
+            callback(
+                {
+                    ...event.detail.settings
+                },
+
+                event.detail.options || {}
+            );
+        };
+
+
+    window.addEventListener(
+        "krha-settings-applied",
+        handler
+    );
+
+
+    callback(
+        {
+            ...currentSettings
+        },
+
+        {
+            source:
+                "initial"
+        }
+    );
+
+
+    return () => {
+
+        window.removeEventListener(
+            "krha-settings-applied",
+            handler
+        );
+    };
 }
 
 
-// ==========================================
-// Set Calendar
-// ==========================================
+/* =========================================================
+   Clear Cache
+========================================================= */
 
-export async function setCalendar(calendar) {
-    if (!CALENDARS[calendar]) {
-        return {
-            success: false,
-            message: "د تقویم انتخاب ناسم دی."
-        };
+export function clearSettingsCache() {
+
+    if (
+        !hasLocalStorage()
+    ) {
+        return false;
     }
 
-    return saveSettings({ calendar });
+
+    try {
+
+        localStorage.removeItem(
+            SETTINGS_CACHE_KEY
+        );
+
+
+        for (
+            const key of OLD_CACHE_KEYS
+        ) {
+
+            localStorage.removeItem(
+                key
+            );
+        }
+
+
+        return true;
+
+    } catch (error) {
+
+        console.warn(
+            "Clear Settings Cache Error:",
+            error
+        );
+
+        return false;
+    }
 }
 
 
-// ==========================================
-// Set Theme
-// ==========================================
+/* =========================================================
+   Backup
+========================================================= */
 
-export async function setTheme(theme) {
-    if (!THEMES[theme]) {
-        return {
-            success: false,
-            message: "د Theme انتخاب ناسم دی."
-        };
+export function createSettingsBackup() {
+
+    return {
+
+        application:
+            "د افغانستان اسلامي امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس",
+
+        version:
+            3,
+
+        exportedAt:
+            new Date().toISOString(),
+
+        settings:
+            {
+                ...currentSettings
+            }
+    };
+}
+
+
+export function importSettingsBackup(
+    backup
+) {
+
+    if (
+        !isObject(backup)
+    ) {
+        return null;
     }
 
-    return saveSettings({ theme });
+
+    const source =
+        isObject(
+            backup.settings
+        )
+            ? backup.settings
+            : backup;
+
+
+    return cleanSettings(
+        source
+    );
 }
 
 
-// ==========================================
-// Set Primary Color
-// ==========================================
+/* =========================================================
+   Share URL
+========================================================= */
 
-export async function setPrimaryColor(color) {
-    const value = String(color || "").trim();
+export function getShareUrl(
+    settings = currentSettings
+) {
 
-    if (!/^#[0-9A-Fa-f]{6}$/.test(value)) {
-        return {
-            success: false,
-            message: "رنګ مشخص کړئ."
-        };
+    const safe =
+        cleanSettings(
+            settings
+        );
+
+
+    const encoded =
+        btoa(
+            unescape(
+                encodeURIComponent(
+                    JSON.stringify(
+                        safe
+                    )
+                )
+            )
+        );
+
+
+    const url =
+        new URL(
+            window.location.href
+        );
+
+
+    url.searchParams.set(
+        "settings",
+        encoded
+    );
+
+
+    return url.toString();
+}
+
+
+export function readSettingsFromUrl() {
+
+    try {
+
+        const url =
+            new URL(
+                window.location.href
+            );
+
+
+        const value =
+            url.searchParams.get(
+                "settings"
+            );
+
+
+        if (!value) {
+            return null;
+        }
+
+
+        const decoded =
+            decodeURIComponent(
+                escape(
+                    atob(value)
+                )
+            );
+
+
+        return cleanSettings(
+            JSON.parse(
+                decoded
+            )
+        );
+
+    } catch (error) {
+
+        console.warn(
+            "Read Settings URL Error:",
+            error
+        );
+
+        return null;
+    }
+}
+
+
+/* =========================================================
+   Notification API
+========================================================= */
+
+export function notify(
+    message,
+    type = "info"
+) {
+
+    const containerId =
+        "krhaSettingsToastContainer";
+
+    let container =
+        document.getElementById(
+            containerId
+        );
+
+
+    if (!container) {
+
+        container =
+            document.createElement(
+                "div"
+            );
+
+        container.id =
+            containerId;
+
+        container.className =
+            "settings-toast-container";
+
+        document.body.appendChild(
+            container
+        );
     }
 
-    return saveSettings({ primaryColor: value });
+
+    const toast =
+        document.createElement(
+            "div"
+        );
+
+
+    toast.className =
+        "settings-toast settings-toast-" +
+        type;
+
+
+    toast.textContent =
+        message;
+
+
+    container.appendChild(
+        toast
+    );
+
+
+    setTimeout(
+        () => {
+
+            toast.classList.add(
+                "is-hide"
+            );
+
+            setTimeout(
+                () => toast.remove(),
+                280
+            );
+
+        },
+        3500
+    );
 }
 
 
-// ==========================================
-// Set Font Scale
-// ==========================================
-
-export async function setFontScale(fontScale) {
-    if (!FONT_SCALES[fontScale]) {
-        return {
-            success: false,
-            message: "د لیک اندازې انتخاب ناسم دی."
-        };
-    }
-
-    return saveSettings({ fontScale });
-}
-
-
-// ==========================================
-// Set Density
-// ==========================================
-
-export async function setDensity(density) {
-    if (!DENSITIES[density]) {
-        return {
-            success: false,
-            message: "د فاصلې انتخاب ناسم دی."
-        };
-    }
-
-    return saveSettings({ density });
-}
-
-
-// ==========================================
-// Set Font Family
-// ==========================================
-
-export async function setFontFamily(fontFamily) {
-    if (!FONT_FAMILIES[fontFamily]) {
-        return {
-            success: false,
-            message: "د فونټ انتخاب ناسم دی."
-        };
-    }
-
-    return saveSettings({ fontFamily });
-}
-
-
-// ==========================================
-// Get Config Helpers
-// ==========================================
-
-export function getLanguageConfig(language = currentSettings.language) {
-    return LANGUAGES[language] || LANGUAGES.ps;
-}
-
-export function getCalendarConfig(calendar = currentSettings.calendar) {
-    return CALENDARS[calendar] || CALENDARS.solar;
-}
-
-export function getThemeConfig(theme = currentSettings.theme) {
-    return THEMES[theme] || THEMES.light;
-}
-
-export function getFontScaleConfig(fontScale = currentSettings.fontScale) {
-    return FONT_SCALES[fontScale] || FONT_SCALES.medium;
-}
-
-export function getDensityConfig(density = currentSettings.density) {
-    return DENSITIES[density] || DENSITIES.comfortable;
-}
-
-export function getFontFamilyConfig(fontFamily = currentSettings.fontFamily) {
-    return FONT_FAMILIES[fontFamily] || FONT_FAMILIES[DEFAULT_SETTINGS.fontFamily];
-}
-
-export function translate(key, language = currentSettings.language) {
-    return getTranslation(language, key);
-}
-
-
-// ==========================================
-// Initialize Settings
-// ==========================================
+/* =========================================================
+   Initialize
+========================================================= */
 
 export async function initializeSettings() {
-    const settings = await loadSettings();
-    applySettings(settings);
-    return settings;
-}
+
+    const cached =
+        readCache();
 
 
-// ==========================================
-// Auto-apply cached settings
-// ==========================================
-
-if (typeof document !== "undefined") {
-    const cached = readCachedSettings();
     if (cached) {
-        currentSettings = cleanSettings(cached);
+
+        currentSettings =
+            cleanSettings(
+                cached
+            );
+
+        applySettings(
+            currentSettings,
+            {
+                source:
+                    "cache"
+            }
+        );
+    } else {
+
+        applySettings(
+            DEFAULT_SETTINGS,
+            {
+                source:
+                    "default"
+            }
+        );
     }
-    applySettings(currentSettings);
+
+
+    const settings =
+        await loadSettings();
+
+
+    applySettings(
+        settings,
+        {
+            source:
+                "initialize"
+        }
+    );
+
+
+    startBroadcastChannel();
+    startRealtimeListener();
+
+
+    initialized = true;
+
+
+    return {
+        ...currentSettings
+    };
 }
 
 
-// ==========================================
-// Export Default
-// ==========================================
+/* =========================================================
+   Auto Cache Apply
+========================================================= */
+
+if (
+    typeof document !==
+    "undefined"
+) {
+
+    const cached =
+        readCache();
+
+
+    if (cached) {
+
+        currentSettings =
+            cleanSettings(
+                cached
+            );
+    }
+
+
+    applySettings(
+        currentSettings,
+        {
+            source:
+                "startup-cache"
+        }
+    );
+
+
+    if (
+        typeof window !==
+        "undefined"
+    ) {
+
+        try {
+
+            window
+                .addEventListener(
+                    "storage",
+                    (event) => {
+
+                        if (
+                            event.key !==
+                            SETTINGS_CACHE_KEY ||
+                            !event.newValue
+                        ) {
+                            return;
+                        }
+
+
+                        try {
+
+                            const incoming =
+                                cleanSettings(
+                                    JSON.parse(
+                                        event.newValue
+                                    )
+                                );
+
+
+                            currentSettings =
+                                incoming;
+
+
+                            applySettings(
+                                incoming,
+                                {
+                                    source:
+                                        "storage"
+                                }
+                            );
+
+                        } catch (error) {
+
+                            console.warn(
+                                "Storage Settings Parse Error:",
+                                error
+                            );
+                        }
+                    }
+                );
+
+        } catch (error) {
+
+            console.warn(
+                "Storage Listener Setup Error:",
+                error
+            );
+        }
+    }
+}
+
+
+/* =========================================================
+   Public Global API
+========================================================= */
+
+if (
+    typeof window !==
+    "undefined"
+) {
+
+    window.KrhaCommissionSettings = {
+
+        getSettings,
+
+        getSetting,
+
+        saveSettings,
+
+        resetSettings,
+
+        applySettings,
+
+        initializeSettings,
+
+        subscribeSettings,
+
+        translate:
+            getTranslation,
+
+        setLanguage,
+
+        setCalendar,
+
+        setTheme,
+
+        setPrimaryColor,
+
+        setFontScale,
+
+        setDensity,
+
+        setFontFamily,
+
+        createSettingsBackup,
+
+        importSettingsBackup,
+
+        getShareUrl,
+
+        readSettingsFromUrl,
+
+        clearSettingsCache,
+
+        notify
+    };
+}
+
+
+/* =========================================================
+   Default Export
+========================================================= */
 
 export default {
+
+    SYSTEM_NAME,
+
     DEFAULT_SETTINGS,
+
     LANGUAGES,
+
     CALENDARS,
+
     THEMES,
+
+    DIRECTIONS,
+
+    DATE_FORMATS,
+
+    TIME_FORMATS,
+
+    TIME_ZONES,
+
+    NUMBER_SYSTEMS,
+
+    BACKGROUNDS,
+
     FONT_SCALES,
+
     DENSITIES,
+
     FONT_FAMILIES,
+
+    RADIUS_MODES,
+
+    SHADOW_MODES,
+
+    COLOR_MODES,
+
+    COLOR_PRESETS,
+
+    NOTIFICATION_POSITIONS,
+
+    PRINT_ORIENTATIONS,
+
+    PRINT_MARGINS,
+
     TRANSLATIONS,
+
     loadSettings,
+
     saveSettings,
+
     getSettings,
+
     getSetting,
+
     applySettings,
+
     resetSettings,
-    setLanguage,
-    setCalendar,
-    setTheme,
-    setPrimaryColor,
-    setFontScale,
-    setDensity,
-    setFontFamily,
-    getLanguageConfig,
-    getCalendarConfig,
-    getThemeConfig,
-    getFontScaleConfig,
-    getDensityConfig,
-    getFontFamilyConfig,
-    translate,
+
     initializeSettings,
-    applyTranslations
+
+    subscribeSettings,
+
+    setLanguage,
+
+    setCalendar,
+
+    setTheme,
+
+    setPrimaryColor,
+
+    setFontScale,
+
+    setDensity,
+
+    setFontFamily,
+
+    createSettingsBackup,
+
+    importSettingsBackup,
+
+    getShareUrl,
+
+    readSettingsFromUrl,
+
+    clearSettingsCache,
+
+    notify,
+
+    applyTranslations,
+
+    getTranslation
 };
-document.getElementById("formicMenuBtn")?.addEventListener("click", () => {
-    window.location.href = "./formic.html";
-});
