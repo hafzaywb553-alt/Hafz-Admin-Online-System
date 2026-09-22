@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 // CI preview trigger checkpoint
+// module-mode verification checkpoint
 
 import {
   LANGUAGES,
