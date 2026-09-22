@@ -1,10 +1,14 @@
 // ==========================================
 // د افغانستان اسلامي امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس
 // auth.js
-// Authentication Engine + Secure Logout History Guard
+// Authentication Engine + Secure Logout Guard
 // ==========================================
 
-import { auth, db } from "./firebase.js";
+import {
+    auth,
+    db
+} from "./firebase.js";
+
 
 import {
     signInWithEmailAndPassword,
@@ -12,6 +16,7 @@ import {
     onAuthStateChanged,
     sendPasswordResetEmail
 } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+
 
 import {
     doc,
@@ -31,14 +36,16 @@ const SYSTEM_NAME =
 // Login Page
 // ==========================================
 
-const LOGIN_PAGE = "./index.html";
+const LOGIN_PAGE =
+    "./index.html";
 
 
 // ==========================================
 // Firestore Collection
 // ==========================================
 
-const ADMINS_COLLECTION = "admins";
+const ADMINS_COLLECTION =
+    "admins";
 
 
 // ==========================================
@@ -64,7 +71,7 @@ const LOGOUT_IN_PROGRESS_KEY =
 
 
 // ==========================================
-// History State Marker
+// History Marker
 // ==========================================
 
 const LOGIN_HISTORY_MARKER =
@@ -75,19 +82,25 @@ const LOGIN_HISTORY_MARKER =
 // Runtime State
 // ==========================================
 
-let redirectingToLogin = false;
+let redirectingToLogin =
+    false;
 
-let logoutNavigationStarted = false;
+let logoutNavigationStarted =
+    false;
 
-let logoutFallbackTimer = null;
+let logoutFallbackTimer =
+    null;
 
-let authInitialized = false;
+let authInitialized =
+    false;
 
 let resolveAuthReady;
 
-let logoutConfirmationOpen = false;
+let logoutConfirmationOpen =
+    false;
 
-let previousBodyOverflow = "";
+let previousBodyOverflow =
+    "";
 
 
 // ==========================================
@@ -95,29 +108,52 @@ let previousBodyOverflow = "";
 // ==========================================
 
 const authReadyPromise =
-    new Promise(resolve => {
-        resolveAuthReady = resolve;
-    });
+    new Promise(
+        resolve => {
+
+            resolveAuthReady =
+                resolve;
+
+        }
+    );
 
 
 // ==========================================
 // Normalize Helpers
 // ==========================================
 
-function normalizeText(value) {
-    return String(value || "").trim();
+function normalizeText(
+    value
+) {
+
+    return String(
+        value || ""
+    ).trim();
+
 }
 
 
-function normalizeRole(role) {
-    return normalizeText(role).toLowerCase();
+function normalizeRole(
+    role
+) {
+
+    return normalizeText(
+        role
+    ).toLowerCase();
+
 }
 
 
-function isValidRole(role) {
+function isValidRole(
+    role
+) {
+
     return ALLOWED_ROLES.includes(
-        normalizeRole(role)
+        normalizeRole(
+            role
+        )
     );
+
 }
 
 
@@ -130,26 +166,44 @@ function isLoginPage() {
     try {
 
         if (
-            typeof window === "undefined" ||
+            typeof window ===
+            "undefined" ||
             !window.location
         ) {
+
             return false;
+
         }
+
 
         const pathname =
             String(
-                window.location.pathname || ""
+                window.location.pathname ||
+                ""
             )
                 .toLowerCase()
-                .replace(/\/+$/, "");
+                .replace(
+                    /\/+$/,
+                    ""
+                );
+
 
         const fileName =
-            pathname.split("/").pop() || "";
+            pathname
+                .split("/")
+                .pop() || "";
+
 
         return (
+
             fileName === "" ||
-            fileName === "index.html" ||
-            fileName === "login.html"
+
+            fileName ===
+                "index.html" ||
+
+            fileName ===
+                "login.html"
+
         );
 
     } catch (error) {
@@ -160,7 +214,9 @@ function isLoginPage() {
         );
 
         return false;
+
     }
+
 }
 
 
@@ -183,7 +239,9 @@ function setLogoutMarker() {
             "Set Logout Marker Error:",
             error
         );
+
     }
+
 }
 
 
@@ -201,7 +259,9 @@ function clearLogoutMarker() {
             "Clear Logout Marker Error:",
             error
         );
+
     }
+
 }
 
 
@@ -223,7 +283,9 @@ function hasLogoutMarker() {
         );
 
         return false;
+
     }
+
 }
 
 
@@ -242,7 +304,9 @@ function setLogoutProgress() {
             "Set Logout Progress Error:",
             error
         );
+
     }
+
 }
 
 
@@ -260,7 +324,9 @@ function clearLogoutProgress() {
             "Clear Logout Progress Error:",
             error
         );
+
     }
+
 }
 
 
@@ -282,7 +348,9 @@ function hasLogoutProgress() {
         );
 
         return false;
+
     }
+
 }
 
 
@@ -293,22 +361,30 @@ function hasLogoutProgress() {
 function ensureLoginHistoryMarker() {
 
     if (
-        typeof window === "undefined" ||
+        typeof window ===
+            "undefined" ||
         !window.history
     ) {
+
         return;
+
     }
+
 
     if (
         !isLoginPage()
     ) {
+
         return;
+
     }
+
 
     try {
 
         const currentState =
-            window.history.state || {};
+            window.history.state ||
+            {};
 
 
         if (
@@ -319,6 +395,7 @@ function ensureLoginHistoryMarker() {
         ) {
 
             return;
+
         }
 
 
@@ -328,6 +405,7 @@ function ensureLoginHistoryMarker() {
 
             [LOGIN_HISTORY_MARKER]:
                 true
+
         };
 
 
@@ -343,58 +421,22 @@ function ensureLoginHistoryMarker() {
             "Ensure Login History Marker Error:",
             error
         );
+
     }
+
 }
 
 
 // ==========================================
-// Is Original Login History Entry
-// ==========================================
-
-function isOriginalLoginHistoryEntry() {
-
-    try {
-
-        if (
-            typeof window === "undefined" ||
-            !window.history
-        ) {
-            return false;
-        }
-
-        const state =
-            window.history.state || {};
-
-        return (
-            state[
-                LOGIN_HISTORY_MARKER
-            ] === true
-        );
-
-    } catch (error) {
-
-        console.error(
-            "Login History Marker Error:",
-            error
-        );
-
-        return false;
-    }
-}
-
-
-// ==========================================
-// Lock Current Page During Logout
+// Lock Current Page
 // ==========================================
 //
 // مهم:
-// دلته نور visibility:hidden نه استعمالېږي.
 //
-// ځکه visibility:hidden د څو ثانیو لپاره
-// سپین/خالي Screen جوړولای شي.
+// visibility:hidden نه استعمالېږي.
 //
-// یوازې interaction بندېږي، خو پاڼه پټه نه کېږي.
-// ځکه سمدستي index.html ته replace کېږي.
+// هدف دا دی چې د Logout پر مهال
+// سپین Screen جوړ نه شي.
 //
 
 function lockCurrentPageDuringLogout() {
@@ -402,26 +444,21 @@ function lockCurrentPageDuringLogout() {
     try {
 
         if (
-            typeof document !== "undefined" &&
+            typeof document !==
+                "undefined" &&
             document.documentElement
         ) {
 
             document.documentElement.dataset.krhaLogout =
                 "true";
 
+
             document.documentElement.style.pointerEvents =
                 "none";
 
+
             document.documentElement.style.userSelect =
                 "none";
-
-            /*
-             * visibility:hidden عمداً حذف شوی.
-             *
-             * هدف:
-             * د Logout پر مهال سپین Screen
-             * رامنځته نه شي.
-             */
 
         }
 
@@ -431,7 +468,9 @@ function lockCurrentPageDuringLogout() {
             "Logout Page Lock Error:",
             error
         );
+
     }
+
 }
 
 
@@ -444,15 +483,18 @@ function unlockCurrentPage() {
     try {
 
         if (
-            typeof document !== "undefined" &&
+            typeof document !==
+                "undefined" &&
             document.documentElement
         ) {
 
             document.documentElement.dataset.krhaLogout =
                 "false";
 
+
             document.documentElement.style.pointerEvents =
                 "";
+
 
             document.documentElement.style.userSelect =
                 "";
@@ -465,767 +507,88 @@ function unlockCurrentPage() {
             "Unlock Current Page Error:",
             error
         );
+
     }
+
 }
 
 
 // ==========================================
 // Logout Confirmation Modal
 // ==========================================
-//
-// هو:
-//      Logout اجرا کېږي.
-//
-// نه:
-//      هماغه برخه کې پاتې کېږي.
-//
-// ESC:
-//      Cancel.
-//
-// Enter:
-//      Confirm.
-//
 
 function showLogoutConfirmation() {
 
-    return new Promise(resolve => {
-
-        if (
-            typeof document === "undefined"
-        ) {
-
-            resolve(
-                window.confirm(
-                    "ایا تاسې رښتیا غواړئ له دې سیسټم څخه ووځئ؟"
-                )
-            );
-
-            return;
-        }
-
-
-        // ======================================
-        // Duplicate Protection
-        // ======================================
-
-        if (
-            logoutConfirmationOpen
-        ) {
-            return;
-        }
-
-        logoutConfirmationOpen =
-            true;
-
-
-        // ======================================
-        // Remove Old Modal
-        // ======================================
-
-        const existing =
-            document.getElementById(
-                "krhaLogoutConfirmModal"
-            );
-
-        if (
-            existing
-        ) {
-
-            try {
-                existing.remove();
-            } catch {}
-        }
-
-
-        // ======================================
-        // Save Body Overflow
-        // ======================================
-
-        previousBodyOverflow =
-            document.body?.style?.overflow ||
-            "";
-
-
-        if (
-            document.body
-        ) {
-
-            document.body.style.overflow =
-                "hidden";
-        }
-
-
-        // ======================================
-        // Overlay
-        // ======================================
-
-        const overlay =
-            document.createElement(
-                "div"
-            );
-
-        overlay.id =
-            "krhaLogoutConfirmModal";
-
-        overlay.setAttribute(
-            "dir",
-            "rtl"
-        );
-
-
-        Object.assign(
-            overlay.style,
-            {
-                position: "fixed",
-                inset: "0",
-                zIndex: "2147483647",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                padding: "18px",
-                boxSizing: "border-box",
-                background:
-                    "radial-gradient(circle at top, rgba(18,62,51,.28), transparent 45%), rgba(1,5,10,.78)",
-                backdropFilter:
-                    "blur(14px) saturate(125%)",
-                WebkitBackdropFilter:
-                    "blur(14px) saturate(125%)",
-                fontFamily:
-                    "'Noto Naskh Arabic', Tahoma, Arial, sans-serif",
-                direction: "rtl"
-            }
-        );
-
-
-        // ======================================
-        // Modal Animation CSS
-        // ======================================
-
-        if (
-            !document.getElementById(
-                "krhaLogoutModalStyles"
-            )
-        ) {
-
-            const style =
-                document.createElement(
-                    "style"
-                );
-
-            style.id =
-                "krhaLogoutModalStyles";
-
-            style.textContent = `
-
-                @keyframes krhaLogoutFadeIn {
-                    from {
-                        opacity: 0;
-                    }
-
-                    to {
-                        opacity: 1;
-                    }
-                }
-
-
-                @keyframes krhaLogoutDialogIn {
-                    from {
-                        opacity: 0;
-                        transform:
-                            translateY(18px)
-                            scale(.97);
-                    }
-
-                    to {
-                        opacity: 1;
-                        transform:
-                            translateY(0)
-                            scale(1);
-                    }
-                }
-
-
-                @keyframes krhaLogoutPulse {
-                    0%,100% {
-                        transform: scale(1);
-                    }
-
-                    50% {
-                        transform: scale(1.045);
-                    }
-                }
-
-
-                #krhaLogoutConfirmModal {
-                    animation:
-                        krhaLogoutFadeIn
-                        .18s ease-out;
-                }
-
-
-                #krhaLogoutConfirmDialog {
-                    animation:
-                        krhaLogoutDialogIn
-                        .22s ease-out;
-                }
-
-
-                #krhaLogoutConfirmModal button {
-                    -webkit-tap-highlight-color:
-                        transparent;
-                }
-
-
-                #krhaLogoutConfirmModal
-                button:focus-visible {
-                    outline:
-                        3px solid
-                        rgba(35,239,162,.40);
-
-                    outline-offset:
-                        3px;
-                }
-
-
-                @media(max-width:560px) {
-
-                    #krhaLogoutConfirmDialog {
-                        width:
-                            100% !important;
-
-                        max-width:
-                            100% !important;
-
-                        padding:
-                            24px 18px 18px !important;
-
-                        border-radius:
-                            22px !important;
-                    }
-
-
-                    #krhaLogoutButtonGroup {
-                        grid-template-columns:
-                            1fr !important;
-                    }
-
-
-                    #krhaLogoutConfirmTitle {
-                        font-size:
-                            24px !important;
-                    }
-
-
-                    #krhaLogoutConfirmText {
-                        font-size:
-                            16px !important;
-                    }
-
-                }
-            `;
-
-            document.head?.appendChild(
-                style
-            );
-        }
-
-
-        // ======================================
-        // Dialog
-        // ======================================
-
-        const dialog =
-            document.createElement(
-                "div"
-            );
-
-        dialog.id =
-            "krhaLogoutConfirmDialog";
-
-
-        Object.assign(
-            dialog.style,
-            {
-                position: "relative",
-                width: "min(560px,100%)",
-                maxWidth: "560px",
-                boxSizing: "border-box",
-                padding: "30px 28px 24px",
-                borderRadius: "28px",
-                background:
-                    "linear-gradient(145deg, rgba(12,25,36,.99), rgba(4,12,20,.99))",
-                border:
-                    "1px solid rgba(255,255,255,.13)",
-                boxShadow:
-                    "0 30px 90px rgba(0,0,0,.60), inset 0 1px 0 rgba(255,255,255,.05)",
-                color: "#fff",
-                textAlign: "center",
-                direction: "rtl"
-            }
-        );
-
-
-        // ======================================
-        // Top Accent
-        // ======================================
-
-        const accent =
-            document.createElement(
-                "div"
-            );
-
-
-        Object.assign(
-            accent.style,
-            {
-                position: "absolute",
-                top: "0",
-                left: "12%",
-                right: "12%",
-                height: "3px",
-                borderRadius:
-                    "0 0 99px 99px",
-                background:
-                    "linear-gradient(90deg, transparent, #23EFA2, #25DFFF, transparent)",
-                boxShadow:
-                    "0 0 18px rgba(35,239,162,.32)"
-            }
-        );
-
-
-        // ======================================
-        // Icon
-        // ======================================
-
-        const iconWrap =
-            document.createElement(
-                "div"
-            );
-
-
-        Object.assign(
-            iconWrap.style,
-            {
-                width: "82px",
-                height: "82px",
-                margin: "0 auto 16px",
-                borderRadius: "24px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                background:
-                    "linear-gradient(145deg, rgba(255,92,92,.20), rgba(185,28,28,.08))",
-                border:
-                    "1px solid rgba(255,110,110,.22)",
-                boxShadow:
-                    "inset 0 1px 0 rgba(255,255,255,.08), 0 14px 36px rgba(0,0,0,.28)",
-                animation:
-                    "krhaLogoutPulse 2.3s ease-in-out infinite"
-            }
-        );
-
-
-        const icon =
-            document.createElement(
-                "div"
-            );
-
-        icon.textContent =
-            "🚪";
-
-
-        Object.assign(
-            icon.style,
-            {
-                fontSize: "40px",
-                lineHeight: "1",
-                filter:
-                    "drop-shadow(0 5px 10px rgba(0,0,0,.28))"
-            }
-        );
-
-
-        // ======================================
-        // Security Label
-        // ======================================
-
-        const status =
-            document.createElement(
-                "div"
-            );
-
-
-        Object.assign(
-            status.style,
-            {
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "7px",
-                padding: "6px 11px",
-                marginBottom: "8px",
-                borderRadius: "999px",
-                background:
-                    "rgba(35,239,162,.08)",
-                border:
-                    "1px solid rgba(35,239,162,.18)",
-                color:
-                    "#9CF7D2",
-                fontSize: "13px",
-                fontWeight: "900"
-            }
-        );
-
-
-        const dot =
-            document.createElement(
-                "span"
-            );
-
-
-        Object.assign(
-            dot.style,
-            {
-                width: "7px",
-                height: "7px",
-                borderRadius: "50%",
-                background:
-                    "#23EFA2",
-                boxShadow:
-                    "0 0 10px rgba(35,239,162,.72)"
-            }
-        );
-
-
-        status.appendChild(
-            dot
-        );
-
-
-        status.appendChild(
-            document.createTextNode(
-                "امنیتي تایید"
-            )
-        );
-
-
-        // ======================================
-        // Title
-        // ======================================
-
-        const title =
-            document.createElement(
-                "div"
-            );
-
-
-        title.id =
-            "krhaLogoutConfirmTitle";
-
-
-        title.textContent =
-            "له سیسټم څخه وتل؟";
-
-
-        Object.assign(
-            title.style,
-            {
-                fontSize: "30px",
-                lineHeight: "1.5",
-                fontWeight: "900",
-                marginBottom: "10px"
-            }
-        );
-
-
-        // ======================================
-        // Message
-        // ======================================
-
-        const message =
-            document.createElement(
-                "div"
-            );
-
-
-        message.id =
-            "krhaLogoutConfirmText";
-
-
-        message.textContent =
-            "ایا تاسې رښتیا غواړئ له دې سیسټم څخه ووځئ؟";
-
-
-        Object.assign(
-            message.style,
-            {
-                fontSize: "19px",
-                lineHeight: "1.9",
-                fontWeight: "800",
-                color:
-                    "rgba(255,255,255,.94)",
-                marginBottom: "7px"
-            }
-        );
-
-
-        // ======================================
-        // Secondary Text
-        // ======================================
-
-        const secondary =
-            document.createElement(
-                "div"
-            );
-
-
-        secondary.textContent =
-            "د وتلو په صورت کې به ستاسو اوسنی Login Session پای ته ورسېږي او پخوانیو سیسټمي برخو ته به تر نوي Login پرته لاسرسی نه وي.";
-
-
-        Object.assign(
-            secondary.style,
-            {
-                fontSize: "16px",
-                lineHeight: "1.95",
-                fontWeight: "600",
-                color:
-                    "rgba(196,211,221,.78)",
-                marginBottom: "21px"
-            }
-        );
-
-
-        // ======================================
-        // Notice
-        // ======================================
-
-        const notice =
-            document.createElement(
-                "div"
-            );
-
-
-        notice.textContent =
-            "⚠️ که «نه» وټاکئ، Logout نه ترسره کېږي او تاسې به په هماغه برخه کې پاتې شئ.";
-
-
-        Object.assign(
-            notice.style,
-            {
-                marginBottom: "22px",
-                padding: "11px 13px",
-                borderRadius: "14px",
-                background:
-                    "rgba(255,212,90,.07)",
-                border:
-                    "1px solid rgba(255,212,90,.16)",
-                color:
-                    "#FFE39A",
-                fontSize: "14px",
-                lineHeight: "1.75",
-                fontWeight: "700"
-            }
-        );
-
-
-        // ======================================
-        // Buttons
-        // ======================================
-
-        const buttons =
-            document.createElement(
-                "div"
-            );
-
-
-        buttons.id =
-            "krhaLogoutButtonGroup";
-
-
-        Object.assign(
-            buttons.style,
-            {
-                display: "grid",
-                gridTemplateColumns:
-                    "1fr 1fr",
-                gap: "12px",
-                width: "100%"
-            }
-        );
-
-
-        // ======================================
-        // Confirm Button
-        // ======================================
-
-        const confirmButton =
-            document.createElement(
-                "button"
-            );
-
-
-        confirmButton.type =
-            "button";
-
-
-        confirmButton.textContent =
-            "هو، له سیسټم څخه ووځم";
-
-
-        Object.assign(
-            confirmButton.style,
-            {
-                minHeight: "60px",
-                border:
-                    "1px solid rgba(255,112,112,.18)",
-                borderRadius: "16px",
-                padding: "12px 16px",
-                cursor: "pointer",
-                fontFamily:
-                    "inherit",
-                fontSize: "17px",
-                fontWeight: "900",
-                color: "#fff",
-                background:
-                    "linear-gradient(135deg,#C62828,#8E1515)",
-                boxShadow:
-                    "0 12px 28px rgba(198,40,40,.24)",
-                transition:
-                    "transform .16s ease,filter .16s ease"
-            }
-        );
-
-
-        // ======================================
-        // Cancel Button
-        // ======================================
-
-        const cancelButton =
-            document.createElement(
-                "button"
-            );
-
-
-        cancelButton.type =
-            "button";
-
-
-        cancelButton.textContent =
-            "نه، په سیسټم کې پاتې کېږم";
-
-
-        Object.assign(
-            cancelButton.style,
-            {
-                minHeight: "60px",
-                border:
-                    "1px solid rgba(255,255,255,.14)",
-                borderRadius: "16px",
-                padding: "12px 16px",
-                cursor: "pointer",
-                fontFamily:
-                    "inherit",
-                fontSize: "17px",
-                fontWeight: "900",
-                color: "#fff",
-                background:
-                    "linear-gradient(145deg,rgba(255,255,255,.10),rgba(255,255,255,.055))",
-                boxShadow:
-                    "inset 0 1px 0 rgba(255,255,255,.05)",
-                transition:
-                    "transform .16s ease,background .16s ease"
-            }
-        );
-
-
-        // ======================================
-        // Hover Effects
-        // ======================================
-
-        confirmButton.addEventListener(
-            "mouseenter",
-            () => {
-
-                confirmButton.style.transform =
-                    "translateY(-2px)";
-
-                confirmButton.style.filter =
-                    "brightness(1.06)";
-            }
-        );
-
-
-        confirmButton.addEventListener(
-            "mouseleave",
-            () => {
-
-                confirmButton.style.transform =
-                    "";
-
-                confirmButton.style.filter =
-                    "";
-            }
-        );
-
-
-        cancelButton.addEventListener(
-            "mouseenter",
-            () => {
-
-                cancelButton.style.transform =
-                    "translateY(-2px)";
-
-                cancelButton.style.background =
-                    "linear-gradient(145deg,rgba(255,255,255,.14),rgba(255,255,255,.075))";
-            }
-        );
-
-
-        cancelButton.addEventListener(
-            "mouseleave",
-            () => {
-
-                cancelButton.style.transform =
-                    "";
-
-                cancelButton.style.background =
-                    "linear-gradient(145deg,rgba(255,255,255,.10),rgba(255,255,255,.055))";
-            }
-        );
-
-
-        // ======================================
-        // Close Modal
-        // ======================================
-
-        let closed =
-            false;
-
-
-        function closeModal(
-            result
-        ) {
+    return new Promise(
+        resolve => {
+
+            // ======================================
+            // Browser Fallback
+            // ======================================
 
             if (
-                closed
+                typeof document ===
+                "undefined"
             ) {
+
+                resolve(
+                    window.confirm(
+                        "ایا تاسې رښتیا غواړئ له دې سیسټم څخه ووځئ؟"
+                    )
+                );
+
                 return;
+
             }
 
 
-            closed =
-                true;
+            // ======================================
+            // Prevent Duplicate Modal
+            // ======================================
+
+            if (
+                logoutConfirmationOpen
+            ) {
+
+                return;
+
+            }
 
 
             logoutConfirmationOpen =
-                false;
+                true;
 
 
-            document.removeEventListener(
-                "keydown",
-                onKeyDown,
-                true
-            );
+            // ======================================
+            // Remove Existing Modal
+            // ======================================
+
+            const oldModal =
+                document.getElementById(
+                    "krhaLogoutConfirmModal"
+                );
+
+
+            if (
+                oldModal
+            ) {
+
+                try {
+
+                    oldModal.remove();
+
+                } catch {}
+
+            }
+
+
+            // ======================================
+            // Save Body Overflow
+            // ======================================
+
+            previousBodyOverflow =
+                document.body?.style?.overflow ||
+                "";
 
 
             if (
@@ -1233,243 +596,1160 @@ function showLogoutConfirmation() {
             ) {
 
                 document.body.style.overflow =
-                    previousBodyOverflow;
+                    "hidden";
+
             }
 
 
-            try {
+            // ======================================
+            // Overlay
+            // ======================================
 
-                overlay.remove();
-
-            } catch (error) {
-
-                console.warn(
-                    "Logout Modal Remove Error:",
-                    error
+            const overlay =
+                document.createElement(
+                    "div"
                 );
-            }
 
 
-            resolve(
-                Boolean(result)
+            overlay.id =
+                "krhaLogoutConfirmModal";
+
+
+            overlay.setAttribute(
+                "dir",
+                "rtl"
             );
-        }
 
 
-        // ======================================
-        // Keyboard
-        // ======================================
+            Object.assign(
+                overlay.style,
+                {
 
-        function onKeyDown(
-            event
-        ) {
+                    position:
+                        "fixed",
+
+                    inset:
+                        "0",
+
+                    zIndex:
+                        "2147483647",
+
+                    display:
+                        "flex",
+
+                    alignItems:
+                        "center",
+
+                    justifyContent:
+                        "center",
+
+                    padding:
+                        "18px",
+
+                    boxSizing:
+                        "border-box",
+
+                    background:
+                        "radial-gradient(circle at top,rgba(18,62,51,.30),transparent 45%),rgba(1,5,10,.78)",
+
+                    backdropFilter:
+                        "blur(14px) saturate(125%)",
+
+                    WebkitBackdropFilter:
+                        "blur(14px) saturate(125%)",
+
+                    fontFamily:
+                        "'Noto Naskh Arabic',Tahoma,Arial,sans-serif",
+
+                    direction:
+                        "rtl"
+
+                }
+            );
+
+
+            // ======================================
+            // Modal CSS
+            // ======================================
 
             if (
-                event.key ===
-                "Escape"
+                !document.getElementById(
+                    "krhaLogoutModalStyles"
+                )
             ) {
 
-                event.preventDefault();
+                const style =
+                    document.createElement(
+                        "style"
+                    );
 
-                closeModal(
-                    false
+
+                style.id =
+                    "krhaLogoutModalStyles";
+
+
+                style.textContent = `
+
+                    @keyframes krhaLogoutFadeIn {
+                        from {
+                            opacity: 0;
+                        }
+
+                        to {
+                            opacity: 1;
+                        }
+                    }
+
+
+                    @keyframes krhaLogoutDialogIn {
+                        from {
+                            opacity: 0;
+                            transform:
+                                translateY(18px)
+                                scale(.97);
+                        }
+
+                        to {
+                            opacity: 1;
+                            transform:
+                                translateY(0)
+                                scale(1);
+                        }
+                    }
+
+
+                    @keyframes krhaLogoutPulse {
+                        0%,100% {
+                            transform:scale(1);
+                        }
+
+                        50% {
+                            transform:scale(1.045);
+                        }
+                    }
+
+
+                    #krhaLogoutConfirmModal {
+                        animation:
+                            krhaLogoutFadeIn
+                            .18s ease-out;
+                    }
+
+
+                    #krhaLogoutConfirmDialog {
+                        animation:
+                            krhaLogoutDialogIn
+                            .22s ease-out;
+                    }
+
+
+                    #krhaLogoutConfirmModal button {
+                        -webkit-tap-highlight-color:
+                            transparent;
+                    }
+
+
+                    #krhaLogoutConfirmModal
+                    button:focus-visible {
+                        outline:
+                            3px solid
+                            rgba(35,239,162,.40);
+
+                        outline-offset:
+                            3px;
+                    }
+
+
+                    @media(max-width:560px) {
+
+                        #krhaLogoutConfirmDialog {
+                            width:
+                                100% !important;
+
+                            max-width:
+                                100% !important;
+
+                            padding:
+                                24px 18px 18px !important;
+
+                            border-radius:
+                                22px !important;
+                        }
+
+
+                        #krhaLogoutButtonGroup {
+                            grid-template-columns:
+                                1fr !important;
+                        }
+
+
+                        #krhaLogoutConfirmTitle {
+                            font-size:
+                                24px !important;
+                        }
+
+
+                        #krhaLogoutConfirmText {
+                            font-size:
+                                16px !important;
+                        }
+                    }
+
+                `;
+
+
+                document.head?.appendChild(
+                    style
                 );
 
-                return;
             }
 
 
-            if (
-                event.key ===
-                "Enter"
+            // ======================================
+            // Dialog
+            // ======================================
+
+            const dialog =
+                document.createElement(
+                    "div"
+                );
+
+
+            dialog.id =
+                "krhaLogoutConfirmDialog";
+
+
+            Object.assign(
+                dialog.style,
+                {
+
+                    position:
+                        "relative",
+
+                    width:
+                        "min(560px,100%)",
+
+                    maxWidth:
+                        "560px",
+
+                    boxSizing:
+                        "border-box",
+
+                    padding:
+                        "30px 28px 24px",
+
+                    borderRadius:
+                        "28px",
+
+                    background:
+                        "linear-gradient(145deg,rgba(12,25,36,.99),rgba(4,12,20,.99))",
+
+                    border:
+                        "1px solid rgba(255,255,255,.13)",
+
+                    boxShadow:
+                        "0 30px 90px rgba(0,0,0,.60),inset 0 1px 0 rgba(255,255,255,.05)",
+
+                    color:
+                        "#fff",
+
+                    textAlign:
+                        "center",
+
+                    direction:
+                        "rtl"
+
+                }
+            );
+
+
+            // ======================================
+            // Accent
+            // ======================================
+
+            const accent =
+                document.createElement(
+                    "div"
+                );
+
+
+            Object.assign(
+                accent.style,
+                {
+
+                    position:
+                        "absolute",
+
+                    top:
+                        "0",
+
+                    left:
+                        "12%",
+
+                    right:
+                        "12%",
+
+                    height:
+                        "3px",
+
+                    borderRadius:
+                        "0 0 99px 99px",
+
+                    background:
+                        "linear-gradient(90deg,transparent,#23EFA2,#25DFFF,transparent)",
+
+                    boxShadow:
+                        "0 0 18px rgba(35,239,162,.32)"
+
+                }
+            );
+
+
+            // ======================================
+            // Icon
+            // ======================================
+
+            const iconWrap =
+                document.createElement(
+                    "div"
+                );
+
+
+            Object.assign(
+                iconWrap.style,
+                {
+
+                    width:
+                        "82px",
+
+                    height:
+                        "82px",
+
+                    margin:
+                        "0 auto 16px",
+
+                    borderRadius:
+                        "24px",
+
+                    display:
+                        "flex",
+
+                    alignItems:
+                        "center",
+
+                    justifyContent:
+                        "center",
+
+                    background:
+                        "linear-gradient(145deg,rgba(255,92,92,.20),rgba(185,28,28,.08))",
+
+                    border:
+                        "1px solid rgba(255,110,110,.22)",
+
+                    boxShadow:
+                        "inset 0 1px 0 rgba(255,255,255,.08),0 14px 36px rgba(0,0,0,.28)",
+
+                    animation:
+                        "krhaLogoutPulse 2.3s ease-in-out infinite"
+
+                }
+            );
+
+
+            const icon =
+                document.createElement(
+                    "div"
+                );
+
+
+            icon.textContent =
+                "🚪";
+
+
+            Object.assign(
+                icon.style,
+                {
+
+                    fontSize:
+                        "40px",
+
+                    lineHeight:
+                        "1"
+
+                }
+            );
+
+
+            // ======================================
+            // Security Label
+            // ======================================
+
+            const status =
+                document.createElement(
+                    "div"
+                );
+
+
+            Object.assign(
+                status.style,
+                {
+
+                    display:
+                        "inline-flex",
+
+                    alignItems:
+                        "center",
+
+                    gap:
+                        "7px",
+
+                    padding:
+                        "6px 11px",
+
+                    marginBottom:
+                        "8px",
+
+                    borderRadius:
+                        "999px",
+
+                    background:
+                        "rgba(35,239,162,.08)",
+
+                    border:
+                        "1px solid rgba(35,239,162,.18)",
+
+                    color:
+                        "#9CF7D2",
+
+                    fontSize:
+                        "13px",
+
+                    fontWeight:
+                        "900"
+
+                }
+            );
+
+
+            const statusDot =
+                document.createElement(
+                    "span"
+                );
+
+
+            Object.assign(
+                statusDot.style,
+                {
+
+                    width:
+                        "7px",
+
+                    height:
+                        "7px",
+
+                    borderRadius:
+                        "50%",
+
+                    background:
+                        "#23EFA2",
+
+                    boxShadow:
+                        "0 0 10px rgba(35,239,162,.72)"
+
+                }
+            );
+
+
+            status.appendChild(
+                statusDot
+            );
+
+
+            status.appendChild(
+                document.createTextNode(
+                    "امنیتي تایید"
+                )
+            );
+
+
+            // ======================================
+            // Title
+            // ======================================
+
+            const title =
+                document.createElement(
+                    "div"
+                );
+
+
+            title.id =
+                "krhaLogoutConfirmTitle";
+
+
+            title.textContent =
+                "له سیسټم څخه وتل؟";
+
+
+            Object.assign(
+                title.style,
+                {
+
+                    fontSize:
+                        "30px",
+
+                    lineHeight:
+                        "1.5",
+
+                    fontWeight:
+                        "900",
+
+                    marginBottom:
+                        "10px"
+
+                }
+            );
+
+
+            // ======================================
+            // Main Message
+            // ======================================
+
+            const message =
+                document.createElement(
+                    "div"
+                );
+
+
+            message.id =
+                "krhaLogoutConfirmText";
+
+
+            message.textContent =
+                "ایا تاسې رښتیا غواړئ له دې سیسټم څخه ووځئ؟";
+
+
+            Object.assign(
+                message.style,
+                {
+
+                    fontSize:
+                        "19px",
+
+                    lineHeight:
+                        "1.9",
+
+                    fontWeight:
+                        "800",
+
+                    color:
+                        "rgba(255,255,255,.94)",
+
+                    marginBottom:
+                        "7px"
+
+                }
+            );
+
+
+            // ======================================
+            // Secondary
+            // ======================================
+
+            const secondary =
+                document.createElement(
+                    "div"
+                );
+
+
+            secondary.textContent =
+                "د وتلو په صورت کې به ستاسو اوسنی Login Session پای ته ورسېږي او تر نوي Login پورې به سیسټم ته لاسرسی نه وي.";
+
+
+            Object.assign(
+                secondary.style,
+                {
+
+                    fontSize:
+                        "16px",
+
+                    lineHeight:
+                        "1.95",
+
+                    fontWeight:
+                        "600",
+
+                    color:
+                        "rgba(196,211,221,.78)",
+
+                    marginBottom:
+                        "21px"
+
+                }
+            );
+
+
+            // ======================================
+            // Warning
+            // ======================================
+
+            const notice =
+                document.createElement(
+                    "div"
+                );
+
+
+            notice.textContent =
+                "⚠️ که «نه» وټاکئ، Logout نه ترسره کېږي او تاسې به همدلته پاتې شئ.";
+
+
+            Object.assign(
+                notice.style,
+                {
+
+                    marginBottom:
+                        "22px",
+
+                    padding:
+                        "11px 13px",
+
+                    borderRadius:
+                        "14px",
+
+                    background:
+                        "rgba(255,212,90,.07)",
+
+                    border:
+                        "1px solid rgba(255,212,90,.16)",
+
+                    color:
+                        "#FFE39A",
+
+                    fontSize:
+                        "14px",
+
+                    lineHeight:
+                        "1.75",
+
+                    fontWeight:
+                        "700"
+
+                }
+            );
+
+
+            // ======================================
+            // Buttons
+            // ======================================
+
+            const buttons =
+                document.createElement(
+                    "div"
+                );
+
+
+            buttons.id =
+                "krhaLogoutButtonGroup";
+
+
+            Object.assign(
+                buttons.style,
+                {
+
+                    display:
+                        "grid",
+
+                    gridTemplateColumns:
+                        "1fr 1fr",
+
+                    gap:
+                        "12px",
+
+                    width:
+                        "100%"
+
+                }
+            );
+
+
+            // ======================================
+            // Confirm Button
+            // ======================================
+
+            const confirmButton =
+                document.createElement(
+                    "button"
+                );
+
+
+            confirmButton.type =
+                "button";
+
+
+            confirmButton.textContent =
+                "هو، له سیسټم څخه ووځم";
+
+
+            Object.assign(
+                confirmButton.style,
+                {
+
+                    minHeight:
+                        "60px",
+
+                    border:
+                        "1px solid rgba(255,112,112,.18)",
+
+                    borderRadius:
+                        "16px",
+
+                    padding:
+                        "12px 16px",
+
+                    cursor:
+                        "pointer",
+
+                    fontFamily:
+                        "inherit",
+
+                    fontSize:
+                        "17px",
+
+                    fontWeight:
+                        "900",
+
+                    color:
+                        "#fff",
+
+                    background:
+                        "linear-gradient(135deg,#C62828,#8E1515)",
+
+                    boxShadow:
+                        "0 12px 28px rgba(198,40,40,.24)",
+
+                    transition:
+                        "transform .16s ease,filter .16s ease"
+
+                }
+            );
+
+
+            // ======================================
+            // Cancel Button
+            // ======================================
+
+            const cancelButton =
+                document.createElement(
+                    "button"
+                );
+
+
+            cancelButton.type =
+                "button";
+
+
+            cancelButton.textContent =
+                "نه، په سیسټم کې پاتې کېږم";
+
+
+            Object.assign(
+                cancelButton.style,
+                {
+
+                    minHeight:
+                        "60px",
+
+                    border:
+                        "1px solid rgba(255,255,255,.14)",
+
+                    borderRadius:
+                        "16px",
+
+                    padding:
+                        "12px 16px",
+
+                    cursor:
+                        "pointer",
+
+                    fontFamily:
+                        "inherit",
+
+                    fontSize:
+                        "17px",
+
+                    fontWeight:
+                        "900",
+
+                    color:
+                        "#fff",
+
+                    background:
+                        "linear-gradient(145deg,rgba(255,255,255,.10),rgba(255,255,255,.055))",
+
+                    boxShadow:
+                        "inset 0 1px 0 rgba(255,255,255,.05)",
+
+                    transition:
+                        "transform .16s ease,background .16s ease"
+
+                }
+            );
+
+
+            // ======================================
+            // Hover
+            // ======================================
+
+            confirmButton.addEventListener(
+                "mouseenter",
+                () => {
+
+                    confirmButton.style.transform =
+                        "translateY(-2px)";
+
+                    confirmButton.style.filter =
+                        "brightness(1.06)";
+
+                }
+            );
+
+
+            confirmButton.addEventListener(
+                "mouseleave",
+                () => {
+
+                    confirmButton.style.transform =
+                        "";
+
+                    confirmButton.style.filter =
+                        "";
+
+                }
+            );
+
+
+            cancelButton.addEventListener(
+                "mouseenter",
+                () => {
+
+                    cancelButton.style.transform =
+                        "translateY(-2px)";
+
+                    cancelButton.style.background =
+                        "linear-gradient(145deg,rgba(255,255,255,.14),rgba(255,255,255,.075))";
+
+                }
+            );
+
+
+            cancelButton.addEventListener(
+                "mouseleave",
+                () => {
+
+                    cancelButton.style.transform =
+                        "";
+
+                    cancelButton.style.background =
+                        "linear-gradient(145deg,rgba(255,255,255,.10),rgba(255,255,255,.055))";
+
+                }
+            );
+
+
+            // ======================================
+            // Close
+            // ======================================
+
+            let closed =
+                false;
+
+
+            function closeModal(
+                result
             ) {
-
-                event.preventDefault();
-
-                closeModal(
-                    true
-                );
-            }
-        }
-
-
-        // ======================================
-        // Button Events
-        // ======================================
-
-        confirmButton.addEventListener(
-            "click",
-            () => {
-
-                closeModal(
-                    true
-                );
-            }
-        );
-
-
-        cancelButton.addEventListener(
-            "click",
-            () => {
-
-                closeModal(
-                    false
-                );
-            }
-        );
-
-
-        // ======================================
-        // Outside Click = Cancel
-        // ======================================
-
-        overlay.addEventListener(
-            "click",
-            event => {
 
                 if (
-                    event.target ===
-                    overlay
+                    closed
                 ) {
+
+                    return;
+
+                }
+
+
+                closed =
+                    true;
+
+
+                logoutConfirmationOpen =
+                    false;
+
+
+                document.removeEventListener(
+                    "keydown",
+                    onKeyDown,
+                    true
+                );
+
+
+                if (
+                    document.body
+                ) {
+
+                    document.body.style.overflow =
+                        previousBodyOverflow;
+
+                }
+
+
+                try {
+
+                    overlay.remove();
+
+                } catch {}
+
+
+
+                resolve(
+                    Boolean(
+                        result
+                    )
+                );
+
+            }
+
+
+            // ======================================
+            // Keyboard
+            // ======================================
+
+            function onKeyDown(
+                event
+            ) {
+
+                if (
+                    event.key ===
+                    "Escape"
+                ) {
+
+                    event.preventDefault();
 
                     closeModal(
                         false
                     );
+
+                    return;
+
                 }
+
+
+                if (
+                    event.key ===
+                    "Enter"
+                ) {
+
+                    event.preventDefault();
+
+                    closeModal(
+                        true
+                    );
+
+                }
+
             }
-        );
 
 
-        // ======================================
-        // Build
-        // ======================================
+            // ======================================
+            // Buttons
+            // ======================================
 
-        iconWrap.appendChild(
-            icon
-        );
+            confirmButton.addEventListener(
+                "click",
+                () => {
 
+                    closeModal(
+                        true
+                    );
 
-        dialog.appendChild(
-            accent
-        );
-
-        dialog.appendChild(
-            iconWrap
-        );
-
-        dialog.appendChild(
-            status
-        );
-
-        dialog.appendChild(
-            title
-        );
-
-        dialog.appendChild(
-            message
-        );
-
-        dialog.appendChild(
-            secondary
-        );
-
-        dialog.appendChild(
-            notice
-        );
+                }
+            );
 
 
-        buttons.appendChild(
-            confirmButton
-        );
+            cancelButton.addEventListener(
+                "click",
+                () => {
 
-        buttons.appendChild(
-            cancelButton
-        );
+                    closeModal(
+                        false
+                    );
 
-
-        dialog.appendChild(
-            buttons
-        );
+                }
+            );
 
 
-        overlay.appendChild(
-            dialog
-        );
+            // ======================================
+            // Overlay Click
+            // ======================================
+
+            overlay.addEventListener(
+                "click",
+                event => {
+
+                    if (
+                        event.target ===
+                        overlay
+                    ) {
+
+                        closeModal(
+                            false
+                        );
+
+                    }
+
+                }
+            );
 
 
-        // ======================================
-        // Insert
-        // ======================================
+            // ======================================
+            // Build
+            // ======================================
 
-        const parent =
-            document.body ||
-            document.documentElement;
-
-
-        parent.appendChild(
-            overlay
-        );
+            iconWrap.appendChild(
+                icon
+            );
 
 
-        // ======================================
-        // Keyboard Listener
-        // ======================================
-
-        document.addEventListener(
-            "keydown",
-            onKeyDown,
-            true
-        );
+            dialog.appendChild(
+                accent
+            );
 
 
-        // ======================================
-        // Focus
-        // ======================================
+            dialog.appendChild(
+                iconWrap
+            );
 
-        try {
 
-            confirmButton.focus();
+            dialog.appendChild(
+                status
+            );
 
-        } catch {}
-    });
+
+            dialog.appendChild(
+                title
+            );
+
+
+            dialog.appendChild(
+                message
+            );
+
+
+            dialog.appendChild(
+                secondary
+            );
+
+
+            dialog.appendChild(
+                notice
+            );
+
+
+            buttons.appendChild(
+                confirmButton
+            );
+
+
+            buttons.appendChild(
+                cancelButton
+            );
+
+
+            dialog.appendChild(
+                buttons
+            );
+
+
+            overlay.appendChild(
+                dialog
+            );
+
+
+            // ======================================
+            // Insert
+            // ======================================
+
+            (
+                document.body ||
+                document.documentElement
+            ).appendChild(
+                overlay
+            );
+
+
+            // ======================================
+            // Keyboard
+            // ======================================
+
+            document.addEventListener(
+                "keydown",
+                onKeyDown,
+                true
+            );
+
+
+            // ======================================
+            // Focus
+            // ======================================
+
+            try {
+
+                confirmButton.focus();
+
+            } catch {}
+
+        }
+    );
+
 }
 
 
 // ==========================================
-// Safe Login Redirect
+// Direct Login Redirect
 // ==========================================
+//
+// Explicit Logout:
+// مستقیم Login ته تلل.
+//
+// نور history.back() نه استعمالېږي.
+//
 
 function redirectToLogin() {
 
     if (
-        typeof window === "undefined" ||
+        typeof window ===
+            "undefined" ||
         !window.location
     ) {
+
         return;
+
     }
 
 
     if (
         isLoginPage()
     ) {
-        return;
-    }
-
-
-    if (
-        hasLogoutMarker()
-    ) {
-
-        continueLogoutHistory();
 
         return;
+
     }
 
 
     if (
         redirectingToLogin
     ) {
+
         return;
+
     }
 
 
@@ -1489,7 +1769,16 @@ function redirectToLogin() {
             "Redirect To Login Error:",
             error
         );
+
+        try {
+
+            window.location.href =
+                LOGIN_PAGE;
+
+        } catch {}
+
     }
+
 }
 
 
@@ -1497,41 +1786,35 @@ function redirectToLogin() {
 // Continue Logout History
 // ==========================================
 //
-// مهم بدلون:
+// مهم:
 //
-// نور history.back() نه استعمالېږي.
+// نوم یې د compatibility لپاره هماغه ساتل شوی.
 //
-// ځکه د Logout پر مهال باید:
-// Protected Page
-//      ↓
-// مستقیم Login
+// خو نور history.back() نه کوي.
 //
-// وي.
-//
-// دا د سپین Screen او د منځنیو System Pages
-// د ښکاره کېدو مخه نیسي.
+// مستقیم Login ته ځي.
 //
 
 function continueLogoutHistory() {
 
     if (
-        typeof window === "undefined" ||
-        !window.location
+        typeof window ===
+            "undefined"
     ) {
+
         return;
+
     }
 
 
     if (
         !hasLogoutMarker()
     ) {
+
         return;
+
     }
 
-
-    // ======================================
-    // Already Login Page
-    // ======================================
 
     if (
         isLoginPage()
@@ -1548,6 +1831,7 @@ function continueLogoutHistory() {
 
             logoutFallbackTimer =
                 null;
+
         }
 
 
@@ -1558,27 +1842,19 @@ function continueLogoutHistory() {
         ensureLoginHistoryMarker();
 
         return;
+
     }
 
-
-    // ======================================
-    // Mark Progress
-    // ======================================
 
     logoutNavigationStarted =
         true;
 
+
     setLogoutProgress();
+
 
     lockCurrentPageDuringLogout();
 
-
-    // ======================================
-    // DIRECT LOGIN
-    // ======================================
-    //
-    // سمدستي Login ته ځي.
-    //
 
     try {
 
@@ -1599,59 +1875,15 @@ function continueLogoutHistory() {
             window.location.href =
                 LOGIN_PAGE;
 
-        } catch (fallbackError) {
+        } catch {}
 
-            console.error(
-                "Logout Login Fallback Error:",
-                fallbackError
-            );
-        }
     }
 
-
-    // ======================================
-    // Safety Fallback
-    // ======================================
-
-    if (
-        logoutFallbackTimer ===
-        null
-    ) {
-
-        logoutFallbackTimer =
-            setTimeout(() => {
-
-                logoutFallbackTimer =
-                    null;
-
-
-                if (
-                    !isLoginPage() &&
-                    hasLogoutMarker()
-                ) {
-
-                    try {
-
-                        window.location.replace(
-                            LOGIN_PAGE
-                        );
-
-                    } catch (error) {
-
-                        console.error(
-                            "Logout Final Redirect Error:",
-                            error
-                        );
-                    }
-                }
-
-            }, 1000);
-    }
 }
 
 
 // ==========================================
-// Protected Page Access Guard
+// Protected Page Guard
 // ==========================================
 
 async function enforceProtectedPageAccess() {
@@ -1675,10 +1907,12 @@ async function enforceProtectedPageAccess() {
             clearLogoutProgress();
 
             unlockCurrentPage();
+
         }
 
 
         return;
+
     }
 
 
@@ -1694,11 +1928,12 @@ async function enforceProtectedPageAccess() {
         continueLogoutHistory();
 
         return;
+
     }
 
 
     // ======================================
-    // Wait For Firebase Auth
+    // Wait For Auth Initialization
     // ======================================
 
     if (
@@ -1715,12 +1950,14 @@ async function enforceProtectedPageAccess() {
                 "Auth Ready Error:",
                 error
             );
+
         }
+
     }
 
 
     // ======================================
-    // No Firebase User
+    // No User
     // ======================================
 
     if (
@@ -1730,12 +1967,14 @@ async function enforceProtectedPageAccess() {
         redirectToLogin();
 
         return;
+
     }
+
 }
 
 
 // ==========================================
-// Global Firebase Auth State Watcher
+// Global Auth State
 // ==========================================
 
 onAuthStateChanged(
@@ -1743,7 +1982,7 @@ onAuthStateChanged(
     user => {
 
         // ==================================
-        // First Auth State
+        // First State
         // ==================================
 
         if (
@@ -1766,7 +2005,9 @@ onAuthStateChanged(
                     "Resolve Auth Ready Error:",
                     error
                 );
+
             }
+
         }
 
 
@@ -1781,37 +2022,54 @@ onAuthStateChanged(
             ensureLoginHistoryMarker();
 
 
+            /*
+             * مهم:
+             *
+             * که Logout Marker موجود وي،
+             * Login Page ته موجود user هم
+             * Dashboard ته نه redirect کېږي.
+             *
+             * دا د:
+             *
+             * Login
+             * ↓
+             * Dashboard
+             * ↓
+             * Login
+             *
+             * فلیکر ختموي.
+             */
+
+            if (
+                hasLogoutMarker() ||
+                hasLogoutProgress()
+            ) {
+
+                clearLogoutProgress();
+
+                unlockCurrentPage();
+
+                return;
+
+            }
+
+
             if (
                 user
             ) {
 
-                if (
-                    !hasLogoutMarker()
-                ) {
+                unlockCurrentPage();
 
-                    unlockCurrentPage();
-                }
-
-            } else {
-
-                if (
-                    hasLogoutMarker() ||
-                    hasLogoutProgress()
-                ) {
-
-                    clearLogoutProgress();
-
-                    unlockCurrentPage();
-                }
             }
 
 
             return;
+
         }
 
 
         // ==================================
-        // Explicit Logout
+        // Logout State
         // ==================================
 
         if (
@@ -1822,6 +2080,7 @@ onAuthStateChanged(
             continueLogoutHistory();
 
             return;
+
         }
 
 
@@ -1835,7 +2094,6 @@ onAuthStateChanged(
 
             redirectToLogin();
 
-            return;
         }
 
     },
@@ -1862,13 +2120,8 @@ onAuthStateChanged(
                     null
                 );
 
-            } catch (resolveError) {
+            } catch {}
 
-                console.error(
-                    "Resolve Auth Ready Error:",
-                    resolveError
-                );
-            }
         }
 
 
@@ -1884,21 +2137,25 @@ onAuthStateChanged(
                 continueLogoutHistory();
 
                 return;
+
             }
 
 
             redirectToLogin();
+
         }
+
     }
 );
 
 
 // ==========================================
-// Browser History / BFCache Guards
+// Browser History / BFCache
 // ==========================================
 
 if (
-    typeof window !== "undefined"
+    typeof window !==
+    "undefined"
 ) {
 
     // ======================================
@@ -1927,9 +2184,11 @@ if (
                 } else {
 
                     continueLogoutHistory();
+
                 }
 
                 return;
+
             }
 
 
@@ -1954,21 +2213,15 @@ if (
             ) {
 
                 if (
-                    isLoginPage()
+                    !isLoginPage()
                 ) {
 
-                    clearLogoutProgress();
-
-                    unlockCurrentPage();
-
-                    ensureLoginHistoryMarker();
-
-                } else {
-
                     continueLogoutHistory();
+
                 }
 
                 return;
+
             }
 
 
@@ -1992,9 +2245,16 @@ if (
                 hasLogoutProgress()
             ) {
 
-                continueLogoutHistory();
+                if (
+                    !isLoginPage()
+                ) {
+
+                    continueLogoutHistory();
+
+                }
 
                 return;
+
             }
 
 
@@ -2017,7 +2277,9 @@ if (
                 document.visibilityState !==
                 "visible"
             ) {
+
                 return;
+
             }
 
 
@@ -2027,21 +2289,15 @@ if (
             ) {
 
                 if (
-                    isLoginPage()
+                    !isLoginPage()
                 ) {
 
-                    clearLogoutProgress();
-
-                    unlockCurrentPage();
-
-                    ensureLoginHistoryMarker();
-
-                } else {
-
                     continueLogoutHistory();
+
                 }
 
                 return;
+
             }
 
 
@@ -2076,6 +2332,7 @@ if (
                 } else {
 
                     enforceProtectedPageAccess();
+
                 }
 
             },
@@ -2097,17 +2354,21 @@ if (
         } else {
 
             enforceProtectedPageAccess();
+
         }
+
     }
+
 }
 
 
 // ==========================================
-// Global Logout Button Interceptor
+// Global Logout Button
 // ==========================================
 
 if (
-    typeof document !== "undefined"
+    typeof document !==
+    "undefined"
 ) {
 
     document.addEventListener(
@@ -2123,7 +2384,9 @@ if (
                 typeof target.closest !==
                     "function"
             ) {
+
                 return;
+
             }
 
 
@@ -2132,6 +2395,10 @@ if (
                     "#logoutBtn"
                 );
 
+
+            // ==================================
+            // Logout
+            // ==================================
 
             if (
                 logoutButton
@@ -2144,15 +2411,13 @@ if (
                 event.stopImmediatePropagation();
 
 
-                // ==================================
-                // Prevent Double Click
-                // ==================================
-
                 if (
                     logoutButton.dataset.krhaConfirming ===
                     "true"
                 ) {
+
                     return;
+
                 }
 
 
@@ -2166,9 +2431,9 @@ if (
                         await showLogoutConfirmation();
 
 
-                    // ==================================
-                    // Cancel
-                    // ==================================
+                    // ==========================
+                    // User Cancelled
+                    // ==========================
 
                     if (
                         !confirmed
@@ -2178,14 +2443,16 @@ if (
                             "false";
 
                         return;
+
                     }
 
 
-                    // ==================================
-                    // Confirm
-                    // ==================================
+                    // ==========================
+                    // User Confirmed
+                    // ==========================
 
                     await logoutUser();
+
 
                 } catch (error) {
 
@@ -2197,16 +2464,26 @@ if (
 
                     logoutButton.dataset.krhaConfirming =
                         "false";
+
                 }
 
 
                 return;
+
             }
 
 
             // ==================================
-            // Internal System Navigation
+            // Internal Navigation
             // ==================================
+            //
+            // مهم:
+            //
+            // System Page -> System Page
+            // باید history entry نه جوړوي.
+            //
+            // پخوانی Page د نوي Page ځای نیسي.
+            //
 
             const clickableElement =
                 target.closest(
@@ -2217,7 +2494,9 @@ if (
             if (
                 !clickableElement
             ) {
+
                 return;
+
             }
 
 
@@ -2226,19 +2505,23 @@ if (
                     "#logoutBtn"
                 )
             ) {
+
                 return;
+
             }
 
 
             if (
                 clickableElement.disabled
             ) {
+
                 return;
+
             }
 
 
             // ==================================
-            // Known Internal Menu IDs
+            // Internal System Navigation Map
             // ==================================
 
             const navMap = {
@@ -2265,7 +2548,14 @@ if (
                     "./settings.html",
 
                 dashboardBtn:
+                    "./dashboard.html",
+
+                homeBtn:
+                    "./dashboard.html",
+
+                homeMenuBtn:
                     "./dashboard.html"
+
             };
 
 
@@ -2275,18 +2565,22 @@ if (
 
             const buttonID =
                 String(
-                    clickableElement.id || ""
+                    clickableElement.id ||
+                    ""
                 ).trim();
 
 
             if (
-                navMap[buttonID]
+                navMap[
+                    buttonID
+                ]
             ) {
 
                 targetURL =
                     navMap[
                         buttonID
                     ];
+
             }
 
 
@@ -2297,13 +2591,14 @@ if (
             if (
                 !targetURL &&
                 clickableElement.tagName ===
-                "A"
+                    "A"
             ) {
 
                 targetURL =
                     clickableElement.getAttribute(
                         "href"
                     ) || "";
+
             }
 
 
@@ -2311,7 +2606,9 @@ if (
                 !targetURL ||
                 targetURL === "#"
             ) {
+
                 return;
+
             }
 
 
@@ -2346,23 +2643,32 @@ if (
                 ) {
 
                     return;
+
                 }
 
 
                 // ==================================
-                // Internal System Pages
+                // Protected System Pages
                 // ==================================
 
                 const protectedPages = [
 
                     "dashboard.html",
+
                     "formic.html",
+
                     "general-form.html",
+
                     "register.html",
+
                     "search.html",
+
                     "reports.html",
+
                     "admin.html",
+
                     "settings.html"
+
                 ];
 
 
@@ -2393,17 +2699,28 @@ if (
 
 
                     /*
-                     * مهم:
+                     * تر ټولو مهم:
                      *
-                     * د System یوه برخه د بلې ځای نیسي.
-                     * پخوانۍ برخه History ته نه داخلېږي.
+                     * location.replace()
+                     *
+                     * نه:
+                     *
+                     * location.href
+                     *
+                     * او نه:
+                     *
+                     * history.pushState()
+                     *
                      */
+
 
                     window.location.replace(
                         destination.href
                     );
 
+
                     return;
+
                 }
 
             } catch (error) {
@@ -2412,19 +2729,23 @@ if (
                     "System Navigation Error:",
                     error
                 );
+
             }
 
         },
         true
     );
+
 }
 
 
 // ==========================================
-// Get Admin Profile By UID
+// Get Admin Profile
 // ==========================================
 
-export async function getAdminProfile(user) {
+export async function getAdminProfile(
+    user
+) {
 
     try {
 
@@ -2432,7 +2753,9 @@ export async function getAdminProfile(user) {
             !user ||
             !user.uid
         ) {
+
             return null;
+
         }
 
 
@@ -2476,22 +2799,26 @@ export async function getAdminProfile(user) {
                 await getDoc(
                     legacyRef
                 );
+
         }
 
 
         // ======================================
-        // Profile Not Found
+        // Missing
         // ======================================
 
         if (
             !snapshot.exists()
         ) {
+
             return null;
+
         }
 
 
         const data =
-            snapshot.data() || {};
+            snapshot.data() ||
+            {};
 
 
         const storedUid =
@@ -2513,19 +2840,21 @@ export async function getAdminProfile(user) {
 
 
         // ======================================
-        // UID Security Check
+        // UID Check
         // ======================================
 
         if (
             storedUid &&
             storedUid !== currentUid
         ) {
+
             return null;
+
         }
 
 
         // ======================================
-        // Email Security Check
+        // Email Check
         // ======================================
 
         if (
@@ -2533,23 +2862,28 @@ export async function getAdminProfile(user) {
             currentEmail &&
             storedEmail !== currentEmail
         ) {
+
             return null;
+
         }
 
 
         // ======================================
-        // Active Check
+        // Active
         // ======================================
 
         if (
-            data.active !== true
+            data.active !==
+            true
         ) {
+
             return null;
+
         }
 
 
         // ======================================
-        // Role Check
+        // Role
         // ======================================
 
         const role =
@@ -2563,13 +2897,11 @@ export async function getAdminProfile(user) {
                 role
             )
         ) {
+
             return null;
+
         }
 
-
-        // ======================================
-        // Return Profile
-        // ======================================
 
         return {
 
@@ -2587,16 +2919,18 @@ export async function getAdminProfile(user) {
 
             name:
                 normalizeText(
-                    data.name || ""
+                    data.name ||
+                    ""
                 ),
 
             role,
 
-            active: true,
+            active:
+                true,
 
             ...data
-        };
 
+        };
 
     } catch (error) {
 
@@ -2606,7 +2940,9 @@ export async function getAdminProfile(user) {
         );
 
         return null;
+
     }
+
 }
 
 
@@ -2623,18 +2959,20 @@ export async function loginUser(
 
         email =
             String(
-                email || ""
+                email ||
+                ""
             ).trim();
 
 
         password =
             String(
-                password || ""
+                password ||
+                ""
             );
 
 
         // ======================================
-        // Email Validation
+        // Email
         // ======================================
 
         if (
@@ -2643,16 +2981,19 @@ export async function loginUser(
 
             return {
 
-                success: false,
+                success:
+                    false,
 
                 message:
                     "ایمیل ولیکئ."
+
             };
+
         }
 
 
         // ======================================
-        // Password Validation
+        // Password
         // ======================================
 
         if (
@@ -2661,16 +3002,19 @@ export async function loginUser(
 
             return {
 
-                success: false,
+                success:
+                    false,
 
                 message:
                     "پاسورډ ولیکئ."
+
             };
+
         }
 
 
         // ======================================
-        // Firebase Login
+        // Sign In
         // ======================================
 
         const result =
@@ -2696,7 +3040,7 @@ export async function loginUser(
 
 
         // ======================================
-        // Invalid Admin
+        // No Profile
         // ======================================
 
         if (
@@ -2710,20 +3054,24 @@ export async function loginUser(
 
             return {
 
-                success: false,
+                success:
+                    false,
 
                 message:
                     `ستاسو حساب د ${SYSTEM_NAME} په Admin لست کې نشته.`
+
             };
+
         }
 
 
         // ======================================
-        // Active Check
+        // Inactive
         // ======================================
 
         if (
-            profile.active !== true
+            profile.active !==
+            true
         ) {
 
             await signOut(
@@ -2733,16 +3081,19 @@ export async function loginUser(
 
             return {
 
-                success: false,
+                success:
+                    false,
 
                 message:
                     "ستاسو حساب غیر فعال شوی دی."
+
             };
+
         }
 
 
         // ======================================
-        // Role Check
+        // Role
         // ======================================
 
         if (
@@ -2758,24 +3109,32 @@ export async function loginUser(
 
             return {
 
-                success: false,
+                success:
+                    false,
 
                 message:
                     "ستاسو د حساب صلاحیت ناسم دی."
+
             };
+
         }
 
 
         // ======================================
         // Successful Login
         // ======================================
+        //
+        // Logout lock پاکوي.
+        //
 
         clearLogoutMarker();
 
         clearLogoutProgress();
 
+
         logoutNavigationStarted =
             false;
+
 
         redirectingToLogin =
             false;
@@ -2790,36 +3149,29 @@ export async function loginUser(
                 logoutFallbackTimer
             );
 
+
             logoutFallbackTimer =
                 null;
+
         }
 
 
         unlockCurrentPage();
 
 
-        // ======================================
-        // Login History Marker
-        // ======================================
-
-        if (
-            typeof window !== "undefined" &&
-            isLoginPage()
-        ) {
-
-            ensureLoginHistoryMarker();
-        }
+        ensureLoginHistoryMarker();
 
 
         return {
 
-            success: true,
+            success:
+                true,
 
             user,
 
             profile
-        };
 
+        };
 
     } catch (error) {
 
@@ -2906,16 +3258,23 @@ export async function loginUser(
                 message =
                     error.message ||
                     message;
+
+                break;
+
         }
 
 
         return {
 
-            success: false,
+            success:
+                false,
 
             message
+
         };
+
     }
+
 }
 
 
@@ -2923,20 +3282,17 @@ export async function loginUser(
 // Logout
 // ==========================================
 //
-// ډېر مهم:
+// مهم اصلاح:
 //
-// Logout نور د Firebase signOut() بشپړېدو
-// ته انتظار نه کوي.
+// 1. Marker سمدستي.
+// 2. Progress سمدستي.
+// 3. Page hide نه کېږي.
+// 4. Firebase signOut شروع کېږي.
+// 5. login.html/index.html ته مستقیم replace.
 //
-// ترتیب:
-//
-// 1. Logout Marker
-// 2. Logout Progress
-// 3. Firebase signOut() پیل
-// 4. سمدستي index.html
-//
-// په دې ډول د کارونکي لپاره
-// سپین/خالي Screen نه جوړېږي.
+// د Login Page لپاره marker د دې مخه نیسي
+// چې پاتې Firebase user بېرته Dashboard ته
+// redirect شي.
 //
 // ==========================================
 
@@ -2952,10 +3308,14 @@ export async function logoutUser() {
 
         return {
 
-            success: true,
+            success:
+                true,
 
-            alreadyLoggingOut: true
+            alreadyLoggingOut:
+                true
+
         };
+
     }
 
 
@@ -2964,54 +3324,48 @@ export async function logoutUser() {
 
 
     // ======================================
-    // Immediately Register Logout
+    // Security Marker FIRST
     // ======================================
 
     setLogoutMarker();
+
 
     setLogoutProgress();
 
 
     // ======================================
-    // Lock Interaction
+    // Do Not Hide Page
     // ======================================
 
     lockCurrentPageDuringLogout();
 
 
     // ======================================
-    // Start Firebase SignOut
+    // Firebase SignOut
     // ======================================
     //
-    // مهم:
-    // await نه کوو.
+    // دا operation شروع کېږي.
     //
-    // ځکه User باید سمدستي Login Page ته
-    // ولاړ شي.
+    // Login Page ته د تګ لپاره پرې
+    // await نه کوو، څو UI ودریږي نه.
+    //
+    // د logout marker له امله Login Page
+    // د لنډمهاله user state پر اساس
+    // Dashboard ته نه ځي.
     //
 
     try {
 
-        const signOutPromise =
-            signOut(
-                auth
-            );
-
-
-        /*
-         * signOut په شالید کې روان پرېږدو.
-         *
-         * د Logout اصلي امنیت marker لا دمخه
-         * ثبت شوی.
-         */
-
-        void signOutPromise.catch(
+        void signOut(
+            auth
+        ).catch(
             error => {
 
                 console.error(
                     "Background Firebase SignOut Error:",
                     error
                 );
+
             }
         );
 
@@ -3021,15 +3375,15 @@ export async function logoutUser() {
             "Firebase SignOut Start Error:",
             error
         );
+
     }
 
 
     // ======================================
-    // DIRECT IMMEDIATE LOGIN REDIRECT
+    // DIRECT LOGIN
     // ======================================
     //
-    // تر signOut وروسته await نشته.
-    // همدا اوس Login Page ته ځي.
+    // سمدستي.
     //
 
     try {
@@ -3051,20 +3405,18 @@ export async function logoutUser() {
             window.location.href =
                 LOGIN_PAGE;
 
-        } catch (fallbackError) {
+        } catch {}
 
-            console.error(
-                "Immediate Login Fallback Error:",
-                fallbackError
-            );
-        }
     }
 
 
     return {
 
-        success: true
+        success:
+            true
+
     };
+
 }
 
 
@@ -3080,7 +3432,8 @@ export async function resetPassword(
 
         email =
             String(
-                email || ""
+                email ||
+                ""
             ).trim();
 
 
@@ -3090,11 +3443,14 @@ export async function resetPassword(
 
             return {
 
-                success: false,
+                success:
+                    false,
 
                 message:
                     "خپل ایمیل ولیکئ."
+
             };
+
         }
 
 
@@ -3106,12 +3462,13 @@ export async function resetPassword(
 
         return {
 
-            success: true,
+            success:
+                true,
 
             message:
                 "د پاسورډ د بدلولو لینک ستاسو ایمیل ته واستول شو."
-        };
 
+        };
 
     } catch (error) {
 
@@ -3158,16 +3515,23 @@ export async function resetPassword(
                 message =
                     error.message ||
                     message;
+
+                break;
+
         }
 
 
         return {
 
-            success: false,
+            success:
+                false,
 
             message
+
         };
+
     }
+
 }
 
 
@@ -3178,6 +3542,7 @@ export async function resetPassword(
 export function getCurrentUser() {
 
     return auth.currentUser;
+
 }
 
 
@@ -3196,7 +3561,9 @@ export async function getCurrentSession() {
         if (
             !user
         ) {
+
             return null;
+
         }
 
 
@@ -3214,7 +3581,9 @@ export async function getCurrentSession() {
                 auth
             );
 
+
             return null;
+
         }
 
 
@@ -3223,8 +3592,8 @@ export async function getCurrentSession() {
             user,
 
             profile
-        };
 
+        };
 
     } catch (error) {
 
@@ -3234,13 +3603,27 @@ export async function getCurrentSession() {
         );
 
         return null;
+
     }
+
 }
 
 
 // ==========================================
 // Authentication Listener
 // ==========================================
+//
+// مهم اصلاح:
+//
+// Login Page + Logout Marker
+// = session callback بند.
+//
+// دا هغه مهمه برخه ده چې د
+//
+// Login -> Dashboard -> Login
+//
+// فلیکر ختموي.
+//
 
 export function listenAuth(
     callback
@@ -3254,12 +3637,39 @@ export function listenAuth(
         throw new Error(
             "listenAuth callback باید function وي."
         );
+
     }
 
 
     return onAuthStateChanged(
         auth,
         async user => {
+
+            // ==================================
+            // LOGOUT STATE ON LOGIN PAGE
+            // ==================================
+            //
+            // که Firebase لا د پخواني user
+            // state ښيي هم، Login Page یې
+            // Dashboard ته نه Redirect کوي.
+            //
+
+            if (
+                isLoginPage() &&
+                (
+                    hasLogoutMarker() ||
+                    hasLogoutProgress()
+                )
+            ) {
+
+                callback(
+                    null
+                );
+
+                return;
+
+            }
+
 
             // ==================================
             // No User
@@ -3269,42 +3679,17 @@ export function listenAuth(
                 !user
             ) {
 
-                // Explicit Logout
-                if (
-                    hasLogoutMarker() ||
-                    hasLogoutProgress()
-                ) {
-
-                    if (
-                        isLoginPage()
-                    ) {
-
-                        clearLogoutProgress();
-
-                        unlockCurrentPage();
-
-                        ensureLoginHistoryMarker();
-
-                        callback(null);
-
-                    } else {
-
-                        continueLogoutHistory();
-                    }
-
-                    return;
-                }
-
-
-                // Normal Unauthorized
-                callback(null);
+                callback(
+                    null
+                );
 
                 return;
+
             }
 
 
             // ==================================
-            // Valid User
+            // Profile
             // ==================================
 
             try {
@@ -3315,9 +3700,9 @@ export function listenAuth(
                     );
 
 
-                // ==================================
-                // Invalid Profile
-                // ==================================
+                // ==============================
+                // Invalid
+                // ==============================
 
                 if (
                     !profile
@@ -3327,41 +3712,52 @@ export function listenAuth(
                         auth
                     );
 
-                    callback(null);
+
+                    callback(
+                        null
+                    );
+
 
                     return;
+
                 }
 
 
-                // ==================================
-                // Active Check
-                // ==================================
+                // ==============================
+                // Inactive
+                // ==============================
 
                 if (
-                    profile.active !== true
+                    profile.active !==
+                    true
                 ) {
 
                     await signOut(
                         auth
                     );
 
-                    callback(null);
+
+                    callback(
+                        null
+                    );
+
 
                     return;
+
                 }
 
 
-                // ==================================
-                // Successful Session
-                // ==================================
+                // ==============================
+                // Valid
+                // ==============================
 
                 callback({
 
                     user,
 
                     profile
-                });
 
+                });
 
             } catch (error) {
 
@@ -3385,13 +3781,20 @@ export function listenAuth(
                         "Auth Listener SignOut Error:",
                         signOutError
                     );
+
                 }
 
 
-                callback(null);
+                callback(
+                    null
+                );
+
             }
+
         }
+
     );
+
 }
 
 
@@ -3404,9 +3807,11 @@ export async function isAuthenticated() {
     const session =
         await getCurrentSession();
 
+
     return Boolean(
         session
     );
+
 }
 
 
@@ -3425,13 +3830,16 @@ export async function hasRole(
     if (
         !session
     ) {
+
         return false;
+
     }
 
 
     const role =
         String(
-            session.profile?.role || ""
+            session.profile?.role ||
+            ""
         )
             .trim()
             .toLowerCase();
@@ -3440,7 +3848,9 @@ export async function hasRole(
     const normalizedAllowedRoles =
         allowedRoles.map(
             value =>
-                String(value)
+                String(
+                    value
+                )
                     .trim()
                     .toLowerCase()
         );
@@ -3449,6 +3859,7 @@ export async function hasRole(
     return normalizedAllowedRoles.includes(
         role
     );
+
 }
 
 
@@ -3461,6 +3872,7 @@ export async function isSuperAdmin() {
     return hasRole([
         "superadmin"
     ]);
+
 }
 
 
@@ -3474,6 +3886,7 @@ export async function isAdmin() {
         "superadmin",
         "admin"
     ]);
+
 }
 
 
@@ -3488,6 +3901,7 @@ export async function isUser() {
         "admin",
         "user"
     ]);
+
 }
 
 
@@ -3520,4 +3934,5 @@ export default {
     isAdmin,
 
     isUser
+
 };
