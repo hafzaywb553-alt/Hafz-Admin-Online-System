@@ -690,4 +690,4 @@ if (typeof window !== "undefined") {
   };
 }
 
-export { LANGUAGES, CORE };
+export { CORE };
