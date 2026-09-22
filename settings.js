@@ -5,6 +5,7 @@
    ========================================================= */
 
 import { db } from "./firebase.js";
+import { applyGlobalLanguage, getGlobalTranslation } from "./i18n.js";
 
 import {
     doc,
@@ -1787,6 +1788,16 @@ export function getTranslation(
     language = currentSettings.language
 ) {
 
+    const globalValue =
+        getGlobalTranslation(
+            key,
+            language
+        );
+
+    if (globalValue !== null) {
+        return globalValue;
+    }
+
     const pack =
         TRANSLATIONS[
             language
@@ -1805,25 +1816,14 @@ export function applyTranslations(
     settings = currentSettings
 ) {
 
-    /*
-       Reports خپل ځانګړی I18N Engine لري.
-       نو settings.js باید د Reports data-i18n
-       عناصر لنډمهاله بدل نه کړي.
-    */
-
-    if (
-        typeof document !== "undefined" &&
-        document.body?.dataset.reportsPage === "true"
-    ) {
-
-        return;
-    }
 
 
     const language =
         settings.language in TRANSLATIONS
             ? settings.language
             : "ps";
+
+    applyGlobalLanguage(language);
 
 
     document
