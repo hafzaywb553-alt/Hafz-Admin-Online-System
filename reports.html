@@ -1,1599 +1,6139 @@
-<!DOCTYPE html>
-<html lang="ps" dir="rtl">
-
-<head>
-
-    <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+// ==========================================
+// د افغانستان اسلامي امارت د کره کمیسیون
+// د فورمو د ثبت او مدیریت ډیټابیس
+// reports.js
+//
+// اصلي Reports Engine
+// + پرمختللی لټون
+// + فلټرونه
+// + Pagination
+// + CSV / JSON
+// + Copy
+// + Print
+// + Details
+// + څو ژبې
+// + Settings همغږي
+// ==========================================
 
-    <meta
-        name="theme-color"
-        content="#0B6B36"
-    >
 
-    <title>
-        راپورونه - د افغانستان اسلامي امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس
-    </title>
+import { db } from "./firebase.js";
 
-    <link
-        rel="stylesheet"
-        href="./style.css"
-    >
 
-    <link
-        rel="manifest"
-        href="./manifest.json"
-    >
+import {
+    collection,
+    getDocs
+} from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
-    <link
-        href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700;800;900&display=swap"
-        rel="stylesheet"
-    >
 
-    <link
-        rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
-    >
+import {
+    listenAuth,
+    logoutUser
+} from "./auth.js";
 
-    <meta
-        name="mobile-web-app-capable"
-        content="yes"
-    >
 
-    <meta
-        name="apple-mobile-web-app-capable"
-        content="yes"
-    >
+import {
+    initializeSettings,
+    getSettings
+} from "./settings.js";
 
-    <meta
-        name="apple-mobile-web-app-status-bar-style"
-        content="default"
-    >
 
-</head>
 
+// ==========================================
+// Firestore Collection
+// ==========================================
 
-<body data-reports-page="true">
+const RECORDS_COLLECTION = "records";
 
 
-<header class="main-header">
 
-    <div class="header-brand">
+// ==========================================
+// System Name
+// ==========================================
 
-        <div
-            class="header-logo"
-            aria-hidden="true"
-        >
-            📄
-        </div>
+const SYSTEM_NAME =
+    "د افغانستان اسلامي امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس";
 
-        <div
-            class="header-title"
-            data-system-name
-        >
-            د افغانستان اسلامي امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس
-        </div>
 
-    </div>
 
+// ==========================================
+// Translations
+// ==========================================
 
-    <div class="header-actions">
+const I18N = {
 
-        <button
-            type="button"
-            id="refreshBtn"
-            data-i18n-title="refresh"
-            data-i18n-aria="refresh"
-            title="ریفریش"
-            aria-label="ریفریش"
-        >
-            🔄
-        </button>
+    ps: {
 
-        <button
-            type="button"
-            id="logoutBtn"
-            data-i18n-title="logout"
-            data-i18n-aria="logout"
-            title="وتل"
-            aria-label="وتل"
-        >
-            🚪
-        </button>
+        reportsTitle:
+            "📙 راپورونه",
 
-    </div>
+        reportsDescription:
+            "د ثبت، فورم ډول، ولایت او وروستیو معلوماتو لنډ او بشپړ راپورونه.",
 
-</header>
+        mainMenu:
+            "اصلي مینو",
 
+        dashboard:
+            "کورپاڼه",
 
+        formic:
+            "فورمیک",
 
-<div class="app-layout">
+        newRegister:
+            "نوی ثبت",
 
+        search:
+            "لټون",
 
-    <aside class="sidebar">
+        reports:
+            "راپورونه",
 
+        admin:
+            "اډمــینانوبرخه",
 
-        <div
-            class="sidebar-title"
-            id="sidebarTitle"
-        >
-            <span data-i18n="mainMenu">
-                اصلي مینو
-            </span>
-        </div>
+        settings:
+            "تنظیمات",
 
+        refresh:
+            "ریفریش",
 
+        logout:
+            "وتل",
 
-        <nav
-            class="sidebar-menu"
-            aria-label="اصلي مینو"
-            data-i18n-aria="mainMenu"
-        >
+        allRecords:
+            "💑 ټول ثبت شوي کسان",
 
+        todayRecords:
+            "💏 د نن ثبتونه",
 
-            <button
-                type="button"
-                id="dashboardMenuBtn"
-                aria-label="کورپاڼه"
-            >
+        fraudRecords:
+            "❌ جعلي فورمې",
 
-                <span
-                    class="sidebar-icon"
-                    aria-hidden="true"
-                >
-                    💒
-                </span>
+        activeRecords:
+            "✅ فعال ثبتونه",
 
-                <span data-i18n="dashboard">
-                    کورپاڼه
-                </span>
+        workbench:
+            "🧰 د راپورونو کاري مېز",
 
-            </button>
+        workbenchDesc:
+            "د ثبتونو پلټنه، فلټر، ترتیب، پاڼې، چاپ او صادرول له همدې برخې ترسره کړئ.",
 
+        searchLabel:
+            "لټون",
 
+        searchPlaceholder:
+            "د فورمې شمېره، نوم، د پلار نوم، تذکره، موبایل، ولایت...",
 
-            <button
-                type="button"
-                id="formicMenuBtn"
-                aria-label="فورمیک"
-            >
+        category:
+            "فورم ډول",
 
-                <span
-                    class="sidebar-icon"
-                    aria-hidden="true"
-                >
-                    📗
-                </span>
+        province:
+            "ولایت",
 
-                <span data-i18n="formic">
-                    فورمیک
-                </span>
+        status:
+            "حالت",
 
-            </button>
+        fraudState:
+            "جعلي حالت",
 
+        fromDate:
+            "له نېټې",
 
+        toDate:
+            "تر نېټې",
 
-            <button
-                type="button"
-                id="registerMenuBtn"
-                aria-label="نوی ثبت"
-            >
+        sort:
+            "ترتیب",
 
-                <span
-                    class="sidebar-icon"
-                    aria-hidden="true"
-                >
-                    💻
-                </span>
+        allCategories:
+            "ټولې کټګورۍ",
 
-                <span data-i18n="newRegister">
-                    نوی ثبت
-                </span>
+        allProvinces:
+            "ټول ولایتونه",
 
-            </button>
+        allStatuses:
+            "ټول حالتونه",
 
+        allFraud:
+            "د جعلي حالت ټول",
 
+        normalOnly:
+            "یوازې عادي",
 
-            <button
-                type="button"
-                id="searchMenuBtn"
-                aria-label="لټون"
-            >
+        fraudOnly:
+            "یوازې جعلي",
 
-                <span
-                    class="sidebar-icon"
-                    aria-hidden="true"
-                >
-                    🔍
-                </span>
+        sortNewest:
+            "نوې تر زړې",
 
-                <span data-i18n="search">
-                    لټون
-                </span>
+        sortOldest:
+            "زړې تر نوې",
 
-            </button>
+        sortName:
+            "د نوم له مخې",
 
+        sortForm:
+            "د فورمې شمېره",
 
+        page10:
+            "۱۰ کرښې",
 
-            <button
-                type="button"
-                id="reportsMenuBtn"
-                class="active"
-                aria-current="page"
-                aria-label="راپورونه"
-            >
+        page25:
+            "۲۵ کرښې",
 
-                <span
-                    class="sidebar-icon"
-                    aria-hidden="true"
-                >
-                    📙
-                </span>
+        page50:
+            "۵۰ کرښې",
 
-                <span data-i18n="reports">
-                    راپورونه
-                </span>
+        page100:
+            "۱۰۰ کرښې",
 
-            </button>
+        clearFilters:
+            "🧹 فلټرونه پاکول",
 
+        refreshReport:
+            "🔄 راپور تازه کول",
 
+        exportCsv:
+            "📊 CSV صادرول",
 
-            <button
-                type="button"
-                id="adminMenuBtn"
-                aria-label="اډمــینانوبرخه"
-            >
+        exportJson:
+            "🧾 JSON صادرول",
 
-                <span
-                    class="sidebar-icon"
-                    aria-hidden="true"
-                >
-                    👥
-                </span>
+        copy:
+            "📋 راپور کاپي کول",
 
-                <span data-i18n="admin">
-                    اډمــینانوبرخه
-                </span>
+        print:
+            "🖨️ چاپ",
 
-            </button>
+        help:
+            "❓ مرسته",
 
+        resultSummary:
+            "ښودل شوي",
 
+        totalFiltered:
+            "له ټولټال",
 
-            <button
-                type="button"
-                id="settingsMenuBtn"
-                aria-label="تنظیمات"
-            >
+        rows:
+            "ثبتونه",
 
-                <span
-                    class="sidebar-icon"
-                    aria-hidden="true"
-                >
-                    ⚙️
-                </span>
+        formNumber:
+            "فورم نمبر",
 
-                <span data-i18n="settings">
-                    تنظیمات
-                </span>
+        name:
+            "نوم",
 
-            </button>
+        fatherName:
+            "د پلار نوم",
 
+        action:
+            "عمل",
 
-        </nav>
+        date:
+            "نېټه",
 
+        view:
+            "👁️ لیدل",
 
-    </aside>
+        noFiltered:
+            "د ټاکل شوو فلټرونو له مخې هېڅ ثبت پیدا نه شو.",
 
+        page:
+            "پاڼه",
 
+        of:
+            "له",
 
-    <main class="main-content">
+        previous:
+            "← مخکینۍ",
 
+        next:
+            "وروستۍ →",
 
-        <div class="page reports-page">
+        ready:
+            "چمتو",
 
+        loading:
+            "لوډېږي...",
 
-            <!-- =========================================
-                 د راپورونو سر
-            ========================================== -->
+        error:
+            "تېروتنه",
 
-            <section class="settings-page-header">
+        recent:
+            "وروستي",
 
-                <div>
+        records:
+            "راپور",
 
-                    <h1
-                        class="settings-page-title"
-                        id="pageTitle"
-                    >
+        categoryReport:
+            "📊 د فورم ډولونو راپور",
 
-                        <span data-i18n="reportsTitle">
-                            📙 راپورونه
-                        </span>
+        categoryDesc:
+            "د هر ډول فورم شمېره",
 
-                    </h1>
+        provinceReport:
+            "🗺️ د ولایتونو راپور",
 
+        provinceDesc:
+            "د اصلي ځای ولایتونه",
 
-                    <p
-                        class="settings-page-description"
-                        id="pageDescription"
-                        data-i18n="reportsDescription"
-                    >
-                        د ثبت، فورم ډول، ولایت او وروستیو معلوماتو لنډ او بشپړ راپورونه.
-                    </p>
+        recentTitle:
+            "🕒 وروستي ثبتونه",
 
-                </div>
+        recentDesc:
+            "وروستي 10 ثبت شوي کسان",
 
-            </section>
+        loadingData:
+            "د معلوماتو د لوډ کېدو په تمه...",
 
+        noData:
+            "هیڅ ثبت نه شته.",
 
+        noCategory:
+            "د فورم ډولونو راپور نشته.",
 
-            <!-- =========================================
-                 Message
-            ========================================== -->
+        noProvince:
+            "د ولایتونو راپور نشته.",
 
-            <div
-                id="reportsMessage"
-                class="alert"
-                style="display:none;"
-                role="alert"
-                aria-live="polite"
-            ></div>
+        close:
+            "بندول",
 
+        detailsTitle:
+            "د ثبت بشپړ معلومات",
 
+        copied:
+            "راپور کاپي شو.",
 
-            <!-- =========================================
-                 اصلي احصایې
-            ========================================== -->
+        copyFailed:
+            "راپور کاپي نه شو.",
 
-            <section class="stats-grid">
+        exportDone:
+            "فایل په بریالیتوب صادر شو.",
 
+        helpTitle:
+            "د راپورونو مرسته",
 
-                <div class="stat-card">
+        helpBody:
+            "لټون د فورمې شمېرې، نوم، د پلار نوم، تذکرې، موبایل، ولایت او نورو ثبت شوو معلوماتو پر بنسټ ترسره کېږي. فلټرونه یوځای کار کوي. CSV او JSON د اوسني فلټر شوي راپور له مخې فایل جوړوي. د لیدلو تڼۍ د یو ثبت بشپړ معلومات ښکاره کوي.",
 
-                    <div
-                        class="stat-label"
-                        data-i18n="allRecords"
-                    >
-                        💑 ټول ثبت شوي کسان
-                    </div>
+        loadError:
+            "د راپورونو د لوډ کېدو پر مهال ستونزه رامنځته شوه.",
 
-                    <div
-                        class="stat-value"
-                        id="totalRecords"
-                    >
-                        0
-                    </div>
+        noPermission:
+            "د Firestore اجازه رد شوه. د records ټولګې Rules وګورئ.",
 
-                </div>
+        detailsError:
+            "د ثبت د معلوماتو ښودلو پر مهال ستونزه رامنځته شوه.",
 
+        formType:
+            "فورم ډول",
 
+        normal:
+            "عادي",
 
-                <div class="stat-card">
+        yes:
+            "هو",
 
-                    <div
-                        class="stat-label"
-                        data-i18n="todayRecords"
-                    >
-                        💏 د نن ثبتونه
-                    </div>
+        no:
+            "نه",
 
-                    <div
-                        class="stat-value"
-                        id="todayRecords"
-                    >
-                        0
-                    </div>
+        statusActive:
+            "فعال",
 
-                </div>
+        statusInactive:
+            "غیر فعال",
 
+        statusPending:
+            "د انتظار",
 
+        statusFraud:
+            "جعلي",
 
-                <div class="stat-card">
+        fieldForm:
+            "د فورمې شمېره",
 
-                    <div
-                        class="stat-label"
-                        data-i18n="fraudRecords"
-                    >
-                        ❌ جعلي فورمې
-                    </div>
+        fieldName:
+            "بشپړ نوم",
 
-                    <div
-                        class="stat-value"
-                        id="fraudRecords"
-                    >
-                        0
-                    </div>
+        fieldFather:
+            "د پلار نوم",
 
-                </div>
+        fieldCategory:
+            "فورم ډول",
 
+        fieldProvince:
+            "اصلي ولایت",
 
+        fieldCurrentProvince:
+            "اوسنی ولایت",
 
-                <div class="stat-card">
+        fieldJob:
+            "اوسنۍ دنده",
 
-                    <div
-                        class="stat-label"
-                        data-i18n="activeRecords"
-                    >
-                        ✅ فعال ثبتونه
-                    </div>
+        fieldTazkira:
+            "تذکره",
 
-                    <div
-                        class="stat-value"
-                        id="activeRecords"
-                    >
-                        0
-                    </div>
+        fieldPhone:
+            "موبایل",
 
-                </div>
+        fieldStatus:
+            "حالت",
 
+        fieldFraud:
+            "جعلي فورمه",
 
-            </section>
+        fieldCreatedAt:
+            "د ثبت نېټه",
 
+        empty:
+            "—"
 
+    },
 
-            <!-- =========================================
-                 د راپورونو کاري مېز
-            ========================================== -->
 
-            <section
-                class="card reports-workbench"
-                style="margin-top:14px;"
-            >
+    fa: {
 
+        reportsTitle:"📙 گزارش‌ها",
 
-                <div
-                    style="
-                        display:flex;
-                        align-items:center;
-                        justify-content:space-between;
-                        gap:10px;
-                        flex-wrap:wrap;
-                        margin-bottom:12px;
-                    "
-                >
+        reportsDescription:
+            "گزارش‌های خلاصه و کامل از ثبت‌ها، نوع فورم، ولایت و آخرین معلومات.",
 
-                    <div>
+        mainMenu:"منوی اصلی",
 
-                        <h2
-                            style="
-                                font-size:20px;
-                                font-weight:800;
-                                margin:0;
-                            "
-                            data-i18n="workbench"
-                        >
-                            🧰 د راپورونو کاري مېز
-                        </h2>
+        dashboard:"صفحه اصلی",
 
+        formic:"فورمیک",
 
-                        <p
-                            style="
-                                color:var(--muted-color);
-                                font-size:13px;
-                                margin:5px 0 0;
-                            "
-                            data-i18n="workbenchDesc"
-                        >
-                            د ثبتونو پلټنه، فلټر، ترتیب، پاڼې، چاپ او صادرول له همدې برخې ترسره کړئ.
-                        </p>
+        newRegister:"ثبت جدید",
 
-                    </div>
+        search:"جستجو",
 
-                </div>
+        reports:"گزارش‌ها",
 
+        admin:"بخش مدیریت",
 
+        settings:"تنظیمات",
 
-                <!-- ======================================
-                     لټون او فلټر
-                ======================================= -->
+        refresh:"تازه‌سازی",
 
-                <div
-                    class="reports-filter-grid"
-                    style="
-                        display:flex;
-                        flex-wrap:wrap;
-                        gap:10px;
-                        align-items:flex-end;
-                    "
-                >
+        logout:"خروج",
 
+        allRecords:"💑 تمام افراد ثبت‌شده",
 
-                    <div
-                        class="form-group"
-                        style="
-                            flex:2 1 300px;
-                            min-width:240px;
-                        "
-                    >
+        todayRecords:"💏 ثبت‌های امروز",
 
-                        <label
-                            class="form-label"
-                            for="reportSearch"
-                            data-i18n="searchLabel"
-                        >
-                            لټون
-                        </label>
+        fraudRecords:"❌ فورم‌های جعلی",
 
-                        <input
-                            id="reportSearch"
-                            class="form-control"
-                            type="search"
-                            autocomplete="off"
-                            data-i18n-placeholder="searchPlaceholder"
-                            placeholder="د فورمې شمېره، نوم، د پلار نوم، تذکره، موبایل، ولایت..."
-                        >
+        activeRecords:"✅ ثبت‌های فعال",
 
-                    </div>
+        workbench:"🧰 میز کاری گزارش‌ها",
 
+        workbenchDesc:
+            "جستجو، فیلتر، مرتب‌سازی، صفحه‌بندی، چاپ و صدور ثبت‌ها از همین بخش.",
 
+        searchLabel:"جستجو",
 
-                    <div
-                        class="form-group"
-                        style="
-                            flex:1 1 180px;
-                            min-width:170px;
-                        "
-                    >
+        searchPlaceholder:
+            "شماره فورم، نام، نام پدر، تذکره، موبایل، ولایت...",
 
-                        <label
-                            class="form-label"
-                            for="categoryFilter"
-                            data-i18n="category"
-                        >
-                            فورم ډول
-                        </label>
+        category:"نوع فورم",
 
-                        <select
-                            id="categoryFilter"
-                            class="form-control"
-                        >
+        province:"ولایت",
 
-                            <option value="">
-                                ټولې کټګورۍ
-                            </option>
+        status:"وضعیت",
 
-                        </select>
+        fraudState:"حالت جعلی",
 
-                    </div>
+        fromDate:"از تاریخ",
 
+        toDate:"تا تاریخ",
 
+        sort:"مرتب‌سازی",
 
-                    <div
-                        class="form-group"
-                        style="
-                            flex:1 1 180px;
-                            min-width:170px;
-                        "
-                    >
+        allCategories:"همه دسته‌ها",
 
-                        <label
-                            class="form-label"
-                            for="provinceFilter"
-                            data-i18n="province"
-                        >
-                            ولایت
-                        </label>
+        allProvinces:"همه ولایت‌ها",
 
-                        <select
-                            id="provinceFilter"
-                            class="form-control"
-                        >
+        allStatuses:"همه وضعیت‌ها",
 
-                            <option value="">
-                                ټول ولایتونه
-                            </option>
+        allFraud:"همه حالت‌های جعلی",
 
-                        </select>
+        normalOnly:"فقط عادی",
 
-                    </div>
+        fraudOnly:"فقط جعلی",
 
+        sortNewest:"جدید به قدیم",
 
+        sortOldest:"قدیم به جدید",
 
-                    <div
-                        class="form-group"
-                        style="
-                            flex:1 1 180px;
-                            min-width:170px;
-                        "
-                    >
+        sortName:"بر اساس نام",
 
-                        <label
-                            class="form-label"
-                            for="statusFilter"
-                            data-i18n="status"
-                        >
-                            حالت
-                        </label>
+        sortForm:"شماره فورم",
 
-                        <select
-                            id="statusFilter"
-                            class="form-control"
-                        >
+        page10:"۱۰ ردیف",
 
-                            <option value="">
-                                ټول حالتونه
-                            </option>
+        page25:"۲۵ ردیف",
 
-                        </select>
+        page50:"۵۰ ردیف",
 
-                    </div>
+        page100:"۱۰۰ ردیف",
 
+        clearFilters:"🧹 پاک‌کردن فیلترها",
 
+        refreshReport:"🔄 تازه‌کردن گزارش",
 
-                    <div
-                        class="form-group"
-                        style="
-                            flex:1 1 160px;
-                            min-width:150px;
-                        "
-                    >
+        exportCsv:"📊 صدور CSV",
 
-                        <label
-                            class="form-label"
-                            for="fraudFilter"
-                            data-i18n="fraudState"
-                        >
-                            جعلي حالت
-                        </label>
+        exportJson:"🧾 صدور JSON",
 
-                        <select
-                            id="fraudFilter"
-                            class="form-control"
-                        >
+        copy:"📋 کپی گزارش",
 
-                            <option value="">
-                                د جعلي حالت ټول
-                            </option>
+        print:"🖨️ چاپ",
 
-                        </select>
+        help:"❓ راهنما",
 
-                    </div>
+        resultSummary:"نمایش داده‌شده",
 
+        totalFiltered:"از مجموع",
 
+        rows:"ثبت",
 
-                    <div
-                        class="form-group"
-                        style="
-                            flex:1 1 150px;
-                            min-width:140px;
-                        "
-                    >
+        formNumber:"شماره فورم",
 
-                        <label
-                            class="form-label"
-                            for="dateFrom"
-                            data-i18n="fromDate"
-                        >
-                            له نېټې
-                        </label>
+        name:"نام",
 
-                        <input
-                            id="dateFrom"
-                            class="form-control"
-                            type="date"
-                        >
+        fatherName:"نام پدر",
 
-                    </div>
+        action:"عمل",
 
+        date:"تاریخ",
 
+        view:"👁️ دیدن",
 
-                    <div
-                        class="form-group"
-                        style="
-                            flex:1 1 150px;
-                            min-width:140px;
-                        "
-                    >
+        noFiltered:"بر اساس فیلترهای انتخاب‌شده هیچ ثبتی پیدا نشد.",
 
-                        <label
-                            class="form-label"
-                            for="dateTo"
-                            data-i18n="toDate"
-                        >
-                            تر نېټې
-                        </label>
+        page:"صفحه",
 
-                        <input
-                            id="dateTo"
-                            class="form-control"
-                            type="date"
-                        >
+        of:"از",
 
-                    </div>
+        previous:"← قبلی",
 
+        next:"بعدی →",
 
+        ready:"آماده",
 
-                    <div
-                        class="form-group"
-                        style="
-                            flex:1 1 170px;
-                            min-width:160px;
-                        "
-                    >
+        loading:"در حال بارگذاری...",
 
-                        <label
-                            class="form-label"
-                            for="sortFilter"
-                            data-i18n="sort"
-                        >
-                            ترتیب
-                        </label>
+        error:"خطا",
 
-                        <select
-                            id="sortFilter"
-                            class="form-control"
-                        >
+        recent:"آخرین",
 
-                            <option value="newest">
-                                نوې تر زړې
-                            </option>
+        records:"گزارش",
 
-                        </select>
+        categoryReport:"📊 گزارش انواع فورم",
 
-                    </div>
+        categoryDesc:"تعداد هر نوع فورم",
 
+        provinceReport:"🗺️ گزارش ولایت‌ها",
 
-                </div>
+        provinceDesc:"ولایت محل اصلی",
 
+        recentTitle:"🕒 آخرین ثبت‌ها",
 
+        recentDesc:"۱۰ فرد ثبت‌شده آخر",
 
-                <!-- ======================================
-                     د راپور تڼۍ
-                ======================================= -->
+        loadingData:"در انتظار بارگذاری معلومات...",
 
-                <div
-                    class="reports-toolbar"
-                    style="
-                        display:flex;
-                        flex-wrap:wrap;
-                        gap:10px;
-                        margin-top:14px;
-                    "
-                >
+        noData:"هیچ ثبتی وجود ندارد.",
 
+        noCategory:"گزارش نوع فورم وجود ندارد.",
 
-                    <button
-                        type="button"
-                        id="clearFiltersBtn"
-                        class="btn btn-secondary"
-                        data-i18n="clearFilters"
-                    >
-                        🧹 فلټرونه پاکول
-                    </button>
+        noProvince:"گزارش ولایت وجود ندارد.",
 
+        close:"بستن",
 
+        detailsTitle:"معلومات کامل ثبت",
 
-                    <button
-                        type="button"
-                        id="refreshReportBtn"
-                        class="btn btn-primary"
-                        data-i18n="refreshReport"
-                    >
-                        🔄 راپور تازه کول
-                    </button>
+        copied:"گزارش کپی شد.",
 
+        copyFailed:"گزارش کپی نشد.",
 
+        exportDone:"فایل با موفقیت صادر شد.",
 
-                    <button
-                        type="button"
-                        id="exportCsvBtn"
-                        class="btn btn-secondary"
-                        data-i18n="exportCsv"
-                    >
-                        📊 CSV صادرول
-                    </button>
+        helpTitle:"راهنمای گزارش‌ها",
 
+        helpBody:
+            "جستجو بر اساس شماره فورم، نام، نام پدر، تذکره، موبایل، ولایت و سایر معلومات ثبت‌شده انجام می‌شود. فلترها همزمان کار می‌کنند و CSV و JSON بر اساس گزارش فیلترشده فعلی فایل می‌سازند.",
 
+        loadError:"در هنگام بارگذاری گزارش‌ها مشکل ایجاد شد.",
 
-                    <button
-                        type="button"
-                        id="exportJsonBtn"
-                        class="btn btn-secondary"
-                        data-i18n="exportJson"
-                    >
-                        🧾 JSON صادرول
-                    </button>
+        noPermission:
+            "اجازه Firestore رد شد. Rules مجموعه records را بررسی کنید.",
 
+        detailsError:
+            "در نمایش معلومات ثبت مشکل ایجاد شد.",
 
+        formType:"نوع فورم",
 
-                    <button
-                        type="button"
-                        id="copyReportBtn"
-                        class="btn btn-secondary"
-                        data-i18n="copy"
-                    >
-                        📋 راپور کاپي کول
-                    </button>
+        normal:"عادی",
 
+        yes:"بلی",
 
+        no:"خیر",
 
-                    <button
-                        type="button"
-                        id="printReportBtn"
-                        class="btn btn-secondary"
-                        data-i18n="print"
-                    >
-                        🖨️ چاپ
-                    </button>
+        statusActive:"فعال",
 
+        statusInactive:"غیرفعال",
 
+        statusPending:"در انتظار",
 
-                    <button
-                        type="button"
-                        id="reportsHelpBtn"
-                        class="btn btn-secondary"
-                        data-i18n="help"
-                    >
-                        ❓ مرسته
-                    </button>
+        statusFraud:"جعلی",
 
+        fieldForm:"شماره فورم",
 
-                </div>
+        fieldName:"نام کامل",
 
+        fieldFather:"نام پدر",
 
+        fieldCategory:"نوع فورم",
 
-                <!-- ======================================
-                     د راپور نتیجه
-                ======================================= -->
+        fieldProvince:"ولایت اصلی",
 
-                <div
-                    class="reports-result-strip"
-                    style="
-                        display:flex;
-                        justify-content:space-between;
-                        align-items:center;
-                        gap:10px;
-                        flex-wrap:wrap;
-                        margin-top:12px;
-                        padding:12px;
-                        border:1px solid var(--border-color);
-                        border-radius:14px;
-                        background:var(--surface-alt);
-                    "
-                >
+        fieldCurrentProvince:"ولایت فعلی",
 
-                    <div
-                        id="resultCount"
-                        aria-live="polite"
-                    >
-                        ښودل شوي ۰ له ټولټال ۰ ثبتونه
-                    </div>
+        fieldJob:"وظیفه فعلی",
 
+        fieldTazkira:"تذکره",
 
-                    <div class="badge badge-info">
+        fieldPhone:"موبایل",
 
-                        <span data-i18n="totalFiltered">
-                            له ټولټال
-                        </span>
+        fieldStatus:"وضعیت",
 
-                        :
+        fieldFraud:"فورم جعلی",
 
-                        <strong id="totalFiltered">
-                            0
-                        </strong>
+        fieldCreatedAt:"تاریخ ثبت",
 
-                    </div>
+        empty:"—"
 
-                </div>
+    },
 
 
+    en: {
 
-                <!-- ======================================
-                     تفصیلي راپور
-                ======================================= -->
+        reportsTitle:"📙 Reports",
 
-                <div
-                    class="table-container"
-                    style="margin-top:14px;"
-                >
+        reportsDescription:
+            "Summary and detailed reports for registrations, form types, provinces and recent records.",
 
-                    <table>
+        mainMenu:"Main Menu",
 
-                        <thead>
+        dashboard:"Dashboard",
 
-                            <tr>
+        formic:"Forms",
 
-                                <th data-i18n="formNumber">
-                                    فورم نمبر
-                                </th>
+        newRegister:"New Registration",
 
-                                <th data-i18n="name">
-                                    نوم
-                                </th>
+        search:"Search",
 
-                                <th data-i18n="fatherName">
-                                    د پلار نوم
-                                </th>
+        reports:"Reports",
 
-                                <th data-i18n="category">
-                                    فورم ډول
-                                </th>
+        admin:"Administration",
 
-                                <th data-i18n="province">
-                                    ولایت
-                                </th>
+        settings:"Settings",
 
-                                <th data-i18n="status">
-                                    حالت
-                                </th>
+        refresh:"Refresh",
 
-                                <th data-i18n="date">
-                                    نېټه
-                                </th>
+        logout:"Logout",
 
-                                <th data-i18n="action">
-                                    عمل
-                                </th>
+        allRecords:"💑 All registered persons",
 
-                            </tr>
+        todayRecords:"💏 Today's registrations",
 
-                        </thead>
+        fraudRecords:"❌ Fraudulent forms",
 
+        activeRecords:"✅ Active records",
 
-                        <tbody id="filteredTableBody">
+        workbench:"🧰 Report Workbench",
 
-                            <tr>
+        workbenchDesc:
+            "Search, filter, sort, paginate, print and export records from one place.",
 
-                                <td
-                                    colspan="8"
-                                    class="text-center"
-                                    data-i18n="loadingData"
-                                >
-                                    د معلوماتو د لوډ کېدو په تمه...
-                                </td>
+        searchLabel:"Search",
 
-                            </tr>
+        searchPlaceholder:
+            "Form number, name, father name, ID, phone, province...",
 
-                        </tbody>
+        category:"Form type",
 
-                    </table>
+        province:"Province",
 
-                </div>
+        status:"Status",
 
+        fraudState:"Fraud state",
 
+        fromDate:"From date",
 
-                <!-- ======================================
-                     پاڼه بندي
-                ======================================= -->
+        toDate:"To date",
 
-                <div
-                    class="reports-pagination"
-                    style="
-                        display:flex;
-                        justify-content:space-between;
-                        align-items:center;
-                        gap:10px;
-                        flex-wrap:wrap;
-                        margin-top:12px;
-                    "
-                >
+        sort:"Sort",
 
-                    <div id="paginationInfo">
-                        پاڼه ۱ له ۱
-                    </div>
+        allCategories:"All categories",
 
+        allProvinces:"All provinces",
 
-                    <div
-                        style="
-                            display:flex;
-                            align-items:center;
-                            gap:8px;
-                            flex-wrap:wrap;
-                        "
-                    >
+        allStatuses:"All statuses",
 
-                        <select
-                            id="pageSizeSelect"
-                            class="form-control"
-                            style="
-                                width:auto;
-                                min-width:110px;
-                            "
-                        >
+        allFraud:"All fraud states",
 
-                            <option value="10">
-                                ۱۰ کرښې
-                            </option>
+        normalOnly:"Normal only",
 
-                        </select>
+        fraudOnly:"Fraud only",
 
+        sortNewest:"Newest first",
 
-                        <button
-                            type="button"
-                            id="previousPageBtn"
-                            class="btn btn-secondary"
-                        >
-                            ← مخکینۍ
-                        </button>
+        sortOldest:"Oldest first",
 
+        sortName:"By name",
 
-                        <button
-                            type="button"
-                            id="nextPageBtn"
-                            class="btn btn-secondary"
-                        >
-                            وروستۍ →
-                        </button>
+        sortForm:"By form number",
 
-                    </div>
+        page10:"10 rows",
 
-                </div>
+        page25:"25 rows",
 
+        page50:"50 rows",
 
-            </section>
+        page100:"100 rows",
 
+        clearFilters:"🧹 Clear filters",
 
+        refreshReport:"🔄 Refresh report",
 
-            <!-- =========================================
-                 د فورم ډولونو راپور
-            ========================================== -->
+        exportCsv:"📊 Export CSV",
 
-            <section
-                class="card"
-                style="margin-top:14px;"
-            >
+        exportJson:"🧾 Export JSON",
 
-                <div
-                    style="
-                        display:flex;
-                        align-items:center;
-                        justify-content:space-between;
-                        gap:10px;
-                        flex-wrap:wrap;
-                        margin-bottom:12px;
-                    "
-                >
+        copy:"📋 Copy report",
 
-                    <div>
+        print:"🖨️ Print",
 
-                        <h2
-                            style="
-                                font-size:20px;
-                                font-weight:800;
-                            "
-                            data-i18n="categoryReport"
-                        >
-                            📊 د فورم ډولونو راپور
-                        </h2>
+        help:"❓ Help",
 
-                        <p
-                            style="
-                                color:var(--muted-color);
-                                font-size:13px;
-                            "
-                            data-i18n="categoryDesc"
-                        >
-                            د هر ډول فورم شمېره
-                        </p>
+        resultSummary:"Showing",
 
-                    </div>
+        totalFiltered:"of total",
 
+        rows:"records",
 
-                    <div
-                        class="badge badge-info"
-                        id="categoryBadge"
-                    >
-                        چمتو
-                    </div>
+        formNumber:"Form number",
 
-                </div>
+        name:"Name",
 
+        fatherName:"Father name",
 
-                <div class="table-container">
+        action:"Action",
 
-                    <table>
+        date:"Date",
 
-                        <thead>
+        view:"👁️ View",
 
-                            <tr>
+        noFiltered:"No records match the selected filters.",
 
-                                <th data-i18n="category">
-                                    فورم ډول
-                                </th>
+        page:"Page",
 
-                                <th data-i18n="count">
-                                    شمېره
-                                </th>
+        of:"of",
 
-                            </tr>
+        previous:"← Previous",
 
-                        </thead>
+        next:"Next →",
 
+        ready:"Ready",
 
-                        <tbody id="categoryTableBody">
+        loading:"Loading...",
 
-                            <tr>
+        error:"Error",
 
-                                <td
-                                    colspan="2"
-                                    class="text-center"
-                                    data-i18n="loadingData"
-                                >
-                                    د معلوماتو د لوډ کېدو په تمه...
-                                </td>
+        recent:"Recent",
 
-                            </tr>
+        records:"reports",
 
-                        </tbody>
+        categoryReport:"📊 Form type report",
 
-                    </table>
+        categoryDesc:"Count by form type",
 
-                </div>
+        provinceReport:"🗺️ Province report",
 
-            </section>
+        provinceDesc:"Original-location provinces",
 
+        recentTitle:"🕒 Recent registrations",
 
+        recentDesc:"Latest 10 registered persons",
 
-            <!-- =========================================
-                 د ولایتونو راپور
-            ========================================== -->
+        loadingData:"Waiting for data to load...",
 
-            <section
-                class="card"
-                style="margin-top:14px;"
-            >
+        noData:"No registrations found.",
 
-                <div
-                    style="
-                        display:flex;
-                        align-items:center;
-                        justify-content:space-between;
-                        gap:10px;
-                        flex-wrap:wrap;
-                        margin-bottom:12px;
-                    "
-                >
+        noCategory:"No form-type report.",
 
-                    <div>
+        noProvince:"No province report.",
 
-                        <h2
-                            style="
-                                font-size:20px;
-                                font-weight:800;
-                            "
-                            data-i18n="provinceReport"
-                        >
-                            🗺️ د ولایتونو راپور
-                        </h2>
+        close:"Close",
 
-                        <p
-                            style="
-                                color:var(--muted-color);
-                                font-size:13px;
-                            "
-                            data-i18n="provinceDesc"
-                        >
-                            د اصلي ځای ولایتونه
-                        </p>
+        detailsTitle:"Record details",
 
-                    </div>
+        copied:"Report copied.",
 
+        copyFailed:"Report could not be copied.",
 
-                    <div
-                        class="badge badge-info"
-                        id="provinceBadge"
-                    >
-                        چمتو
-                    </div>
+        exportDone:"File exported successfully.",
 
-                </div>
+        helpTitle:"Reports Help",
 
+        helpBody:
+            "Search works across form number, name, father name, ID, phone, province and other stored information. Filters work together. CSV and JSON export the current filtered report.",
 
-                <div class="table-container">
+        loadError:"There was a problem loading reports.",
 
-                    <table>
+        noPermission:
+            "Firestore permission was denied. Check the Rules for the records collection.",
 
-                        <thead>
+        detailsError:
+            "There was a problem showing record details.",
 
-                            <tr>
+        formType:"Form type",
 
-                                <th data-i18n="province">
-                                    ولایت
-                                </th>
+        normal:"Normal",
 
-                                <th data-i18n="count">
-                                    شمېره
-                                </th>
+        yes:"Yes",
 
-                            </tr>
+        no:"No",
 
-                        </thead>
+        statusActive:"Active",
 
+        statusInactive:"Inactive",
 
-                        <tbody id="provinceTableBody">
+        statusPending:"Pending",
 
-                            <tr>
+        statusFraud:"Fraudulent",
 
-                                <td
-                                    colspan="2"
-                                    class="text-center"
-                                    data-i18n="loadingData"
-                                >
-                                    د معلوماتو د لوډ کېدو په تمه...
-                                </td>
+        fieldForm:"Form number",
 
-                            </tr>
+        fieldName:"Full name",
 
-                        </tbody>
+        fieldFather:"Father name",
 
-                    </table>
+        fieldCategory:"Form type",
 
-                </div>
+        fieldProvince:"Original province",
 
-            </section>
+        fieldCurrentProvince:"Current province",
 
+        fieldJob:"Current job",
 
+        fieldTazkira:"ID",
 
-            <!-- =========================================
-                 وروستي ثبتونه
-            ========================================== -->
+        fieldPhone:"Phone",
 
-            <section
-                class="card"
-                style="margin-top:14px;"
-            >
+        fieldStatus:"Status",
 
-                <div
-                    style="
-                        display:flex;
-                        align-items:center;
-                        justify-content:space-between;
-                        gap:10px;
-                        flex-wrap:wrap;
-                        margin-bottom:12px;
-                    "
-                >
+        fieldFraud:"Fraudulent form",
 
-                    <div>
+        fieldCreatedAt:"Created date",
 
-                        <h2
-                            style="
-                                font-size:20px;
-                                font-weight:800;
-                            "
-                            data-i18n="recentTitle"
-                        >
-                            🕒 وروستي ثبتونه
-                        </h2>
+        empty:"—"
 
-                        <p
-                            style="
-                                color:var(--muted-color);
-                                font-size:13px;
-                            "
-                            data-i18n="recentDesc"
-                        >
-                            وروستي 10 ثبت شوي کسان
-                        </p>
+    },
 
-                    </div>
 
+    ur: {
 
-                    <div
-                        class="badge badge-info"
-                        id="recentBadge"
-                    >
-                        چمتو
-                    </div>
+        reportsTitle:"📙 رپورٹس",
 
-                </div>
+        reportsDescription:
+            "اندراجات، فارم کی قسم، صوبہ اور حالیہ ریکارڈز کی مختصر اور مکمل رپورٹس۔",
 
+        mainMenu:"مرکزی مینو",
 
-                <div class="table-container">
+        dashboard:"ہوم",
 
-                    <table>
+        formic:"فارمک",
 
-                        <thead>
+        newRegister:"نیا اندراج",
 
-                            <tr>
+        search:"تلاش",
 
-                                <th data-i18n="formNumber">
-                                    فورم نمبر
-                                </th>
+        reports:"رپورٹس",
 
-                                <th data-i18n="name">
-                                    نوم
-                                </th>
+        admin:"انتظامیہ",
 
-                                <th data-i18n="category">
-                                    فورم ډول
-                                </th>
+        settings:"ترتیبات",
 
-                                <th data-i18n="province">
-                                    ولایت
-                                </th>
+        refresh:"ریفریش",
 
-                                <th data-i18n="status">
-                                    حالت
-                                </th>
+        logout:"لاگ آؤٹ",
 
-                                <th data-i18n="date">
-                                    نېټه
-                                </th>
+        allRecords:"💑 تمام رجسٹرڈ افراد",
 
-                            </tr>
+        todayRecords:"💏 آج کے اندراجات",
 
-                        </thead>
+        fraudRecords:"❌ جعلی فارم",
 
+        activeRecords:"✅ فعال ریکارڈز",
 
-                        <tbody id="recentTableBody">
+        workbench:"🧰 رپورٹ ورک بینچ",
 
-                            <tr>
+        workbenchDesc:
+            "ایک ہی جگہ سے تلاش، فلٹر، ترتیب، صفحات، پرنٹ اور ایکسپورٹ کریں۔",
 
-                                <td
-                                    colspan="6"
-                                    class="text-center"
-                                    data-i18n="loadingData"
-                                >
-                                    د معلوماتو د لوډ کېدو په تمه...
-                                </td>
+        searchLabel:"تلاش",
 
-                            </tr>
+        searchPlaceholder:
+            "فارم نمبر، نام، والد کا نام، شناختی کارڈ، موبائل، صوبہ...",
 
-                        </tbody>
+        category:"فارم کی قسم",
 
-                    </table>
+        province:"صوبہ",
 
-                </div>
+        status:"حالت",
 
-            </section>
+        fraudState:"جعلی حالت",
 
+        fromDate:"تاریخ سے",
 
-        </div>
+        toDate:"تاریخ تک",
 
-    </main>
+        sort:"ترتیب",
 
-</div>
+        allCategories:"تمام زمرے",
 
+        allProvinces:"تمام صوبے",
 
+        allStatuses:"تمام حالتیں",
 
-<!-- =========================================
-     Help Modal
-========================================== -->
+        allFraud:"تمام جعلی حالتیں",
 
-<div
-    id="reportsHelpModal"
-    class="report-modal"
-    hidden
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="reportsHelpTitle"
-    style="
-        position:fixed;
-        inset:0;
-        z-index:9999;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        padding:16px;
-        background:rgba(0,0,0,.58);
-        backdrop-filter:blur(4px);
-    "
->
+        normalOnly:"صرف عام",
 
-    <div
-        class="report-modal-card"
-        style="
-            width:min(800px,100%);
-            max-height:90vh;
-            overflow:auto;
-            background:var(--surface-color,#fff);
-            color:var(--text-color,#111);
-            border:1px solid var(--border-color);
-            border-radius:18px;
-            box-shadow:0 24px 60px rgba(0,0,0,.22);
-        "
-    >
+        fraudOnly:"صرف جعلی",
 
-        <div
-            style="
-                display:flex;
-                align-items:center;
-                justify-content:space-between;
-                gap:10px;
-                padding:16px;
-                border-bottom:1px solid var(--border-color);
-            "
-        >
+        sortNewest:"نئی پہلے",
 
-            <h2
-                id="reportsHelpTitle"
-                style="
-                    margin:0;
-                    font-size:20px;
-                    font-weight:900;
-                "
-            >
-                د راپورونو مرسته
-            </h2>
+        sortOldest:"پرانی پہلے",
 
+        sortName:"نام کے مطابق",
 
-            <button
-                type="button"
-                id="reportsHelpClose"
-                class="btn btn-secondary"
-                data-i18n="close"
-            >
-                بندول
-            </button>
+        sortForm:"فارم نمبر کے مطابق",
 
-        </div>
+        page10:"۱۰ قطاریں",
 
+        page25:"۲۵ قطاریں",
 
-        <div
-            style="
-                padding:18px;
-                line-height:2;
-            "
-        >
+        page50:"۵۰ قطاریں",
 
-            <p
-                id="reportsHelpBody"
-                style="margin:0;"
-            >
-                لټون د فورمې شمېرې، نوم، د پلار نوم، تذکرې، موبایل، ولایت او نورو ثبت شوو معلوماتو پر بنسټ ترسره کېږي.
-            </p>
+        page100:"۱۰۰ قطاریں",
 
-        </div>
+        clearFilters:"🧹 فلٹر صاف کریں",
 
-    </div>
+        refreshReport:"🔄 رپورٹ ریفریش",
 
-</div>
+        exportCsv:"📊 CSV برآمد",
 
+        exportJson:"🧾 JSON برآمد",
 
+        copy:"📋 رپورٹ کاپی",
 
-<!-- =========================================
-     Record Details Modal
-========================================== -->
+        print:"🖨️ پرنٹ",
 
-<div
-    id="recordDetailsModal"
-    class="report-modal"
-    hidden
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="recordDetailsTitle"
-    style="
-        position:fixed;
-        inset:0;
-        z-index:9999;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        padding:16px;
-        background:rgba(0,0,0,.58);
-        backdrop-filter:blur(4px);
-    "
->
+        help:"❓ مدد",
 
-    <div
-        class="report-modal-card"
-        style="
-            width:min(900px,100%);
-            max-height:90vh;
-            overflow:auto;
-            background:var(--surface-color,#fff);
-            color:var(--text-color,#111);
-            border:1px solid var(--border-color);
-            border-radius:18px;
-            box-shadow:0 24px 60px rgba(0,0,0,.22);
-        "
-    >
+        resultSummary:"دکھائے گئے",
 
-        <div
-            style="
-                display:flex;
-                align-items:center;
-                justify-content:space-between;
-                gap:10px;
-                padding:16px;
-                border-bottom:1px solid var(--border-color);
-            "
-        >
+        totalFiltered:"کل میں سے",
 
-            <h2
-                id="recordDetailsTitle"
-                style="
-                    margin:0;
-                    font-size:20px;
-                    font-weight:900;
-                "
-            >
-                د ثبت بشپړ معلومات
-            </h2>
+        rows:"ریکارڈز",
 
+        formNumber:"فارم نمبر",
 
-            <button
-                type="button"
-                id="recordDetailsClose"
-                class="btn btn-secondary"
-                data-i18n="close"
-            >
-                بندول
-            </button>
+        name:"نام",
 
-        </div>
+        fatherName:"والد کا نام",
 
+        action:"عمل",
 
-        <div
-            id="recordDetailsBody"
-            style="
-                padding:18px;
-                display:grid;
-                grid-template-columns:repeat(2,minmax(0,1fr));
-                gap:12px;
-            "
-        ></div>
+        date:"تاریخ",
 
-    </div>
+        view:"👁️ دیکھیں",
 
-</div>
+        noFiltered:"منتخب فلٹرز کے مطابق کوئی ریکارڈ نہیں ملا۔",
 
+        page:"صفحہ",
 
+        of:"میں سے",
 
-<script
-    type="module"
-    src="./reports.js"
-></script>
+        previous:"← پچھلا",
 
-<script src="./pwa.js"></script>
+        next:"اگلا →",
 
+        ready:"تیار",
 
-<style>
+        loading:"لوڈ ہو رہا ہے...",
 
-    .report-modal[hidden] {
-        display:none !important;
+        error:"خرابی",
+
+        recent:"حالیہ",
+
+        records:"رپورٹس",
+
+        categoryReport:"📊 فارم اقسام کی رپورٹ",
+
+        categoryDesc:"ہر فارم کی تعداد",
+
+        provinceReport:"🗺️ صوبوں کی رپورٹ",
+
+        provinceDesc:"اصل مقام کے صوبے",
+
+        recentTitle:"🕒 حالیہ اندراجات",
+
+        recentDesc:"آخری ۱۰ رجسٹرڈ افراد",
+
+        loadingData:"معلومات لوڈ ہونے کا انتظار...",
+
+        noData:"کوئی اندراج نہیں۔",
+
+        noCategory:"فارم اقسام کی رپورٹ نہیں۔",
+
+        noProvince:"صوبوں کی رپورٹ نہیں۔",
+
+        close:"بند کریں",
+
+        detailsTitle:"ریکارڈ کی مکمل معلومات",
+
+        copied:"رپورٹ کاپی ہوگئی۔",
+
+        copyFailed:"رپورٹ کاپی نہ ہوسکی۔",
+
+        exportDone:"فائل کامیابی سے برآمد ہوگئی۔",
+
+        helpTitle:"رپورٹس کی مدد",
+
+        helpBody:
+            "تلاش فارم نمبر، نام، والد کا نام، شناختی کارڈ، موبائل، صوبہ اور دیگر محفوظ معلومات میں ہوتی ہے۔ فلٹر ایک ساتھ کام کرتے ہیں۔ CSV اور JSON موجودہ فلٹر شدہ رپورٹ کو برآمد کرتے ہیں۔",
+
+        loadError:"رپورٹس لوڈ کرتے وقت مسئلہ پیش آیا۔",
+
+        noPermission:
+            "Firestore اجازت رد ہوگئی۔ records کلیکشن کے Rules چیک کریں۔",
+
+        detailsError:
+            "ریکارڈ کی معلومات دکھاتے وقت مسئلہ پیش آیا۔",
+
+        formType:"فارم کی قسم",
+
+        normal:"عام",
+
+        yes:"ہاں",
+
+        no:"نہیں",
+
+        statusActive:"فعال",
+
+        statusInactive:"غیر فعال",
+
+        statusPending:"زیر التوا",
+
+        statusFraud:"جعلی",
+
+        fieldForm:"فارم نمبر",
+
+        fieldName:"مکمل نام",
+
+        fieldFather:"والد کا نام",
+
+        fieldCategory:"فارم کی قسم",
+
+        fieldProvince:"اصل صوبہ",
+
+        fieldCurrentProvince:"موجودہ صوبہ",
+
+        fieldJob:"موجودہ کام",
+
+        fieldTazkira:"شناختی کارڈ",
+
+        fieldPhone:"موبائل",
+
+        fieldStatus:"حالت",
+
+        fieldFraud:"جعلی فارم",
+
+        fieldCreatedAt:"اندراج کی تاریخ",
+
+        empty:"—"
+
+    },
+
+
+    ar: {
+
+        reportsTitle:"📙 التقارير",
+
+        reportsDescription:
+            "تقارير مختصرة ومفصلة للتسجيلات وأنواع النماذج والولايات وآخر السجلات.",
+
+        mainMenu:"القائمة الرئيسية",
+
+        dashboard:"الرئيسية",
+
+        formic:"فورميك",
+
+        newRegister:"تسجيل جديد",
+
+        search:"بحث",
+
+        reports:"التقارير",
+
+        admin:"الإدارة",
+
+        settings:"الإعدادات",
+
+        refresh:"تحديث",
+
+        logout:"خروج",
+
+        allRecords:"💑 جميع الأشخاص المسجلين",
+
+        todayRecords:"💏 تسجيلات اليوم",
+
+        fraudRecords:"❌ النماذج المزورة",
+
+        activeRecords:"✅ السجلات الفعالة",
+
+        workbench:"🧰 مساحة عمل التقارير",
+
+        workbenchDesc:
+            "البحث والتصفية والترتيب والصفحات والطباعة والتصدير من مكان واحد.",
+
+        searchLabel:"بحث",
+
+        searchPlaceholder:
+            "رقم النموذج، الاسم، اسم الأب، الهوية، الهاتف، الولاية...",
+
+        category:"نوع النموذج",
+
+        province:"الولاية",
+
+        status:"الحالة",
+
+        fraudState:"حالة التزوير",
+
+        fromDate:"من التاريخ",
+
+        toDate:"إلى التاريخ",
+
+        sort:"الترتيب",
+
+        allCategories:"كل الفئات",
+
+        allProvinces:"كل الولايات",
+
+        allStatuses:"كل الحالات",
+
+        allFraud:"كل حالات التزوير",
+
+        normalOnly:"العادية فقط",
+
+        fraudOnly:"المزورة فقط",
+
+        sortNewest:"الأحدث أولاً",
+
+        sortOldest:"الأقدم أولاً",
+
+        sortName:"حسب الاسم",
+
+        sortForm:"حسب رقم النموذج",
+
+        page10:"10 صفوف",
+
+        page25:"25 صفاً",
+
+        page50:"50 صفاً",
+
+        page100:"100 صف",
+
+        clearFilters:"🧹 مسح المرشحات",
+
+        refreshReport:"🔄 تحديث التقرير",
+
+        exportCsv:"📊 تصدير CSV",
+
+        exportJson:"🧾 تصدير JSON",
+
+        copy:"📋 نسخ التقرير",
+
+        print:"🖨️ طباعة",
+
+        help:"❓ مساعدة",
+
+        resultSummary:"المعروض",
+
+        totalFiltered:"من الإجمالي",
+
+        rows:"سجلات",
+
+        formNumber:"رقم النموذج",
+
+        name:"الاسم",
+
+        fatherName:"اسم الأب",
+
+        action:"إجراء",
+
+        date:"التاريخ",
+
+        view:"👁️ عرض",
+
+        noFiltered:"لا توجد سجلات وفق المرشحات المحددة.",
+
+        page:"الصفحة",
+
+        of:"من",
+
+        previous:"← السابقة",
+
+        next:"التالية →",
+
+        ready:"جاهز",
+
+        loading:"جارٍ التحميل...",
+
+        error:"خطأ",
+
+        recent:"الأخيرة",
+
+        records:"تقرير",
+
+        categoryReport:"📊 تقرير أنواع النماذج",
+
+        categoryDesc:"عدد كل نوع من النماذج",
+
+        provinceReport:"🗺️ تقرير الولايات",
+
+        provinceDesc:"ولايات الموقع الأصلي",
+
+        recentTitle:"🕒 آخر التسجيلات",
+
+        recentDesc:"آخر 10 أشخاص مسجلين",
+
+        loadingData:"بانتظار تحميل البيانات...",
+
+        noData:"لا توجد تسجيلات.",
+
+        noCategory:"لا يوجد تقرير لأنواع النماذج.",
+
+        noProvince:"لا يوجد تقرير للولايات.",
+
+        close:"إغلاق",
+
+        detailsTitle:"تفاصيل السجل",
+
+        copied:"تم نسخ التقرير.",
+
+        copyFailed:"تعذر نسخ التقرير.",
+
+        exportDone:"تم تصدير الملف بنجاح.",
+
+        helpTitle:"مساعدة التقارير",
+
+        helpBody:
+            "يعمل البحث على رقم النموذج والاسم واسم الأب والهوية والهاتف والولاية وغيرها من المعلومات المحفوظة. تعمل المرشحات معًا، ويصدر CSV وJSON التقرير المصفى الحالي.",
+
+        loadError:"حدثت مشكلة أثناء تحميل التقارير.",
+
+        noPermission:
+            "تم رفض إذن Firestore. تحقق من Rules لمجموعة records.",
+
+        detailsError:
+            "حدثت مشكلة أثناء عرض تفاصيل السجل.",
+
+        formType:"نوع النموذج",
+
+        normal:"عادي",
+
+        yes:"نعم",
+
+        no:"لا",
+
+        statusActive:"فعال",
+
+        statusInactive:"غير فعال",
+
+        statusPending:"قيد الانتظار",
+
+        statusFraud:"مزور",
+
+        fieldForm:"رقم النموذج",
+
+        fieldName:"الاسم الكامل",
+
+        fieldFather:"اسم الأب",
+
+        fieldCategory:"نوع النموذج",
+
+        fieldProvince:"الولاية الأصلية",
+
+        fieldCurrentProvince:"الولاية الحالية",
+
+        fieldJob:"العمل الحالي",
+
+        fieldTazkira:"الهوية",
+
+        fieldPhone:"الهاتف",
+
+        fieldStatus:"الحالة",
+
+        fieldFraud:"نموذج مزور",
+
+        fieldCreatedAt:"تاريخ التسجيل",
+
+        empty:"—"
+
     }
 
-    .btn-small {
-        padding:7px 10px !important;
-        min-height:36px;
-        font-size:13px !important;
+};
+
+
+
+// ==========================================
+// اصلي څلور کټګورۍ
+// ==========================================
+
+const BASE_CATEGORIES = [
+
+    "مجاهد",
+
+    "همکار",
+
+    "د شهید د کورنۍ غړی",
+
+    "بعدالفتح"
+
+];
+
+
+
+const CATEGORY_LABELS = {
+
+    ps: {
+
+        "مجاهد":
+            "مجاهد",
+
+        "همکار":
+            "همکار",
+
+        "د شهید د کورنۍ غړی":
+            "د شهید د کورنۍ غړی",
+
+        "بعدالفتح":
+            "بعدالفتح"
+
+    },
+
+    fa: {
+
+        "مجاهد":
+            "مجاهد",
+
+        "همکار":
+            "همکار",
+
+        "د شهید د کورنۍ غړی":
+            "عضو خانواده شهید",
+
+        "بعدالفتح":
+            "بعدالفتح"
+
+    },
+
+    en: {
+
+        "مجاهد":
+            "Mujahid",
+
+        "همکار":
+            "Associate",
+
+        "د شهید د کورنۍ غړی":
+            "Martyr's family member",
+
+        "بعدالفتح":
+            "After-conquest"
+
+    },
+
+    ur: {
+
+        "مجاهد":
+            "مجاہد",
+
+        "همکار":
+            "معاون",
+
+        "د شهید د کورنۍ غړی":
+            "شہید کے خاندان کا فرد",
+
+        "بعدالفتح":
+            "بعد الفتح"
+
+    },
+
+    ar: {
+
+        "مجاهد":
+            "مجاهد",
+
+        "همکار":
+            "مساعد",
+
+        "د شهید د کورنۍ غړی":
+            "فرد من أسرة الشهيد",
+
+        "بعدالفتح":
+            "بعد الفتح"
+
     }
 
-    @media (max-width:700px) {
+};
 
-        #recordDetailsBody {
-            grid-template-columns:1fr !important;
+
+
+// ==========================================
+// ولایتونه
+// ==========================================
+
+const PROVINCES = {
+
+    "کابل":
+        "Kabul",
+
+    "کاپیسا":
+        "Kapisa",
+
+    "پروان":
+        "Parwan",
+
+    "پنجشېر":
+        "Panjshir",
+
+    "میدان وردګ":
+        "Maidan Wardak",
+
+    "لوګر":
+        "Logar",
+
+    "غزني":
+        "Ghazni",
+
+    "پکتیا":
+        "Paktia",
+
+    "پکتیکا":
+        "Paktika",
+
+    "خوست":
+        "Khost",
+
+    "ننګرهار":
+        "Nangarhar",
+
+    "لغمان":
+        "Laghman",
+
+    "کونړ":
+        "Kunar",
+
+    "نورستان":
+        "Nuristan",
+
+    "بدخشان":
+        "Badakhshan",
+
+    "تخار":
+        "Takhar",
+
+    "کندز":
+        "Kunduz",
+
+    "بغلان":
+        "Baghlan",
+
+    "سمنګان":
+        "Samangan",
+
+    "بلخ":
+        "Balkh",
+
+    "جوزجان":
+        "Jowzjan",
+
+    "سرپل":
+        "Sar-e Pol",
+
+    "فاریاب":
+        "Faryab",
+
+    "دایکندي":
+        "Daykundi",
+
+    "بامیان":
+        "Bamyan",
+
+    "غور":
+        "Ghor",
+
+    "هرات":
+        "Herat",
+
+    "فراه":
+        "Farah",
+
+    "نیمروز":
+        "Nimroz",
+
+    "هلمند":
+        "Helmand",
+
+    "کندهار":
+        "Kandahar",
+
+    "زابل":
+        "Zabul",
+
+    "ارزګان":
+        "Uruzgan",
+
+    "بادغیس":
+        "Badghis"
+
+};
+
+
+
+const PROVINCE_FA = {
+
+    "کابل":"کابل",
+    "کاپیسا":"کاپیسا",
+    "پروان":"پروان",
+    "پنجشېر":"پنجشیر",
+    "میدان وردګ":"میدان وردک",
+    "لوګر":"لوگر",
+    "غزني":"غزنی",
+    "پکتیا":"پکتیا",
+    "پکتیکا":"پکتیکا",
+    "خوست":"خوست",
+    "ننګرهار":"ننگرهار",
+    "لغمان":"لغمان",
+    "کونړ":"کنر",
+    "نورستان":"نورستان",
+    "بدخشان":"بدخشان",
+    "تخار":"تخار",
+    "کندز":"کندز",
+    "بغلان":"بغلان",
+    "سمنګان":"سمنگان",
+    "بلخ":"بلخ",
+    "جوزجان":"جوزجان",
+    "سرپل":"سرپل",
+    "فاریاب":"فاریاب",
+    "دایکندي":"دایکندی",
+    "بامیان":"بامیان",
+    "غور":"غور",
+    "هرات":"هرات",
+    "فراه":"فراه",
+    "نیمروز":"نیمروز",
+    "هلمند":"هلمند",
+    "کندهار":"قندهار",
+    "زابل":"زابل",
+    "ارزګان":"ارزگان",
+    "بادغیس":"بادغیس"
+
+};
+
+
+
+const PROVINCE_UR = {
+
+    "کابل":"کابل",
+    "کاپیسا":"کاپیسا",
+    "پروان":"پروان",
+    "پنجشېر":"پنجشیر",
+    "میدان وردګ":"میدان وردک",
+    "لوګر":"لوگر",
+    "غزني":"غزنی",
+    "پکتیا":"پکتیا",
+    "پکتیکا":"پکتیکا",
+    "خوست":"خوست",
+    "ننګرهار":"ننگرہار",
+    "لغمان":"لغمان",
+    "کونړ":"کنڑ",
+    "نورستان":"نورستان",
+    "بدخشان":"بدخشان",
+    "تخار":"تخار",
+    "کندز":"کندوز",
+    "بغلان":"بغلان",
+    "سمنګان":"سمنگان",
+    "بلخ":"بلخ",
+    "جوزجان":"جوزجان",
+    "سرپل":"سرپل",
+    "فاریاب":"فاریاب",
+    "دایکندي":"دائیکندی",
+    "بامیان":"بامیان",
+    "غور":"غور",
+    "هرات":"ہرات",
+    "فراه":"فراہ",
+    "نیمروز":"نیمروز",
+    "هلمند":"ہلمند",
+    "کندهار":"قندھار",
+    "زابل":"زابل",
+    "ارزګان":"ارزگان",
+    "بادغیس":"بادغیس"
+
+};
+
+
+
+const PROVINCE_AR = {
+
+    "کابل":"كابول",
+    "کاپیسا":"كابيسا",
+    "پروان":"بروان",
+    "پنجشېر":"بنجشير",
+    "میدان وردګ":"ميدان وردك",
+    "لوګر":"لوغر",
+    "غزني":"غزني",
+    "پکتیا":"بكتيا",
+    "پکتیکا":"بكتيكا",
+    "خوست":"خوست",
+    "ننګرهار":"ننغرهار",
+    "لغمان":"لغمان",
+    "کونړ":"كونر",
+    "نورستان":"نورستان",
+    "بدخشان":"بدخشان",
+    "تخار":"تخار",
+    "کندز":"قندوز",
+    "بغلان":"بغلان",
+    "سمنګان":"سمنغان",
+    "بلخ":"بلخ",
+    "جوزجان":"جوزجان",
+    "سرپل":"سرپل",
+    "فاریاب":"فارياب",
+    "دایکندي":"دايكندي",
+    "بامیان":"باميان",
+    "غور":"غور",
+    "هرات":"هرات",
+    "فراه":"فراه",
+    "نیمروز":"نيمروز",
+    "هلمند":"هلمند",
+    "کندهار":"قندهار",
+    "زابل":"زابل",
+    "ارزګان":"أوروزغان",
+    "بادغیس":"بادغيس"
+
+};
+
+
+
+// ==========================================
+// State
+// ==========================================
+
+const state = {
+
+    allRecords: [],
+
+    filteredRecords: [],
+
+    currentPage: 1,
+
+    pageSize: 10,
+
+    settings: null,
+
+    language: "ps",
+
+    bound: false
+
+};
+
+
+
+// ==========================================
+// Helper
+// ==========================================
+
+const $ = id =>
+    document.getElementById(id);
+
+
+
+// ==========================================
+// Escape
+// ==========================================
+
+function escapeHtml(value) {
+
+    return String(value ?? "")
+
+        .replaceAll("&", "&amp;")
+
+        .replaceAll("<", "&lt;")
+
+        .replaceAll(">", "&gt;")
+
+        .replaceAll('"', "&quot;")
+
+        .replaceAll("'", "&#039;");
+
+}
+
+
+
+// ==========================================
+// Safe text
+// ==========================================
+
+function safeText(value) {
+
+    const text =
+        String(value ?? "").trim();
+
+    return text || "—";
+
+}
+
+
+
+// ==========================================
+// Normalize
+// ==========================================
+
+function normalize(value) {
+
+    return String(value ?? "")
+
+        .replaceAll("\u200c", "")
+
+        .replaceAll("\u200e", "")
+
+        .replaceAll("\u200f", "")
+
+        .trim()
+
+        .toLowerCase();
+
+}
+
+
+
+// ==========================================
+// Translation
+// ==========================================
+
+function t(key) {
+
+    return (
+        I18N[state.language]?.[key] ||
+        I18N.ps[key] ||
+        key
+    );
+
+}
+
+
+
+// ==========================================
+// Locale
+// ==========================================
+
+function getLocale() {
+
+    return {
+
+        ps: "ps-AF",
+
+        fa: "fa-AF",
+
+        en: "en-US",
+
+        ur: "ur-PK",
+
+        ar: "ar-SA"
+
+    }[state.language] || "ps-AF";
+
+}
+
+
+
+// ==========================================
+// Number
+// ==========================================
+
+function localNumber(value) {
+
+    try {
+
+        return Number(value)
+            .toLocaleString(
+                getLocale()
+            );
+
+    } catch {
+
+        return String(value);
+
+    }
+
+}
+
+
+
+// ==========================================
+// Category Label
+// ==========================================
+
+function categoryLabel(value) {
+
+    const raw =
+        safeText(value);
+
+
+    const key =
+        BASE_CATEGORIES.find(
+            item =>
+                normalize(item) ===
+                normalize(raw)
+        );
+
+
+    if (!key) {
+
+        return raw;
+
+    }
+
+
+    return (
+        CATEGORY_LABELS[
+            state.language
+        ]?.[key] ||
+        key
+    );
+
+}
+
+
+
+// ==========================================
+// Province Label
+// ==========================================
+
+function provinceLabel(value) {
+
+    const raw =
+        safeText(value);
+
+
+    const key =
+        Object.keys(PROVINCES)
+            .find(
+                item =>
+                    normalize(item) ===
+                    normalize(raw)
+            );
+
+
+    if (!key) {
+
+        return raw;
+
+    }
+
+
+    if (
+        state.language ===
+        "en"
+    ) {
+
+        return PROVINCES[key];
+
+    }
+
+
+    if (
+        state.language ===
+        "fa"
+    ) {
+
+        return (
+            PROVINCE_FA[key] ||
+            key
+        );
+
+    }
+
+
+    if (
+        state.language ===
+        "ur"
+    ) {
+
+        return (
+            PROVINCE_UR[key] ||
+            key
+        );
+
+    }
+
+
+    if (
+        state.language ===
+        "ar"
+    ) {
+
+        return (
+            PROVINCE_AR[key] ||
+            key
+        );
+
+    }
+
+
+    return key;
+
+}
+
+
+
+// ==========================================
+// Timestamp -> Date
+// ==========================================
+
+function toDate(value) {
+
+    if (!value) {
+
+        return null;
+
+    }
+
+
+    if (
+        value instanceof Date
+    ) {
+
+        return Number.isNaN(
+            value.getTime()
+        )
+            ? null
+            : value;
+
+    }
+
+
+    if (
+        typeof value.toDate ===
+        "function"
+    ) {
+
+        try {
+
+            const d =
+                value.toDate();
+
+            return Number.isNaN(
+                d.getTime()
+            )
+                ? null
+                : d;
+
+        } catch {
+
+            return null;
+
         }
 
     }
 
-    @media print {
 
-        .main-header,
-        .sidebar,
-        .reports-workbench,
-        .report-modal {
-            display:none !important;
+    const d =
+        new Date(value);
+
+
+    return Number.isNaN(
+        d.getTime()
+    )
+        ? null
+        : d;
+
+}
+
+
+
+// ==========================================
+// Created Date
+// ==========================================
+
+function getCreatedDate(record) {
+
+    return (
+        toDate(
+            record?.createdAt
+        ) ||
+        toDate(
+            record?.updatedAt
+        )
+    );
+
+}
+
+
+
+// ==========================================
+// Date Key
+// ==========================================
+
+function getDateKey(date) {
+
+    if (!date) {
+
+        return "";
+
+    }
+
+
+    try {
+
+        return new Intl.DateTimeFormat(
+            "en-CA",
+            {
+                timeZone:
+                    state.settings?.timeZone ||
+                    "Asia/Kabul",
+
+                year:
+                    "numeric",
+
+                month:
+                    "2-digit",
+
+                day:
+                    "2-digit"
+            }
+        ).format(date);
+
+    } catch {
+
+        return date
+            .toLocaleDateString(
+                "en-CA"
+            );
+
+    }
+
+}
+
+
+
+// ==========================================
+// Format Date
+// ==========================================
+
+function formatRecordDate(value) {
+
+    const date =
+        toDate(value);
+
+
+    if (!date) {
+
+        return t("empty");
+
+    }
+
+
+    let calendar =
+        "persian";
+
+
+    if (
+        state.settings?.calendar ===
+        "lunar"
+    ) {
+
+        calendar =
+            "islamic";
+
+    }
+
+
+    if (
+        state.settings?.calendar ===
+        "gregorian"
+    ) {
+
+        calendar =
+            "gregory";
+
+    }
+
+
+    try {
+
+        return new Intl.DateTimeFormat(
+
+            `${getLocale()}-u-ca-${calendar}`,
+
+            {
+
+                timeZone:
+                    state.settings?.timeZone ||
+                    "Asia/Kabul",
+
+                year:
+                    "numeric",
+
+                month:
+                    "2-digit",
+
+                day:
+                    "2-digit"
+
+            }
+
+        ).format(date);
+
+    } catch {
+
+        return date
+            .toLocaleDateString(
+                getLocale()
+            );
+
+    }
+
+}
+
+
+
+// ==========================================
+// Form Number
+// ==========================================
+
+function getFormNumber(record) {
+
+    return safeText(
+
+        record?.formNumber ??
+
+        record?.person?.formNumber
+
+    );
+
+}
+
+
+
+// ==========================================
+// First Name
+// ==========================================
+
+function getFirstName(record) {
+
+    return String(
+
+        record?.firstName ??
+
+        record?.person?.firstName ??
+
+        ""
+
+    ).trim();
+
+}
+
+
+
+// ==========================================
+// Last Name
+// ==========================================
+
+function getLastName(record) {
+
+    return String(
+
+        record?.lastName ??
+
+        record?.person?.lastName ??
+
+        ""
+
+    ).trim();
+
+}
+
+
+
+// ==========================================
+// Full Name
+// ==========================================
+
+function getPersonName(record) {
+
+    const first =
+        getFirstName(record);
+
+    const last =
+        getLastName(record);
+
+
+    return (
+        `${first} ${last}`.trim() ||
+        "—"
+    );
+
+}
+
+
+
+// ==========================================
+// Father
+// ==========================================
+
+function getFatherName(record) {
+
+    return safeText(
+
+        record?.fatherName ??
+
+        record?.person?.fatherName
+
+    );
+
+}
+
+
+
+// ==========================================
+// Category
+// ==========================================
+
+function getCategory(record) {
+
+    return safeText(
+        record?.category
+    );
+
+}
+
+
+
+// ==========================================
+// Original Province
+// ==========================================
+
+function getOriginalProvince(record) {
+
+    return safeText(
+
+        record?.originalProvince ??
+
+        record?.originalLocation?.province ??
+
+        record?.province
+
+    );
+
+}
+
+
+
+// ==========================================
+// Current Province
+// ==========================================
+
+function getCurrentProvince(record) {
+
+    return safeText(
+
+        record?.currentProvince ??
+
+        record?.currentLocation?.province
+
+    );
+
+}
+
+
+
+// ==========================================
+// Job
+// ==========================================
+
+function getCurrentJob(record) {
+
+    return safeText(
+
+        record?.currentJob ??
+
+        record?.person?.currentJob
+
+    );
+
+}
+
+
+
+// ==========================================
+// Tazkira
+// ==========================================
+
+function getTazkira(record) {
+
+    return safeText(
+
+        record?.tazkira ??
+
+        record?.person?.tazkira
+
+    );
+
+}
+
+
+
+// ==========================================
+// Phone
+// ==========================================
+
+function getPhone(record) {
+
+    return safeText(
+
+        record?.phone ??
+
+        record?.person?.phone
+
+    );
+
+}
+
+
+
+// ==========================================
+// Raw Status
+// ==========================================
+
+function getRawStatus(record) {
+
+    const status =
+        String(
+            record?.status ??
+            ""
+        ).trim();
+
+
+    return status;
+
+}
+
+
+
+// ==========================================
+// Status
+// ==========================================
+
+function getStatus(record) {
+
+    if (
+        record?.fraudulent ===
+        true
+    ) {
+
+        return t("statusFraud");
+
+    }
+
+
+    const raw =
+        normalize(
+            getRawStatus(record)
+        );
+
+
+    if (
+        raw === "active" ||
+        raw === "فعال"
+    ) {
+
+        return t("statusActive");
+
+    }
+
+
+    if (
+        raw === "inactive" ||
+        raw === "غیرفعال" ||
+        raw === "غیر فعال"
+    ) {
+
+        return t("statusInactive");
+
+    }
+
+
+    if (
+        raw === "pending" ||
+        raw === "د انتظار"
+    ) {
+
+        return t("statusPending");
+
+    }
+
+
+    /*
+       د general-form.js اوسنی schema
+       status نه ثبتوي.
+       نو عادي record فعال ګڼل کېږي.
+    */
+
+    return (
+        getRawStatus(record) ||
+        t("statusActive")
+    );
+
+}
+
+
+
+// ==========================================
+// Is Active
+// ==========================================
+
+function isActiveRecord(record) {
+
+    const raw =
+        normalize(
+            getRawStatus(record)
+        );
+
+
+    if (
+        raw === "active" ||
+        raw === "فعال"
+    ) {
+
+        return true;
+
+    }
+
+
+    if (
+        raw === "inactive" ||
+        raw === "غیرفعال" ||
+        raw === "غیر فعال"
+    ) {
+
+        return false;
+
+    }
+
+
+    if (
+        raw === "pending" ||
+        raw === "د انتظار"
+    ) {
+
+        return false;
+
+    }
+
+
+    /*
+       که status موجود نه وي:
+       غیرجعلي record فعال ګڼل کېږي.
+    */
+
+    return (
+        record?.fraudulent !==
+        true
+    );
+
+}
+
+
+
+// ==========================================
+// Search Text
+// ==========================================
+
+function getSearchText(record) {
+
+    const values = [];
+
+
+    const add =
+        value => {
+
+            if (
+                value ===
+                undefined ||
+                value ===
+                null
+            ) {
+
+                return;
+
+            }
+
+
+            if (
+                typeof value ===
+                "object"
+            ) {
+
+                try {
+
+                    values.push(
+                        JSON.stringify(
+                            value
+                        )
+                    );
+
+                } catch {
+
+                    values.push(
+                        String(value)
+                    );
+
+                }
+
+                return;
+
+            }
+
+
+            values.push(
+                String(value)
+            );
+
+        };
+
+
+    Object.values(
+        record || {}
+    ).forEach(add);
+
+
+    add(
+        getPersonName(
+            record
+        )
+    );
+
+    add(
+        getFatherName(
+            record
+        )
+    );
+
+    add(
+        getOriginalProvince(
+            record
+        )
+    );
+
+    add(
+        getCurrentProvince(
+            record
+        )
+    );
+
+
+    return values
+        .join(" ")
+        .toLowerCase();
+
+}
+
+
+
+// ==========================================
+// Message
+// ==========================================
+
+function showMessage(
+    message,
+    type = "info"
+) {
+
+    const element =
+        $("reportsMessage");
+
+
+    if (!element) {
+
+        return;
+
+    }
+
+
+    element.textContent =
+        message;
+
+
+    element.className =
+        `alert alert-${type}`;
+
+
+    element.style.display =
+        "block";
+
+
+    clearTimeout(
+        showMessage.timer
+    );
+
+
+    showMessage.timer =
+        setTimeout(
+            () => {
+
+                element.style.display =
+                    "none";
+
+            },
+            4000
+        );
+
+}
+
+
+
+// ==========================================
+// Hide Message
+// ==========================================
+
+function hideMessage() {
+
+    const element =
+        $("reportsMessage");
+
+
+    if (!element) {
+
+        return;
+
+    }
+
+
+    element.textContent =
+        "";
+
+
+    element.className =
+        "alert";
+
+
+    element.style.display =
+        "none";
+
+}
+
+
+
+// ==========================================
+// Firestore Load
+// ==========================================
+
+async function fetchRecords() {
+
+    const snapshot =
+        await getDocs(
+            collection(
+                db,
+                RECORDS_COLLECTION
+            )
+        );
+
+
+    return snapshot.docs.map(
+        documentSnapshot => ({
+
+            id:
+                documentSnapshot.id,
+
+            ...documentSnapshot.data()
+
+        })
+    );
+
+}
+
+
+
+// ==========================================
+// Stats
+// ==========================================
+
+function renderStats() {
+
+    const total =
+        state.allRecords.length;
+
+
+    const today =
+        getDateKey(
+            new Date()
+        );
+
+
+    let todayCount =
+        0;
+
+    let fraudCount =
+        0;
+
+    let activeCount =
+        0;
+
+
+    state.allRecords.forEach(
+        record => {
+
+
+            if (
+                record?.fraudulent ===
+                true
+            ) {
+
+                fraudCount += 1;
+
+            }
+
+
+            if (
+                isActiveRecord(
+                    record
+                )
+            ) {
+
+                activeCount += 1;
+
+            }
+
+
+            const created =
+                toDate(
+                    record?.createdAt
+                );
+
+
+            if (
+                created &&
+                getDateKey(
+                    created
+                ) ===
+                today
+            ) {
+
+                todayCount += 1;
+
+            }
+
         }
+    );
 
-        .main-content {
-            margin:0 !important;
-            width:100% !important;
+
+    const totalEl =
+        $("totalRecords");
+
+
+    const todayEl =
+        $("todayRecords");
+
+
+    const fraudEl =
+        $("fraudRecords");
+
+
+    const activeEl =
+        $("activeRecords");
+
+
+    if (totalEl) {
+
+        totalEl.textContent =
+            localNumber(
+                total
+            );
+
+    }
+
+
+    if (todayEl) {
+
+        todayEl.textContent =
+            localNumber(
+                todayCount
+            );
+
+    }
+
+
+    if (fraudEl) {
+
+        fraudEl.textContent =
+            localNumber(
+                fraudCount
+            );
+
+    }
+
+
+    if (activeEl) {
+
+        activeEl.textContent =
+            localNumber(
+                activeCount
+            );
+
+    }
+
+}
+
+
+
+// ==========================================
+// Count Table
+// ==========================================
+
+function renderCountTable(
+    map,
+    tbody,
+    emptyText,
+    keepZero = false
+) {
+
+    if (!tbody) {
+
+        return;
+
+    }
+
+
+    let entries =
+        Object.entries(
+            map
+        );
+
+
+    if (!keepZero) {
+
+        entries =
+            entries.filter(
+                ([, count]) =>
+                    count > 0
+            );
+
+    }
+
+
+    entries.sort(
+        (a, b) => {
+
+            const countDifference =
+                b[1] - a[1];
+
+
+            if (
+                countDifference !==
+                0
+            ) {
+
+                return countDifference;
+
+            }
+
+
+            return a[0].localeCompare(
+                b[0],
+                getLocale()
+            );
+
         }
+    );
 
-        .app-layout {
-            display:block !important;
+
+    if (
+        !entries.length
+    ) {
+
+        tbody.innerHTML = `
+
+            <tr>
+
+                <td
+                    colspan="2"
+                    class="text-center"
+                >
+                    ${escapeHtml(
+                        emptyText
+                    )}
+                </td>
+
+            </tr>
+
+        `;
+
+        return;
+
+    }
+
+
+    tbody.innerHTML =
+        entries
+            .map(
+                ([label, count]) => `
+
+                    <tr>
+
+                        <td>
+                            ${escapeHtml(
+                                label
+                            )}
+                        </td>
+
+                        <td>
+                            <strong>
+                                ${escapeHtml(
+                                    localNumber(
+                                        count
+                                    )
+                                )}
+                            </strong>
+                        </td>
+
+                    </tr>
+
+                `
+            )
+            .join("");
+
+}
+
+
+
+// ==========================================
+// Categories Report
+// ==========================================
+
+function renderCategoriesReport() {
+
+    const map = {};
+
+
+    /*
+       ټولې اصلي ۴ کټګورۍ
+       تل موجودې وي.
+    */
+
+    BASE_CATEGORIES.forEach(
+        category => {
+
+            map[
+                categoryLabel(
+                    category
+                )
+            ] = 0;
+
+        }
+    );
+
+
+    /*
+       نورې موجودې کټګورۍ
+       هم ورزیاتېږي.
+    */
+
+    state.allRecords.forEach(
+        record => {
+
+            const raw =
+                getCategory(
+                    record
+                );
+
+
+            if (
+                raw ===
+                "—"
+            ) {
+
+                return;
+
+            }
+
+
+            const label =
+                categoryLabel(
+                    raw
+                );
+
+
+            map[label] =
+                (
+                    map[label] ||
+                    0
+                ) + 1;
+
+        }
+    );
+
+
+    renderCountTable(
+
+        map,
+
+        $("categoryTableBody"),
+
+        t("noCategory"),
+
+        true
+
+    );
+
+
+    const count =
+        state.allRecords.length;
+
+
+    const badge =
+        $("categoryBadge");
+
+
+    if (badge) {
+
+        badge.textContent =
+            `${localNumber(count)} ${t("records")}`;
+
+    }
+
+}
+
+
+
+// ==========================================
+// Provinces Report
+// ==========================================
+
+function renderProvincesReport() {
+
+    const map = {};
+
+
+    state.allRecords.forEach(
+        record => {
+
+            const raw =
+                getOriginalProvince(
+                    record
+                );
+
+
+            if (
+                raw ===
+                "—"
+            ) {
+
+                return;
+
+            }
+
+
+            const label =
+                provinceLabel(
+                    raw
+                );
+
+
+            map[label] =
+                (
+                    map[label] ||
+                    0
+                ) + 1;
+
+        }
+    );
+
+
+    renderCountTable(
+
+        map,
+
+        $("provinceTableBody"),
+
+        t("noProvince"),
+
+        false
+
+    );
+
+
+    const count =
+        Object.values(
+            map
+        )
+        .reduce(
+            (a, b) =>
+                a + b,
+            0
+        );
+
+
+    const badge =
+        $("provinceBadge");
+
+
+    if (badge) {
+
+        badge.textContent =
+            `${localNumber(count)} ${t("records")}`;
+
+    }
+
+}
+
+
+
+// ==========================================
+// Recent Reports
+// ==========================================
+
+function renderRecentReport() {
+
+    const tbody =
+        $("recentTableBody");
+
+
+    if (!tbody) {
+
+        return;
+
+    }
+
+
+    const records =
+        state.allRecords
+            .slice()
+            .sort(
+                (a, b) =>
+                    (
+                        toDate(
+                            b.createdAt
+                        )?.getTime() || 0
+                    ) -
+                    (
+                        toDate(
+                            a.createdAt
+                        )?.getTime() || 0
+                    )
+            )
+            .slice(
+                0,
+                10
+            );
+
+
+    if (
+        !records.length
+    ) {
+
+        tbody.innerHTML = `
+
+            <tr>
+
+                <td
+                    colspan="6"
+                    class="text-center"
+                >
+                    ${escapeHtml(
+                        t("noData")
+                    )}
+                </td>
+
+            </tr>
+
+        `;
+
+        $("recentBadge").textContent =
+            `0 ${t("recent")}`;
+
+        return;
+
+    }
+
+
+    tbody.innerHTML =
+        records
+            .map(
+                record => `
+
+                    <tr>
+
+                        <td>
+                            ${escapeHtml(
+                                getFormNumber(
+                                    record
+                                )
+                            )}
+                        </td>
+
+
+                        <td>
+                            ${escapeHtml(
+                                getPersonName(
+                                    record
+                                )
+                            )}
+                        </td>
+
+
+                        <td>
+                            ${escapeHtml(
+                                categoryLabel(
+                                    getCategory(
+                                        record
+                                    )
+                                )
+                            )}
+                        </td>
+
+
+                        <td>
+                            ${escapeHtml(
+                                provinceLabel(
+                                    getOriginalProvince(
+                                        record
+                                    )
+                                )
+                            )}
+                        </td>
+
+
+                        <td>
+
+                            <span
+                                class="badge ${
+                                    record.fraudulent === true
+                                        ? "badge-danger"
+                                        : "badge-success"
+                                }"
+                            >
+                                ${escapeHtml(
+                                    getStatus(
+                                        record
+                                    )
+                                )}
+                            </span>
+
+                        </td>
+
+
+                        <td>
+                            ${escapeHtml(
+                                formatRecordDate(
+                                    record.createdAt ||
+                                    record.updatedAt
+                                )
+                            )}
+                        </td>
+
+                    </tr>
+
+                `
+            )
+            .join("");
+
+
+    const badge =
+        $("recentBadge");
+
+
+    if (badge) {
+
+        badge.textContent =
+            `${localNumber(
+                records.length
+            )} ${t("recent")}`;
+
+    }
+
+}
+
+
+
+// ==========================================
+// Filter Options
+// ==========================================
+
+function fillFilterOptions() {
+
+    const categoryFilter =
+        $("categoryFilter");
+
+
+    const provinceFilter =
+        $("provinceFilter");
+
+
+    const statusFilter =
+        $("statusFilter");
+
+
+    if (
+        categoryFilter
+    ) {
+
+        const current =
+            categoryFilter.value;
+
+
+        const values =
+            [
+                ...new Set(
+                    state.allRecords
+                        .map(
+                            record =>
+                                getCategory(
+                                    record
+                                )
+                        )
+                        .filter(
+                            value =>
+                                value !==
+                                "—"
+                        )
+                )
+            ];
+
+
+        values.sort(
+            (a, b) =>
+                categoryLabel(a)
+                    .localeCompare(
+                        categoryLabel(b),
+                        getLocale()
+                    )
+        );
+
+
+        categoryFilter.innerHTML = `
+
+            <option value="">
+                ${escapeHtml(
+                    t("allCategories")
+                )}
+            </option>
+
+            ${values
+                .map(
+                    value => `
+
+                        <option
+                            value="${escapeHtml(
+                                value
+                            )}"
+                        >
+                            ${escapeHtml(
+                                categoryLabel(
+                                    value
+                                )
+                            )}
+                        </option>
+
+                    `
+                )
+                .join("")}
+
+        `;
+
+
+        if (
+            values.includes(
+                current
+            )
+        ) {
+
+            categoryFilter.value =
+                current;
+
         }
 
     }
 
-    /* د Sidebar دوه ګوني آیکن مخنیوی */
-    body[data-reports-page="true"]
-    .sidebar-menu button::before {
 
-        content:none !important;
-        display:none !important;
-        visibility:hidden !important;
+
+    if (
+        provinceFilter
+    ) {
+
+        const current =
+            provinceFilter.value;
+
+
+        const values =
+            [
+                ...new Set(
+                    state.allRecords
+                        .map(
+                            record =>
+                                getOriginalProvince(
+                                    record
+                                )
+                        )
+                        .filter(
+                            value =>
+                                value !==
+                                "—"
+                        )
+                )
+            ];
+
+
+        values.sort(
+            (a, b) =>
+                provinceLabel(a)
+                    .localeCompare(
+                        provinceLabel(b),
+                        getLocale()
+                    )
+        );
+
+
+        provinceFilter.innerHTML = `
+
+            <option value="">
+                ${escapeHtml(
+                    t("allProvinces")
+                )}
+            </option>
+
+            ${values
+                .map(
+                    value => `
+
+                        <option
+                            value="${escapeHtml(
+                                value
+                            )}"
+                        >
+                            ${escapeHtml(
+                                provinceLabel(
+                                    value
+                                )
+                            )}
+                        </option>
+
+                    `
+                )
+                .join("")}
+
+        `;
+
+
+        if (
+            values.includes(
+                current
+            )
+        ) {
+
+            provinceFilter.value =
+                current;
+
+        }
 
     }
 
-</style>
 
 
-</body>
-</html>
+    if (
+        statusFilter
+    ) {
+
+        const current =
+            statusFilter.value;
+
+
+        const values =
+            [
+                ...new Set(
+                    state.allRecords
+                        .map(
+                            record =>
+                                getRawStatus(
+                                    record
+                                ) ||
+                                "active"
+                        )
+                )
+            ];
+
+
+        values.sort(
+            (a, b) =>
+                a.localeCompare(
+                    b,
+                    getLocale()
+                )
+        );
+
+
+        statusFilter.innerHTML = `
+
+            <option value="">
+                ${escapeHtml(
+                    t("allStatuses")
+                )}
+            </option>
+
+            ${values
+                .map(
+                    value => `
+
+                        <option
+                            value="${escapeHtml(
+                                value
+                            )}"
+                        >
+                            ${escapeHtml(
+                                getStatus({
+                                    status:
+                                        value
+                                })
+                            )}
+                        </option>
+
+                    `
+                )
+                .join("")}
+
+        `;
+
+
+        if (
+            values.includes(
+                current
+            )
+        ) {
+
+            statusFilter.value =
+                current;
+
+        }
+
+    }
+
+}
+
+
+
+// ==========================================
+// Localized Controls
+// ==========================================
+
+function renderLocalizedControls() {
+
+    const sortFilter =
+        $("sortFilter");
+
+
+    const fraudFilter =
+        $("fraudFilter");
+
+
+    const pageSize =
+        $("pageSizeSelect");
+
+
+    if (
+        sortFilter
+    ) {
+
+        const current =
+            sortFilter.value ||
+            "newest";
+
+
+        sortFilter.innerHTML = `
+
+            <option value="newest">
+                ${escapeHtml(
+                    t("sortNewest")
+                )}
+            </option>
+
+            <option value="oldest">
+                ${escapeHtml(
+                    t("sortOldest")
+                )}
+            </option>
+
+            <option value="name">
+                ${escapeHtml(
+                    t("sortName")
+                )}
+            </option>
+
+            <option value="form">
+                ${escapeHtml(
+                    t("sortForm")
+                )}
+            </option>
+
+        `;
+
+
+        sortFilter.value =
+            current;
+
+    }
+
+
+
+    if (
+        fraudFilter
+    ) {
+
+        const current =
+            fraudFilter.value;
+
+
+        fraudFilter.innerHTML = `
+
+            <option value="">
+                ${escapeHtml(
+                    t("allFraud")
+                )}
+            </option>
+
+            <option value="normal">
+                ${escapeHtml(
+                    t("normalOnly")
+                )}
+            </option>
+
+            <option value="fraud">
+                ${escapeHtml(
+                    t("fraudOnly")
+                )}
+            </option>
+
+        `;
+
+
+        fraudFilter.value =
+            current;
+
+    }
+
+
+
+    if (
+        pageSize
+    ) {
+
+        const current =
+            String(
+                state.pageSize
+            );
+
+
+        pageSize.innerHTML = `
+
+            <option value="10">
+                ${escapeHtml(
+                    t("page10")
+                )}
+            </option>
+
+            <option value="25">
+                ${escapeHtml(
+                    t("page25")
+                )}
+            </option>
+
+            <option value="50">
+                ${escapeHtml(
+                    t("page50")
+                )}
+            </option>
+
+            <option value="100">
+                ${escapeHtml(
+                    t("page100")
+                )}
+            </option>
+
+        `;
+
+
+        pageSize.value =
+            current;
+
+    }
+
+}
+
+
+
+// ==========================================
+// Apply Filters
+// ==========================================
+
+function applyFilters() {
+
+    const search =
+        (
+            $("reportSearch")
+                ?.value ||
+            ""
+        )
+        .trim()
+        .toLowerCase();
+
+
+    const category =
+        $("categoryFilter")
+            ?.value ||
+        "";
+
+
+    const province =
+        $("provinceFilter")
+            ?.value ||
+        "";
+
+
+    const status =
+        $("statusFilter")
+            ?.value ||
+        "";
+
+
+    const fraud =
+        $("fraudFilter")
+            ?.value ||
+        "";
+
+
+    const from =
+        $("dateFrom")
+            ?.value ||
+        "";
+
+
+    const to =
+        $("dateTo")
+            ?.value ||
+        "";
+
+
+    const sort =
+        $("sortFilter")
+            ?.value ||
+        "newest";
+
+
+    let result =
+        state.allRecords.filter(
+            record => {
+
+                if (
+                    search &&
+                    !getSearchText(
+                        record
+                    ).includes(
+                        search
+                    )
+                ) {
+
+                    return false;
+
+                }
+
+
+                if (
+                    category &&
+                    normalize(
+                        getCategory(
+                            record
+                        )
+                    ) !==
+                    normalize(
+                        category
+                    )
+                ) {
+
+                    return false;
+
+                }
+
+
+                if (
+                    province &&
+                    normalize(
+                        getOriginalProvince(
+                            record
+                        )
+                    ) !==
+                    normalize(
+                        province
+                    )
+                ) {
+
+                    return false;
+
+                }
+
+
+                if (
+                    status &&
+                    normalize(
+                        getRawStatus(
+                            record
+                        ) ||
+                        "active"
+                    ) !==
+                    normalize(
+                        status
+                    )
+                ) {
+
+                    return false;
+
+                }
+
+
+                if (
+                    fraud ===
+                    "fraud" &&
+                    record.fraudulent !==
+                    true
+                ) {
+
+                    return false;
+
+                }
+
+
+                if (
+                    fraud ===
+                    "normal" &&
+                    record.fraudulent ===
+                    true
+                ) {
+
+                    return false;
+
+                }
+
+
+                const date =
+                    getCreatedDate(
+                        record
+                    );
+
+
+                if (
+                    from ||
+                    to
+                ) {
+
+                    if (!date) {
+
+                        return false;
+
+                    }
+
+
+                    const key =
+                        getDateKey(
+                            date
+                        );
+
+
+                    if (
+                        from &&
+                        key < from
+                    ) {
+
+                        return false;
+
+                    }
+
+
+                    if (
+                        to &&
+                        key > to
+                    ) {
+
+                        return false;
+
+                    }
+
+                }
+
+
+                return true;
+
+            }
+        );
+
+
+    result.sort(
+        (a, b) => {
+
+            if (
+                sort ===
+                "oldest"
+            ) {
+
+                return (
+                    (
+                        getCreatedDate(
+                            a
+                        )?.getTime() || 0
+                    ) -
+                    (
+                        getCreatedDate(
+                            b
+                        )?.getTime() || 0
+                    )
+                );
+
+            }
+
+
+            if (
+                sort ===
+                "name"
+            ) {
+
+                return getPersonName(
+                    a
+                ).localeCompare(
+                    getPersonName(
+                        b
+                    ),
+                    getLocale()
+                );
+
+            }
+
+
+            if (
+                sort ===
+                "form"
+            ) {
+
+                return getFormNumber(
+                    a
+                ).localeCompare(
+                    getFormNumber(
+                        b
+                    ),
+                    undefined,
+                    {
+                        numeric:
+                            true,
+
+                        sensitivity:
+                            "base"
+                    }
+                );
+
+            }
+
+
+            return (
+                (
+                    getCreatedDate(
+                        b
+                    )?.getTime() || 0
+                ) -
+                (
+                    getCreatedDate(
+                        a
+                    )?.getTime() || 0
+                )
+            );
+
+        }
+    );
+
+
+    state.filteredRecords =
+        result;
+
+
+    state.currentPage =
+        1;
+
+
+    renderFilteredTable();
+
+}
+
+
+
+// ==========================================
+// Filtered Table
+// ==========================================
+
+function renderFilteredTable() {
+
+    const tbody =
+        $("filteredTableBody");
+
+
+    if (!tbody) {
+
+        return;
+
+    }
+
+
+    const total =
+        state.filteredRecords.length;
+
+
+    const totalPages =
+        Math.max(
+            1,
+            Math.ceil(
+                total /
+                state.pageSize
+            )
+        );
+
+
+    if (
+        state.currentPage >
+        totalPages
+    ) {
+
+        state.currentPage =
+            totalPages;
+
+    }
+
+
+    const start =
+        (
+            state.currentPage -
+            1
+        ) *
+        state.pageSize;
+
+
+    const pageRecords =
+        state.filteredRecords.slice(
+            start,
+            start +
+            state.pageSize
+        );
+
+
+    if (
+        !pageRecords.length
+    ) {
+
+        tbody.innerHTML = `
+
+            <tr>
+
+                <td
+                    colspan="8"
+                    class="text-center"
+                >
+                    ${escapeHtml(
+                        t("noFiltered")
+                    )}
+                </td>
+
+            </tr>
+
+        `;
+
+    } else {
+
+        tbody.innerHTML =
+            pageRecords
+                .map(
+                    record => `
+
+                        <tr>
+
+                            <td>
+                                ${escapeHtml(
+                                    getFormNumber(
+                                        record
+                                    )
+                                )}
+                            </td>
+
+
+                            <td>
+                                ${escapeHtml(
+                                    getPersonName(
+                                        record
+                                    )
+                                )}
+                            </td>
+
+
+                            <td>
+                                ${escapeHtml(
+                                    getFatherName(
+                                        record
+                                    )
+                                )}
+                            </td>
+
+
+                            <td>
+                                ${escapeHtml(
+                                    categoryLabel(
+                                        getCategory(
+                                            record
+                                        )
+                                    )
+                                )}
+                            </td>
+
+
+                            <td>
+                                ${escapeHtml(
+                                    provinceLabel(
+                                        getOriginalProvince(
+                                            record
+                                        )
+                                    )
+                                )}
+                            </td>
+
+
+                            <td>
+
+                                <span
+                                    class="badge ${
+                                        record.fraudulent === true
+                                            ? "badge-danger"
+                                            : "badge-success"
+                                    }"
+                                >
+                                    ${escapeHtml(
+                                        getStatus(
+                                            record
+                                        )
+                                    )}
+                                </span>
+
+                            </td>
+
+
+                            <td>
+                                ${escapeHtml(
+                                    formatRecordDate(
+                                        record.createdAt ||
+                                        record.updatedAt
+                                    )
+                                )}
+                            </td>
+
+
+                            <td>
+
+                                <button
+                                    type="button"
+                                    class="btn btn-secondary btn-small report-view-btn"
+                                    data-id="${escapeHtml(
+                                        record.id
+                                    )}"
+                                >
+                                    ${escapeHtml(
+                                        t("view")
+                                    )}
+                                </button>
+
+                            </td>
+
+                        </tr>
+
+                    `
+                )
+                .join("");
+
+    }
+
+
+    const resultCount =
+        $("resultCount");
+
+
+    if (
+        resultCount
+    ) {
+
+        resultCount.textContent =
+            `${t("resultSummary")} ` +
+            `${localNumber(
+                pageRecords.length
+            )} ` +
+            `${t("totalFiltered")} ` +
+            `${localNumber(
+                total
+            )} ` +
+            `${t("rows")}`;
+
+    }
+
+
+    const totalFiltered =
+        $("totalFiltered");
+
+
+    if (
+        totalFiltered
+    ) {
+
+        totalFiltered.textContent =
+            localNumber(
+                total
+            );
+
+    }
+
+
+    const paginationInfo =
+        $("paginationInfo");
+
+
+    if (
+        paginationInfo
+    ) {
+
+        paginationInfo.textContent =
+            `${t("page")} ` +
+            `${localNumber(
+                state.currentPage
+            )} ` +
+            `${t("of")} ` +
+            `${localNumber(
+                totalPages
+            )}`;
+
+    }
+
+
+    const previous =
+        $("previousPageBtn");
+
+
+    const next =
+        $("nextPageBtn");
+
+
+    if (previous) {
+
+        previous.disabled =
+            state.currentPage <=
+            1;
+
+    }
+
+
+    if (next) {
+
+        next.disabled =
+            state.currentPage >=
+            totalPages;
+
+    }
+
+}
+
+
+
+// ==========================================
+// Existing Reports
+// ==========================================
+
+function renderExistingReports() {
+
+    renderCategoriesReport();
+
+    renderProvincesReport();
+
+    renderRecentReport();
+
+}
+
+
+
+// ==========================================
+// Localized Static Text
+// ==========================================
+
+function applyLanguage() {
+
+    const settings =
+        state.settings ||
+        getSettings() ||
+        {};
+
+
+    state.language =
+        I18N[
+            settings.language
+        ]
+            ? settings.language
+            : "ps";
+
+
+    document.documentElement.lang =
+        state.language;
+
+
+    if (
+        settings.directionMode ===
+        "ltr"
+    ) {
+
+        document.documentElement.dir =
+            "ltr";
+
+    } else if (
+        settings.directionMode ===
+        "rtl"
+    ) {
+
+        document.documentElement.dir =
+            "rtl";
+
+    } else {
+
+        document.documentElement.dir =
+            state.language ===
+            "en"
+                ? "ltr"
+                : "rtl";
+
+    }
+
+
+    document.querySelectorAll(
+        "[data-i18n]"
+    )
+    .forEach(
+        element => {
+
+            const key =
+                element.getAttribute(
+                    "data-i18n"
+                );
+
+
+            if (!key) {
+
+                return;
+
+            }
+
+
+            element.textContent =
+                t(key);
+
+        }
+    );
+
+
+    document.querySelectorAll(
+        "[data-i18n-title]"
+    )
+    .forEach(
+        element => {
+
+            const key =
+                element.getAttribute(
+                    "data-i18n-title"
+                );
+
+
+            element.setAttribute(
+                "title",
+                t(key)
+            );
+
+        }
+    );
+
+
+    document.querySelectorAll(
+        "[data-i18n-aria]"
+    )
+    .forEach(
+        element => {
+
+            const key =
+                element.getAttribute(
+                    "data-i18n-aria"
+                );
+
+
+            element.setAttribute(
+                "aria-label",
+                t(key)
+            );
+
+        }
+    );
+
+
+    document.querySelectorAll(
+        "[data-i18n-placeholder]"
+    )
+    .forEach(
+        element => {
+
+            const key =
+                element.getAttribute(
+                    "data-i18n-placeholder"
+                );
+
+
+            element.setAttribute(
+                "placeholder",
+                t(key)
+            );
+
+        }
+    );
+
+
+    document.querySelectorAll(
+        "[data-system-name]"
+    )
+    .forEach(
+        element => {
+
+            element.textContent =
+                settings.systemName ||
+                SYSTEM_NAME;
+
+        }
+    );
+
+
+    document.title =
+        `${t("reportsTitle")
+            .replace(
+                /^📙\s*/,
+                ""
+            )} - ${
+            settings.systemName ||
+            SYSTEM_NAME
+        }`;
+
+
+    renderLocalizedControls();
+
+    fillFilterOptions();
+
+    renderStats();
+
+    renderExistingReports();
+
+    applyFilters();
+
+}
+
+
+
+// ==========================================
+// Boot Settings
+// ==========================================
+
+function getBootSettings() {
+
+    try {
+
+        const settings =
+            getSettings();
+
+
+        if (
+            settings &&
+            I18N[
+                settings.language
+            ]
+        ) {
+
+            return {
+                settings
+            };
+
+        }
+
+    } catch (
+        error
+    ) {
+
+        console.warn(
+            "Reports Boot Settings Error:",
+            error
+        );
+
+    }
+
+
+    return {
+        settings: {}
+    };
+
+}
+
+
+
+// ==========================================
+// Load
+// ==========================================
+
+async function loadReports() {
+
+    try {
+
+        hideMessage();
+
+
+        if (
+            $("categoryBadge")
+        ) {
+
+            $("categoryBadge").textContent =
+                t("loading");
+
+        }
+
+
+        if (
+            $("provinceBadge")
+        ) {
+
+            $("provinceBadge").textContent =
+                t("loading");
+
+        }
+
+
+        if (
+            $("recentBadge")
+        ) {
+
+            $("recentBadge").textContent =
+                t("loading");
+
+        }
+
+
+        const records =
+            await fetchRecords();
+
+
+        state.allRecords =
+            records;
+
+
+        renderStats();
+
+        fillFilterOptions();
+
+        renderLocalizedControls();
+
+        applyFilters();
+
+        renderExistingReports();
+
+
+    } catch (error) {
+
+        console.error(
+            "Reports Load Error:",
+            error
+        );
+
+
+        state.allRecords =
+            [];
+
+        state.filteredRecords =
+            [];
+
+
+        renderStats();
+
+        renderFilteredTable();
+
+
+        const categoryBody =
+            $("categoryTableBody");
+
+
+        const provinceBody =
+            $("provinceTableBody");
+
+
+        const recentBody =
+            $("recentTableBody");
+
+
+        if (
+            categoryBody
+        ) {
+
+            categoryBody.innerHTML = `
+
+                <tr>
+
+                    <td
+                        colspan="2"
+                        class="text-center"
+                    >
+                        ${escapeHtml(
+                            t("noData")
+                        )}
+                    </td>
+
+                </tr>
+
+            `;
+
+        }
+
+
+        if (
+            provinceBody
+        ) {
+
+            provinceBody.innerHTML = `
+
+                <tr>
+
+                    <td
+                        colspan="2"
+                        class="text-center"
+                    >
+                        ${escapeHtml(
+                            t("noData")
+                        )}
+                    </td>
+
+                </tr>
+
+            `;
+
+        }
+
+
+        if (
+            recentBody
+        ) {
+
+            recentBody.innerHTML = `
+
+                <tr>
+
+                    <td
+                        colspan="6"
+                        class="text-center"
+                    >
+                        ${escapeHtml(
+                            t("noData")
+                        )}
+                    </td>
+
+                </tr>
+
+            `;
+
+        }
+
+
+        if (
+            $("categoryBadge")
+        ) {
+
+            $("categoryBadge").textContent =
+                t("error");
+
+        }
+
+
+        if (
+            $("provinceBadge")
+        ) {
+
+            $("provinceBadge").textContent =
+                t("error");
+
+        }
+
+
+        if (
+            $("recentBadge")
+        ) {
+
+            $("recentBadge").textContent =
+                t("error");
+
+        }
+
+
+        showMessage(
+
+            error?.code ===
+            "permission-denied"
+
+                ? t("noPermission")
+
+                : t("loadError"),
+
+            "danger"
+
+        );
+
+    }
+
+}
+
+
+
+// ==========================================
+// Export CSV
+// ==========================================
+
+function buildExportRows() {
+
+    return state.filteredRecords.map(
+        record => [
+
+            getFormNumber(
+                record
+            ),
+
+            getPersonName(
+                record
+            ),
+
+            getFatherName(
+                record
+            ),
+
+            categoryLabel(
+                getCategory(
+                    record
+                )
+            ),
+
+            provinceLabel(
+                getOriginalProvince(
+                    record
+                )
+            ),
+
+            getStatus(
+                record
+            ),
+
+            formatRecordDate(
+                record.createdAt ||
+                record.updatedAt
+            )
+
+        ]
+    );
+
+}
+
+
+
+// ==========================================
+// CSV Cell
+// ==========================================
+
+function csvCell(value) {
+
+    return `"${String(
+        value ?? ""
+    ).replaceAll(
+        '"',
+        '""'
+    )}"`;
+
+}
+
+
+
+// ==========================================
+// Download
+// ==========================================
+
+function downloadFile(
+    filename,
+    content,
+    type
+) {
+
+    const blob =
+        new Blob(
+            [content],
+            {
+                type:
+                    type +
+                    ";charset=utf-8"
+            }
+        );
+
+
+    const url =
+        URL.createObjectURL(
+            blob
+        );
+
+
+    const link =
+        document.createElement(
+            "a"
+        );
+
+
+    link.href =
+        url;
+
+
+    link.download =
+        filename;
+
+
+    document.body.appendChild(
+        link
+    );
+
+
+    link.click();
+
+
+    link.remove();
+
+
+    setTimeout(
+        () => {
+
+            URL.revokeObjectURL(
+                url
+            );
+
+        },
+        1000
+    );
+
+}
+
+
+
+// ==========================================
+// Export CSV
+// ==========================================
+
+function exportCSV() {
+
+    const headers = [
+
+        t("formNumber"),
+
+        t("name"),
+
+        t("fatherName"),
+
+        t("category"),
+
+        t("province"),
+
+        t("status"),
+
+        t("date")
+
+    ];
+
+
+    const rows = [
+
+        headers,
+
+        ...buildExportRows()
+
+    ];
+
+
+    const csvText =
+        "\uFEFF" +
+        rows
+            .map(
+                row =>
+                    row
+                        .map(csvCell)
+                        .join(",")
+            )
+            .join("\r\n");
+
+
+    downloadFile(
+
+        `reports-${getDateKey(
+            new Date()
+        )}.csv`,
+
+        csvText,
+
+        "text/csv"
+
+    );
+
+
+    showMessage(
+        t("exportDone"),
+        "success"
+    );
+
+}
+
+
+
+// ==========================================
+// Export JSON
+// ==========================================
+
+function exportJSON() {
+
+    const payload = {
+
+        system:
+            state.settings?.systemName ||
+            SYSTEM_NAME,
+
+        language:
+            state.language,
+
+        exportedAt:
+            new Date().toISOString(),
+
+        total:
+            state.filteredRecords.length,
+
+        records:
+            state.filteredRecords
+
+    };
+
+
+    downloadFile(
+
+        `reports-${getDateKey(
+            new Date()
+        )}.json`,
+
+        JSON.stringify(
+            payload,
+            null,
+            2
+        ),
+
+        "application/json"
+
+    );
+
+
+    showMessage(
+        t("exportDone"),
+        "success"
+    );
+
+}
+
+
+
+// ==========================================
+// Copy
+// ==========================================
+
+async function copyReport() {
+
+    const rows =
+        buildExportRows();
+
+
+    const text = [
+
+        [
+
+            t("formNumber"),
+
+            t("name"),
+
+            t("fatherName"),
+
+            t("category"),
+
+            t("province"),
+
+            t("status"),
+
+            t("date")
+
+        ].join("\t"),
+
+
+        ...rows.map(
+            row =>
+                row.join("\t")
+        )
+
+    ].join("\n");
+
+
+    try {
+
+        if (
+            navigator.clipboard &&
+            navigator.clipboard.writeText
+        ) {
+
+            await navigator.clipboard.writeText(
+                text
+            );
+
+        } else {
+
+            throw new Error(
+                "clipboard-unavailable"
+            );
+
+        }
+
+
+        showMessage(
+            t("copied"),
+            "success"
+        );
+
+
+    } catch {
+
+        const textarea =
+            document.createElement(
+                "textarea"
+            );
+
+
+        textarea.value =
+            text;
+
+
+        textarea.style.position =
+            "fixed";
+
+
+        textarea.style.opacity =
+            "0";
+
+
+        document.body.appendChild(
+            textarea
+        );
+
+
+        textarea.select();
+
+
+        try {
+
+            document.execCommand(
+                "copy"
+            );
+
+
+            showMessage(
+                t("copied"),
+                "success"
+            );
+
+        } catch {
+
+            showMessage(
+                t("copyFailed"),
+                "danger"
+            );
+
+        }
+
+
+        textarea.remove();
+
+    }
+
+}
+
+
+
+// ==========================================
+// Help
+// ==========================================
+
+function openHelp() {
+
+    const modal =
+        $("reportsHelpModal");
+
+
+    if (!modal) {
+
+        return;
+
+    }
+
+
+    $("reportsHelpTitle").textContent =
+        t("helpTitle");
+
+
+    $("reportsHelpBody").textContent =
+        t("helpBody");
+
+
+    modal.hidden =
+        false;
+
+
+    modal.classList.add(
+        "show"
+    );
+
+}
+
+
+
+// ==========================================
+// Details
+// ==========================================
+
+function openDetails(id) {
+
+    const record =
+        state.allRecords.find(
+            item =>
+                item.id === id
+        );
+
+
+    if (!record) {
+
+        showMessage(
+            t("detailsError"),
+            "danger"
+        );
+
+        return;
+
+    }
+
+
+    $("recordDetailsTitle").textContent =
+        t("detailsTitle");
+
+
+    const fields = [
+
+        [
+            "fieldForm",
+            getFormNumber(record)
+        ],
+
+        [
+            "fieldName",
+            getPersonName(record)
+        ],
+
+        [
+            "fieldFather",
+            getFatherName(record)
+        ],
+
+        [
+            "fieldCategory",
+            categoryLabel(
+                getCategory(record)
+            )
+        ],
+
+        [
+            "fieldProvince",
+            provinceLabel(
+                getOriginalProvince(record)
+            )
+        ],
+
+        [
+            "fieldCurrentProvince",
+            provinceLabel(
+                getCurrentProvince(record)
+            )
+        ],
+
+        [
+            "fieldJob",
+            getCurrentJob(record)
+        ],
+
+        [
+            "fieldTazkira",
+            getTazkira(record)
+        ],
+
+        [
+            "fieldPhone",
+            getPhone(record)
+        ],
+
+        [
+            "fieldStatus",
+            getStatus(record)
+        ],
+
+        [
+            "fieldFraud",
+            record.fraudulent === true
+                ? t("yes")
+                : t("no")
+        ],
+
+        [
+            "fieldCreatedAt",
+            formatRecordDate(
+                record.createdAt ||
+                record.updatedAt
+            )
+        ]
+
+    ];
+
+
+    $("recordDetailsBody").innerHTML =
+        fields
+            .map(
+                ([label, value]) => `
+
+                    <div
+                        style="
+                            padding:12px;
+                            border:1px solid var(--border-color);
+                            border-radius:12px;
+                            background:var(--surface-alt);
+                        "
+                    >
+
+                        <div
+                            style="
+                                color:var(--muted-color);
+                                font-size:12px;
+                                margin-bottom:4px;
+                                font-weight:700;
+                            "
+                        >
+                            ${escapeHtml(
+                                t(label)
+                            )}
+                        </div>
+
+
+                        <div
+                            style="
+                                font-size:15px;
+                                font-weight:800;
+                                word-break:break-word;
+                            "
+                        >
+                            ${escapeHtml(
+                                safeText(
+                                    value
+                                )
+                            )}
+                        </div>
+
+                    </div>
+
+                `
+            )
+            .join("");
+
+
+    const modal =
+        $("recordDetailsModal");
+
+
+    modal.hidden =
+        false;
+
+
+    modal.classList.add(
+        "show"
+    );
+
+}
+
+
+
+// ==========================================
+// Close Modal
+// ==========================================
+
+function closeModal(id) {
+
+    const modal =
+        $(id);
+
+
+    if (!modal) {
+
+        return;
+
+    }
+
+
+    modal.hidden =
+        true;
+
+
+    modal.classList.remove(
+        "show"
+    );
+
+}
+
+
+
+// ==========================================
+// Clear Filters
+// ==========================================
+
+function clearFilters() {
+
+    [
+
+        "reportSearch",
+
+        "dateFrom",
+
+        "dateTo"
+
+    ]
+    .forEach(
+        id => {
+
+            const element =
+                $(id);
+
+
+            if (element) {
+
+                element.value =
+                    "";
+
+            }
+
+        }
+    );
+
+
+    [
+
+        "categoryFilter",
+
+        "provinceFilter",
+
+        "statusFilter",
+
+        "fraudFilter"
+
+    ]
+    .forEach(
+        id => {
+
+            const element =
+                $(id);
+
+
+            if (element) {
+
+                element.value =
+                    "";
+
+            }
+
+        }
+    );
+
+
+    if (
+        $("sortFilter")
+    ) {
+
+        $("sortFilter").value =
+            "newest";
+
+    }
+
+
+    state.currentPage =
+        1;
+
+
+    applyFilters();
+
+}
+
+
+
+// ==========================================
+// Pagination
+// ==========================================
+
+function goPreviousPage() {
+
+    if (
+        state.currentPage >
+        1
+    ) {
+
+        state.currentPage -= 1;
+
+        renderFilteredTable();
+
+    }
+
+}
+
+
+
+function goNextPage() {
+
+    const total =
+        state.filteredRecords.length;
+
+
+    const totalPages =
+        Math.max(
+            1,
+            Math.ceil(
+                total /
+                state.pageSize
+            )
+        );
+
+
+    if (
+        state.currentPage <
+        totalPages
+    ) {
+
+        state.currentPage += 1;
+
+        renderFilteredTable();
+
+    }
+
+}
+
+
+
+// ==========================================
+// Events
+// ==========================================
+
+function bindEvents() {
+
+    if (
+        state.bound
+    ) {
+
+        return;
+
+    }
+
+
+    state.bound =
+        true;
+
+
+    // --------------------------------------
+    // Header Refresh
+    // --------------------------------------
+
+    $("refreshBtn")
+        ?.addEventListener(
+            "click",
+            () =>
+                window.location.reload()
+        );
+
+
+    // --------------------------------------
+    // Refresh Report
+    // --------------------------------------
+
+    $("refreshReportBtn")
+        ?.addEventListener(
+            "click",
+            loadReports
+        );
+
+
+    // --------------------------------------
+    // Logout
+    // --------------------------------------
+
+    $("logoutBtn")
+        ?.addEventListener(
+            "click",
+            async () => {
+
+                const button =
+                    $("logoutBtn");
+
+
+                button.disabled =
+                    true;
+
+
+                try {
+
+                    const result =
+                        await logoutUser();
+
+
+                    if (
+                        result?.success !==
+                        false
+                    ) {
+
+                        window.location.replace(
+                            "./login.html"
+                        );
+
+                        return;
+
+                    }
+
+
+                    showMessage(
+                        result?.message ||
+                        t("logout"),
+                        "danger"
+                    );
+
+
+                } catch (
+                    error
+                ) {
+
+                    console.error(
+                        error
+                    );
+
+
+                    showMessage(
+                        t("logout"),
+                        "danger"
+                    );
+
+                } finally {
+
+                    button.disabled =
+                        false;
+
+                }
+
+            }
+        );
+
+
+    // --------------------------------------
+    // Navigation
+    // --------------------------------------
+
+    const navigation = {
+
+        dashboardMenuBtn:
+            "./dashboard.html",
+
+        formicMenuBtn:
+            "./formic.html",
+
+        registerMenuBtn:
+            "./register.html",
+
+        searchMenuBtn:
+            "./search.html",
+
+        reportsMenuBtn:
+            "./reports.html",
+
+        adminMenuBtn:
+            "./admin.html",
+
+        settingsMenuBtn:
+            "./settings.html"
+
+    };
+
+
+    Object.entries(
+        navigation
+    )
+    .forEach(
+        ([id, url]) => {
+
+            $(id)?.addEventListener(
+                "click",
+                () => {
+
+                    window.location.href =
+                        url;
+
+                }
+            );
+
+        }
+    );
+
+
+    // --------------------------------------
+    // Live Filters
+    // --------------------------------------
+
+    [
+
+        "reportSearch",
+
+        "categoryFilter",
+
+        "provinceFilter",
+
+        "statusFilter",
+
+        "fraudFilter",
+
+        "dateFrom",
+
+        "dateTo",
+
+        "sortFilter"
+
+    ]
+    .forEach(
+        id => {
+
+            const element =
+                $(id);
+
+
+            if (!element) {
+
+                return;
+
+            }
+
+
+            element.addEventListener(
+                "input",
+                applyFilters
+            );
+
+
+            element.addEventListener(
+                "change",
+                applyFilters
+            );
+
+        }
+    );
+
+
+    // --------------------------------------
+    // Page Size
+    // --------------------------------------
+
+    $("pageSizeSelect")
+        ?.addEventListener(
+            "change",
+            event => {
+
+                state.pageSize =
+                    Number(
+                        event.target.value
+                    ) || 10;
+
+
+                state.currentPage =
+                    1;
+
+
+                renderFilteredTable();
+
+            }
+        );
+
+
+    // --------------------------------------
+    // Pagination Buttons
+    // --------------------------------------
+
+    $("previousPageBtn")
+        ?.addEventListener(
+            "click",
+            goPreviousPage
+        );
+
+
+    $("nextPageBtn")
+        ?.addEventListener(
+            "click",
+            goNextPage
+        );
+
+
+    // --------------------------------------
+    // Actions
+    // --------------------------------------
+
+    $("clearFiltersBtn")
+        ?.addEventListener(
+            "click",
+            clearFilters
+        );
+
+
+    $("exportCsvBtn")
+        ?.addEventListener(
+            "click",
+            exportCSV
+        );
+
+
+    $("exportJsonBtn")
+        ?.addEventListener(
+            "click",
+            exportJSON
+        );
+
+
+    $("copyReportBtn")
+        ?.addEventListener(
+            "click",
+            copyReport
+        );
+
+
+    $("printReportBtn")
+        ?.addEventListener(
+            "click",
+            () =>
+                window.print()
+        );
+
+
+    $("reportsHelpBtn")
+        ?.addEventListener(
+            "click",
+            openHelp
+        );
+
+
+    // --------------------------------------
+    // Detail View
+    // --------------------------------------
+
+    $("filteredTableBody")
+        ?.addEventListener(
+            "click",
+            event => {
+
+                const button =
+                    event.target.closest(
+                        ".report-view-btn"
+                    );
+
+
+                if (!button) {
+
+                    return;
+
+                }
+
+
+                openDetails(
+                    button.dataset.id
+                );
+
+            }
+        );
+
+
+    // --------------------------------------
+    // Close Help
+    // --------------------------------------
+
+    $("reportsHelpClose")
+        ?.addEventListener(
+            "click",
+            () =>
+                closeModal(
+                    "reportsHelpModal"
+                )
+        );
+
+
+    // --------------------------------------
+    // Close Details
+    // --------------------------------------
+
+    $("recordDetailsClose")
+        ?.addEventListener(
+            "click",
+            () =>
+                closeModal(
+                    "recordDetailsModal"
+                )
+        );
+
+
+    // --------------------------------------
+    // Click Overlay
+    // --------------------------------------
+
+    $("reportsHelpModal")
+        ?.addEventListener(
+            "click",
+            event => {
+
+                if (
+                    event.target ===
+                    $("reportsHelpModal")
+                ) {
+
+                    closeModal(
+                        "reportsHelpModal"
+                    );
+
+                }
+
+            }
+        );
+
+
+    $("recordDetailsModal")
+        ?.addEventListener(
+            "click",
+            event => {
+
+                if (
+                    event.target ===
+                    $("recordDetailsModal")
+                ) {
+
+                    closeModal(
+                        "recordDetailsModal"
+                    );
+
+                }
+
+            }
+        );
+
+
+    // --------------------------------------
+    // Escape
+    // --------------------------------------
+
+    document.addEventListener(
+        "keydown",
+        event => {
+
+            if (
+                event.key ===
+                "Escape"
+            ) {
+
+                closeModal(
+                    "reportsHelpModal"
+                );
+
+                closeModal(
+                    "recordDetailsModal"
+                );
+
+            }
+
+        }
+    );
+
+}
+
+
+
+// ==========================================
+// Bootstrap
+// ==========================================
+
+async function bootstrapReports() {
+
+    bindEvents();
+
+
+    /*
+       لومړی د Settings موجود Cache/Runtime State اخلو.
+       دا Apply په سمدستي ډول Reports خپله ژبه ټاکي.
+    */
+
+    const boot =
+        getBootSettings();
+
+
+    if (
+        boot.settings &&
+        I18N[
+            boot.settings.language
+        ]
+    ) {
+
+        state.settings =
+            boot.settings;
+
+        applyLanguage();
+
+    }
+
+
+    /*
+       د Settings اصلي Event
+       settings.js همدا Event dispatch کوي.
+    */
+
+    window.addEventListener(
+        "krha-settings-applied",
+        event => {
+
+            const settings =
+                event.detail?.settings;
+
+
+            if (!settings) {
+
+                return;
+
+            }
+
+
+            if (
+                !I18N[
+                    settings.language
+                ]
+            ) {
+
+                return;
+
+            }
+
+
+            state.settings =
+                settings;
+
+
+            applyLanguage();
+
+        }
+    );
+
+
+    /*
+       Compatibility Event
+    */
+
+    window.addEventListener(
+        "krha-settings-changed",
+        event => {
+
+            state.settings =
+                event.detail?.settings ||
+                getSettings() ||
+                state.settings;
+
+
+            applyLanguage();
+
+        }
+    );
+
+
+    /*
+       Storage Change
+    */
+
+    window.addEventListener(
+        "storage",
+        event => {
+
+            if (
+                event.key &&
+                event.key.includes(
+                    "settings"
+                )
+            ) {
+
+                try {
+
+                    state.settings =
+                        getSettings() ||
+                        state.settings;
+
+
+                    applyLanguage();
+
+                } catch {
+
+                    // Safe ignore
+
+                }
+
+            }
+
+        }
+    );
+
+
+    /*
+       وروسته اصلي Settings له
+       Cache / Firestore څخه نهایي کېږي.
+    */
+
+    try {
+
+        state.settings =
+            await initializeSettings();
+
+    } catch (
+        error
+    ) {
+
+        console.warn(
+            "Reports Settings Initialize Error:",
+            error
+        );
+
+
+        try {
+
+            state.settings =
+                getSettings();
+
+        } catch {
+
+            state.settings = {};
+
+        }
+
+    }
+
+
+    if (
+        !state.settings
+    ) {
+
+        try {
+
+            state.settings =
+                getSettings();
+
+        } catch {
+
+            state.settings = {};
+
+        }
+
+    }
+
+
+    /*
+       نهایي تایید شوی Settings
+       Reports ته Apply کړه.
+    */
+
+    applyLanguage();
+
+
+    // --------------------------------------
+    // Authentication
+    // --------------------------------------
+
+    listenAuth(
+        async session => {
+
+            if (!session) {
+
+                window.location.replace(
+                    "./login.html"
+                );
+
+                return;
+
+            }
+
+
+            await loadReports();
+
+        }
+    );
+
+}
+
+
+
+// ==========================================
+// Start
+// ==========================================
+
+document.addEventListener(
+    "DOMContentLoaded",
+    bootstrapReports,
+    {
+        once: true
+    }
+);
