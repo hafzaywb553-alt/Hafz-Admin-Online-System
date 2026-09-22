@@ -213,9 +213,10 @@ self.addEventListener(
         event.respondWith(
 
             fetch(
-                new Request(request, {
+                request,
+                {
                     cache: "no-store"
-                })
+                }
             )
             .then(
                 response => {
