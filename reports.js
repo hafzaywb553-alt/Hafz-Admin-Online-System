@@ -1640,11 +1640,6 @@ const PROVINCE_AR = {
 
 
 
-if (typeof window !== "undefined" && window.KrhaI18n?.registerDictionary) {
-    window.KrhaI18n.registerDictionary(I18N);
-}
-
-
 // ==========================================
 // State
 // ==========================================
