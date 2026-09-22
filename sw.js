@@ -10,7 +10,7 @@
 // ==========================================
 
 const CACHE_VERSION =
-    "hafz-cache-v1.0.6";
+    "hafz-cache-v1.0.7-recovery";
 
 
 // ==========================================
@@ -213,7 +213,9 @@ self.addEventListener(
         event.respondWith(
 
             fetch(
-                request
+                new Request(request, {
+                    cache: "no-store"
+                })
             )
             .then(
                 response => {
