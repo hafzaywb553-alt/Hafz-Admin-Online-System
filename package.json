@@ -1,7 +1,0 @@
-{
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "test:i18n": "node --test tests/i18n.test.mjs"
-  }
-}
