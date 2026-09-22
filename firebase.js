@@ -10,7 +10,8 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
 
 import {
-    getAuth
+    initializeAuth,
+    browserSessionPersistence
 } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
 
 import {
@@ -63,10 +64,45 @@ const app =
 // ==========================================
 // Firebase Authentication
 // ==========================================
+//
+// مهم:
+//
+// پخوانی:
+//     getAuth(app)
+//
+// نوی:
+//     initializeAuth(
+//         app,
+//         {
+//             persistence:
+//                 browserSessionPersistence
+//         }
+//     )
+//
+// نتیجه:
+//
+// 1. Login به د همدې Browser/App Session
+//    پورې ساتل کېږي.
+//
+// 2. د Browser/App Session له ختمېدو وروسته
+//    Auth state باید بېرته موجود نه وي.
+//
+// 3. د داخلي System Navigation پر مهال
+//    Login نه غواړي.
+//
+// 4. د APK/PWA په عادي session lifecycle کې
+//    د app له بشپړ تړلو وروسته بیا Login
+//    غوښتل کېږي.
+//
+// ==========================================
 
 const auth =
-    getAuth(
-        app
+    initializeAuth(
+        app,
+        {
+            persistence:
+                browserSessionPersistence
+        }
     );
 
 
@@ -75,20 +111,16 @@ const auth =
 //
 // Persistent Local Cache
 //
-// د سیستم لپاره مهم:
-//
-// 1. د Firestore محلي Cache فعالوي.
-// 2. د انټرنېټ لنډمهاله پرېکېدو پر مهال
-//    موجود معلومات Cache کې ساتي.
-// 3. Pending Writes د Firebase
-//    synchronization ته زمینه برابروي.
-// 4. کله چې انټرنېټ بېرته وصل شي،
-//    Firestore Sync ترسره کوي.
-//
 // مهم:
-// دا د Security Rules بدیل نه دی.
-// اصلي امنیت د firestore.rules
-// له لارې تضمینېږي.
+//
+// Auth persistence او Firestore cache
+// دوه جلا شیان دي.
+//
+// Firestore cache یوازې د Database
+// offline/cache لپاره دی.
+//
+// دا د Login Session نه ساتي.
+//
 // ==========================================
 
 const db =
