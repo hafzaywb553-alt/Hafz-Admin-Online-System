@@ -4470,6 +4470,51 @@ function applyLanguage() {
 
 
 // ==========================================
+// Boot Settings
+// ==========================================
+
+function getBootSettings() {
+
+    try {
+
+        const settings =
+            getSettings();
+
+
+        if (
+            settings &&
+            I18N[
+                settings.language
+            ]
+        ) {
+
+            return {
+                settings
+            };
+
+        }
+
+    } catch (
+        error
+    ) {
+
+        console.warn(
+            "Reports Boot Settings Error:",
+            error
+        );
+
+    }
+
+
+    return {
+        settings: {}
+    };
+
+}
+
+
+
+// ==========================================
 // Load
 // ==========================================
 
@@ -5874,7 +5919,129 @@ async function bootstrapReports() {
 
 
     /*
-       Settings ستونزه باید Reports ونه دروي.
+       لومړی د Settings موجود Cache/Runtime State اخلو.
+       دا Apply په سمدستي ډول Reports خپله ژبه ټاکي.
+    */
+
+    const boot =
+        getBootSettings();
+
+
+    if (
+        boot.settings &&
+        I18N[
+            boot.settings.language
+        ]
+    ) {
+
+        state.settings =
+            boot.settings;
+
+        applyLanguage();
+
+    }
+
+
+    /*
+       د Settings اصلي Event
+       settings.js همدا Event dispatch کوي.
+    */
+
+    window.addEventListener(
+        "krha-settings-applied",
+        event => {
+
+            const settings =
+                event.detail?.settings;
+
+
+            if (!settings) {
+
+                return;
+
+            }
+
+
+            if (
+                !I18N[
+                    settings.language
+                ]
+            ) {
+
+                return;
+
+            }
+
+
+            state.settings =
+                settings;
+
+
+            applyLanguage();
+
+        }
+    );
+
+
+    /*
+       Compatibility Event
+    */
+
+    window.addEventListener(
+        "krha-settings-changed",
+        event => {
+
+            state.settings =
+                event.detail?.settings ||
+                getSettings() ||
+                state.settings;
+
+
+            applyLanguage();
+
+        }
+    );
+
+
+    /*
+       Storage Change
+    */
+
+    window.addEventListener(
+        "storage",
+        event => {
+
+            if (
+                event.key &&
+                event.key.includes(
+                    "settings"
+                )
+            ) {
+
+                try {
+
+                    state.settings =
+                        getSettings() ||
+                        state.settings;
+
+
+                    applyLanguage();
+
+                } catch {
+
+                    // Safe ignore
+
+                }
+
+            }
+
+        }
+    );
+
+
+    /*
+       وروسته اصلي Settings له
+       Cache / Firestore څخه نهایي کېږي.
     */
 
     try {
@@ -5924,63 +6091,12 @@ async function bootstrapReports() {
     }
 
 
+    /*
+       نهایي تایید شوی Settings
+       Reports ته Apply کړه.
+    */
+
     applyLanguage();
-
-
-    // --------------------------------------
-    // Settings Live Event
-    // --------------------------------------
-
-    window.addEventListener(
-        "krha-settings-changed",
-        event => {
-
-            state.settings =
-                event.detail?.settings ||
-                getSettings() ||
-                state.settings;
-
-
-            applyLanguage();
-
-        }
-    );
-
-
-    // --------------------------------------
-    // Storage Change
-    // --------------------------------------
-
-    window.addEventListener(
-        "storage",
-        event => {
-
-            if (
-                event.key &&
-                event.key.includes(
-                    "settings"
-                )
-            ) {
-
-                try {
-
-                    state.settings =
-                        getSettings() ||
-                        state.settings;
-
-
-                    applyLanguage();
-
-                } catch {
-
-                    // Safe ignore
-
-                }
-
-            }
-
-        }
-    );
 
 
     // --------------------------------------
