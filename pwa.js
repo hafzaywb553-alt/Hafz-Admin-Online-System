@@ -97,7 +97,7 @@
                     border-radius:16px;
                     box-shadow:0 10px 35px rgba(0,0,0,.18);
                     padding:16px;
-                    direction:inherit;
+                    direction:rtl;
                     font-family:
                         'Noto Naskh Arabic',
                         Arial,
