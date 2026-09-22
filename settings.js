@@ -639,7 +639,7 @@ export const TRANSLATIONS = {
         "menu.newRegister": "نوی ثبت",
         "menu.search": "لټون",
         "menu.reports": "راپورونه",
-        "menu.admin": "اډمنانوبرخه",
+        "menu.admin": "اډمــینانوبرخه",
         "menu.settings": "تنظیمات",
 
         "settings.title": "⚙️ د سیستم تنظیمات",
@@ -1805,6 +1805,21 @@ export function applyTranslations(
     settings = currentSettings
 ) {
 
+    /*
+       Reports خپل ځانګړی I18N Engine لري.
+       نو settings.js باید د Reports data-i18n
+       عناصر لنډمهاله بدل نه کړي.
+    */
+
+    if (
+        typeof document !== "undefined" &&
+        document.body?.dataset.reportsPage === "true"
+    ) {
+
+        return;
+    }
+
+
     const language =
         settings.language in TRANSLATIONS
             ? settings.language
@@ -1825,6 +1840,7 @@ export function applyTranslations(
                     key,
                     language
                 );
+
 
             if (
                 element.matches(
@@ -2504,6 +2520,7 @@ export function clearSettingsCache() {
         );
 
         return false;
+
     }
 }
 
