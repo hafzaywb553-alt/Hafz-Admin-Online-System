@@ -61,15 +61,16 @@ jobs:
 
       - name: Publish preview URL
         run: |
-          node --experimental-default-type=module -e '
-          const fs=require("fs");
-          const raw=fs.readFileSync("firebase-preview.json","utf8");
-          const match=raw.match(/https:\/\/[^"\\ ]+/);
-          if(match){
-            console.log("PREVIEW_URL="+match[0]);
-            fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, "\n## Global i18n Preview\n\n"+match[0]+"\n");
-          }else{
-            console.log(raw);
-            process.exit(1);
-          }
-          '
+          firebase hosting:channel:open pr-${{ github.event.pull_request.number }} --project hafz-admin-online-system 2>&1 | tee firebase-preview-open.txt
+          URL=$(grep -Eo 'https://[^[:space:]"]+\.web\.app' firebase-preview-open.txt | tail -1)
+          if [ -z "$URL" ]; then
+            cat firebase-preview-open.txt
+            exit 1
+          fi
+          echo "PREVIEW_URL=$URL"
+          {
+            echo "## Global i18n Firebase Preview"
+            echo
+            echo "$URL"
+          } >> "$GITHUB_STEP_SUMMARY"
+          printf '%s\n' "$URL" > firebase-preview-url.txt
