@@ -10,6 +10,7 @@ on:
 permissions:
   contents: read
   id-token: write
+  pull-requests: write
 
 jobs:
   preview:
@@ -30,9 +31,32 @@ jobs:
         run: npm install -g firebase-tools
 
       - name: Run global i18n tests
-        run: node --experimental-default-type=module --test tests/i18n.test.mjs
+        id: i18n_tests
+        continue-on-error: true
+        run: |
+          npm run test:i18n 2>&1 | tee test-output.txt
+
+      - name: Comment i18n test output on PR
+        if: always()
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const fs = require("fs");
+            const output = fs.existsSync("test-output.txt") ? fs.readFileSync("test-output.txt", "utf8") : "No test output file was produced.";
+            const body = "## Global i18n CI result\n\nTest outcome: **" + "${{ steps.i18n_tests.outcome }}" + "**\n\n```text\n" + output.slice(-12000) + "\n```";
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body
+            });
+
+      - name: Stop on failed i18n tests
+        if: steps.i18n_tests.outcome != 'success'
+        run: exit 1
 
       - name: Deploy temporary Firebase preview
+        if: steps.i18n_tests.outcome == 'success'
         run: firebase hosting:channel:deploy pr-${{ github.event.pull_request.number }} --project hafz-admin-online-system --expires 7d --json | tee firebase-preview.json
 
       - name: Publish preview URL
