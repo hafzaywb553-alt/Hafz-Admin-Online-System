@@ -1432,6 +1432,11 @@ const TRANSLATIONS = {
 };
 
 
+if (typeof window !== "undefined" && window.KrhaI18n?.registerDictionary) {
+    window.KrhaI18n.registerDictionary(TRANSLATIONS);
+}
+
+
 // ==========================================
 // AFGHANISTAN PROVINCES
 // ==========================================
