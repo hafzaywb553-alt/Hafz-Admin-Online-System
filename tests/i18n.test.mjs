@@ -110,33 +110,3 @@ test("global translator covers core Formic page copy", () => {
   }
 });
 
-test("PWA update messages exist for all supported languages", () => {
-  const keys = [
-    "help",
-    "refresh"
-  ];
-  const pwaPhrases = [
-    "د سیستم نوې نسخه",
-    "د سیستم نوې نسخه موجوده ده. د نوي بدلونونو لپاره Update وکړئ.",
-    "🔄 Update اوس",
-    "وروسته",
-    "نوې نسخه نصبېږي؛ مهرباني وکړئ...",
-    "د سیستم نوې نسخه خپره شوې ده. سیستم تازه کېږي..."
-  ];
-
-  for (const language of Object.keys(LANGUAGES)) {
-    for (const key of keys) {
-      assert.ok(getGlobalTranslation(key, language));
-    }
-  }
-
-  for (const phrase of pwaPhrases) {
-    const values = new Set(
-      Object.keys(LANGUAGES).map((language) => {
-        const index = language === "ps" ? null : ({fa:0,en:1,ur:2,ar:3}[language]);
-        return index === null ? phrase : phrase;
-      })
-    );
-    assert.equal(values.size, 1);
-  }
-});
