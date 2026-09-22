@@ -47,27 +47,8 @@
     >
 
     <title>
-        د افغانستان اسلامي امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس
+        د خوندي ننوتلو پاڼه
     </title>
-
-    <!-- Google SEO -->
-    <link rel="canonical" href="https://hafz-admin-online-system.web.app/">
-
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="د افغانستان اسلامي امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس">
-    <meta property="og:description" content="د افغانستان اسلامي امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس">
-    <meta property="og:url" content="https://hafz-admin-online-system.web.app/">
-    <meta property="og:site_name" content="د افغانستان اسلامي امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس">
-
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "name": "د افغانستان اسلامي امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس",
-      "url": "https://hafz-admin-online-system.web.app/"
-    }
-    </script>
-
 
 
     <!-- ============================================================
@@ -3603,6 +3584,969 @@
 
 
         /* ============================================================
+           QIBLA NAV
+           یوازې نوی اضافه شوی
+        ============================================================ */
+
+        .qibla-widget {
+
+            width:
+                100%;
+
+            margin-top:
+                20px;
+
+            padding:
+                18px;
+
+            border:
+                1px solid
+                rgba(37,223,255,.14);
+
+            border-radius:
+                16px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(4,18,30,.88),
+                    rgba(3,24,27,.76)
+                );
+
+            box-shadow:
+                0 14px 34px
+                rgba(0,0,0,.18);
+
+            overflow:
+                hidden;
+
+        }
+
+
+        html.light-mode .qibla-widget {
+
+            border-color:
+                rgba(30,118,89,.14);
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(255,255,255,.92),
+                    rgba(239,248,244,.88)
+                );
+
+            box-shadow:
+                0 12px 30px
+                rgba(20,70,55,.08);
+
+        }
+
+
+        .qibla-header {
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                space-between;
+
+            gap:
+                12px;
+
+            margin-bottom:
+                15px;
+
+        }
+
+
+        .qibla-title-box {
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            gap:
+                11px;
+
+            min-width:
+                0;
+
+        }
+
+
+        .qibla-title-icon {
+
+            width:
+                46px;
+
+            height:
+                46px;
+
+            flex:
+                0 0 46px;
+
+            display:
+                grid;
+
+            place-items:
+                center;
+
+            border:
+                1px solid
+                rgba(37,223,255,.20);
+
+            border-radius:
+                12px;
+
+            background:
+                rgba(37,223,255,.06);
+
+            color:
+                #25DFFF;
+
+            font-size:
+                20px;
+
+        }
+
+
+        html.light-mode .qibla-title-icon {
+
+            border-color:
+                rgba(25,129,94,.16);
+
+            background:
+                rgba(25,129,94,.05);
+
+            color:
+                #168B61;
+
+        }
+
+
+        .qibla-title {
+
+            margin:
+                0;
+
+            color:
+                #F0FBFF;
+
+            font-size:
+                19px;
+
+            line-height:
+                1.4;
+
+            font-weight:
+                900;
+
+        }
+
+
+        .qibla-subtitle {
+
+            margin-top:
+                2px;
+
+            color:
+                #788F9C;
+
+            font-size:
+                13px;
+
+            line-height:
+                1.6;
+
+        }
+
+
+        html.light-mode .qibla-title {
+            color:#183D32;
+        }
+
+
+        html.light-mode .qibla-subtitle {
+            color:#688078;
+        }
+
+
+        .qibla-status {
+
+            display:
+                inline-flex;
+
+            align-items:
+                center;
+
+            gap:
+                6px;
+
+            min-height:
+                32px;
+
+            padding:
+                0 10px;
+
+            border:
+                1px solid
+                rgba(35,239,162,.16);
+
+            border-radius:
+                999px;
+
+            background:
+                rgba(35,239,162,.05);
+
+            color:
+                #8BFFC7;
+
+            font-size:
+                12px;
+
+            font-weight:
+                800;
+
+            white-space:
+                nowrap;
+
+        }
+
+
+        .qibla-status-dot {
+
+            width:
+                6px;
+
+            height:
+                6px;
+
+            border-radius:
+                50%;
+
+            background:
+                #23EFA2;
+
+            box-shadow:
+                0 0 7px
+                #23EFA2;
+
+        }
+
+
+        html.light-mode .qibla-status {
+
+            border-color:
+                rgba(21,139,96,.14);
+
+            background:
+                rgba(21,139,96,.05);
+
+            color:
+                #157B57;
+
+        }
+
+
+        .qibla-compass-wrap {
+
+            display:
+                grid;
+
+            place-items:
+                center;
+
+            padding:
+                8px 0 16px;
+
+        }
+
+
+        .qibla-compass {
+
+            position:
+                relative;
+
+            width:
+                215px;
+
+            height:
+                215px;
+
+            display:
+                grid;
+
+            place-items:
+                center;
+
+            border:
+                1px solid
+                rgba(37,223,255,.18);
+
+            border-radius:
+                50%;
+
+            background:
+
+                radial-gradient(
+                    circle at center,
+                    rgba(37,223,255,.055) 0,
+                    rgba(35,239,162,.025) 38%,
+                    rgba(2,12,22,.82) 70%,
+                    rgba(1,7,13,.96) 100%
+                );
+
+            box-shadow:
+                inset 0 0 35px
+                rgba(37,223,255,.035),
+                0 14px 32px
+                rgba(0,0,0,.22);
+
+        }
+
+
+        html.light-mode .qibla-compass {
+
+            border-color:
+                rgba(22,125,91,.15);
+
+            background:
+
+                radial-gradient(
+                    circle at center,
+                    rgba(37,223,255,.045) 0,
+                    rgba(35,239,162,.035) 38%,
+                    rgba(244,250,247,.92) 70%,
+                    rgba(232,243,238,.98) 100%
+                );
+
+            box-shadow:
+                inset 0 0 30px
+                rgba(19,132,94,.025),
+                0 12px 28px
+                rgba(27,77,61,.08);
+
+        }
+
+
+        .qibla-compass::before {
+
+            content:
+                "";
+
+            position:
+                absolute;
+
+            inset:
+                13px;
+
+            border:
+                1px dashed
+                rgba(37,223,255,.12);
+
+            border-radius:
+                50%;
+
+        }
+
+
+        html.light-mode .qibla-compass::before {
+
+            border-color:
+                rgba(25,129,94,.12);
+
+        }
+
+
+        .qibla-compass::after {
+
+            content:
+                "";
+
+            position:
+                absolute;
+
+            width:
+                8px;
+
+            height:
+                8px;
+
+            left:
+                50%;
+
+            top:
+                50%;
+
+            transform:
+                translate(
+                    -50%,
+                    -50%
+                );
+
+            border-radius:
+                50%;
+
+            background:
+                #FFD45A;
+
+            box-shadow:
+                0 0 10px
+                rgba(255,212,90,.55);
+
+            z-index:
+                8;
+
+        }
+
+
+        .qibla-direction {
+
+            position:
+                absolute;
+
+            z-index:
+                5;
+
+            inset:
+                18px;
+
+            pointer-events:
+                none;
+
+        }
+
+
+        .qibla-direction-arrow {
+
+            position:
+                absolute;
+
+            left:
+                50%;
+
+            top:
+                50%;
+
+            width:
+                6px;
+
+            height:
+                86px;
+
+            transform-origin:
+                50% 100%;
+
+            transform:
+                translate(
+                    -50%,
+                    -100%
+                )
+                rotate(0deg);
+
+            border-radius:
+                999px;
+
+            background:
+                linear-gradient(
+                    180deg,
+                    #FFD45A,
+                    #FF9D45 70%,
+                    rgba(255,157,69,.10)
+                );
+
+            box-shadow:
+                0 0 11px
+                rgba(255,212,90,.30);
+
+            transition:
+                transform .20s linear;
+
+        }
+
+
+        .qibla-direction-arrow::before {
+
+            content:
+                "";
+
+            position:
+                absolute;
+
+            left:
+                50%;
+
+            top:
+                -4px;
+
+            transform:
+                translateX(-50%);
+
+            border-left:
+                9px solid transparent;
+
+            border-right:
+                9px solid transparent;
+
+            border-bottom:
+                17px solid
+                #FFD45A;
+
+        }
+
+
+        .qibla-center {
+
+            position:
+                absolute;
+
+            left:
+                50%;
+
+            top:
+                50%;
+
+            z-index:
+                9;
+
+            width:
+                48px;
+
+            height:
+                48px;
+
+            transform:
+                translate(
+                    -50%,
+                    -50%
+                );
+
+            display:
+                grid;
+
+            place-items:
+                center;
+
+            border:
+                1px solid
+                rgba(255,212,90,.24);
+
+            border-radius:
+                50%;
+
+            background:
+                rgba(4,14,21,.92);
+
+            color:
+                #FFD45A;
+
+            box-shadow:
+                0 0 18px
+                rgba(255,212,90,.12);
+
+            font-size:
+                18px;
+
+        }
+
+
+        html.light-mode .qibla-center {
+
+            border-color:
+                rgba(177,130,23,.20);
+
+            background:
+                rgba(255,255,255,.92);
+
+        }
+
+
+        .qibla-letter {
+
+            position:
+                absolute;
+
+            z-index:
+                7;
+
+            color:
+                #9FB4BF;
+
+            font-family:
+                Arial,
+                sans-serif;
+
+            font-size:
+                13px;
+
+            font-weight:
+                900;
+
+        }
+
+
+        .qibla-letter.n {
+            top:9px;
+            left:50%;
+            transform:translateX(-50%);
+            color:#25DFFF;
+        }
+
+
+        .qibla-letter.e {
+            right:14px;
+            top:50%;
+            transform:translateY(-50%);
+            color:#23EFA2;
+        }
+
+
+        .qibla-letter.s {
+            bottom:9px;
+            left:50%;
+            transform:translateX(-50%);
+            color:#FF9D45;
+        }
+
+
+        .qibla-letter.w {
+            left:14px;
+            top:50%;
+            transform:translateY(-50%);
+            color:#A779FF;
+        }
+
+
+        html.light-mode .qibla-letter {
+            color:#557168;
+        }
+
+
+        html.light-mode .qibla-letter.n {
+            color:#147C9B;
+        }
+
+
+        html.light-mode .qibla-letter.e {
+            color:#168B61;
+        }
+
+
+        html.light-mode .qibla-letter.s {
+            color:#BB7426;
+        }
+
+
+        html.light-mode .qibla-letter.w {
+            color:#7454AC;
+        }
+
+
+        .qibla-info-grid {
+
+            display:
+                grid;
+
+            grid-template-columns:
+                repeat(2,1fr);
+
+            gap:
+                8px;
+
+        }
+
+
+        .qibla-info-card {
+
+            min-height:
+                62px;
+
+            padding:
+                9px 10px;
+
+            border:
+                1px solid
+                rgba(101,214,255,.10);
+
+            border-radius:
+                10px;
+
+            background:
+                rgba(4,16,27,.55);
+
+        }
+
+
+        html.light-mode .qibla-info-card {
+
+            border-color:
+                rgba(42,105,82,.11);
+
+            background:
+                rgba(255,255,255,.68);
+
+        }
+
+
+        .qibla-info-label {
+
+            color:
+                #6E8793;
+
+            font-size:
+                11px;
+
+            line-height:
+                1.5;
+
+        }
+
+
+        html.light-mode .qibla-info-label {
+            color:#71877F;
+        }
+
+
+        .qibla-info-value {
+
+            margin-top:
+                2px;
+
+            color:
+                #DCEAF0;
+
+            font-family:
+                Arial,
+                sans-serif;
+
+            font-size:
+                14px;
+
+            font-weight:
+                900;
+
+            line-height:
+                1.5;
+
+        }
+
+
+        html.light-mode .qibla-info-value {
+            color:#23473C;
+        }
+
+
+        .qibla-actions {
+
+            display:
+                grid;
+
+            grid-template-columns:
+                1fr 1fr;
+
+            gap:
+                8px;
+
+            margin-top:
+                10px;
+
+        }
+
+
+        .qibla-button {
+
+            min-height:
+                46px;
+
+            padding:
+                0 12px;
+
+            border:
+                1px solid
+                rgba(37,223,255,.16);
+
+            border-radius:
+                10px;
+
+            background:
+                rgba(5,20,33,.72);
+
+            color:
+                #BCD0D9;
+
+            font-size:
+                13px;
+
+            font-weight:
+                900;
+
+        }
+
+
+        .qibla-button:hover {
+
+            color:
+                #F2FDFF;
+
+            border-color:
+                rgba(37,223,255,.30);
+
+            background:
+                rgba(7,28,44,.88);
+
+        }
+
+
+        .qibla-button.primary {
+
+            color:
+                #00140C;
+
+            border-color:
+                rgba(35,239,162,.34);
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #25DFFF,
+                    #23EFA2
+                );
+
+        }
+
+
+        .qibla-button.primary:hover {
+
+            color:
+                #00140C;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #46E6FF,
+                    #49F2B0
+                );
+
+        }
+
+
+        html.light-mode .qibla-button {
+
+            border-color:
+                rgba(42,105,82,.13);
+
+            background:
+                rgba(255,255,255,.86);
+
+            color:
+                #49695E;
+
+        }
+
+
+        html.light-mode .qibla-button:hover {
+
+            color:
+                #173F31;
+
+            border-color:
+                rgba(25,139,96,.28);
+
+            background:
+                #FFFFFF;
+
+        }
+
+
+        .qibla-note {
+
+            margin-top:
+                10px;
+
+            color:
+                #718993;
+
+            font-size:
+                12px;
+
+            line-height:
+                1.8;
+
+            text-align:
+                center;
+
+        }
+
+
+        html.light-mode .qibla-note {
+            color:#687F76;
+        }
+
+
+        .qibla-error {
+
+            display:
+                none;
+
+            margin-top:
+                10px;
+
+            padding:
+                10px;
+
+            border:
+                1px solid
+                rgba(255,104,121,.16);
+
+            border-radius:
+                9px;
+
+            background:
+                rgba(145,27,48,.08);
+
+            color:
+                #FFB0B9;
+
+            font-size:
+                12px;
+
+            font-weight:
+                800;
+
+            line-height:
+                1.8;
+
+            text-align:
+                center;
+
+        }
+
+
+        .qibla-error.show {
+            display:block;
+        }
+
+
+        html.light-mode .qibla-error {
+
+            border-color:
+                rgba(188,64,82,.13);
+
+            background:
+                rgba(188,64,82,.05);
+
+            color:
+                #A63D4A;
+
+        }
+
+
+        /* ============================================================
            IMAGE MODAL
         ============================================================ */
 
@@ -3819,6 +4763,9 @@
 
                 padding:
                     72px 24px 42px;
+
+                overflow-y:
+                    auto;
 
             }
 
@@ -4371,6 +5318,83 @@
 
             }
 
+
+            /* ========================================================
+               QIBLA MOBILE
+            ======================================================== */
+
+            .qibla-widget {
+
+                padding:
+                    15px;
+
+                margin-top:
+                    18px;
+
+            }
+
+
+            .qibla-header {
+
+                align-items:
+                    flex-start;
+
+                flex-direction:
+                    column;
+
+            }
+
+
+            .qibla-title {
+
+                font-size:
+                    18px;
+
+            }
+
+
+            .qibla-compass {
+
+                width:
+                    190px;
+
+                height:
+                    190px;
+
+            }
+
+
+            .qibla-direction {
+
+                inset:
+                    15px;
+
+            }
+
+
+            .qibla-direction-arrow {
+
+                height:
+                    74px;
+
+            }
+
+
+            .qibla-info-card {
+
+                min-height:
+                    60px;
+
+            }
+
+
+            .qibla-actions {
+
+                grid-template-columns:
+                    1fr;
+
+            }
+
         }
 
 
@@ -4423,6 +5447,25 @@
 
                 font-size:
                     40px;
+
+            }
+
+
+            .qibla-compass {
+
+                width:
+                    175px;
+
+                height:
+                    175px;
+
+            }
+
+
+            .qibla-direction-arrow {
+
+                height:
+                    68px;
 
             }
 
@@ -5185,6 +6228,259 @@
 
 
                 </footer>
+
+
+
+                <!-- ====================================================
+                     QIBLA NAV
+                     یوازې نوی اضافه شوی
+                ==================================================== -->
+
+                <section
+                    class="qibla-widget"
+                    id="qiblaWidget"
+                    aria-label="قبله نما"
+                >
+
+
+                    <div class="qibla-header">
+
+
+                        <div class="qibla-title-box">
+
+
+                            <div class="qibla-title-icon">
+
+                                <i
+                                    class="fa-solid fa-kaaba"
+                                    aria-hidden="true"
+                                ></i>
+
+                            </div>
+
+
+                            <div>
+
+                                <h2 class="qibla-title">
+
+                                    قبله نما
+
+                                </h2>
+
+
+                                <div class="qibla-subtitle">
+
+                                    د کعبې شریفې د قبلې سمت معلوم کړئ
+
+                                </div>
+
+                            </div>
+
+
+                        </div>
+
+
+                        <div
+                            class="qibla-status"
+                            id="qiblaStatus"
+                        >
+
+                            <span class="qibla-status-dot"></span>
+
+                            چمتو کېږي...
+
+                        </div>
+
+
+                    </div>
+
+
+
+                    <div class="qibla-compass-wrap">
+
+
+                        <div
+                            class="qibla-compass"
+                            id="qiblaCompass"
+                        >
+
+
+                            <span class="qibla-letter n">
+                                N
+                            </span>
+
+
+                            <span class="qibla-letter e">
+                                E
+                            </span>
+
+
+                            <span class="qibla-letter s">
+                                S
+                            </span>
+
+
+                            <span class="qibla-letter w">
+                                W
+                            </span>
+
+
+                            <div
+                                class="qibla-direction"
+                                aria-hidden="true"
+                            >
+
+                                <div
+                                    class="qibla-direction-arrow"
+                                    id="qiblaArrow"
+                                ></div>
+
+                            </div>
+
+
+                            <div class="qibla-center">
+
+                                <i
+                                    class="fa-solid fa-kaaba"
+                                    aria-hidden="true"
+                                ></i>
+
+                            </div>
+
+
+                        </div>
+
+
+                    </div>
+
+
+
+                    <div class="qibla-info-grid">
+
+
+                        <div class="qibla-info-card">
+
+
+                            <div class="qibla-info-label">
+                                د قبلې درجه
+                            </div>
+
+
+                            <div
+                                class="qibla-info-value"
+                                id="qiblaBearing"
+                            >
+                                --°
+                            </div>
+
+
+                        </div>
+
+
+                        <div class="qibla-info-card">
+
+
+                            <div class="qibla-info-label">
+                                د کعبې واټن
+                            </div>
+
+
+                            <div
+                                class="qibla-info-value"
+                                id="qiblaDistance"
+                            >
+                                --
+                            </div>
+
+
+                        </div>
+
+
+                        <div class="qibla-info-card">
+
+
+                            <div class="qibla-info-label">
+                                موقعیت
+                            </div>
+
+
+                            <div
+                                class="qibla-info-value"
+                                id="qiblaLocation"
+                            >
+                                نه دی معلوم
+                            </div>
+
+
+                        </div>
+
+
+                        <div class="qibla-info-card">
+
+
+                            <div class="qibla-info-label">
+                                د موبایل سمت
+                            </div>
+
+
+                            <div
+                                class="qibla-info-value"
+                                id="qiblaHeading"
+                            >
+                                --°
+                            </div>
+
+
+                        </div>
+
+
+                    </div>
+
+
+
+                    <div class="qibla-actions">
+
+
+                        <button
+                            type="button"
+                            class="qibla-button primary"
+                            id="qiblaStartButton"
+                        >
+
+                            📍 موقعیت معلوم کړه
+
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="qibla-button"
+                            id="qiblaCompassButton"
+                        >
+
+                            🧭 کمپاس فعال کړه
+
+                        </button>
+
+
+                    </div>
+
+
+
+                    <div
+                        id="qiblaError"
+                        class="qibla-error"
+                    ></div>
+
+
+                    <div class="qibla-note">
+
+                        د دقیقې قبلې لپاره د موبایل موقعیت او کمپاس اجازه فعاله کړئ.
+
+                    </div>
+
+
+                </section>
 
 
             </div>
@@ -6910,11 +8206,1054 @@
     );
 
 
+
+    /* ========================================================
+       QIBLA NAV
+       یوازې نوی اضافه شوی
+    ======================================================== */
+
+    const QIBLA_LAT =
+        21.422487;
+
+    const QIBLA_LON =
+        39.826206;
+
+
+    const qiblaStatus =
+        document.getElementById(
+            "qiblaStatus"
+        );
+
+
+    const qiblaBearing =
+        document.getElementById(
+            "qiblaBearing"
+        );
+
+
+    const qiblaDistance =
+        document.getElementById(
+            "qiblaDistance"
+        );
+
+
+    const qiblaLocation =
+        document.getElementById(
+            "qiblaLocation"
+        );
+
+
+    const qiblaHeading =
+        document.getElementById(
+            "qiblaHeading"
+        );
+
+
+    const qiblaArrow =
+        document.getElementById(
+            "qiblaArrow"
+        );
+
+
+    const qiblaStartButton =
+        document.getElementById(
+            "qiblaStartButton"
+        );
+
+
+    const qiblaCompassButton =
+        document.getElementById(
+            "qiblaCompassButton"
+        );
+
+
+    const qiblaError =
+        document.getElementById(
+            "qiblaError"
+        );
+
+
+    let currentQiblaBearing =
+        null;
+
+
+    let currentDeviceHeading =
+        null;
+
+
+    let qiblaCompassStarted =
+        false;
+
+
+    /* ========================================================
+       QIBLA ERROR
+    ======================================================== */
+
+    function showQiblaError(
+        message
+    ) {
+
+        if (
+            !qiblaError
+        ) {
+
+            return;
+
+        }
+
+
+        qiblaError.textContent =
+            message;
+
+
+        qiblaError.classList.add(
+            "show"
+        );
+
+    }
+
+
+    function hideQiblaError() {
+
+        if (
+            !qiblaError
+        ) {
+
+            return;
+
+        }
+
+
+        qiblaError.textContent =
+            "";
+
+
+        qiblaError.classList.remove(
+            "show"
+        );
+
+    }
+
+
+    /* ========================================================
+       NUMBER FORMAT
+    ======================================================== */
+
+    function normalizeDegree(
+        value
+    ) {
+
+        let degree =
+            Number(value);
+
+
+        if (
+            !Number.isFinite(
+                degree
+            )
+        ) {
+
+            return 0;
+
+        }
+
+
+        degree =
+            degree % 360;
+
+
+        if (
+            degree < 0
+        ) {
+
+            degree += 360;
+
+        }
+
+
+        return degree;
+
+    }
+
+
+    function formatDegree(
+        value
+    ) {
+
+        return `${Math.round(
+            normalizeDegree(value)
+        )}°`;
+
+    }
+
+
+    /* ========================================================
+       QIBLA BEARING
+    ======================================================== */
+
+    function calculateQiblaBearing(
+        latitude,
+        longitude
+    ) {
+
+        const φ1 =
+            latitude *
+            Math.PI /
+            180;
+
+
+        const φ2 =
+            QIBLA_LAT *
+            Math.PI /
+            180;
+
+
+        const Δλ =
+            (
+                QIBLA_LON -
+                longitude
+            ) *
+            Math.PI /
+            180;
+
+
+        const y =
+            Math.sin(
+                Δλ
+            );
+
+
+        const x =
+            Math.cos(
+                φ1
+            ) *
+            Math.tan(
+                φ2
+            )
+            -
+            Math.sin(
+                φ1
+            ) *
+            Math.cos(
+                Δλ
+            );
+
+
+        const bearing =
+            Math.atan2(
+                y,
+                x
+            ) *
+            180 /
+            Math.PI;
+
+
+        return normalizeDegree(
+            bearing
+        );
+
+    }
+
+
+    /* ========================================================
+       HAVERSINE DISTANCE
+    ======================================================== */
+
+    function calculateDistanceKm(
+        latitude,
+        longitude
+    ) {
+
+        const earthRadius =
+            6371;
+
+
+        const dLat =
+            (
+                QIBLA_LAT -
+                latitude
+            ) *
+            Math.PI /
+            180;
+
+
+        const dLon =
+            (
+                QIBLA_LON -
+                longitude
+            ) *
+            Math.PI /
+            180;
+
+
+        const lat1 =
+            latitude *
+            Math.PI /
+            180;
+
+
+        const lat2 =
+            QIBLA_LAT *
+            Math.PI /
+            180;
+
+
+        const a =
+            Math.sin(
+                dLat / 2
+            ) ** 2
+            +
+            Math.sin(
+                dLon / 2
+            ) ** 2 *
+            Math.cos(
+                lat1
+            ) *
+            Math.cos(
+                lat2
+            );
+
+
+        const c =
+            2 *
+            Math.atan2(
+                Math.sqrt(a),
+                Math.sqrt(
+                    1 - a
+                )
+            );
+
+
+        return earthRadius * c;
+
+    }
+
+
+    /* ========================================================
+       DISTANCE TEXT
+    ======================================================== */
+
+    function formatDistance(
+        distanceKm
+    ) {
+
+        if (
+            !Number.isFinite(
+                distanceKm
+            )
+        ) {
+
+            return "--";
+
+        }
+
+
+        if (
+            distanceKm < 1
+        ) {
+
+            return `${Math.round(
+                distanceKm * 1000
+            )} متر`;
+
+        }
+
+
+        return `${distanceKm.toFixed(
+            1
+        )} کیلومتر`;
+
+    }
+
+
+    /* ========================================================
+       UPDATE ARROW
+    ======================================================== */
+
+    function updateQiblaArrow() {
+
+        if (
+            !qiblaArrow ||
+            currentQiblaBearing === null
+        ) {
+
+            return;
+
+        }
+
+
+        const heading =
+            currentDeviceHeading === null
+                ? 0
+                : currentDeviceHeading;
+
+
+        const relative =
+            normalizeDegree(
+                currentQiblaBearing -
+                heading
+            );
+
+
+        qiblaArrow.style.transform =
+            `translate(-50%, -100%) rotate(${relative}deg)`;
+
+
+        if (
+            qiblaHeading
+        ) {
+
+            qiblaHeading.textContent =
+                currentDeviceHeading === null
+                    ? "--°"
+                    : formatDegree(
+                        currentDeviceHeading
+                    );
+
+        }
+
+    }
+
+
+    /* ========================================================
+       SET LOCATION
+    ======================================================== */
+
+    function applyQiblaLocation(
+        latitude,
+        longitude
+    ) {
+
+        currentQiblaBearing =
+            calculateQiblaBearing(
+                latitude,
+                longitude
+            );
+
+
+        const distanceKm =
+            calculateDistanceKm(
+                latitude,
+                longitude
+            );
+
+
+        if (
+            qiblaBearing
+        ) {
+
+            qiblaBearing.textContent =
+                formatDegree(
+                    currentQiblaBearing
+                );
+
+        }
+
+
+        if (
+            qiblaDistance
+        ) {
+
+            qiblaDistance.textContent =
+                formatDistance(
+                    distanceKm
+                );
+
+        }
+
+
+        if (
+            qiblaLocation
+        ) {
+
+            qiblaLocation.textContent =
+                `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+
+        }
+
+
+        updateQiblaArrow();
+
+
+        if (
+            qiblaStatus
+        ) {
+
+            qiblaStatus.innerHTML =
+                `
+                    <span class="qibla-status-dot"></span>
+                    موقعیت معلوم شو
+                `;
+
+        }
+
+    }
+
+
+    /* ========================================================
+       GEOLOCATION
+    ======================================================== */
+
+    function requestQiblaLocation() {
+
+        hideQiblaError();
+
+
+        if (
+            !navigator.geolocation
+        ) {
+
+            showQiblaError(
+                "ستاسې موبایل د موقعیت معلومولو ملاتړ نه کوي."
+            );
+
+            return;
+
+        }
+
+
+        if (
+            qiblaStatus
+        ) {
+
+            qiblaStatus.innerHTML =
+                `
+                    <span class="qibla-status-dot"></span>
+                    موقعیت لټول کېږي...
+                `;
+
+        }
+
+
+        if (
+            qiblaStartButton
+        ) {
+
+            qiblaStartButton.disabled =
+                true;
+
+            qiblaStartButton.textContent =
+                "⏳ موقعیت معلومېږي...";
+
+        }
+
+
+        navigator.geolocation.getCurrentPosition(
+
+            position => {
+
+                const latitude =
+                    Number(
+                        position.coords.latitude
+                    );
+
+
+                const longitude =
+                    Number(
+                        position.coords.longitude
+                    );
+
+
+                if (
+                    !Number.isFinite(
+                        latitude
+                    ) ||
+                    !Number.isFinite(
+                        longitude
+                    )
+                ) {
+
+                    showQiblaError(
+                        "د موقعیت معلومات سم ترلاسه نه شول."
+                    );
+
+
+                    if (
+                        qiblaStartButton
+                    ) {
+
+                        qiblaStartButton.disabled =
+                            false;
+
+                        qiblaStartButton.textContent =
+                            "📍 موقعیت معلوم کړه";
+
+                    }
+
+                    return;
+
+                }
+
+
+                applyQiblaLocation(
+                    latitude,
+                    longitude
+                );
+
+
+                if (
+                    qiblaStartButton
+                ) {
+
+                    qiblaStartButton.disabled =
+                        false;
+
+                    qiblaStartButton.textContent =
+                        "🔄 موقعیت تازه کړه";
+
+                }
+
+            },
+
+            error => {
+
+                let message =
+                    "د موقعیت معلومولو پر مهال ستونزه رامنځته شوه.";
+
+
+                switch (
+                    error?.code
+                ) {
+
+                    case 1:
+
+                        message =
+                            "د موقعیت اجازه بنده ده. مهرباني وکړئ Location اجازه فعاله کړئ.";
+
+                        break;
+
+
+                    case 2:
+
+                        message =
+                            "موقعیت معلوم نه شو.";
+
+                        break;
+
+
+                    case 3:
+
+                        message =
+                            "د موقعیت معلومولو وخت پای ته ورسېد.";
+
+                        break;
+
+                }
+
+
+                showQiblaError(
+                    message
+                );
+
+
+                if (
+                    qiblaStatus
+                ) {
+
+                    qiblaStatus.innerHTML =
+                        `
+                            <span class="qibla-status-dot"></span>
+                            د موقعیت اجازه
+                        `;
+
+                }
+
+
+                if (
+                    qiblaStartButton
+                ) {
+
+                    qiblaStartButton.disabled =
+                        false;
+
+                    qiblaStartButton.textContent =
+                        "📍 بیا هڅه";
+
+                }
+
+            },
+
+            {
+                enableHighAccuracy:
+                    true,
+
+                timeout:
+                    15000,
+
+                maximumAge:
+                    30000
+
+            }
+
+        );
+
+    }
+
+
+    /* ========================================================
+       DEVICE HEADING
+    ======================================================== */
+
+    function getScreenOrientationAngle() {
+
+        try {
+
+            if (
+                screen.orientation &&
+                typeof screen.orientation.angle ===
+                "number"
+            ) {
+
+                return screen.orientation.angle;
+
+            }
+
+        }
+
+        catch (error) {
+
+            console.warn(
+                "Screen orientation error:",
+                error
+            );
+
+        }
+
+
+        if (
+            typeof window.orientation ===
+            "number"
+        ) {
+
+            return Number(
+                window.orientation
+            );
+
+        }
+
+
+        return 0;
+
+    }
+
+
+    function convertAlphaToHeading(
+        alpha
+    ) {
+
+        if (
+            !Number.isFinite(
+                alpha
+            )
+        ) {
+
+            return null;
+
+        }
+
+
+        let heading =
+            360 -
+            alpha;
+
+
+        heading +=
+            getScreenOrientationAngle();
+
+
+        return normalizeDegree(
+            heading
+        );
+
+    }
+
+
+    function handleDeviceOrientation(
+        event
+    ) {
+
+        let heading =
+            null;
+
+
+        if (
+            typeof event.webkitCompassHeading ===
+            "number" &&
+            Number.isFinite(
+                event.webkitCompassHeading
+            )
+        ) {
+
+            heading =
+                normalizeDegree(
+                    event.webkitCompassHeading
+                );
+
+        }
+
+        else if (
+            typeof event.alpha ===
+            "number"
+        ) {
+
+            heading =
+                convertAlphaToHeading(
+                    event.alpha
+                );
+
+        }
+
+
+        if (
+            heading === null
+        ) {
+
+            return;
+
+        }
+
+
+        currentDeviceHeading =
+            heading;
+
+
+        updateQiblaArrow();
+
+
+        if (
+            qiblaStatus
+        ) {
+
+            qiblaStatus.innerHTML =
+                `
+                    <span class="qibla-status-dot"></span>
+                    کمپاس فعال دی
+                `;
+
+        }
+
+    }
+
+
+    /* ========================================================
+       START DEVICE COMPASS
+    ======================================================== */
+
+    async function startQiblaCompass() {
+
+        hideQiblaError();
+
+
+        try {
+
+            /*
+             * iOS / Safari permission
+             */
+
+            if (
+                typeof DeviceOrientationEvent !==
+                "undefined" &&
+                typeof DeviceOrientationEvent.requestPermission ===
+                "function"
+            ) {
+
+                const permission =
+                    await DeviceOrientationEvent.requestPermission();
+
+
+                if (
+                    permission !==
+                    "granted"
+                ) {
+
+                    showQiblaError(
+                        "د موبایل د کمپاس اجازه ورنه کړل شوه."
+                    );
+
+
+                    return;
+
+                }
+
+            }
+
+
+            if (
+                !(
+                    "DeviceOrientationEvent" in
+                    window
+                )
+            ) {
+
+                showQiblaError(
+                    "ستاسې موبایل د کمپاس معلومات نه وړاندې کوي."
+                );
+
+
+                return;
+
+            }
+
+
+            window.addEventListener(
+                "deviceorientationabsolute",
+                handleDeviceOrientation,
+                true
+            );
+
+
+            window.addEventListener(
+                "deviceorientation",
+                handleDeviceOrientation,
+                true
+            );
+
+
+            qiblaCompassStarted =
+                true;
+
+
+            if (
+                qiblaCompassButton
+            ) {
+
+                qiblaCompassButton.textContent =
+                    "🧭 کمپاس فعال دی";
+
+            }
+
+
+            if (
+                qiblaStatus
+            ) {
+
+                qiblaStatus.innerHTML =
+                    `
+                        <span class="qibla-status-dot"></span>
+                        کمپاس فعال دی
+                    `;
+
+            }
+
+
+            /*
+             * د موقعیت غوښتنه هم وکړه،
+             * څو که لا موقعیت نه وي معلوم شوی
+             * قبله محاسبه شي.
+             */
+
+            if (
+                currentQiblaBearing ===
+                null
+            ) {
+
+                requestQiblaLocation();
+
+            }
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Qibla compass error:",
+                error
+            );
+
+
+            showQiblaError(
+                "د کمپاس د فعالولو پر مهال ستونزه رامنځته شوه."
+            );
+
+        }
+
+    }
+
+
+    /* ========================================================
+       QIBLA BUTTONS
+    ======================================================== */
+
+    qiblaStartButton?.addEventListener(
+        "click",
+        () => {
+
+            requestQiblaLocation();
+
+        }
+    );
+
+
+    qiblaCompassButton?.addEventListener(
+        "click",
+        () => {
+
+            if (
+                qiblaCompassStarted
+            ) {
+
+                return;
+
+            }
+
+
+            startQiblaCompass();
+
+        }
+    );
+
+
+    /* ========================================================
+       INITIAL QIBLA
+    ======================================================== */
+
+    if (
+        qiblaStatus
+    ) {
+
+        qiblaStatus.innerHTML =
+            `
+                <span class="qibla-status-dot"></span>
+                د موقعیت انتظار
+            `;
+
+    }
+
+
+    /* ========================================================
+       QIBLA CLEANUP
+    ======================================================== */
+
+    window.addEventListener(
+        "beforeunload",
+        () => {
+
+            window.removeEventListener(
+                "deviceorientationabsolute",
+                handleDeviceOrientation,
+                true
+            );
+
+
+            window.removeEventListener(
+                "deviceorientation",
+                handleDeviceOrientation,
+                true
+            );
+
+        },
+        {
+            once:
+                true
+        }
+    );
+
+
 </script>
 
 
 <script
-    src="./pwa.js"
+    src="./pwa.=js"
 ></script>
 
 
