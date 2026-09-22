@@ -1,0 +1,51 @@
+name: Global i18n Preview
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - "README.txt"
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout PR merge ref
+        uses: actions/checkout@v7
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          project_id: hafz-admin-online-system
+          workload_identity_provider: projects/941143292545/locations/global/workloadIdentityPools/github-actions/providers/github-actions
+          service_account: github-action-1325369453@hafz-admin-online-system.iam.gserviceaccount.com
+
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools
+
+      - name: Run global i18n tests
+        run: node --experimental-default-type=module --test tests/i18n.test.mjs
+
+      - name: Deploy temporary Firebase preview
+        run: firebase hosting:channel:deploy pr-${{ github.event.pull_request.number }} --project hafz-admin-online-system --expires 7d --json | tee firebase-preview.json
+
+      - name: Publish preview URL
+        run: |
+          node --experimental-default-type=module -e '
+          const fs=require("fs");
+          const raw=fs.readFileSync("firebase-preview.json","utf8");
+          const match=raw.match(/https:\/\/[^"\\ ]+/);
+          if(match){
+            console.log("PREVIEW_URL="+match[0]);
+            fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, "\n## Global i18n Preview\n\n"+match[0]+"\n");
+          }else{
+            console.log(raw);
+            process.exit(1);
+          }
+          '
