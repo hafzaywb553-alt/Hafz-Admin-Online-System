@@ -108,6 +108,11 @@ import {
     getSettings
 } from "./settings.js";
 
+import {
+    getGlobalTranslation,
+    applyGlobalLanguage
+} from "./i18n.js";
+
 
 // ==========================================
 // GLOBAL STATE
@@ -1727,6 +1732,19 @@ function t(
     key,
     replacements = {}
 ) {
+
+    const globalText =
+        getGlobalTranslation(
+            key,
+            currentLanguage,
+            replacements
+        );
+
+
+    if (globalText !== null) {
+        return globalText;
+    }
+
 
     const pack =
         TRANSLATIONS[
