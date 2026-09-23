@@ -1,0 +1,1223 @@
+rules_version = '2';
+
+service cloud.firestore {
+
+    match /databases/{database}/documents {
+
+
+        // =========================================================
+        // AUTHENTICATION
+        // =========================================================
+
+        function signedIn() {
+
+            return request.auth != null;
+
+        }
+
+
+        // =========================================================
+        // ADMIN PROFILE PATH
+        // =========================================================
+
+        function adminPath(uid) {
+
+            return
+                /databases/$(database)/documents/admins/$(uid);
+
+        }
+
+
+        function adminExists(uid) {
+
+            return exists(
+                adminPath(uid)
+            );
+
+        }
+
+
+        function adminData(uid) {
+
+            return get(
+                adminPath(uid)
+            ).data;
+
+        }
+
+
+        // =========================================================
+        // VALID ADMIN PROFILE
+        // =========================================================
+
+        function hasValidAdminProfile() {
+
+            return
+
+                signedIn()
+
+                &&
+
+                adminExists(
+                    request.auth.uid
+                )
+
+                &&
+
+                adminData(
+                    request.auth.uid
+                ).uid
+                    ==
+                    request.auth.uid
+
+                &&
+
+                adminData(
+                    request.auth.uid
+                ).active
+                    ==
+                    true
+
+                &&
+
+                (
+
+                    adminData(
+                        request.auth.uid
+                    ).role
+                        ==
+                        "superadmin"
+
+                    ||
+
+                    adminData(
+                        request.auth.uid
+                    ).role
+                        ==
+                        "admin"
+
+                    ||
+
+                    adminData(
+                        request.auth.uid
+                    ).role
+                        ==
+                        "user"
+
+                );
+
+        }
+
+
+        // =========================================================
+        // SUPER ADMIN
+        // =========================================================
+
+        function isSuperAdmin() {
+
+            return
+
+                hasValidAdminProfile()
+
+                &&
+
+                adminData(
+                    request.auth.uid
+                ).role
+                    ==
+                    "superadmin";
+
+        }
+
+
+        // =========================================================
+        // ADMIN
+        // =========================================================
+
+        function isAdmin() {
+
+            return
+
+                hasValidAdminProfile()
+
+                &&
+
+                (
+
+                    adminData(
+                        request.auth.uid
+                    ).role
+                        ==
+                        "superadmin"
+
+                    ||
+
+                    adminData(
+                        request.auth.uid
+                    ).role
+                        ==
+                        "admin"
+
+                );
+
+        }
+
+
+        // =========================================================
+        // NORMAL USER
+        // =========================================================
+
+        function isUser() {
+
+            return
+
+                hasValidAdminProfile()
+
+                &&
+
+                adminData(
+                    request.auth.uid
+                ).role
+                    ==
+                    "user";
+
+        }
+
+
+        // =========================================================
+        // ANY ACTIVE MEMBER
+        // =========================================================
+
+        function isMember() {
+
+            return
+                hasValidAdminProfile();
+
+        }
+
+
+        // =========================================================
+        // RECORD VISIBILITY
+        //
+        // که visibility نه وي موجود،
+        // Default = false ګڼل کېږي.
+        // =========================================================
+
+        function recordHidden() {
+
+            return
+                resource.data
+                    .get(
+                        "visibility",
+                        {}
+                    )
+                    .get(
+                        "hiddenFromAdmins",
+                        false
+                    )
+                    ==
+                    true;
+
+        }
+
+
+        function newRecordHidden() {
+
+            return
+                request.resource.data
+                    .get(
+                        "visibility",
+                        {}
+                    )
+                    .get(
+                        "hiddenFromAdmins",
+                        false
+                    )
+                    ==
+                    true;
+
+        }
+
+
+        // =========================================================
+        // RECORD LOCK STATE
+        //
+        // editable == false
+        // = قفل
+        //
+        // editable نه وي موجود
+        // = خلاص ګڼل کېږي
+        // =========================================================
+
+        function recordLocked() {
+
+            return
+                resource.data
+                    .get(
+                        "editable",
+                        true
+                    )
+                    ==
+                    false;
+
+        }
+
+
+        function newRecordLocked() {
+
+            return
+                request.resource.data
+                    .get(
+                        "editable",
+                        true
+                    )
+                    ==
+                    false;
+
+        }
+
+
+        // =========================================================
+        // ADMINS
+        // =========================================================
+
+        match /admins/{uid} {
+
+
+            // -----------------------------------------------------
+            // Individual Admin Profile
+            // -----------------------------------------------------
+
+            allow get:
+                if
+
+                    signedIn()
+
+                    &&
+
+                    (
+
+                        request.auth.uid
+                            ==
+                            uid
+
+                        ||
+
+                        isSuperAdmin()
+
+                    );
+
+
+            // -----------------------------------------------------
+            // Admin List
+            // یوازې Super Admin
+            // -----------------------------------------------------
+
+            allow list:
+                if isSuperAdmin();
+
+
+            // -----------------------------------------------------
+            // Create Admin
+            // یوازې Super Admin
+            // -----------------------------------------------------
+
+            allow create:
+                if
+
+                    isSuperAdmin()
+
+                    &&
+
+                    request.resource.data.uid
+                        ==
+                        uid
+
+                    &&
+
+                    request.resource.data.email
+                        is string
+
+                    &&
+
+                    request.resource.data.email.size()
+                        >
+                        0
+
+                    &&
+
+                    request.resource.data.role
+                        in
+                        [
+                            "superadmin",
+                            "admin",
+                            "user"
+                        ]
+
+                    &&
+
+                    request.resource.data.active
+                        ==
+                        true;
+
+
+            // -----------------------------------------------------
+            // Update Admin
+            // یوازې Super Admin
+            // -----------------------------------------------------
+
+            allow update:
+                if
+
+                    isSuperAdmin()
+
+                    &&
+
+                    request.resource.data.uid
+                        ==
+                        uid
+
+                    &&
+
+                    request.resource.data.role
+                        in
+                        [
+                            "superadmin",
+                            "admin",
+                            "user"
+                        ];
+
+
+            // -----------------------------------------------------
+            // Delete Admin
+            // -----------------------------------------------------
+
+            allow delete:
+                if isSuperAdmin();
+
+        }
+
+
+        // =========================================================
+        // RECORDS
+        // =========================================================
+
+        match /records/{recordId} {
+
+
+            // =====================================================
+            // GET
+            // =====================================================
+            //
+            // Super Admin:
+            // ټول Recordونه
+            //
+            // Admin/User:
+            // یوازې Visible Record
+            //
+            // پټ Record:
+            // هېڅ Direct Get نشي کولی.
+            // =====================================================
+
+            allow get:
+                if
+
+                    isSuperAdmin();
+
+
+            allow get:
+                if
+
+                    isMember()
+
+                    &&
+
+                    !recordHidden();
+
+
+            // =====================================================
+            // LIST
+            // =====================================================
+            //
+            // Super Admin:
+            // ټول Recordونه
+            //
+            // Admin/User:
+            // یوازې Visible Recordونه
+            //
+            // Search Query باید د hiddenFromAdmins
+            // حالت سره برابر وي.
+            // =====================================================
+
+            allow list:
+                if isSuperAdmin();
+
+
+            allow list:
+                if
+
+                    isMember()
+
+                    &&
+
+                    !recordHidden();
+
+
+            // =====================================================
+            // CREATE
+            // =====================================================
+            //
+            // User:
+            // اجازه نشته
+            //
+            // Admin / Super Admin:
+            // Create کولای شي
+            //
+            // Record باید په لومړي سر کې:
+            //
+            // hiddenFromAdmins = false
+            //
+            // editable = true
+            //
+            // وي.
+            // =====================================================
+
+            allow create:
+                if
+
+                    isAdmin()
+
+                    &&
+
+                    !newRecordHidden()
+
+                    &&
+
+                    !newRecordLocked()
+
+                    &&
+
+                    request.resource.data
+                        .createdBy
+                        ==
+                        request.auth.uid;
+
+
+            // =====================================================
+            // UPDATE — SUPER ADMIN
+            // =====================================================
+            //
+            // Super Admin هر څه بدلولی شي.
+            // =====================================================
+
+            allow update:
+                if isSuperAdmin();
+
+
+            // =====================================================
+            // UPDATE — ADMIN
+            // =====================================================
+            //
+            // Admin:
+            //
+            // 1. پټ Record نه شي Edit کولی.
+            // 2. د Visibility حالت نه شي بدلولی.
+            // 3. خلاص Record Edit کولی شي.
+            // 4. خلاص Record Lock کولی شي.
+            // 5. Locked Record یوازې Unlock کولی شي.
+            // 6. Locked Record د معلوماتو Edit نه شي کولی.
+            // =====================================================
+
+            allow update:
+                if
+
+                    isAdmin()
+
+                    &&
+
+                    !recordHidden()
+
+                    &&
+
+                    request.resource.data
+                        .get(
+                            "visibility",
+                            {}
+                        )
+                        ==
+                        resource.data
+                            .get(
+                                "visibility",
+                                {}
+                            )
+
+                    &&
+
+                    (
+
+                        // -------------------------------------
+                        // موجود Record خلاص دی:
+                        // Edit یا Lock اجازه
+                        // -------------------------------------
+
+                        (
+
+                            !recordLocked()
+
+                        )
+
+                        ||
+
+                        // -------------------------------------
+                        // موجود Record قفل دی:
+                        // یوازې Unlock
+                        //
+                        // نور معلومات باید هماغسې وي.
+                        // -------------------------------------
+
+                        (
+
+                            recordLocked()
+
+                            &&
+
+                            request.resource.data
+                                .get(
+                                    "editable",
+                                    true
+                                )
+                                ==
+                                true
+
+                            &&
+
+                            request.resource.data
+                                .diff(
+                                    resource.data
+                                )
+                                .affectedKeys()
+                                .hasOnly(
+                                    [
+                                        "editable",
+                                        "updatedAt"
+                                    ]
+                                )
+
+                        )
+
+                    );
+
+
+            // =====================================================
+            // DELETE
+            // =====================================================
+            //
+            // یوازې Super Admin
+            // =====================================================
+
+            allow delete:
+                if isSuperAdmin();
+
+        }
+
+
+        // =========================================================
+        // UNIQUE NUMBERS
+        // =========================================================
+
+        match /uniqueNumbers/{uniqueId} {
+
+
+            // -----------------------------------------------------
+            // Read
+            //
+            // User ته اړتیا نشته.
+            // Admin/Super Admin
+            // -----------------------------------------------------
+
+            allow read:
+                if isAdmin();
+
+
+            // -----------------------------------------------------
+            // Create
+            // -----------------------------------------------------
+
+            allow create:
+                if
+
+                    isAdmin()
+
+                    &&
+
+                    request.resource.data.recordId
+                        is string
+
+                    &&
+
+                    request.resource.data.recordId.size()
+                        >
+                        0
+
+                    &&
+
+                    request.resource.data.type
+                        is string
+
+                    &&
+
+                    request.resource.data.type.size()
+                        >
+                        0
+
+                    &&
+
+                    request.resource.data.number
+                        is string
+
+                    &&
+
+                    request.resource.data.number.size()
+                        >
+                        0
+
+                    &&
+
+                    request.resource.data.createdByName
+                        is string
+
+                    &&
+
+                    request.resource.data.createdByEmail
+                        is string;
+
+
+            // -----------------------------------------------------
+            // Update
+            // -----------------------------------------------------
+
+            allow update:
+                if
+
+                    isAdmin()
+
+                    &&
+
+                    request.resource.data.recordId
+                        is string
+
+                    &&
+
+                    request.resource.data.type
+                        is string
+
+                    &&
+
+                    request.resource.data.number
+                        is string
+
+                    &&
+
+                    request.resource.data.createdByName
+                        is string
+
+                    &&
+
+                    request.resource.data.createdByEmail
+                        is string;
+
+
+            // -----------------------------------------------------
+            // Delete
+            // -----------------------------------------------------
+
+            allow delete:
+                if isAdmin();
+
+        }
+
+
+        // =========================================================
+        // SYSTEM SETTINGS
+        // =========================================================
+        //
+        // Field Config
+        // Deleted Fields
+        // Field Order
+        // Required / Hidden / Locked
+        // Privacy
+        //
+        // یوازې Super Admin
+        // =========================================================
+
+        match /settings/{settingId} {
+
+
+            // Read
+            // ټول فعال غړي کولای شي Settings ولولي.
+            //
+            // اصلي هدف:
+            // Register Page کولای شي
+            // Field Configuration واخلي.
+            // -----------------------------------------------------
+
+            allow read:
+                if isMember();
+
+
+            // Create
+            // -----------------------------------------------------
+
+            allow create:
+                if isSuperAdmin();
+
+
+            // Update
+            // -----------------------------------------------------
+
+            allow update:
+                if isSuperAdmin();
+
+
+            // Delete
+            // -----------------------------------------------------
+
+            allow delete:
+                if isSuperAdmin();
+
+        }
+
+
+        // =========================================================
+        // FORMIC SETTINGS
+        // =========================================================
+
+        match /formic_settings/{settingId} {
+
+
+            allow read:
+                if isMember();
+
+
+            allow create:
+                if isSuperAdmin();
+
+
+            allow update:
+                if isSuperAdmin();
+
+
+            allow delete:
+                if isSuperAdmin();
+
+        }
+
+
+        // =========================================================
+        // PRESENCE
+        // =========================================================
+
+        match /presence/{uid} {
+
+
+            allow read:
+                if isMember();
+
+
+            allow create:
+                if
+
+                    isMember()
+
+                    &&
+
+                    request.auth.uid
+                        ==
+                        uid;
+
+
+            allow update:
+                if
+
+                    isMember()
+
+                    &&
+
+                    request.auth.uid
+                        ==
+                        uid;
+
+
+            allow delete:
+                if
+
+                    isMember()
+
+                    &&
+
+                    request.auth.uid
+                        ==
+                        uid;
+
+        }
+
+
+        // =========================================================
+        // AUDIT
+        // =========================================================
+
+        match /audit/{auditId} {
+
+
+            // Create
+            // User یوازې خپل Audit جوړولی شي.
+            // -----------------------------------------------------
+
+            allow create:
+                if
+
+                    isMember()
+
+                    &&
+
+                    request.resource.data.uid
+                        ==
+                        request.auth.uid
+
+                    &&
+
+                    request.resource.data.email
+                        ==
+                        request.auth.token.email;
+
+
+            // Read
+            // یوازې Super Admin
+            // -----------------------------------------------------
+
+            allow read:
+                if isSuperAdmin();
+
+
+            // Immutable
+            // -----------------------------------------------------
+
+            allow update:
+                if false;
+
+
+            allow delete:
+                if false;
+
+        }
+
+
+        // =========================================================
+        // DASHBOARD COMMENTS
+        // =========================================================
+
+        match /dashboard_comments/{commentId} {
+
+
+            allow read:
+                if isMember();
+
+
+            allow create:
+                if
+
+                    isMember()
+
+                    &&
+
+                    request.resource.data.uid
+                        ==
+                        request.auth.uid
+
+                    &&
+
+                    request.resource.data.email
+                        ==
+                        request.auth.token.email
+
+                    &&
+
+                    request.resource.data.text
+                        is string
+
+                    &&
+
+                    request.resource.data.text.size()
+                        >
+                        0
+
+                    &&
+
+                    request.resource.data.text.size()
+                        <=
+                        500
+
+                    &&
+
+                    request.resource.data.displayName
+                        is string
+
+                    &&
+
+                    request.resource.data.likes
+                        is list
+
+                    &&
+
+                    request.resource.data.hearts
+                        is list;
+
+
+            allow update:
+                if
+
+                    isMember()
+
+                    &&
+
+                    request.resource.data.uid
+                        ==
+                        resource.data.uid
+
+                    &&
+
+                    request.resource.data.email
+                        ==
+                        resource.data.email
+
+                    &&
+
+                    request.resource.data.displayName
+                        ==
+                        resource.data.displayName
+
+                    &&
+
+                    request.resource.data.text
+                        ==
+                        resource.data.text
+
+                    &&
+
+                    request.resource.data.createdAt
+                        ==
+                        resource.data.createdAt
+
+                    &&
+
+                    request.resource.data.diff(
+                        resource.data
+                    ).affectedKeys().hasOnly(
+                        [
+                            "likes",
+                            "hearts"
+                        ]
+                    )
+
+                    &&
+
+                    request.resource.data.likes
+                        is list
+
+                    &&
+
+                    request.resource.data.hearts
+                        is list;
+
+
+            allow delete:
+                if
+
+                    isSuperAdmin()
+
+                    ||
+
+                    (
+
+                        isMember()
+
+                        &&
+
+                        resource.data.uid
+                            ==
+                            request.auth.uid
+
+                    );
+
+        }
+
+
+        // =========================================================
+        // DAILY ISLAMIC CONTENT
+        // =========================================================
+
+        match /dashboard_daily_content/{contentId} {
+
+
+            allow read:
+                if isMember();
+
+
+            allow create:
+                if
+
+                    isSuperAdmin()
+
+                    &&
+
+                    request.resource.data.zikr
+                        is string
+
+                    &&
+
+                    request.resource.data.zikr.size()
+                        >
+                        0
+
+                    &&
+
+                    request.resource.data.zikr.size()
+                        <=
+                        1000
+
+                    &&
+
+                    request.resource.data.comfort
+                        is string
+
+                    &&
+
+                    request.resource.data.comfort.size()
+                        >
+                        0
+
+                    &&
+
+                    request.resource.data.comfort.size()
+                        <=
+                        1000
+
+                    &&
+
+                    request.resource.data.poem
+                        is string
+
+                    &&
+
+                    request.resource.data.poem.size()
+                        >
+                        0
+
+                    &&
+
+                    request.resource.data.poem.size()
+                        <=
+                        1000
+
+                    &&
+
+                    request.resource.data.updatedBy
+                        ==
+                        request.auth.uid
+
+                    &&
+
+                    request.resource.data.updatedByEmail
+                        ==
+                        request.auth.token.email;
+
+
+            allow update:
+                if
+
+                    isSuperAdmin()
+
+                    &&
+
+                    request.resource.data.zikr
+                        is string
+
+                    &&
+
+                    request.resource.data.zikr.size()
+                        >
+                        0
+
+                    &&
+
+                    request.resource.data.zikr.size()
+                        <=
+                        1000
+
+                    &&
+
+                    request.resource.data.comfort
+                        is string
+
+                    &&
+
+                    request.resource.data.comfort.size()
+                        >
+                        0
+
+                    &&
+
+                    request.resource.data.comfort.size()
+                        <=
+                        1000
+
+                    &&
+
+                    request.resource.data.poem
+                        is string
+
+                    &&
+
+                    request.resource.data.poem.size()
+                        >
+                        0
+
+                    &&
+
+                    request.resource.data.poem.size()
+                        <=
+                        1000
+
+                    &&
+
+                    request.resource.data.updatedBy
+                        ==
+                        request.auth.uid
+
+                    &&
+
+                    request.resource.data.updatedByEmail
+                        ==
+                        request.auth.token.email;
+
+
+            allow delete:
+                if false;
+
+        }
+
+
+        // =========================================================
+        // DEFAULT DENY
+        // =========================================================
+
+        match /{document=**} {
+
+            allow read, write:
+                if false;
+
+        }
+
+    }
+
+}
