@@ -69,6 +69,9 @@ const LOGOUT_MARKER_KEY =
 const LOGOUT_IN_PROGRESS_KEY =
     "krha_auth_logout_in_progress_v2";
 
+const LOGOUT_HISTORY_COLLAPSE_KEY =
+    "krha_auth_logout_history_collapse_v1";
+
 
 // ==========================================
 // History Marker
@@ -1820,6 +1823,15 @@ function continueLogoutHistory() {
         isLoginPage()
     ) {
 
+        try {
+
+            sessionStorage.removeItem(
+                LOGOUT_HISTORY_COLLAPSE_KEY
+            );
+
+        } catch {}
+
+
         if (
             logoutFallbackTimer !==
             null
@@ -1854,6 +1866,82 @@ function continueLogoutHistory() {
 
 
     lockCurrentPageDuringLogout();
+
+
+    try {
+
+        const collapseStarted =
+            sessionStorage.getItem(
+                LOGOUT_HISTORY_COLLAPSE_KEY
+            ) === "1";
+
+
+        /*
+         * Logout وروسته د موجود Web/TWA history
+         * لومړي entry ته ځو.
+         *
+         * هدف:
+         * Dashboard / Formic / Register / Search
+         * او نور Protected pages د Android Back
+         * له لارې بیا را ونه ګرځي.
+         *
+         * دا یوازې د Logout flow لپاره کار کوي.
+         */
+
+        if (
+            !collapseStarted
+        ) {
+
+            sessionStorage.setItem(
+                LOGOUT_HISTORY_COLLAPSE_KEY,
+                "1"
+            );
+
+
+            const historySteps =
+                Math.max(
+                    0,
+                    (window.history.length || 1) - 1
+                );
+
+
+            if (
+                historySteps > 0
+            ) {
+
+                window.history.go(
+                    -historySteps
+                );
+
+                return;
+
+            }
+
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Logout History Collapse Error:",
+            error
+        );
+
+    }
+
+
+    /*
+     * که history موجود نه وي،
+     * یا collapse already بشپړ شوی وي،
+     * Login ته مستقیم replace.
+     */
+
+    try {
+
+        sessionStorage.removeItem(
+            LOGOUT_HISTORY_COLLAPSE_KEY
+        );
+
+    } catch {}
 
 
     try {
@@ -2165,6 +2253,43 @@ if (
     window.addEventListener(
         "pageshow",
         () => {
+
+            try {
+
+                if (
+                    sessionStorage.getItem(
+                        LOGOUT_HISTORY_COLLAPSE_KEY
+                    ) === "1"
+                ) {
+
+                    sessionStorage.removeItem(
+                        LOGOUT_HISTORY_COLLAPSE_KEY
+                    );
+
+
+                    if (
+                        !isLoginPage()
+                    ) {
+
+                        window.location.replace(
+                            LOGIN_PAGE
+                        );
+
+                        return;
+
+                    }
+
+                }
+
+            } catch (error) {
+
+                console.error(
+                    "Logout History Restore Guard Error:",
+                    error
+                );
+
+            }
+
 
             if (
                 hasLogoutMarker() ||
