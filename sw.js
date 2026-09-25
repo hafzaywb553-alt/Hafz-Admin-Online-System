@@ -239,83 +239,91 @@ self.addEventListener(
         }
 
 
+        /*
+         * عادي پاڼې او فایلونه لومړی له Cache څخه واخله
+         * څو Navigation سمدستي ترسره شي.
+         *
+         * که Cache موجود نه وي، Network ته ځه او Response
+         * د همدې نسخې په Cache کې وساته.
+         *
+         * د نوې نسخې تازه کېدل Service Worker update
+         * او version.json په جلا ډول اداره کوي.
+         */
         event.respondWith(
 
-            fetch(
-                request,
-                {
-                    cache: "no-store"
-                }
-            )
-            .then(
-                response => {
+            caches
+                .match(
+                    request
+                )
+                .then(
+                    cached => {
 
-                    /*
-                     * نوی Response Cache کړه.
-                     */
+                        if (
+                            cached
+                        ) {
 
-                    if (
-                        response &&
-                        response.status === 200
-                    ) {
+                            return cached;
 
-                        const clone =
-                            response.clone();
+                        }
 
-                        caches
-                            .open(
-                                CACHE_NAME
-                            )
-                            .then(
-                                cache => {
+                        return fetch(
+                            request
+                        )
+                        .then(
+                            response => {
 
-                                    cache.put(
-                                        request,
-                                        clone
-                                    );
+                                if (
+                                    response &&
+                                    response.status === 200
+                                ) {
+
+                                    const clone =
+                                        response.clone();
+
+                                    caches
+                                        .open(
+                                            CACHE_NAME
+                                        )
+                                        .then(
+                                            cache => {
+
+                                                cache.put(
+                                                    request,
+                                                    clone
+                                                );
+
+                                            }
+                                        )
+                                        .catch(
+                                            () => {}
+                                        );
 
                                 }
-                            )
-                            .catch(
-                                () => {}
-                            );
 
-                    }
+                                return response;
 
-                    return response;
-
-                }
-            )
-            .catch(
-                async () => {
-
-                    const cached =
-                        await caches.match(
-                            request
+                            }
                         );
 
-                    if (
-                        cached
-                    ) {
+                    }
+                )
+                .catch(
+                    () => {
 
-                        return cached;
+                        return new Response(
+                            "انټرنېټ ته اتصال نشته.",
+                            {
+                                status:
+                                    503,
+                                headers: {
+                                    "Content-Type":
+                                        "text/plain; charset=utf-8"
+                                }
+                            }
+                        );
 
                     }
-
-                    return new Response(
-                        "انټرنېټ ته اتصال نشته.",
-                        {
-                            status:
-                                503,
-                            headers: {
-                                "Content-Type":
-                                    "text/plain; charset=utf-8"
-                            }
-                        }
-                    );
-
-                }
-            )
+                )
 
         );
 
