@@ -49,5 +49,31 @@ jobs:
           )
           PY2
 
+      - name: Stamp Service Worker build version
+        run: |
+          python - <<'PY3'
+          from pathlib import Path
+          import os
+
+          build_version = os.environ.get("GITHUB_SHA", "")
+          if not build_version:
+              raise SystemExit("GITHUB_SHA not available")
+
+          path = Path("sw.js")
+          content = path.read_text(encoding="utf-8")
+          placeholder = 'const BUILD_VERSION = "__BUILD_VERSION__";'
+
+          if placeholder not in content:
+              raise SystemExit("Service Worker build-version placeholder not found")
+
+          content = content.replace(
+              placeholder,
+              f'const BUILD_VERSION = "{build_version}";',
+              1
+          )
+
+          path.write_text(content, encoding="utf-8")
+          PY3
+
       - name: Deploy Firebase Hosting
         run: firebase deploy --only hosting --project hafz-admin-online-system
