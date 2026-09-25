@@ -15,7 +15,7 @@
     const PWA_CONFIG = {
 
         // هر ځل چې نوې نسخه خپروې، دا شمېره بدلوه.
-        VERSION: "1.0.1",
+        VERSION: "auto",
         REMOTE_VERSION_URL: "./version.json",
 
         // Service Worker فایل
@@ -697,14 +697,27 @@
                     remoteVersion
                 );
 
-                showUpdateMessage(
-                    "د سیستم نوې نسخه خپره شوې ده. سیستم تازه کېږي..."
-                );
+                /*
+                 * Version بدله شوې؛ Service Worker ژر Update کړه.
+                 * نوی Service Worker چې فعال شي، controllerchange
+                 * سیستم په اتومات ډول یو ځل Reload کوي.
+                 */
+                const registration =
+                    window.__hafzSwRegistration;
 
-                setTimeout(
-                    () => window.location.reload(),
-                    1200
-                );
+                if (registration) {
+
+                    registration
+                        .update()
+                        .catch(
+                            error =>
+                                console.error(
+                                    "Automatic version update failed:",
+                                    error
+                                )
+                        );
+
+                }
 
             }
 
@@ -757,7 +770,12 @@
                 updateAvailable =
                     true;
 
-                showUpdateMessage();
+                registration.waiting.postMessage(
+                    {
+                        type:
+                            "SKIP_WAITING"
+                    }
+                );
 
             }
 
@@ -795,7 +813,12 @@
                                     updateAvailable =
                                         true;
 
-                                    showUpdateMessage();
+                                    newWorker.postMessage(
+                                        {
+                                            type:
+                                                "SKIP_WAITING"
+                                        }
+                                    );
 
                                 }
 
@@ -975,6 +998,10 @@
 
             installProfessionalEducationNavigation();
 
+            setupControllerChange();
+
+            await registerServiceWorker();
+
             await checkRemoteVersion();
 
             setInterval(
@@ -983,10 +1010,6 @@
                 },
                 60 * 1000
             );
-
-            setupControllerChange();
-
-            await registerServiceWorker();
 
         }
     );
