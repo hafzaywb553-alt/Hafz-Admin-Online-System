@@ -32,6 +32,281 @@
 
 
     // ==========================================
+    // New Official Navigation
+    // مسلک او زده کړې
+    // ==========================================
+
+    const PROFESSIONAL_EDUCATION_URL =
+        "./profession-education/profession-education.html";
+
+
+    const PROFESSIONAL_EDUCATION_LABELS = {
+
+        ps:
+            "🎓 مسلک او زده کړې",
+
+        fa:
+            "🎓 مسلک و آموزش",
+
+        ur:
+            "🎓 پیشہ اور تعلیم",
+
+        ar:
+            "🎓 المهن والتعليم",
+
+        en:
+            "🎓 Professions & Education"
+
+    };
+
+
+    function getProfessionalEducationLanguage(
+        language = "ps"
+    ) {
+
+        const key =
+            String(
+                language ||
+                document.documentElement.lang ||
+                "ps"
+            )
+                .trim()
+                .toLowerCase();
+
+        return (
+            PROFESSIONAL_EDUCATION_LABELS[key]
+                ? key
+                : "ps"
+        );
+
+    }
+
+
+    function applyProfessionalEducationNavText(
+        button,
+        language = null
+    ) {
+
+        if (!button) {
+            return;
+        }
+
+        const lang =
+            getProfessionalEducationLanguage(
+                language
+            );
+
+        const label =
+            PROFESSIONAL_EDUCATION_LABELS[lang];
+
+        button.setAttribute(
+            "aria-label",
+            label
+        );
+
+        const textElement =
+            button.querySelector(
+                ".professional-education-nav-text"
+            );
+
+        if (textElement) {
+            textElement.textContent =
+                label.replace(
+                    /^🎓\s*/,
+                    ""
+                );
+        }
+
+    }
+
+
+    function installProfessionalEducationNavigation() {
+
+        const reportsButton =
+            document.getElementById(
+                "reportsMenuBtn"
+            );
+
+        if (!reportsButton) {
+            return;
+        }
+
+        let button =
+            document.getElementById(
+                "professionalEducationMenuBtn"
+            );
+
+
+        if (!button) {
+
+            button =
+                reportsButton.cloneNode(
+                    true
+                );
+
+            button.id =
+                "professionalEducationMenuBtn";
+
+            button.classList.remove(
+                "active"
+            );
+
+            button.removeAttribute(
+                "aria-current"
+            );
+
+            button.innerHTML = `
+
+                <span
+                    class="sidebar-icon"
+                    aria-hidden="true"
+                >
+                    🎓
+                </span>
+
+                <span
+                    class="professional-education-nav-text"
+                >
+                    مسلک او زده کړې
+                </span>
+
+            `;
+
+            reportsButton.insertAdjacentElement(
+                "afterend",
+                button
+            );
+
+        }
+
+
+        const currentPath =
+            String(
+                window.location.pathname ||
+                ""
+            );
+
+
+        const isProfessionalEducationPage =
+            currentPath.endsWith(
+                "/profession-education/profession-education.html"
+            ) ||
+            currentPath.endsWith(
+                "/profession-education/"
+            );
+
+
+        button.classList.toggle(
+            "active",
+            isProfessionalEducationPage
+        );
+
+
+        if (
+            isProfessionalEducationPage
+        ) {
+
+            button.setAttribute(
+                "aria-current",
+                "page"
+            );
+
+        } else {
+
+            button.removeAttribute(
+                "aria-current"
+            );
+
+        }
+
+
+        button.title =
+            PROFESSIONAL_EDUCATION_LABELS[
+                getProfessionalEducationLanguage()
+            ];
+
+
+        applyProfessionalEducationNavText(
+            button
+        );
+
+
+        button.onclick = event => {
+
+            event.preventDefault();
+
+            const current =
+                new URL(
+                    window.location.href
+                );
+
+            const destination =
+                new URL(
+                    PROFESSIONAL_EDUCATION_URL,
+                    window.location.href
+                );
+
+            if (
+                current.pathname ===
+                    destination.pathname
+            ) {
+                return;
+            }
+
+            window.location.href =
+                PROFESSIONAL_EDUCATION_URL;
+
+        };
+
+
+        if (
+            !window.__hafzProfessionalEducationNavLanguageListener
+        ) {
+
+            window.__hafzProfessionalEducationNavLanguageListener =
+                true;
+
+            window.addEventListener(
+                "krha-settings-applied",
+                event => {
+
+                    const lang =
+                        event.detail
+                            ?.settings
+                            ?.language ||
+                        document.documentElement.lang ||
+                        "ps";
+
+                    const currentButton =
+                        document.getElementById(
+                            "professionalEducationMenuBtn"
+                        );
+
+                    applyProfessionalEducationNavText(
+                        currentButton,
+                        lang
+                    );
+
+                    if (currentButton) {
+
+                        currentButton.title =
+                            PROFESSIONAL_EDUCATION_LABELS[
+                                getProfessionalEducationLanguage(
+                                    lang
+                                )
+                            ];
+
+                    }
+
+                }
+            );
+
+        }
+
+    }
+
+
+    // ==========================================
     // State
     // ==========================================
 
@@ -319,11 +594,6 @@
                     }
                 );
 
-                /*
-                 * نوی Service Worker چې فعال شي،
-                 * controllerchange به پاڼه Reload کړي.
-                 */
-
                 return;
 
             }
@@ -417,6 +687,7 @@
                 );
 
                 return;
+
             }
 
             if (savedVersion !== remoteVersion) {
@@ -478,10 +749,6 @@
                 registration;
 
 
-            /*
-             * موجوده Update
-             */
-
             if (
                 registration.waiting &&
                 navigator.serviceWorker.controller
@@ -494,10 +761,6 @@
 
             }
 
-
-            /*
-             * نوي Update
-             */
 
             registration.addEventListener(
                 "updatefound",
@@ -545,10 +808,6 @@
             );
 
 
-            /*
-             * هر ځل آنلاین کې Update وګوره.
-             */
-
             window.addEventListener(
                 "online",
                 () => {
@@ -567,10 +826,6 @@
             );
 
 
-            /*
-             * د څو دقیقو وروسته هم Update چک کړه.
-             */
-
             setInterval(
                 () => {
 
@@ -578,7 +833,6 @@
                         .update()
                         .catch(
                             () => {}
-
                         );
 
                 },
@@ -718,6 +972,8 @@
     document.addEventListener(
         "DOMContentLoaded",
         async () => {
+
+            installProfessionalEducationNavigation();
 
             await checkRemoteVersion();
 
