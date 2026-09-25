@@ -2745,28 +2745,28 @@ function bindNavigation() {
     const links = {
 
         dashboardMenuBtn:
-            "../dashboard.html",
+            "/dashboard.html",
 
         formicMenuBtn:
-            "../formic.html",
+            "/formic.html",
 
         registerMenuBtn:
-            "../register.html",
+            "/register.html",
 
         searchMenuBtn:
-            "../search.html",
+            "/search.html",
 
         reportsMenuBtn:
-            "../reports.html",
+            "/reports.html",
 
         professionalEducationMenuBtn:
-            "./profession-education.html",
+            "/profession-education/profession-education.html",
 
         adminMenuBtn:
-            "../admin.html",
+            "/admin.html",
 
         settingsMenuBtn:
-            "../settings.html"
+            "/settings.html"
 
     };
 
