@@ -9,8 +9,10 @@
 // Version
 // ==========================================
 
+const BUILD_VERSION = "__BUILD_VERSION__";
+
 const CACHE_VERSION =
-    "hafz-cache-v1.0.6";
+    `hafz-cache-${BUILD_VERSION}`;
 
 
 // ==========================================
@@ -45,11 +47,13 @@ const APP_SHELL = [
 
     "./formic.html",
 
+    "./profession-education/profession-education.html",
+
+    "./profession-education/profession-education.js",
+
     "./style.css",
 
-    "./pwa.js",
-
-    "./sw.js"
+    "./pwa.js"
 
 ];
 
@@ -209,11 +213,39 @@ self.addEventListener(
 
         }
 
+        /*
+         * Service Worker او version.json باید هېڅکله
+         * د زړې Cache نسخې څخه ونه لوستل شي.
+         */
+        const pathname =
+            url.pathname || "";
+
+        if (
+            pathname.endsWith("/sw.js") ||
+            pathname.endsWith("/version.json")
+        ) {
+
+            event.respondWith(
+                fetch(
+                    request,
+                    {
+                        cache: "no-store"
+                    }
+                )
+            );
+
+            return;
+
+        }
+
 
         event.respondWith(
 
             fetch(
-                request
+                request,
+                {
+                    cache: "no-store"
+                }
             )
             .then(
                 response => {
