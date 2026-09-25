@@ -2784,6 +2784,13 @@ function bindNavigation() {
 
                     event.preventDefault();
 
+                    /*
+                     * د auth.js عمومي document-level navigation
+                     * handler مه پرېږده چې د فرعي فولډر نسبتي
+                     * URL واخلي او 404 جوړ کړي.
+                     */
+                    event.stopPropagation();
+
                     go(
                         url
                     );
