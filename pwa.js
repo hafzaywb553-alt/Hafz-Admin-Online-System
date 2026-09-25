@@ -16,10 +16,10 @@
 
         // هر ځل چې نوې نسخه خپروې، دا شمېره بدلوه.
         VERSION: "auto",
-        REMOTE_VERSION_URL: "./version.json",
+        REMOTE_VERSION_URL: "/version.json",
 
         // Service Worker فایل
-        SERVICE_WORKER: "./sw.js",
+        SERVICE_WORKER: "/sw.js",
 
         // د Version ساتلو Key
         VERSION_KEY: "hafz_pwa_version",
@@ -37,7 +37,7 @@
     // ==========================================
 
     const PROFESSIONAL_EDUCATION_URL =
-        "./profession-education/profession-education.html";
+        "/profession-education/profession-education.html";
 
 
     const PROFESSIONAL_EDUCATION_LABELS = {
@@ -753,7 +753,7 @@
                 await navigator.serviceWorker.register(
                     PWA_CONFIG.SERVICE_WORKER,
                     {
-                        scope: "./"
+                        scope: "/"
                     }
                 );
 
