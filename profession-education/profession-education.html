@@ -1,0 +1,1620 @@
+<!DOCTYPE html>
+<html lang="ps" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0B6B36">
+
+    <title>مسلک او زده کړې</title>
+
+    <link rel="stylesheet" href="../style.css">
+    <link rel="manifest" href="../manifest.json">
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    >
+
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+    <style>
+        .pe-page {
+            max-width: 1500px;
+            margin: 0 auto;
+        }
+
+        .pe-hero {
+            position: relative;
+            overflow: hidden;
+            border-radius: var(--radius-lg, 18px);
+            padding: 22px;
+            margin-bottom: 18px;
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--primary-color),
+                    var(--secondary-color)
+                );
+            color: #fff;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .pe-hero::before,
+        .pe-hero::after {
+            content: "";
+            position: absolute;
+            border-radius: 999px;
+            background: rgba(255,255,255,.10);
+            pointer-events: none;
+        }
+
+        .pe-hero::before {
+            width: 180px;
+            height: 180px;
+            left: -80px;
+            top: -80px;
+        }
+
+        .pe-hero::after {
+            width: 240px;
+            height: 240px;
+            right: -120px;
+            bottom: -140px;
+        }
+
+        .pe-hero-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+
+        .pe-hero-title {
+            margin: 0;
+            font-size: 30px;
+            line-height: 1.5;
+            font-weight: 900;
+        }
+
+        .pe-hero-description {
+            margin: 8px 0 0;
+            max-width: 850px;
+            line-height: 1.9;
+            font-size: 15px;
+            opacity: .94;
+        }
+
+        .pe-hero-badge {
+            min-width: 90px;
+            height: 90px;
+            border-radius: 24px;
+            display: grid;
+            place-items: center;
+            font-size: 42px;
+            background: rgba(255,255,255,.13);
+            border: 1px solid rgba(255,255,255,.22);
+            backdrop-filter: blur(8px);
+        }
+
+        .pe-grid {
+            display: grid;
+            gap: 16px;
+        }
+
+        .pe-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+
+        .pe-stat-card {
+            border: 1px solid var(--border-color);
+            background: var(--surface-color);
+            border-radius: var(--radius-md, 14px);
+            padding: 16px;
+            box-shadow: var(--shadow-sm);
+            min-height: 118px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .pe-stat-label {
+            color: var(--muted-color);
+            font-weight: 800;
+            line-height: 1.7;
+        }
+
+        .pe-stat-number {
+            margin-top: 8px;
+            font-size: 30px;
+            line-height: 1;
+            font-weight: 900;
+            color: var(--primary-color);
+        }
+
+        .pe-card {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md, 14px);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+        }
+
+        .pe-card-header {
+            padding: 15px 16px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .pe-card-title {
+            margin: 0;
+            font-size: 19px;
+            font-weight: 900;
+        }
+
+        .pe-card-subtitle {
+            color: var(--muted-color);
+            font-size: 13px;
+            line-height: 1.7;
+            margin-top: 3px;
+        }
+
+        .pe-card-body {
+            padding: 16px;
+        }
+
+        .pe-search-grid {
+            display: grid;
+            grid-template-columns: 220px 1fr auto auto;
+            gap: 10px;
+            align-items: end;
+        }
+
+        .pe-label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 800;
+        }
+
+        .pe-input,
+        .pe-select,
+        .pe-textarea {
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm, 10px);
+            background: var(--surface-alt);
+            color: var(--text-color);
+            font: inherit;
+            outline: none;
+            padding: 11px 12px;
+        }
+
+        .pe-input:focus,
+        .pe-select:focus,
+        .pe-textarea:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 16%, transparent);
+        }
+
+        .pe-textarea {
+            min-height: 92px;
+            resize: vertical;
+        }
+
+        .pe-btn {
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm, 10px);
+            padding: 10px 14px;
+            cursor: pointer;
+            font: inherit;
+            font-weight: 900;
+            transition: transform .16s ease, opacity .16s ease, box-shadow .16s ease;
+        }
+
+        .pe-btn:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .pe-btn:disabled {
+            opacity: .55;
+            cursor: not-allowed;
+        }
+
+        .pe-btn-primary {
+            background: var(--primary-color);
+            color: #fff;
+            border-color: var(--primary-color);
+        }
+
+        .pe-btn-secondary {
+            background: var(--surface-alt);
+            color: var(--text-color);
+        }
+
+        .pe-btn-danger {
+            background: var(--danger-color);
+            color: #fff;
+            border-color: var(--danger-color);
+        }
+
+        .pe-search-results {
+            margin-top: 14px;
+            display: grid;
+            gap: 9px;
+            max-height: 330px;
+            overflow: auto;
+        }
+
+        .pe-result-item {
+            border: 1px solid var(--border-color);
+            background: var(--surface-alt);
+            border-radius: var(--radius-sm, 10px);
+            padding: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .pe-result-item:hover {
+            border-color: var(--primary-color);
+        }
+
+        .pe-result-main {
+            min-width: 0;
+        }
+
+        .pe-result-name {
+            font-weight: 900;
+            font-size: 16px;
+        }
+
+        .pe-result-meta {
+            color: var(--muted-color);
+            font-size: 12px;
+            line-height: 1.7;
+            margin-top: 2px;
+        }
+
+        .pe-profile {
+            margin-top: 18px;
+        }
+
+        .pe-profile-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .pe-profile-name {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 900;
+        }
+
+        .pe-role-badge,
+        .pe-status-badge,
+        .pe-count-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+        .pe-role-badge {
+            background: color-mix(in srgb, var(--primary-color) 13%, transparent);
+            color: var(--primary-color);
+        }
+
+        .pe-status-open {
+            background: color-mix(in srgb, var(--success-color) 15%, transparent);
+            color: var(--success-color);
+        }
+
+        .pe-status-locked {
+            background: color-mix(in srgb, var(--danger-color) 14%, transparent);
+            color: var(--danger-color);
+        }
+
+        .pe-profile-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .pe-profile-field {
+            border: 1px solid var(--border-color);
+            background: var(--surface-alt);
+            border-radius: var(--radius-sm, 10px);
+            padding: 11px;
+            min-width: 0;
+        }
+
+        .pe-profile-field-label {
+            color: var(--muted-color);
+            font-size: 11px;
+            font-weight: 900;
+            margin-bottom: 4px;
+        }
+
+        .pe-profile-field-value {
+            font-size: 14px;
+            font-weight: 800;
+            line-height: 1.8;
+            word-break: break-word;
+        }
+
+        .pe-tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin: 18px 0 14px;
+        }
+
+        .pe-tab {
+            border: 1px solid var(--border-color);
+            background: var(--surface-color);
+            color: var(--text-color);
+            border-radius: 999px;
+            padding: 9px 14px;
+            cursor: pointer;
+            font: inherit;
+            font-weight: 900;
+        }
+
+        .pe-tab.active {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            color: #fff;
+        }
+
+        .pe-panel[hidden] {
+            display: none !important;
+        }
+
+        .pe-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .pe-item-card {
+            border: 1px solid var(--border-color);
+            background: var(--surface-alt);
+            border-radius: var(--radius-sm, 10px);
+            padding: 13px;
+        }
+
+        .pe-item-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .pe-item-title {
+            margin: 0;
+            font-weight: 900;
+            font-size: 16px;
+            line-height: 1.7;
+        }
+
+        .pe-item-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .pe-item-meta {
+            color: var(--muted-color);
+            font-size: 12px;
+            line-height: 1.8;
+        }
+
+        .pe-item-meta strong {
+            color: var(--text-color);
+        }
+
+        .pe-item-actions {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            margin-top: 10px;
+        }
+
+        .pe-empty {
+            text-align: center;
+            padding: 30px 16px;
+            color: var(--muted-color);
+            border: 1px dashed var(--border-color);
+            border-radius: var(--radius-sm, 10px);
+        }
+
+        .pe-report-tools {
+            display: grid;
+            grid-template-columns: 240px 1fr auto auto;
+            gap: 10px;
+            align-items: end;
+            margin-bottom: 14px;
+        }
+
+        .pe-table-wrap {
+            overflow-x: auto;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm, 10px);
+        }
+
+        .pe-table {
+            width: 100%;
+            min-width: 950px;
+            border-collapse: collapse;
+            background: var(--surface-color);
+        }
+
+        .pe-table th,
+        .pe-table td {
+            padding: 10px;
+            border-bottom: 1px solid var(--border-color);
+            text-align: right;
+            vertical-align: top;
+            line-height: 1.7;
+        }
+
+        .pe-table th {
+            background: var(--surface-alt);
+            font-weight: 900;
+            white-space: nowrap;
+        }
+
+        .pe-table tbody tr:hover {
+            background: color-mix(in srgb, var(--primary-color) 5%, transparent);
+        }
+
+        .pe-report-summary {
+            color: var(--muted-color);
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .pe-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 99990;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            background: rgba(0,0,0,.46);
+        }
+
+        .pe-modal.show {
+            display: flex;
+        }
+
+        .pe-modal-card {
+            width: min(760px, 100%);
+            max-height: 92vh;
+            overflow: auto;
+            background: var(--surface-color);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .pe-modal-head {
+            padding: 15px 16px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .pe-modal-title {
+            margin: 0;
+            font-size: 19px;
+            font-weight: 900;
+        }
+
+        .pe-modal-close {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 1px solid var(--border-color);
+            background: var(--surface-alt);
+            color: var(--text-color);
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .pe-modal-body {
+            padding: 16px;
+        }
+
+        .pe-form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 11px;
+        }
+
+        .pe-form-group.full {
+            grid-column: 1 / -1;
+        }
+
+        .pe-modal-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-start;
+            flex-wrap: wrap;
+            margin-top: 15px;
+            padding-top: 14px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .pe-permission-note {
+            margin-top: 10px;
+            padding: 10px 12px;
+            border-radius: var(--radius-sm, 10px);
+            background: color-mix(in srgb, var(--warning-color) 13%, transparent);
+            color: var(--warning-color);
+            font-weight: 800;
+            line-height: 1.8;
+        }
+
+        .pe-hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 1100px) {
+            .pe-stats-grid,
+            .pe-profile-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .pe-search-grid,
+            .pe-report-tools {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .pe-search-grid > :last-child,
+            .pe-report-tools > :last-child {
+                grid-column: auto;
+            }
+
+            .pe-search-grid .pe-btn,
+            .pe-report-tools .pe-btn {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 720px) {
+            .pe-hero-title {
+                font-size: 24px;
+            }
+
+            .pe-hero-badge {
+                width: 68px;
+                height: 68px;
+                min-width: 68px;
+                font-size: 32px;
+                border-radius: 18px;
+            }
+
+            .pe-stats-grid,
+            .pe-profile-grid,
+            .pe-item-grid,
+            .pe-form-grid,
+            .pe-search-grid,
+            .pe-report-tools {
+                grid-template-columns: 1fr;
+            }
+
+            .pe-form-group.full {
+                grid-column: auto;
+            }
+
+            .pe-result-item,
+            .pe-item-head,
+            .pe-profile-head {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .pe-item-actions {
+                justify-content: flex-start;
+            }
+        }
+
+        @media print {
+            body * {
+                visibility: hidden !important;
+            }
+
+            #professionalEducationReportPrint,
+            #professionalEducationReportPrint * {
+                visibility: visible !important;
+            }
+
+            #professionalEducationReportPrint {
+                position: absolute;
+                inset: 0;
+                width: 100%;
+                background: #fff;
+                color: #000;
+            }
+        }
+    </style>
+</head>
+
+<body data-profession-education-page="true">
+
+<header class="main-header">
+    <div class="header-brand">
+        <div class="header-logo" aria-hidden="true">🎓</div>
+        <div class="header-title" data-system-name>
+            د افغانستان اسلامي امارت د کره کمیسیون د فورمو د ثبت او مدیریت ډیټابیس
+        </div>
+    </div>
+
+    <div class="header-actions">
+        <button type="button" id="refreshBtn" title="ریفریش" aria-label="ریفریش">🔄</button>
+        <button type="button" id="logoutBtn" title="وتل" aria-label="وتل">🚪</button>
+    </div>
+</header>
+
+<div class="app-layout">
+
+    <aside class="sidebar">
+        <div class="sidebar-title" id="sidebarTitle">
+            <span data-i18n="mainMenu">اصلي مینو</span>
+        </div>
+
+        <nav class="sidebar-menu" aria-label="اصلي مینو">
+
+            <button type="button" id="dashboardMenuBtn">
+                <span class="sidebar-icon" aria-hidden="true">💒</span>
+                <span data-i18n="dashboard">کورپاڼه</span>
+            </button>
+
+            <button type="button" id="formicMenuBtn">
+                <span class="sidebar-icon" aria-hidden="true">📗</span>
+                <span data-i18n="formic">فورمیک</span>
+            </button>
+
+            <button type="button" id="registerMenuBtn">
+                <span class="sidebar-icon" aria-hidden="true">💻</span>
+                <span data-i18n="newRegister">نوی ثبت</span>
+            </button>
+
+            <button type="button" id="searchMenuBtn">
+                <span class="sidebar-icon" aria-hidden="true">🔍</span>
+                <span data-i18n="search">لټون</span>
+            </button>
+
+            <button type="button" id="reportsMenuBtn">
+                <span class="sidebar-icon" aria-hidden="true">📙</span>
+                <span data-i18n="reports">راپورونه</span>
+            </button>
+
+            <button
+                type="button"
+                id="professionalEducationMenuBtn"
+                class="active"
+                aria-current="page"
+            >
+                <span class="sidebar-icon" aria-hidden="true">🎓</span>
+                <span data-i18n="professionalEducation">مسلک او زده کړې</span>
+            </button>
+
+            <button type="button" id="adminMenuBtn">
+                <span class="sidebar-icon" aria-hidden="true">👥</span>
+                <span data-i18n="admin">اډمــینانوبرخه</span>
+            </button>
+
+            <button type="button" id="settingsMenuBtn">
+                <span class="sidebar-icon" aria-hidden="true">⚙️</span>
+                <span data-i18n="settings">تنظیمات</span>
+            </button>
+
+        </nav>
+    </aside>
+
+    <main class="main-content">
+
+        <div class="page pe-page">
+
+            <section class="pe-hero">
+                <div class="pe-hero-content">
+
+                    <div>
+                        <h1
+                            class="pe-hero-title"
+                            data-i18n="pageTitle"
+                        >
+                            🎓 مسلک او زده کړې
+                        </h1>
+
+                        <p
+                            class="pe-hero-description"
+                            data-i18n="pageDescription"
+                        >
+                            د ثبت شوو کسانو مسلکونه، عصري او دیني زده کړې، مسلکي او نور سندونه په منظم او آنلاین ډول ثبت، سمبال او راپور کړئ.
+                        </p>
+                    </div>
+
+                    <div
+                        class="pe-hero-badge"
+                        aria-hidden="true"
+                    >
+                        🎓
+                    </div>
+
+                </div>
+            </section>
+
+
+            <div
+                id="pageMessage"
+                class="alert"
+                style="display:none;"
+                role="alert"
+                aria-live="polite"
+            ></div>
+
+
+            <section class="pe-stats-grid">
+
+                <div class="pe-stat-card">
+
+                    <div
+                        class="pe-stat-label"
+                        data-i18n="statsPersons"
+                    >
+                        👥 ټول ثبت شوي کسان
+                    </div>
+
+                    <div
+                        class="pe-stat-number"
+                        id="statPersons"
+                    >
+                        0
+                    </div>
+
+                </div>
+
+
+                <div class="pe-stat-card">
+
+                    <div
+                        class="pe-stat-label"
+                        data-i18n="statsProfessions"
+                    >
+                        🛠️ ټول مسلکونه
+                    </div>
+
+                    <div
+                        class="pe-stat-number"
+                        id="statProfessions"
+                    >
+                        0
+                    </div>
+
+                </div>
+
+
+                <div class="pe-stat-card">
+
+                    <div
+                        class="pe-stat-label"
+                        data-i18n="statsEducation"
+                    >
+                        📚 ټولې زده کړې
+                    </div>
+
+                    <div
+                        class="pe-stat-number"
+                        id="statEducation"
+                    >
+                        0
+                    </div>
+
+                </div>
+
+
+                <div class="pe-stat-card">
+
+                    <div
+                        class="pe-stat-label"
+                        data-i18n="statsCertificates"
+                    >
+                        📜 ټول سندونه
+                    </div>
+
+                    <div
+                        class="pe-stat-number"
+                        id="statCertificates"
+                    >
+                        0
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <section class="pe-card">
+
+                <div class="pe-card-header">
+
+                    <div>
+
+                        <h2
+                            class="pe-card-title"
+                            data-i18n="personSearchTitle"
+                        >
+                            🔎 د ثبت شوي کس موندل
+                        </h2>
+
+                        <div
+                            class="pe-card-subtitle"
+                            data-i18n="personSearchHint"
+                        >
+                            د فورم نمبر، تذکرې نمبر، نوم، د پلار نوم، ټیلیفون یا عمومي لټون له لارې کس پیدا کړئ.
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="pe-card-body">
+
+                    <form id="personSearchForm">
+
+                        <div class="pe-search-grid">
+
+                            <div>
+
+                                <label
+                                    class="pe-label"
+                                    for="personSearchType"
+                                    data-i18n="searchBy"
+                                >
+                                    د لټون بنسټ
+                                </label>
+
+                                <select
+                                    id="personSearchType"
+                                    class="pe-select"
+                                >
+
+                                    <option
+                                        value="all"
+                                        data-i18n="searchAll"
+                                    >
+                                        ټول معلومات
+                                    </option>
+
+                                    <option
+                                        value="formNumber"
+                                        data-i18n="formNumber"
+                                    >
+                                        فورم نمبر
+                                    </option>
+
+                                    <option
+                                        value="tazkira"
+                                        data-i18n="tazkira"
+                                    >
+                                        تذکرې نمبر
+                                    </option>
+
+                                    <option
+                                        value="name"
+                                        data-i18n="name"
+                                    >
+                                        نوم
+                                    </option>
+
+                                    <option
+                                        value="father"
+                                        data-i18n="fatherName"
+                                    >
+                                        د پلار نوم
+                                    </option>
+
+                                    <option
+                                        value="phone"
+                                        data-i18n="phone"
+                                    >
+                                        ټیلیفون
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <div>
+
+                                <label
+                                    class="pe-label"
+                                    for="personSearchInput"
+                                    data-i18n="searchValue"
+                                >
+                                    د لټون معلومات
+                                </label>
+
+                                <input
+                                    id="personSearchInput"
+                                    class="pe-input"
+                                    autocomplete="off"
+                                    placeholder="مثلاً د فورم نمبر یا نوم"
+                                    data-i18n-placeholder="searchPlaceholder"
+                                >
+
+                            </div>
+
+
+                            <button
+                                class="pe-btn pe-btn-primary"
+                                type="submit"
+                                id="personSearchBtn"
+                            >
+                                🔎
+                                <span data-i18n="search">
+                                    لټون
+                                </span>
+                            </button>
+
+
+                            <button
+                                class="pe-btn pe-btn-secondary"
+                                type="button"                                id="clearSearchBtn"
+                            >
+                                🧹
+                                <span data-i18n="clear">
+                                    پاکول
+                                </span>
+                            </button>
+
+                        </div>
+
+                    </form>
+
+
+                    <div
+                        id="searchResults"
+                        class="pe-search-results"
+                    ></div>
+
+                </div>
+
+            </section>
+
+
+            <section
+                id="selectedPersonSection"
+                class="pe-card pe-profile pe-hidden"
+            >
+
+                <div class="pe-card-body">
+
+                    <div id="selectedPersonProfile"></div>
+
+                </div>
+
+            </section>
+
+
+            <div
+                class="pe-tabs"
+                role="tablist"
+                aria-label="مسلک او زده کړې"
+            >
+
+                <button
+                    class="pe-tab active"
+                    type="button"
+                    data-tab="professions"
+                    data-i18n="professions"
+                >
+                    🛠️ مسلکونه
+                </button>
+
+                <button
+                    class="pe-tab"
+                    type="button"
+                    data-tab="modernEducation"
+                    data-i18n="modernEducation"
+                >
+                    📚 عصري زده کړې
+                </button>
+
+                <button
+                    class="pe-tab"
+                    type="button"
+                    data-tab="religiousEducation"
+                    data-i18n="religiousEducation"
+                >
+                    🕌 دیني زده کړې
+                </button>
+
+                <button
+                    class="pe-tab"
+                    type="button"
+                    data-tab="certificates"
+                    data-i18n="certificates"
+                >
+                    📜 سندونه
+                </button>
+
+                <button
+                    class="pe-tab"
+                    type="button"
+                    data-tab="report"
+                    data-i18n="report"
+                >
+                    📊 راپور
+                </button>
+
+            </div>
+
+
+            <section
+                class="pe-panel pe-card"
+                id="panelProfessions"
+            >
+
+                <div class="pe-card-header">
+
+                    <div>
+
+                        <h2
+                            class="pe-card-title"
+                            data-i18n="professions"
+                        >
+                            🛠️ مسلکونه
+                        </h2>
+
+                        <div
+                            class="pe-card-subtitle"
+                            data-i18n="professionsHint"
+                        >
+                            د ټاکل شوي کس ټول مسلکونه او کاري مهارتونه ثبت کړئ.
+                        </div>
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        class="pe-btn pe-btn-primary"
+                        data-open-editor="professions"
+                        id="addProfessionBtn"
+                    >
+                        ➕
+                        <span data-i18n="addNew">
+                            نوی ثبت
+                        </span>
+                    </button>
+
+                </div>
+
+
+                <div class="pe-card-body">
+
+                    <div
+                        id="professionsList"
+                        class="pe-list"
+                    ></div>
+
+                </div>
+
+            </section>
+
+
+            <section
+                class="pe-panel pe-card"
+                id="panelModernEducation"
+                hidden
+            >
+
+                <div class="pe-card-header">
+
+                    <div>
+
+                        <h2
+                            class="pe-card-title"
+                            data-i18n="modernEducation"
+                        >
+                            📚 عصري زده کړې
+                        </h2>
+
+                        <div
+                            class="pe-card-subtitle"
+                            data-i18n="modernEducationHint"
+                        >
+                            ښوونځی، پوهنتون، مسلکي زده کړه، کورسونه او نورې عصري زده کړې ثبت کړئ.
+                        </div>
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        class="pe-btn pe-btn-primary"
+                        data-open-editor="modernEducation"
+                        id="addModernEducationBtn"
+                    >
+                        ➕
+                        <span data-i18n="addNew">
+                            نوی ثبت
+                        </span>
+                    </button>
+
+                </div>
+
+
+                <div class="pe-card-body">
+
+                    <div
+                        id="modernEducationList"
+                        class="pe-list"
+                    ></div>
+
+                </div>
+
+            </section>
+
+
+            <section
+                class="pe-panel pe-card"
+                id="panelReligiousEducation"
+                hidden
+            >
+
+                <div class="pe-card-header">
+
+                    <div>
+
+                        <h2
+                            class="pe-card-title"
+                            data-i18n="religiousEducation"
+                        >
+                            🕌 دیني زده کړې
+                        </h2>
+
+                        <div
+                            class="pe-card-subtitle"
+                            data-i18n="religiousEducationHint"
+                        >
+                            حفظ، تجوید، مدرسه، عالمیه، تخصص او نورې دیني زده کړې ثبت کړئ.
+                        </div>
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        class="pe-btn pe-btn-primary"
+                        data-open-editor="religiousEducation"
+                        id="addReligiousEducationBtn"
+                    >
+                        ➕
+                        <span data-i18n="addNew">
+                            نوی ثبت
+                        </span>
+                    </button>
+
+                </div>
+
+
+                <div class="pe-card-body">
+
+                    <div
+                        id="religiousEducationList"
+                        class="pe-list"
+                    ></div>
+
+                </div>
+
+            </section>
+
+
+            <section
+                class="pe-panel pe-card"
+                id="panelCertificates"
+                hidden
+            >
+
+                <div class="pe-card-header">
+
+                    <div>
+
+                        <h2
+                            class="pe-card-title"
+                            data-i18n="certificates"
+                        >
+                            📜 سندونه
+                        </h2>
+
+                        <div
+                            class="pe-card-subtitle"
+                            data-i18n="certificatesHint"
+                        >
+                            عصري، مسلکي، روزنیز او نور سندونه د سند نمبر او ادارې سره ثبت کړئ.
+                        </div>
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        class="pe-btn pe-btn-primary"
+                        data-open-editor="certificates"
+                        id="addCertificateBtn"
+                    >
+                        ➕
+                        <span data-i18n="addNew">
+                            نوی ثبت
+                        </span>
+                    </button>
+
+                </div>
+
+
+                <div class="pe-card-body">
+
+                    <div
+                        id="certificatesList"
+                        class="pe-list"
+                    ></div>
+
+                </div>
+
+            </section>
+
+
+            <section
+                class="pe-panel pe-card"
+                id="panelReport"
+                hidden
+            >
+
+                <div class="pe-card-header">
+
+                    <div>
+
+                        <h2
+                            class="pe-card-title"
+                            data-i18n="report"
+                        >
+                            📊 د مسلک او زده کړو راپور
+                        </h2>
+
+                        <div
+                            class="pe-card-subtitle"
+                            data-i18n="reportHint"
+                        >
+                            ټول ثبت شوي مسلکونه، زده کړې او سندونه د شخص له بشپړ شهرت سره وګورئ.
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="pe-card-body"
+                    id="professionalEducationReportPrint"
+                >
+
+                    <div class="pe-report-tools">
+
+                        <div>
+
+                            <label
+                                class="pe-label"
+                                for="reportType"
+                                data-i18n="reportType"
+                            >
+                                د راپور ډول
+                            </label>
+
+                            <select
+                                id="reportType"
+                                class="pe-select"
+                            >
+
+                                <option
+                                    value="all"
+                                    data-i18n="allTypes"
+                                >
+                                    ټول
+                                </option>
+
+                                <option
+                                    value="professions"
+                                    data-i18n="professions"
+                                >
+                                    مسلکونه
+                                </option>
+
+                                <option
+                                    value="modernEducation"
+                                    data-i18n="modernEducation"
+                                >
+                                    عصري زده کړې
+                                </option>
+
+                                <option
+                                    value="religiousEducation"
+                                    data-i18n="religiousEducation"
+                                >
+                                    دیني زده کړې
+                                </option>
+
+                                <option
+                                    value="certificates"
+                                    data-i18n="certificates"
+                                >
+                                    سندونه
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div>
+
+                            <label
+                                class="pe-label"
+                                for="reportSearch"
+                                data-i18n="reportSearchLabel"
+                            >
+                                د راپور لټون
+                            </label>
+
+                            <input
+                                id="reportSearch"
+                                class="pe-input"
+                                placeholder="د نوم، مسلک، ادارې، رشته یا سند نمبر له مخې"
+                                data-i18n-placeholder="reportSearchPlaceholder"
+                            >
+
+                        </div>
+
+
+                        <button
+                            type="button"
+                            class="pe-btn pe-btn-secondary"
+                            id="printReportBtn"
+                        >
+                            🖨️
+                            <span data-i18n="printReport">
+                                چاپ
+                            </span>
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="pe-btn pe-btn-primary"
+                            id="exportReportBtn"
+                        >
+                            ⬇️
+                            <span data-i18n="exportReport">
+                                CSV راپور
+                            </span>
+                        </button>
+
+                    </div>
+
+
+                    <div
+                        id="reportSummary"
+                        class="pe-report-summary"
+                    >
+                        0
+                    </div>
+
+
+                    <div class="pe-table-wrap">
+
+                        <table class="pe-table">
+
+                            <thead>
+
+                                <tr>
+
+                                    <th data-i18n="formNumber">
+                                        فورم نمبر
+                                    </th>
+
+                                    <th data-i18n="name">
+                                        نوم
+                                    </th>
+
+                                    <th data-i18n="fatherName">
+                                        د پلار نوم
+                                    </th>
+
+                                    <th data-i18n="tazkira">
+                                        تذکره
+                                    </th>
+
+                                    <th data-i18n="recordType">
+                                        ډول
+                                    </th>
+
+                                    <th data-i18n="titleOrField">
+                                        مسلک / رشته / سند
+                                    </th>
+
+                                    <th data-i18n="levelOrType">
+                                        کچه / ډول
+                                    </th>
+
+                                    <th data-i18n="institution">
+                                        اداره / پوهنتون / مدرسه
+                                    </th>
+
+                                    <th data-i18n="location">
+                                        ځای
+                                    </th>
+
+                                    <th data-i18n="years">
+                                        کالونه
+                                    </th>
+
+                                    <th data-i18n="certificateNumber">
+                                        سند نمبر
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody
+                                id="reportTableBody"
+                            ></tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </div>
+
+    </main>
+
+</div>
+
+
+<div
+    class="pe-modal"
+    id="editorModal"
+    aria-hidden="true"
+>
+
+    <div
+        class="pe-modal-card"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="editorModalTitle"
+    >
+
+        <div class="pe-modal-head">
+
+            <h2
+                class="pe-modal-title"
+                id="editorModalTitle"
+            >
+                نوی ثبت
+            </h2>
+
+
+            <button
+                type="button"
+                class="pe-modal-close"
+                id="closeEditorBtn"
+                aria-label="بندول"
+            >
+                ✕
+            </button>
+
+        </div>
+
+
+        <div class="pe-modal-body">
+
+            <form id="editorForm">
+
+                <div
+                    id="editorFields"
+                    class="pe-form-grid"
+                ></div>
+
+
+                <div
+                    id="editorPermissionNote"
+                    class="pe-permission-note pe-hidden"
+                ></div>
+
+
+                <div class="pe-modal-actions">
+
+                    <button
+                        type="submit"
+                        class="pe-btn pe-btn-primary"
+                        id="saveEditorBtn"
+                    >
+                        💾
+                        <span data-i18n="save">
+                            خوندي کول
+                        </span>
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="pe-btn pe-btn-secondary"
+                        id="cancelEditorBtn"
+                    >
+                        ✖️
+                        <span data-i18n="cancel">
+                            لغوه
+                        </span>
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script
+    type="module"
+    src="./profession-education.js"
+></script>
+
+</body>
+</html>
