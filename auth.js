@@ -2652,34 +2652,34 @@ if (
             const navMap = {
 
                 dashboardMenuBtn:
-                    "./dashboard.html",
+                    "/dashboard.html",
 
                 formicMenuBtn:
-                    "./formic.html",
+                    "/formic.html",
 
                 registerMenuBtn:
-                    "./register.html",
+                    "/register.html",
 
                 searchMenuBtn:
-                    "./search.html",
+                    "/search.html",
 
                 reportsMenuBtn:
-                    "./reports.html",
+                    "/reports.html",
 
                 adminMenuBtn:
-                    "./admin.html",
+                    "/admin.html",
 
                 settingsMenuBtn:
-                    "./settings.html",
+                    "/settings.html",
 
                 dashboardBtn:
-                    "./dashboard.html",
+                    "/dashboard.html",
 
                 homeBtn:
-                    "./dashboard.html",
+                    "/dashboard.html",
 
                 homeMenuBtn:
-                    "./dashboard.html"
+                    "/dashboard.html"
 
             };
 
