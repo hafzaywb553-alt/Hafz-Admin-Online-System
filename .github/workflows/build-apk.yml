@@ -24,16 +24,23 @@ jobs:
         with:
           gradle-version: "8.11.1"
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Install Android SDK packages
-        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+      - name: Prepare Android SDK
+        shell: bash
+        run: |
+          export ANDROID_SDK_ROOT=/usr/local/lib/android/sdk
+          export ANDROID_HOME=/usr/local/lib/android/sdk
+          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT" >> "$GITHUB_ENV"
+          echo "ANDROID_HOME=$ANDROID_HOME" >> "$GITHUB_ENV"
+          echo "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
+          echo "$ANDROID_SDK_ROOT/platform-tools" >> "$GITHUB_PATH"
+          yes | sdkmanager --licenses >/dev/null
+          sdkmanager "platforms;android-35" "build-tools;35.0.0" "platform-tools"
 
       - name: Download official app logo
         run: |
           mkdir -p app/src/main/res/drawable
           curl -fL "https://app-cqezk8.v2.appdeploy.ai/resources/logo.jpg" -o app/src/main/res/drawable/app_icon.jpg
+          file app/src/main/res/drawable/app_icon.jpg
 
       - name: Build debug APK
         run: gradle :app:assembleDebug
