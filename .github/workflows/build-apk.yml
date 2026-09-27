@@ -30,6 +30,11 @@ jobs:
       - name: Install Android SDK packages
         run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
 
+      - name: Download official app logo
+        run: |
+          mkdir -p app/src/main/res/drawable
+          curl -fL "https://app-cqezk8.v2.appdeploy.ai/resources/logo.jpg" -o app/src/main/res/drawable/app_icon.jpg
+
       - name: Build debug APK
         run: gradle :app:assembleDebug
 
