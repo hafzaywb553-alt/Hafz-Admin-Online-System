@@ -41,7 +41,7 @@ jobs:
             echo "sdkmanager not found"
             exit 1
           fi
-          yes | "$SDKMANAGER" --licenses >/dev/null
+          printf "y\n%.0s" {1..100} | "$SDKMANAGER" --licenses >/dev/null
           "$SDKMANAGER" "platforms;android-35" "build-tools;35.0.0" "platform-tools"
 
       - name: Download official app logo
