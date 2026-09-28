@@ -10,11 +10,17 @@ android {
         applicationId = "app.web.hafz_finance_management.twa"
         minSdk = 23
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.1"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled = false
+        }
     }
 }
 
 dependencies {
-    implementation("com.google.androidbrowserhelper:androidbrowserhelper:2.7.3")
+    implementation("androidx.browser:browser:1.10.0")
 }
