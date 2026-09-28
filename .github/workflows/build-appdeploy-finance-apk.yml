@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - appdeploy-finance-apk
+      - appdeploy-finance-apk-fixed
   workflow_dispatch:
 
 jobs:
@@ -43,6 +44,6 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: hafz-finance-apk
+          name: hafz-finance-apk-fixed
           path: android-twa/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
