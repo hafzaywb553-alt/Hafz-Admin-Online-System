@@ -4,12 +4,12 @@ plugins {
 
 android {
     namespace = "app.web.hafz_finance_management.twa"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "app.web.hafz_finance_management.twa"
         minSdk = 23
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
     }
