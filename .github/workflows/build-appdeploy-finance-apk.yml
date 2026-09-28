@@ -17,16 +17,19 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Java 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Install Android SDK packages
-        run: yes | sdkmanager --licenses >/dev/null 2>&1 || true
+      - name: Verify Android SDK
+        run: |
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          test -d "$ANDROID_HOME"
+          if [ ! -d "$ANDROID_HOME/platforms/android-35" ]; then
+            yes | sdkmanager --licenses >/dev/null 2>&1 || true
+            sdkmanager "platforms;android-35" "build-tools;35.0.0" "platform-tools"
+          fi
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
