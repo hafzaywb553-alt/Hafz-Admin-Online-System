@@ -1,0 +1,43 @@
+[
+  {
+    "name": "Personnel records remain private to their owner and support full CRUD",
+    "sanity": true,
+    "viewport": "mobile",
+    "covers": ["personnel create", "database persistence", "owner-only edit/delete", "destructive confirmation", "large mobile form fields"],
+    "description": "Verifies a user can create, retain, edit, and delete only that user’s personnel records using readable mobile-sized fields.",
+    "steps": ["Sign in as User A", "Create a personnel record", "Refresh the app", "Edit the record", "Delete the record and confirm", "Refresh again"],
+    "expected": "The record survives refresh, edited values persist, the fields are usable on mobile, and confirmed deletion removes it."
+  },
+  {
+    "name": "Salary tax uses only the salary norm and excludes allowances",
+    "viewport": "mobile",
+    "covers": ["salary information section", "exact supplied salary norms", "tax only on salary norm", "non-taxable feeding allowance", "non-taxable education allowance", "non-taxable other allowance", "exact service-tenure tiers", "absence-adjusted salary", "multi-month totals", "non-scrolling mobile salary summary table"],
+    "description": "Verifies tax is calculated only from the selected salary norm/base amount and does not increase when non-taxable allowances are added.",
+    "steps": ["Open Home and tap 'معاشاتو معلومات'", "Select a supplied military salary norm", "Add service, education, feeding and other allowances", "Review the tax amount", "Change an allowance while keeping the salary norm unchanged", "Review tax again", "Set absence days and review payable values", "Set 4 months and review the complete table", "Confirm the table stays within the mobile page width"],
+    "expected": "The tax amount depends only on the salary norm, allowances do not increase tax, the final salary includes the allowances, absence and multi-month totals calculate automatically, and the summary table fits the mobile viewport."
+  },
+  {
+    "name": "Persistent sign-in exit locks the device without signing out",
+    "viewport": "mobile",
+    "covers": ["persistent sign-in after system exit", "automatic device fingerprint/PIN setup", "device fingerprint/PIN return gate", "no email re-entry after exit", "multiple email accounts", "account switching", "confirmation before switching"],
+    "description": "Verifies system exit keeps the current email session, activates a local device lock when needed, and requires fingerprint/PIN on return; account switching remains the explicit sign-out path.",
+    "steps": ["Sign in as Account A", "Open the sidebar and choose the system-exit action", "Confirm the exit", "Reopen the app", "Unlock with fingerprint/PIN", "Verify Account A opens without email login", "Use the separate account-switch action", "Cancel once, then confirm", "Complete sign-in for Account B"],
+    "expected": "System exit never calls sign-out; reopening uses device verification for Account A without email re-entry. Account switching separately requires confirmation and then signs out Account A."
+  },
+  {
+    "name": "Ordinary users cannot access another account’s data",
+    "viewport": "mobile",
+    "covers": ["server authorization", "email/user isolation", "unauthorized edit/delete rejection"],
+    "description": "Verifies User B cannot see or mutate User A records through normal application access.",
+    "steps": ["Sign in as User A and create a personnel record", "Switch to User B", "Open Personnel", "Try to use the application to access User A data"],
+    "expected": "User B sees only User B records and cannot edit or delete User A records."
+  },
+  {
+    "name": "Safe refresh and color controls remain available",
+    "viewport": "mobile",
+    "covers": ["safe refresh action", "no system shutdown action", "color presets", "custom colors", "mobile settings", "app-only screen"],
+    "description": "Verifies safe refresh, appearance controls and app-only display behavior remain available.",
+    "steps": ["Open the sidebar and tap 'معلومات تازه کول'", "Open Settings", "Choose a color preset", "Refresh the app", "Return to Settings"],
+    "expected": "The app refreshes without signing out, the chosen appearance remains available, and the app contains no embedded third-party frame or advertising surface."
+  }
+]

@@ -1,0 +1,14 @@
+{
+  "methods": ["google", "email"],
+  "headline": "د خوندي مالي سیستم ننوتل",
+  "subtitle": "د ایمیل له لارې ننوتل یا د Google حساب وکاروئ؛ له تصدیق وروسته سیستم پرانیستل کېږي.",
+  "style": {
+    "mode": "dark",
+    "accentColor": "#19a463",
+    "backgroundColor": "#050b08",
+    "panelColor": "#0a1911",
+    "textColor": "#effff6",
+    "fontFamily": "Noto Naskh Arabic, Tahoma, Arial, sans-serif",
+    "borderRadius": 18
+  }
+}

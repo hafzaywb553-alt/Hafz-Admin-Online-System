@@ -1,0 +1,20 @@
+{
+  "name": "د مالي مدیریت سیستم",
+  "short_name": "مالي مدیریت",
+  "description": "موبایل-لومړی مالي او معاشاتو مدیریت سیستم",
+  "lang": "ps",
+  "dir": "rtl",
+  "start_url": "./",
+  "scope": "./",
+  "display": "fullscreen",
+  "background_color": "#07100c",
+  "theme_color": "#002752",
+  "icons": [
+    {
+      "src": "./mof-app-icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

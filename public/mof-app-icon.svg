@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <clipPath id="c"><circle cx="256" cy="256" r="235"/></clipPath>
+  </defs>
+  <circle cx="256" cy="256" r="250" fill="#002752"/>
+  <circle cx="256" cy="256" r="235" fill="#fff"/>
+  <g clip-path="url(#c)">
+    <image href="https://cdn.brandfetch.io/idlPl1eH_L/w/2161/h/1834/theme/dark/logo.png?c=1bxid64Mup7aczewSAYMX&t=1781770369485" x="38" y="38" width="436" height="436" preserveAspectRatio="xMidYMid meet"/>
+  </g>
+</svg>
