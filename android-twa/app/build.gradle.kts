@@ -10,8 +10,8 @@ android {
         applicationId = "app.web.hafz_finance_management.twa"
         minSdk = 23
         targetSdk = 36
-        versionCode = 2
-        versionName = "1.1"
+        versionCode = 3
+        versionName = "1.2"
     }
 }
 
