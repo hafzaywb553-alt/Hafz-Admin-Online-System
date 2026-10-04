@@ -78,14 +78,12 @@ public class MainActivity extends FragmentActivity {
 
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                openExternal(request.getUrl().toString());
-                return true;
+                return handleUri(request.getUrl());
             }
 
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                openExternal(url);
-                return true;
+                return handleUri(Uri.parse(url));
             }
         });
 
@@ -198,6 +196,106 @@ public class MainActivity extends FragmentActivity {
     private void evaluate(String javascript) {
         if (webView != null && pageLoaded) {
             webView.evaluateJavascript(javascript, null);
+        }
+    }
+
+    private boolean handleUri(Uri uri) {
+        if (uri == null) return false;
+        String scheme = uri.getScheme() == null ? "" : uri.getScheme().toLowerCase();
+        if (!"hafz".equals(scheme)) {
+            openExternal(uri.toString());
+            return true;
+        }
+
+        String host = uri.getHost() == null ? "" : uri.getHost().toLowerCase();
+        String path = uri.getPath() == null ? "" : uri.getPath().toLowerCase();
+
+        if ("nav".equals(host)) {
+            String section = "salarySection";
+            if (path.contains("contact")) section = "contactSection";
+            if (path.contains("settings")) section = "settingsSection";
+            final String js = "window.showSection && window.showSection('" + section + "',document.querySelector('[data-section=""
+                    + section + ""]'));";
+            evaluate(js);
+            return true;
+        }
+
+        if ("share".equals(host) && path.contains("contact")) {
+            shareTextNative(contactShareText());
+            return true;
+        }
+
+        if ("copy".equals(host) && path.contains("contact")) {
+            copyText(contactShareText());
+            return true;
+        }
+
+        if ("fingerprint".equals(host)) {
+            if (path.contains("enable")) runOnUiThread(() -> {
+                if (pageLoaded) {
+                    showLock();
+                    authenticate(true);
+                }
+            });
+            else if (path.contains("disable")) {
+                prefs.edit().putBoolean(BIOMETRIC_ENABLED, false).apply();
+                enabling = false;
+                enrollmentPending = false;
+                authInProgress = false;
+                unlocked = true;
+                hideLock();
+                evaluate("window.nativeSecurityChanged && window.nativeSecurityChanged(false);");
+                toast("Fingerprint امنیت لرې شو.");
+            } else if (path.contains("settings")) {
+                openBiometricSettings();
+            }
+            return true;
+        }
+
+        if ("settings".equals(host)) {
+            if (path.contains("resetappearance")) {
+                evaluate("window.resetAppearance && window.resetAppearance();");
+                toast("د بڼې تنظیمات اصلي حالت ته راوګرځول شول.");
+            } else if (path.contains("resetcolors")) {
+                evaluate("window.resetColors && window.resetColors();");
+                toast("رنګونه اصلي حالت ته راوګرځول شول.");
+            } else if (path.contains("resetall")) {
+                prefs.edit().putBoolean(BIOMETRIC_ENABLED, false).apply();
+                enrollmentPending = false;
+                unlocked = true;
+                evaluate("window.resetAllNative && window.resetAllNative();");
+                toast("ټول تنظیمات اصلي حالت ته راوګرځول شول.");
+            } else if (path.contains("cleardata")) {
+                prefs.edit().putBoolean(BIOMETRIC_ENABLED, false).apply();
+                enrollmentPending = false;
+                unlocked = true;
+                evaluate("window.clearAllNative && window.clearAllNative();");
+                toast("ټول محلي معلومات پاکېږي.");
+            }
+            return true;
+        }
+
+        return true;
+    }
+
+    private String contactShareText() {
+        return "د مالي مدیریت - اړیکې\n"
+            + "حافظ محیب الله ایوب\n"
+            + "ولایت: ارزګان | ولسوالۍ: چوره | قریه: خواجه خدیر\n"
+            + "تلیفون: 0705965475\n"
+            + "WhatsApp: Message مجاهد on WhatsApp. https://wa.me/93705965475\n"
+            + "YouTube: https://youtube.com/channel/UCgilh9KTiPaLGCsDELLNcjw?si=zypPIMpBe6sVpUIm\n"
+            + "Facebook: https://www.facebook.com/share/193AP34ZUS/";
+    }
+
+    private void shareTextNative(String text) {
+        try {
+            Intent send = new Intent(Intent.ACTION_SEND);
+            send.setType("text/plain");
+            send.putExtra(Intent.EXTRA_TEXT, text);
+            startActivity(Intent.createChooser(send, "د اړیکو معلومات شریکول"));
+        } catch (Exception ignored) {
+            toast("د شریکولو لپاره مناسب اپ موجود نه دی.");
         }
     }
 
@@ -354,16 +452,7 @@ public class MainActivity extends FragmentActivity {
 
         @JavascriptInterface
         public void shareText(String text) {
-            runOnUiThread(() -> {
-                try {
-                    Intent send = new Intent(Intent.ACTION_SEND);
-                    send.setType("text/plain");
-                    send.putExtra(Intent.EXTRA_TEXT, text);
-                    startActivity(Intent.createChooser(send, "نورو ته لېږل"));
-                } catch (Exception ignored) {
-                    toast("د شریکولو لپاره مناسب اپ موجود نه دی.");
-                }
-            });
+            runOnUiThread(() -> shareTextNative(text));
         }
 
         @JavascriptInterface
