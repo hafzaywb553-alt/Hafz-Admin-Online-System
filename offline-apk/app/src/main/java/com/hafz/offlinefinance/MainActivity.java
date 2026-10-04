@@ -1,12 +1,10 @@
 package com.hafz.offlinefinance;
 
-import android.app.Activity;
-import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.view.View;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebResourceRequest;
@@ -14,10 +12,18 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
-public class MainActivity extends Activity {
-    private static final int REQUEST_DEVICE_UNLOCK = 9001;
+import androidx.biometric.BiometricManager;
+import androidx.biometric.BiometricPrompt;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentActivity;
+
+import java.util.concurrent.Executor;
+
+public class MainActivity extends FragmentActivity {
     private WebView webView;
-    private boolean needsAuth = true;
+    private BiometricPrompt biometricPrompt;
+    private BiometricPrompt.PromptInfo promptInfo;
+    private boolean unlocked = false;
     private boolean authInProgress = false;
 
     @Override
@@ -26,7 +32,8 @@ public class MainActivity extends Activity {
         getWindow().setStatusBarColor(Color.rgb(7,16,12));
         getWindow().setNavigationBarColor(Color.rgb(7,16,12));
         setupWebView();
-        requestDeviceUnlock();
+        setupBiometric();
+        authenticate();
     }
 
     private void setupWebView() {
@@ -57,72 +64,78 @@ public class MainActivity extends Activity {
         setContentView(webView);
     }
 
+    private void setupBiometric() {
+        Executor executor = ContextCompat.getMainExecutor(this);
+        biometricPrompt = new BiometricPrompt(this, executor, new BiometricPrompt.AuthenticationCallback() {
+            @Override
+            public void onAuthenticationSucceeded(BiometricPrompt.AuthenticationResult result) {
+                super.onAuthenticationSucceeded(result);
+                authInProgress = false;
+                unlocked = true;
+                webView.setVisibility(View.VISIBLE);
+                webView.evaluateJavascript("window.onNativeUnlocked && window.onNativeUnlocked();", null);
+            }
+
+            @Override
+            public void onAuthenticationError(int errorCode, CharSequence errString) {
+                super.onAuthenticationError(errorCode, errString);
+                authInProgress = false;
+                if (errorCode != BiometricPrompt.ERROR_NEGATIVE_BUTTON
+                        && errorCode != BiometricPrompt.ERROR_USER_CANCELED
+                        && errorCode != BiometricPrompt.ERROR_CANCELED) {
+                    Toast.makeText(MainActivity.this, "Fingerprint تصدیق ناکام شو.", Toast.LENGTH_SHORT).show();
+                }
+                finish();
+            }
+
+            @Override
+            public void onAuthenticationFailed() {
+                super.onAuthenticationFailed();
+                Toast.makeText(MainActivity.this, "Fingerprint ونه پېژندل شو.", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        promptInfo = new BiometricPrompt.PromptInfo.Builder()
+                .setTitle("د مالي مدیریت")
+                .setSubtitle("یوازې د موبایل Fingerprint سره اپ خلاص کړئ")
+                .setDescription("د دې آفلاین اپ د خلاصولو لپاره ثبت شوی biometric وکاروئ.")
+                .setNegativeButtonText("بندول")
+                .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG)
+                .build();
+    }
+
+    private void authenticate() {
+        if (authInProgress || unlocked || biometricPrompt == null) return;
+        BiometricManager manager = BiometricManager.from(this);
+        int can = manager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG);
+        if (can != BiometricManager.BIOMETRIC_SUCCESS) {
+            Toast.makeText(this, "په دې موبایل کې ثبت شوی قوي fingerprint/biometric موجود نه دی.", Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
+        authInProgress = true;
+        biometricPrompt.authenticate(promptInfo);
+    }
+
     private void openExternal(String url) {
         try {
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setData(android.net.Uri.parse(url));
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             startActivity(intent);
         } catch (Exception ignored) {
             Toast.makeText(this, "د دې لینک لپاره مناسب اپ موجود نه دی.", Toast.LENGTH_SHORT).show();
         }
     }
 
-    private void requestDeviceUnlock() {
-        if (authInProgress) return;
-        KeyguardManager km = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
-        if (km == null || !km.isDeviceSecure()) {
-            new android.app.AlertDialog.Builder(this)
-                .setTitle("Fingerprint / د موبایل PIN")
-                .setMessage("د دې آفلاین اپ د خلاصولو لپاره د موبایل Fingerprint یا PIN/Pattern باید فعال وي.")
-                .setPositiveButton("د امنیت تنظیمات", (d, w) -> {
-                    try { startActivity(new Intent(Settings.ACTION_SECURITY_SETTINGS)); } catch (Exception ignored) {}
-                })
-                .setNegativeButton("بندول", (d, w) -> finish())
-                .setCancelable(false)
-                .show();
-            return;
-        }
-
-        authInProgress = true;
-        Intent intent = km.createConfirmDeviceCredentialIntent(
-            "د مالي مدیریت",
-            "د موبایل Fingerprint یا PIN سره اپ خلاص کړئ"
-        );
-        if (intent == null) {
-            authInProgress = false;
-            return;
-        }
-        startActivityForResult(intent, REQUEST_DEVICE_UNLOCK);
-    }
-
     @Override
     protected void onResume() {
         super.onResume();
-        if (needsAuth && !authInProgress) {
-            requestDeviceUnlock();
-        }
+        if (!unlocked && !authInProgress) authenticate();
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        needsAuth = true;
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_DEVICE_UNLOCK) {
-            authInProgress = false;
-            if (resultCode == RESULT_OK) {
-                needsAuth = false;
-                webView.setVisibility(View.VISIBLE);
-                webView.evaluateJavascript("window.onNativeUnlocked && window.onNativeUnlocked();", null);
-            } else {
-                Toast.makeText(this, "Fingerprint/PIN تایید ونه شو.", Toast.LENGTH_SHORT).show();
-                finish();
-            }
-        }
+    public void onUserLeaveHint() {
+        super.onUserLeaveHint();
+        unlocked = false;
     }
 
     @Override
