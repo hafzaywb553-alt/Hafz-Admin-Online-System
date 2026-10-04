@@ -215,7 +215,7 @@ public class MainActivity extends FragmentActivity {
             if (path.contains("contact")) section = "contactSection";
             if (path.contains("settings")) section = "settingsSection";
             final String js = "window.showSection && window.showSection('" + section
-                    + "',document.querySelector('[data-section=\\"" + section + "\"]'));";
+                    + "',document.querySelector('[data-section=\"" + section + "\"]'));";
             evaluate(js);
             return true;
         }
