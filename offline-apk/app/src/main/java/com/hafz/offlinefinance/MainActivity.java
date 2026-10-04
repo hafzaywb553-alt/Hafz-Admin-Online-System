@@ -35,6 +35,7 @@ public class MainActivity extends FragmentActivity {
     private boolean authInProgress = false;
     private boolean enabling = false;
     private boolean pageLoaded = false;
+    private boolean enrollmentPending = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,6 +103,7 @@ public class MainActivity extends FragmentActivity {
                     authInProgress = false;
                     if (enabling) {
                         enabling = false;
+                        enrollmentPending = false;
                         prefs.edit().putBoolean(BIOMETRIC_ENABLED, true).apply();
                         toast("د Fingerprint امنیت فعال شو.");
                         evaluate("window.nativeSecurityChanged && window.nativeSecurityChanged(true);");
@@ -116,7 +118,7 @@ public class MainActivity extends FragmentActivity {
                 public void onAuthenticationError(int errorCode, CharSequence errString) {
                     super.onAuthenticationError(errorCode, errString);
                     authInProgress = false;
-                    if (enabling) {
+                    if (enabling && !enrollmentPending) {
                         enabling = false;
                         hideLock();
                         evaluate("window.nativeSecurityChanged && window.nativeSecurityChanged(false);");
@@ -155,14 +157,18 @@ public class MainActivity extends FragmentActivity {
 
         if (can != BiometricManager.BIOMETRIC_SUCCESS) {
             if (forEnable) {
-                enabling = false;
-                evaluate("window.nativeSecurityChanged && window.nativeSecurityChanged(false);");
                 boolean noneEnrolled = can == BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED;
-                evaluate("window.nativeBiometricEnrollmentNeeded && window.nativeBiometricEnrollmentNeeded(" + noneEnrolled + ");");
                 if (noneEnrolled) {
-                    toast("په موبایل کې Fingerprint ثبت شوی نه دی. د ثبتولو تنظیمات پرانستل کېږي.");
+                    enabling = true;
+                    enrollmentPending = true;
+                    evaluate("window.nativeSecurityChanged && window.nativeSecurityChanged(false);");
+                    evaluate("window.nativeBiometricEnrollmentNeeded && window.nativeBiometricEnrollmentNeeded(true);");
+                    toast("Fingerprint ثبت شوی نه دی. د موبایل اصلي ثبتولو پاڼه پرانیستل کېږي.");
                     openBiometricSettings();
                 } else {
+                    enabling = false;
+                    enrollmentPending = false;
+                    evaluate("window.nativeSecurityChanged && window.nativeSecurityChanged(false);");
                     toast("په دې موبایل کې مناسب Strong biometric موجود نه دی.");
                 }
             } else if (prefs.getBoolean(BIOMETRIC_ENABLED, false)) {
@@ -196,9 +202,30 @@ public class MainActivity extends FragmentActivity {
     }
 
     private void openExternal(String url) {
+        Uri uri = Uri.parse(url);
+        String host = uri.getHost() == null ? "" : uri.getHost().toLowerCase();
+        String[] packages = null;
+        if (host.contains("wa.me") || host.contains("whatsapp.com")) {
+            packages = new String[]{"com.whatsapp", "com.whatsapp.w4b"};
+        } else if (host.contains("youtube.com") || host.contains("youtu.be")) {
+            packages = new String[]{"com.google.android.youtube"};
+        } else if (host.contains("facebook.com") || host.contains("fb.com")) {
+            packages = new String[]{"com.facebook.katana"};
+        }
+        if (packages != null) {
+            for (String pkg : packages) {
+                try {
+                    Intent direct = new Intent(Intent.ACTION_VIEW, uri);
+                    direct.setPackage(pkg);
+                    direct.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(direct);
+                    return;
+                } catch (Exception ignored) {}
+            }
+        }
         try {
-            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-            startActivity(Intent.createChooser(intent, "لینک پرانیستل"));
+            Intent browser = new Intent(Intent.ACTION_VIEW, uri);
+            startActivity(browser);
         } catch (Exception ignored) {
             toast("د دې لینک لپاره مناسب اپ/براوزر موجود نه دی.");
         }
@@ -214,6 +241,7 @@ public class MainActivity extends FragmentActivity {
     }
 
     private void openBiometricSettings() {
+        enrollmentPending = true;
         try {
             Intent intent;
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
@@ -228,6 +256,7 @@ public class MainActivity extends FragmentActivity {
             try {
                 startActivity(new Intent(Settings.ACTION_SECURITY_SETTINGS));
             } catch (Exception ignoredAgain) {
+                enrollmentPending = false;
                 toast("د موبایل د امنیتي تنظیماتو پاڼه نه پرانیستل شوه.");
             }
         }
@@ -250,7 +279,21 @@ public class MainActivity extends FragmentActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (pageLoaded && prefs.getBoolean(BIOMETRIC_ENABLED, false) && !unlocked && !authInProgress) {
+        if (!pageLoaded) return;
+        if (enrollmentPending) {
+            int can = BiometricManager.from(this)
+                .canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG);
+            if (can == BiometricManager.BIOMETRIC_SUCCESS) {
+                enrollmentPending = false;
+                evaluate("window.nativeBiometricEnrollmentNeeded && window.nativeBiometricEnrollmentNeeded(false);");
+                authenticate(true);
+            } else {
+                evaluate("window.nativeBiometricEnrollmentNeeded && window.nativeBiometricEnrollmentNeeded(true);");
+                toast("Fingerprint لا ثبت شوی نه دی؛ لومړی یې په موبایل کې ثبت کړئ.");
+            }
+            return;
+        }
+        if (prefs.getBoolean(BIOMETRIC_ENABLED, false) && !unlocked && !authInProgress) {
             showLock();
             authenticate(false);
         }
