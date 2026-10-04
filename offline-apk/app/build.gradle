@@ -1,0 +1,23 @@
+plugins { id 'com.android.application' }
+
+android {
+    namespace 'com.hafz.offlinefinance'
+    compileSdk 35
+    defaultConfig {
+        applicationId 'com.hafz.offlinefinance'
+        minSdk 23
+        targetSdk 35
+        versionCode 20
+        versionName '2.0'
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            shrinkResources false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+dependencies {
+    implementation 'androidx.biometric:biometric:1.1.0'
+}
