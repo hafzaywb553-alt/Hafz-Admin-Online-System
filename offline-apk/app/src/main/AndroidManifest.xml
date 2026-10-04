@@ -4,8 +4,8 @@
     <application
         android:allowBackup="false"
         android:usesCleartextTraffic="false"
-        android:icon="@drawable/ic_launcher"
-        android:roundIcon="@drawable/ic_launcher"
+        android:icon="@drawable/mof_logo"
+        android:roundIcon="@drawable/mof_logo"
         android:theme="@style/AppTheme"
         android:label="د مالي مدیریت">
         <activity
