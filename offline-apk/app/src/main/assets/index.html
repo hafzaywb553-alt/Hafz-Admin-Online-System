@@ -45,7 +45,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 
 table{width:100%;border-collapse:collapse;table-layout:fixed}
 th,td{padding:9px 8px;border-bottom:1px solid var(--border);vertical-align:top;word-break:break-word}
 th{background:var(--tableHead);font-weight:900}
-td.num-cell{color:var(--num);font-weight:900}
+td.num-cell{font-weight:900}.salary-c{color:#55a8ff}.feed-c{color:#48cf91}.service-c{color:#b993ff}.education-c{color:#e5c35b}.professional-c{color:#ff9d4d}.gross-c{color:var(--num)}.tax-c{color:#ff6878}.bank-c{color:#c7d2df}.net-c{color:#42d7d0}
 .detail{line-height:1.7}
 .detail .period{display:block;margin:4px 0;padding:5px 7px;border-radius:8px;background:rgba(255,255,255,.05)}
 .detail .period b{color:var(--num)}
@@ -278,7 +278,7 @@ function fa(v){return String(v).replace(/\d/g,d=>'۰۱۲۳۴۵۶۷۸۹'[+d])}
 function fmt(v){return new Intl.NumberFormat('en-US',{maximumFractionDigits:2}).format(round(v))}
 function round(v){return Math.round((Number(v)||0)*100)/100}
 function solarDays(m){m=Number(m);return m<=6?31:m<=11?30:29}
-function serviceAllowance(y){y=Math.max(0,Number(y)||0);if(y>=18)return 1700;if(y>=15)return 1400;if(y>=12)return 1100;if(y>=9)return 800;if(y>=6)return 500;if(y>=3)return 200;return 0}
+function serviceAllowance(y){y=Math.max(0,Number(y)||0);if(y>=18)return 1700;if(y>=15)return 1400;if(y>=12)return 1000;if(y>=9)return 800;if(y>=6)return 500;if(y>=3)return 200;return 0}
 function tax(amount){const x=Math.max(0,round(amount));if(x<=10000)return 0;if(x<=100000)return round(x*0.10);return round(x*0.15)}
 function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function periods(y,m,start,total){
@@ -292,10 +292,14 @@ function periods(y,m,start,total){
   return out;
 }
 function fillSelects(){
+  const keepYear=data.year,keepMonth=data.month,keepRank=data.rank;
   $('year').innerHTML=Array.from({length:201},(_,i)=>{const y=1300+i;return '<option value="'+y+'">'+fa(y)+' هـ.ش</option>'}).join('');
   $('month').innerHTML=MONTHS.map(x=>'<option value="'+x[0]+'">'+x[1]+' — '+fa(x[0])+' — '+fa(solarDays(+x[0]))+' ورځې</option>').join('');
   const arr=data.sector==='security'?MILITARY:CIVILIAN;
   $('rank').innerHTML=arr.map(x=>'<option value="'+esc(x[0])+'">'+esc(x[0])+'</option>').join('');
+  $('year').value=keepYear;$('month').value=keepMonth;
+  $('rank').value=keepRank;
+  if(!$('rank').value){data.rank=arr[0][0];$('rank').value=data.rank;}
 }
 function bindData(id){$(id).value=data[id]??'';$(id).addEventListener('input',()=>{data[id]=$(id).value;if(['sector','year','month'].includes(id))fillSelects();render()});$(id).addEventListener('change',()=>{data[id]=$(id).value;if(['sector','year','month'].includes(id))fillSelects();render()})}
 function applySettings(){
@@ -349,17 +353,17 @@ function render(){
   $('periodNote').innerHTML='<b>د محاسبې موده:</b> '+fa(totalDays)+' ورځې — '+detail.map(r=>'<span class="period"><b>'+esc(r.p.name)+'</b>: '+fa(r.p.startDay)+' تر '+fa(r.p.startDay+r.p.days-1)+' ورځو؛ '+fa(r.p.days)+' ورځې د '+fa(r.p.monthDays)+' څخه</span>').join('');
   const detailText=detail.map(r=>esc(r.p.name)+' '+fa(r.p.days)+' ورځې').join('، ');
   $('resultRow').innerHTML=[
-    '<td class="num-cell" data-label="نوم">'+esc(data.personName||'—')+'</td>',
+    '<td data-label="نوم">'+esc(data.personName||'—')+'</td>',
     '<td data-label="بست / رتبه">'+esc(data.rank||'—')+'</td>',
-    '<td class="num-cell" data-label="د بست معاش">'+fmt(totals.base)+'</td>',
-    '<td class="num-cell" data-label="اعاشه">'+fmt(totals.feeding)+'</td>',
-    '<td class="num-cell" data-label="خدمت">'+fmt(totals.service)+'</td>',
-    '<td class="num-cell" data-label="تحصیل">'+fmt(totals.education)+'</td>',
-    '<td class="num-cell" data-label="فوق العاده/مسلک">'+fmt(totals.professional)+'</td>',
-    '<td class="num-cell" data-label="مکمل مجموعه">'+fmt(totals.gross)+'</td>',
-    '<td class="num-cell" data-label="مالیه">'+fmt(totals.tax)+'</td>',
-    '<td class="num-cell" data-label="بانک کسر">'+fmt(bank)+'</td>',
-    '<td class="num-cell" data-label="صافي">'+fmt(finalNet)+'</td>',
+    '<td class="num-cell salary-c" data-label="د بست معاش">'+fmt(totals.base)+'</td>',
+    '<td class="num-cell feed-c" data-label="اعاشه">'+fmt(totals.feeding)+'</td>',
+    '<td class="num-cell service-c" data-label="خدمت">'+fmt(totals.service)+'</td>',
+    '<td class="num-cell education-c" data-label="تحصیل">'+fmt(totals.education)+'</td>',
+    '<td class="num-cell professional-c" data-label="فوق العاده/مسلک">'+fmt(totals.professional)+'</td>',
+    '<td class="num-cell gross-c" data-label="مکمل مجموعه">'+fmt(totals.gross)+'</td>',
+    '<td class="num-cell tax-c" data-label="مالیه">'+fmt(totals.tax)+'</td>',
+    '<td class="num-cell bank-c" data-label="بانک کسر">'+fmt(bank)+'</td>',
+    '<td class="num-cell net-c" data-label="صافي">'+fmt(finalNet)+'</td>',
     '<td class="detail" data-label="د محاسبې تفصیل">'+detailText+'</td>'
   ].join('');
   $('kpiBase').textContent=fmt(totals.base);$('kpiAllow').textContent=fmt(totals.feeding+totals.service+totals.education+totals.professional);$('kpiTax').textContent=fmt(totals.tax);$('kpiNet').textContent=fmt(finalNet);
