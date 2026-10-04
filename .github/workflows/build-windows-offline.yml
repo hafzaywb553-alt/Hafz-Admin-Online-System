@@ -2,7 +2,7 @@ name: Build Windows Offline App
 
 on:
   push:
-    branches: [offline-three-sections-v2]
+    branches: [offline-standalone-v1]
     paths:
       - 'windows-offline/**'
       - '.github/workflows/build-windows-offline.yml'
