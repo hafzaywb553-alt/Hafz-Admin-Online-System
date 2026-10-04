@@ -19,7 +19,7 @@ button{cursor:pointer}
 .app{min-height:100vh;padding-bottom:94px}
 .header{position:sticky;top:0;z-index:30;background:rgba(7,22,49,.97);border-bottom:1px solid var(--border);padding:10px 12px}
 .header-row{max-width:1120px;margin:auto;display:flex;align-items:center;gap:10px}
-.logo{width:48px;height:48px;flex:none}
+.logo{width:48px;height:48px;flex:none}.logo-img{object-fit:contain;border-radius:50%;background:#fff;box-shadow:0 2px 12px rgba(0,0,0,.22)}.mof-seal-img{object-fit:contain;border-radius:50%;background:#fff}
 .header-title{flex:1}.header-title h1{margin:0;font-size:1.08rem}.header-title p{margin:1px 0 0;color:var(--muted);font-size:.88rem}
 .header-badge{padding:5px 9px;border-radius:999px;border:1px solid rgba(255,212,102,.35);background:rgba(255,212,102,.08);color:var(--num);font-size:.82rem;font-weight:800}
 .main{max-width:1120px;margin:auto;padding:12px}
@@ -100,12 +100,7 @@ td.num-cell{font-weight:900}.salary-c{color:#55a8ff}.feed-c{color:#48cf91}.servi
 <div class="app">
 <header class="header">
   <div class="header-row">
-    <svg class="logo" viewBox="0 0 100 100" aria-label="د مالیې وزارت لوګو">
-      <circle cx="50" cy="50" r="47" fill="#fff"/><circle cx="50" cy="50" r="42" fill="#123e78" stroke="#e7a928" stroke-width="4"/>
-      <path d="M50 13a37 37 0 1 0 0 74 37 37 0 1 0 0-74Z" fill="none" stroke="#e7a928" stroke-width="2"/>
-      <circle cx="50" cy="22" r="6" fill="#dce8f5"/><path d="M33 39l17-12 17 12v8H59v17h-8V47h-3v17h-8V47h-7z" fill="#fff"/>
-      <ellipse cx="55" cy="66" rx="15" ry="3" fill="#e7a928"/><ellipse cx="55" cy="62" rx="12" ry="3" fill="#e7a928"/><ellipse cx="55" cy="58" rx="9" ry="3" fill="#e7a928"/>
-    </svg>
+    <img class="logo logo-img" src="mof-logo.png" alt="د افغانستان اسلامي امارت د مالیې وزارت رسمي لوګو">
     <div class="header-title"><h1 id="uiAppTitle">د مالي مدیریت سیستم</h1><p id="uiSub">آفلاین معاشاتي محاسبه • بې ایمیله ننوتل</p></div>
     <span class="header-badge">۱۴۰۵ هـ.ش</span>
   </div>
@@ -116,7 +111,7 @@ td.num-cell{font-weight:900}.salary-c{color:#55a8ff}.feed-c{color:#48cf91}.servi
   <div class="card">
     <div class="card-head">
       <div class="grow">
-        <div class="salary-title"><svg class="mof-seal" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#123e78" stroke="#e7a928" stroke-width="5"/><path d="M50 19l21 15v11H62v25H52V50h-4v20H38V45H29V34z" fill="#fff"/><ellipse cx="60" cy="73" rx="17" ry="3" fill="#e7a928"/><ellipse cx="60" cy="68" rx="13" ry="3" fill="#e7a928"/><ellipse cx="60" cy="63" rx="9" ry="3" fill="#e7a928"/></svg><div><h2 data-t="salaryTitle">د معاشاتو آفلاین محاسبه</h2><p class="muted" data-t="salarySub">د معاش، امتیازاتو، اعاشې، مالیې او غیرحاضری محاسبه په همدې موبایل کې.</p></div></div>
+        <div class="salary-title"><img class="mof-seal mof-seal-img" src="mof-logo.png" alt="د مالیې وزارت رسمي لوګو"><div><h2 data-t="salaryTitle">د معاشاتو آفلاین محاسبه</h2><p class="muted" data-t="salarySub">د معاش، امتیازاتو، اعاشې، مالیې او غیرحاضری محاسبه په همدې موبایل کې.</p></div></div>
       </div>
     </div>
     <div class="grid">
