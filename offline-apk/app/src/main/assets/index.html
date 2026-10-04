@@ -433,6 +433,8 @@ $('closeLocked').onclick=()=>{if(window.NativeApp&&NativeApp.closeLocked){Native
 window.showNativeLock=function(){ $('lockScreen').classList.remove('hidden'); };
 window.hideNativeLock=function(){ $('lockScreen').classList.add('hidden'); };
 window.nativeBiometricEnrollmentNeeded=function(show){$('openBioSettings').classList.toggle('hidden',!show)};
+window.resetAllNative=function(){settings={lang:'ps',theme:'dark',fontSize:16,fieldSize:52,weight:'400',radius:16,accent:'#1d8fd1',field:'#061326',textColor:'#f4f8ff',numberColor:'#ffd466',bg:'#071631',panel:'#0d2442',header:'#164b7d'};localStorage.removeItem(STORE);localStorage.setItem(SET,JSON.stringify(settings));applySettings();applyLang();location.reload();};
+window.clearAllNative=function(){localStorage.removeItem(STORE);localStorage.removeItem(SET);location.reload();};
 renderFp();render();
 })();
 </script>
