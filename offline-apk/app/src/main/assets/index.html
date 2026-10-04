@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="ps" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>د مالي مدیریت سیستم — آفلاین</title>
+<style>
+:root{
+ --accent:#1d8fd1;--bg:#071631;--panel:#0d2442;--field:#061326;--text:#f4f8ff;--muted:#adbed2;
+ --num:#ffd466;--tableHead:#164b7d;--border:#24486c;--danger:#d65a68;--ok:#2db778;
+ --fontSize:16px;--fieldH:52px;--radius:16px;--weight:400
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;min-height:100%;background:var(--bg);color:var(--text);font-family:"Noto Naskh Arabic",Tahoma,Arial,sans-serif;font-size:var(--fontSize);font-weight:var(--weight)}
+body{overflow-x:hidden}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.hidden{display:none!important}
+.app{min-height:100vh;padding-bottom:94px}
+.header{position:sticky;top:0;z-index:30;background:rgba(7,22,49,.97);border-bottom:1px solid var(--border);padding:10px 12px}
+.header-row{max-width:1120px;margin:auto;display:flex;align-items:center;gap:10px}
+.logo{width:48px;height:48px;flex:none}
+.header-title{flex:1}.header-title h1{margin:0;font-size:1.08rem}.header-title p{margin:1px 0 0;color:var(--muted);font-size:.88rem}
+.header-badge{padding:5px 9px;border-radius:999px;border:1px solid rgba(255,212,102,.35);background:rgba(255,212,102,.08);color:var(--num);font-size:.82rem;font-weight:800}
+.main{max-width:1120px;margin:auto;padding:12px}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin:10px 0;box-shadow:0 8px 24px rgba(0,0,0,.16)}
+.card-head{display:flex;align-items:flex-start;gap:10px;margin-bottom:12px}.grow{flex:1}
+h2,h3{margin:0 0 5px}.muted{color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+label{display:flex;flex-direction:column;gap:6px;font-weight:800}
+input,select,textarea{width:100%;min-height:var(--fieldH);border:1px solid var(--border);border-radius:12px;background:var(--field);color:var(--text);padding:11px 12px;outline:none}
+textarea{min-height:110px;resize:vertical}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(29,143,209,.14)}
+.readonly{color:var(--num);font-weight:900}
+.small{font-size:.83rem;color:var(--muted)}
+.actions{display:flex;gap:9px;flex-wrap:wrap}
+.btn{border:0;border-radius:12px;min-height:46px;padding:10px 14px;font-weight:900;display:inline-flex;align-items:center;justify-content:center;gap:7px}
+.primary{background:var(--accent);color:#031322}.ghost{background:transparent;color:var(--text);border:1px solid var(--border)}.danger{background:var(--danger);color:#fff}.ok{background:var(--ok);color:#032014}
+.notice{padding:11px 12px;border-radius:12px;border:1px solid var(--border);background:rgba(29,143,209,.08);margin:10px 0;line-height:1.7}.notice.warn{background:rgba(214,90,104,.10);border-color:rgba(214,90,104,.35)}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}.kpi{border:1px solid var(--border);border-radius:12px;padding:11px;background:rgba(0,0,0,.10)}.kpi span{display:block;color:var(--muted);font-size:.84rem}.kpi b{display:block;color:var(--num);font-size:1.05rem;margin-top:4px}
+.number{color:var(--num);font-weight:900}
+.range{display:grid;grid-template-columns:1fr 64px;gap:9px;align-items:center}.range output{display:flex;align-items:center;justify-content:center;min-height:var(--fieldH);border:1px solid var(--border);border-radius:12px;background:var(--field);color:var(--num);font-weight:900}
+.swatches{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.swatch{border:1px solid var(--border);background:var(--field);color:var(--text);border-radius:11px;padding:8px;font-weight:900}.swatch i{display:block;width:26px;height:26px;border-radius:50%;margin:0 auto 5px}
+.table-wrap{width:100%;border:1px solid var(--border);border-radius:13px;overflow:hidden}
+table{width:100%;border-collapse:collapse;table-layout:fixed}
+th,td{padding:9px 8px;border-bottom:1px solid var(--border);vertical-align:top;word-break:break-word}
+th{background:var(--tableHead);font-weight:900}
+td.num-cell{color:var(--num);font-weight:900}
+.detail{line-height:1.7}
+.detail .period{display:block;margin:4px 0;padding:5px 7px;border-radius:8px;background:rgba(255,255,255,.05)}
+.detail .period b{color:var(--num)}
+.salary-title{display:flex;align-items:center;gap:10px}
+.mof-seal{width:56px;height:56px;flex:none}
+.contact-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.contact-card{display:flex;flex-direction:column;gap:5px;text-decoration:none;color:var(--text);border:1px solid var(--border);border-radius:13px;padding:13px;background:rgba(0,0,0,.10)}
+.contact-card b{font-size:1.02rem}.contact-card small{color:var(--muted)}
+.settings-group{border:1px solid var(--border);border-radius:13px;padding:12px;margin-top:10px}
+.settings-group h3{margin-bottom:8px}
+.security-status{display:flex;align-items:center;justify-content:space-between;gap:9px;flex-wrap:wrap;padding:11px;border:1px solid var(--border);border-radius:12px}
+.bottom{position:fixed;left:0;right:0;bottom:0;z-index:40;background:rgba(7,22,49,.98);border-top:1px solid var(--border);padding:8px 8px max(8px,env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.nav-btn{min-height:60px;border:1px solid transparent;border-radius:12px;background:transparent;color:var(--muted);font-weight:900;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.nav-btn.active{color:var(--text);background:rgba(29,143,209,.13);border-color:rgba(29,143,209,.35)}
+.light-ui{--bg:#f3f7fb;--panel:#fff;--field:#fff;--text:#102238;--muted:#587087;--border:#c7d7e8;--tableHead:#cfe1f3}
+.light-ui .header,.light-ui .bottom{background:rgba(243,247,251,.97)}
+@media(max-width:780px){
+ .grid,.contact-grid{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .main{padding:9px}.card{padding:12px}
+ .desktop-head{display:none}
+ .table-wrap{border:0;overflow:visible}
+ table,thead,tbody,tr,td{display:block;width:100%}
+ thead{display:none}
+ tr{border:1px solid var(--border);border-radius:13px;overflow:hidden;margin:0}
+ td{display:grid;grid-template-columns:42% 58%;gap:8px;padding:10px;border-bottom:1px solid var(--border)}
+ td::before{content:attr(data-label);font-weight:900;color:var(--muted)}
+ td:last-child{border-bottom:0}
+}
+@media(max-width:420px){.kpis{grid-template-columns:1fr}.header-badge{display:none}.nav-btn{font-size:.88rem}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="header">
+  <div class="header-row">
+    <svg class="logo" viewBox="0 0 100 100" aria-label="د مالیې وزارت لوګو">
+      <circle cx="50" cy="50" r="47" fill="#fff"/><circle cx="50" cy="50" r="42" fill="#123e78" stroke="#e7a928" stroke-width="4"/>
+      <path d="M50 13a37 37 0 1 0 0 74 37 37 0 1 0 0-74Z" fill="none" stroke="#e7a928" stroke-width="2"/>
+      <circle cx="50" cy="22" r="6" fill="#dce8f5"/><path d="M33 39l17-12 17 12v8H59v17h-8V47h-3v17h-8V47h-7z" fill="#fff"/>
+      <ellipse cx="55" cy="66" rx="15" ry="3" fill="#e7a928"/><ellipse cx="55" cy="62" rx="12" ry="3" fill="#e7a928"/><ellipse cx="55" cy="58" rx="9" ry="3" fill="#e7a928"/>
+    </svg>
+    <div class="header-title"><h1 id="uiAppTitle">د مالي مدیریت سیستم</h1><p id="uiSub">آفلاین معاشاتي محاسبه • بې ایمیله ننوتل</p></div>
+    <span class="header-badge">۱۴۰۵ هـ.ش</span>
+  </div>
+</header>
+
+<main class="main">
+<section id="salarySection">
+  <div class="card">
+    <div class="card-head">
+      <div class="grow">
+        <div class="salary-title"><svg class="mof-seal" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#123e78" stroke="#e7a928" stroke-width="5"/><path d="M50 19l21 15v11H62v25H52V50h-4v20H38V45H29V34z" fill="#fff"/><ellipse cx="60" cy="73" rx="17" ry="3" fill="#e7a928"/><ellipse cx="60" cy="68" rx="13" ry="3" fill="#e7a928"/><ellipse cx="60" cy="63" rx="9" ry="3" fill="#e7a928"/></svg><div><h2 data-t="salaryTitle">د معاشاتو آفلاین محاسبه</h2><p class="muted" data-t="salarySub">د معاش، امتیازاتو، اعاشې، مالیې او غیرحاضری محاسبه په همدې موبایل کې.</p></div></div>
+      </div>
+    </div>
+    <div class="grid">
+      <label><span data-t="name">۱ ـ نوم</span><input id="personName" autocomplete="off"></label>
+      <label><span data-t="sector">۲ ـ نظامي / ملکي</span><select id="sector"><option value="security">نظامي</option><option value="civilian">ملکي</option></select></label>
+      <label><span data-t="institution">۳ ـ اړوند وزارت / لوی ریاست</span><select id="institution"><option>د ملي دفاع وزارت</option><option>د کورنیو چارو وزارت</option><option>د استخباراتو لوی ریاست</option><option>نور نظامي تشکیلات لرونکی امارتي واحد</option><option>ملکي وزارت / لوی ریاست</option></select></label>
+      <label><span data-t="year">۴ ـ مالي کال</span><select id="year"></select></label>
+      <label><span data-t="month">۵ ـ میاشت</span><select id="month"></select></label>
+      <label><span data-t="startDay">د محاسبې د پیل ورځ</span><input id="startDay" type="number" min="1" inputmode="numeric" value="1"></label>
+      <label><span data-t="days">د محاسبې ټولې ورځې</span><input id="calcDays" type="number" min="1" inputmode="numeric" placeholder="خالي = د ټاکل شوې میاشتې پاتې ورځې"></label>
+      <label><span data-t="rank">۶ ـ بست / رتبه</span><select id="rank"></select></label>
+      <label><span data-t="base">د بست مطابق معاش</span><input id="baseSalary" class="readonly" readonly></label>
+      <label><span data-t="education">۷ ـ تحصیلي سند</span><select id="education"><option value="">انتخاب کړئ</option><option value="لیسانس">لیسانس</option><option value="ماستر">ماستر</option><option value="دوکتور">دوکتور</option></select></label>
+      <label><span data-t="educationAmount">د تحصیلي سند اتومات امتیاز</span><input id="educationAmount" class="readonly" readonly></label>
+      <label><span data-t="professional">۸ ـ فوق العاده / مسلک امتیاز</span><input id="professional" type="number" min="0" inputmode="decimal" value="0"></label>
+      <label><span data-t="status">۹ ـ حالت</span><select id="status"><option>حاضر</option><option>رخصت</option><option>مریض</option><option>کورس کابل</option><option>غیرحاضر</option></select></label>
+      <label><span id="daysLabel">د غیرحاضرۍ/استثنا ورځې</span><input id="attendanceDays" type="number" min="0" inputmode="numeric" value="0"></label>
+      <label><span data-t="serviceYears">د خدمت موده (کلونه)</span><input id="serviceYears" type="number" min="0" inputmode="numeric" value="0"></label>
+      <label><span data-t="serviceAmount">د خدمت مودې اتومات امتیاز</span><input id="serviceAmount" class="readonly" readonly></label>
+      <label><span data-t="feedingDaily">د یوې ورځې اعاشه</span><input id="feedingDaily" class="readonly" readonly></label>
+      <label><span data-t="feedingTotal">د ټاکل شوې مودې اعاشه</span><input id="feedingTotal" class="readonly" readonly></label>
+    </div>
+    <div id="periodNote" class="notice"></div>
+  </div>
+
+  <div class="card">
+    <h3 data-t="taxSummary">د مالیې لنډه پایله</h3>
+    <div class="kpis">
+      <div class="kpi"><span data-t="baseTotal">د معاش مجموعه</span><b id="kpiBase" class="number">0</b></div>
+      <div class="kpi"><span data-t="allowTotal">ټول امتیازات او اعاشه</span><b id="kpiAllow" class="number">0</b></div>
+      <div class="kpi"><span data-t="tax">کسرات / مالیه</span><b id="kpiTax" class="number">0</b></div>
+      <div class="kpi"><span data-t="net">صافي پاتې رقم</span><b id="kpiNet" class="number">0</b></div>
+    </div>
+    <div class="notice"><b data-t="taxRuleTitle">د مالیې نورم:</b> <span id="taxRuleText">تر ۱۰٬۰۰۰ افغانۍ معاف؛ ۱۰٬۰۰۱ تر ۱۰۰٬۰۰۰ = ۱۰٪؛ له ۱۰۰٬۰۰۰ پورته = ۱۵٪.</span></div>
+  </div>
+
+  <div class="card">
+    <h3 data-t="oneTable">یوازې یو محاسبوي جدول</h3>
+    <p class="muted" data-t="oneTableSub">په موبایل کې جدول په عمودي کارډي بڼه ښکاري؛ افقي Scroll ته اړتیا نشته.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>نوم</th><th>بست / رتبه</th><th>د بست معاش</th><th>اعاشه</th><th>خدمت</th><th>تحصیل</th><th>فوق العاده/مسلک</th><th>مکمل مجموعه</th><th>مالیه</th><th>بانک کسر</th><th>صافي</th><th>د محاسبې تفصیل</th>
+        </tr></thead>
+        <tbody><tr id="resultRow"></tr></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="contactSection" class="hidden">
+  <div class="card">
+    <div class="card-head"><div class="grow"><h2 data-t="contactTitle">زموږ سره اړیکه</h2><p class="muted" data-t="contactSub">د اړیکو معلومات په آفلاین ډول ښکاري؛ بهرني لینکونه د اړوند اپ/انټرنېټ له لارې پرانیستل کېږي.</p></div></div>
+    <div class="contact-grid">
+      <div class="contact-card"><span>👤</span><span data-t="creator">جوړونکی</span><b>حافظ محیب الله ایوب</b><small>د مالي مدیریت سیستم جوړونکی</small></div>
+      <div class="contact-card"><span>📍</span><span>ولایت / ولسوالۍ</span><b>ارزګان / چوره</b><small>قریه: خواجه خدیر</small></div>
+      <a class="contact-card" href="tel:+93705965475"><span>☎</span><span>تلیفون</span><b>0705965475</b><small>مستقیم زنګ</small></a>
+      <a class="contact-card" href="https://wa.me/93705965475" target="_blank" rel="noreferrer"><span>💬</span><span>WhatsApp</span><b>مستقیم پیغام</b><small>WhatsApp پرانیزي</small></a>
+      <a class="contact-card" href="https://youtube.com/channel/UCgilh9KTiPaLGCsDELLNcjw" target="_blank" rel="noreferrer"><span>▶</span><span>YouTube</span><b>زما چینل</b><small>چینل پرانیزي</small></a>
+      <a class="contact-card" href="https://www.facebook.com/share/19eC9AWWRF/" target="_blank" rel="noreferrer"><span>f</span><span>Facebook</span><b>زما فیسبوک پاڼه</b><small>پاڼه پرانیزي</small></a>
+    </div>
+  </div>
+  <div class="card">
+    <h3 data-t="shareContact">د اړیکو معلومات شریکول</h3>
+    <div class="actions"><button class="btn primary" id="shareContact">شریکول</button><button class="btn ghost" id="copyContact">کاپي کول</button></div>
+  </div>
+</section>
+
+<section id="settingsSection" class="hidden">
+  <div class="card">
+    <h2 data-t="settingsTitle">اړین او بشپړ تنظیمات</h2>
+    <p class="muted" data-t="settingsSub">د دې آفلاین اپ د کار، بڼې، ژبې، رنګونو، فیلډونو او Fingerprint ټول اړین کنټرولونه.</p>
+
+    <div class="settings-group">
+      <h3 data-t="securityTitle">Fingerprint امنیت</h3>
+      <div class="security-status"><span id="securityStatus">Fingerprint غیر فعال دی</span><span id="securityAction"></span></div>
+      <div class="actions" style="margin-top:9px">
+        <button class="btn primary" id="enableFp" data-t="enableFp">Fingerprint فعالول</button>
+        <button class="btn danger hidden" id="disableFp" data-t="disableFp">Fingerprint لرې کول</button>
+      </div>
+      <div class="notice" data-t="securityHelp">Fingerprint یوازې هغه وخت غوښتل کېږي چې تاسې یې دلته فعال کړئ. د ایمیل Login نشته.</div>
+    </div>
+
+    <div class="settings-group">
+      <h3 data-t="appearanceTitle">بڼه، رڼا/تیاره او لیکنې</h3>
+      <div class="grid">
+        <label><span data-t="language">ژبه</span><select id="lang"><option value="ps">پښتو</option><option value="fa">دری</option><option value="ar">العربية</option><option value="ur">اردو</option><option value="en">English</option></select></label>
+        <label><span data-t="theme">حالت</span><select id="theme"><option value="dark">تیاره</option><option value="light">روښانه</option></select></label>
+        <label><span data-t="fontSize">د لیکنې اندازه</span><div class="range"><input id="fontSize" type="range" min="12" max="22" value="16"><output id="fontSizeOut">16</output></div></label>
+        <label><span data-t="fieldSize">د فیلډونو اندازه</span><div class="range"><input id="fieldSize" type="range" min="44" max="70" value="52"><output id="fieldSizeOut">52</output></div></label>
+        <label><span data-t="weight">د لیکنې ضخامت</span><select id="weight"><option value="400">عادي</option><option value="700">غلیظ</option></select></label>
+        <label><span data-t="radius">د خانو ګردوالی</span><div class="range"><input id="radius" type="range" min="0" max="28" value="16"><output id="radiusOut">16</output></div></label>
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <h3 data-t="colorsTitle">رنګونه</h3>
+      <div class="grid">
+        <label data-t="accentColor">اصلي رنګ<input id="accent" type="color" value="#1d8fd1"></label>
+        <label data-t="fieldColor">د خانو/فیلډ رنګ<input id="field" type="color" value="#061326"></label>
+        <label data-t="textColor">د لیکنو رنګ<input id="textColor" type="color" value="#f4f8ff"></label>
+        <label data-t="numberColor">د شمیرو رنګ<input id="numberColor" type="color" value="#ffd466"></label>
+        <label data-t="backgroundColor">د شالید رنګ<input id="bgColor" type="color" value="#071631"></label>
+        <label data-t="panelColor">د کارت/پینل رنګ<input id="panelColor" type="color" value="#0d2442"></label>
+        <label data-t="headerColor">د جدول سرلیک رنګ<input id="headerColor" type="color" value="#164b7d"></label>
+      </div>
+      <div style="margin-top:10px"><b data-t="presets">چمتو رنګونه</b><div class="swatches" id="swatches"></div></div>
+    </div>
+
+    <div class="settings-group">
+      <h3 data-t="helpTitle">مرسته، جملې او ژباړه</h3>
+      <div class="notice" data-t="helpText">د ژبې له بدلولو سره د اپ اصلي سرلیکونه، د فورمو لارښوونې، د مالیې تشریح، د تنظیماتو متنونه، د تڼیو نومونه او مرستندویه جملې بدلول کېږي.</div>
+      <div class="notice">
+        <b data-t="taxHelpHeading">د مالیې مرسته:</b>
+        <div data-t="taxHelp">تر ۱۰٬۰۰۰ افغانۍ معاف؛ ۱۰٬۰۰۱–۱۰۰٬۰۰۰ = د ټول تابع معاش او امتیازاتو ۱۰٪؛ له ۱۰۰٬۰۰۰ پورته = د ټول تابع معاش او امتیازاتو ۱۵٪.</div>
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <h3 data-t="resetTitle">اصلي حالت ته ستنول</h3>
+      <div class="actions">
+        <button class="btn ghost" id="resetAppearance" data-t="resetAppearance">یوازې د بڼې تنظیمات بېرته اصلي کول</button>
+        <button class="btn ghost" id="resetColors" data-t="resetColors">یوازې رنګونه اصلي کول</button>
+        <button class="btn danger" id="resetAll" data-t="resetAll">ټول تنظیمات اصلي حالت ته راوستل</button>
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <h3 data-t="dataTitle">د آفلاین معلوماتو اداره</h3>
+      <p class="muted" data-t="dataHelp">د معاش فورم او تنظیمات په دې موبایل کې ساتل کېږي. د اپ حذف کول یا د دې تڼۍ کارول کولی شي محلي معلومات له منځه یوسي.</p>
+      <button class="btn danger" id="clearData" data-t="clearData">ټول محلي معلومات پاکول</button>
+    </div>
+  </div>
+</section>
+</main>
+
+<nav class="bottom">
+  <button class="nav-btn active" data-section="salarySection">🧮<span data-t="navSalary">معاشونو معلومات</span></button>
+  <button class="nav-btn" data-section="contactSection">☎<span data-t="navContact">زموږ سره اړیکه</span></button>
+  <button class="nav-btn" data-section="settingsSection">⚙<span data-t="navSettings">تنظیمات</span></button>
+</nav>
+</div>
+
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const STORE='offline_finance_v2_data';
+const SET='offline_finance_v2_settings';
+const MONTHS=[['01','حمل'],['02','ثور'],['03','جوزا'],['04','سرطان'],['05','اسد'],['06','سنبله'],['07','میزان'],['08','عقرب'],['09','قوس'],['10','جدی'],['11','دلو'],['12','حوت']];
+const MILITARY=[
+['ستر جنرال / ستر پاسوال',36100],['ډګر جنرال / لوی پاسوال',33155],['تورن جنرال / پاسوال',27550],['برید جنرال / مل پاسوال',24035],
+['ډګروال / سمونوال',19665],['ډګرمن / سمونمل',17860],['جګړن / سمونیار',16150],['تورن / څارمن',14345],
+['لومړی بریدمن / لومړی څارن',12825],['دوهم بریدمن / دوهم څارن',11685],['سرپرکمشر قدمدار / لومړی ساتنمن',11210],
+['معاون سرپرکمشر قدمدار / دوهم ساتنمن',11115],['سرپرکمشر / درېیم ساتنمن',10640],['معاون سرپرکمشر',10070],['پرکمشر',9888],['ساتونکی',9111]
+];
+const CIVILIAN=[['اوم بست — اول قدم',5540],['اتم بست — اول قدم',4960]];
+const EDU={'لیسانس':450,'ماستر':1100,'دوکتور':2000};
+const COLORS=[
+['آبي','#1d8fd1','#071631','#0d2442','#061326'],['زمردي','#20a96b','#07150f','#0d271d','#05110c'],
+['بنفشي','#9157d8','#110b19','#221536','#0b0711'],['طلایي','#d29a24','#171105','#2a210a','#100b02'],
+['فیروزي','#13aaa6','#061616','#0d2928','#04100f'],['سور','#d65a68','#18090d','#2a1218','#100509'],
+['نارنجي','#e7792f','#170b05','#2a160b','#100702'],['ژور آبي','#4d78ff','#07102a','#111f50','#050b1d']
+];
+const TXT={
+ps:{salaryTitle:'د معاشاتو آفلاین محاسبه',salarySub:'د معاش، امتیازاتو، اعاشې، مالیې او غیرحاضرۍ محاسبه په همدې موبایل کې.',name:'۱ ـ نوم',sector:'۲ ـ نظامي / ملکي',institution:'۳ ـ اړوند وزارت / لوی ریاست',year:'۴ ـ مالي کال',month:'۵ ـ میاشت',startDay:'د محاسبې د پیل ورځ',days:'د محاسبې ټولې ورځې',rank:'۶ ـ بست / رتبه',base:'د بست مطابق معاش',education:'۷ ـ تحصیلي سند',educationAmount:'د تحصیلي سند اتومات امتیاز',professional:'۸ ـ فوق العاده / مسلک امتیاز',status:'۹ ـ حالت',serviceYears:'د خدمت موده (کلونه)',serviceAmount:'د خدمت مودې اتومات امتیاز',feedingDaily:'د یوې ورځې اعاشه',feedingTotal:'د ټاکل شوې مودې اعاشه',taxSummary:'د مالیې لنډه پایله',baseTotal:'د معاش مجموعه',allowTotal:'ټول امتیازات او اعاشه',tax:'کسرات / مالیه',net:'صافي پاتې رقم',taxRuleTitle:'د مالیې نورم:',oneTable:'یوازې یو محاسبوي جدول',oneTableSub:'په موبایل کې جدول په عمودي کارډي بڼه ښکاري؛ افقي Scroll ته اړتیا نشته.',contactTitle:'زموږ سره اړیکه',contactSub:'د اړیکو معلومات په آفلاین ډول ښکاري؛ بهرني لینکونه د اړوند اپ/انټرنېټ له لارې پرانیستل کېږي.',creator:'جوړونکی',shareContact:'د اړیکو معلومات شریکول',settingsTitle:'اړین او بشپړ تنظیمات',settingsSub:'د دې آفلاین اپ د کار، بڼې، ژبې، رنګونو، فیلډونو او Fingerprint ټول اړین کنټرولونه.',securityTitle:'Fingerprint امنیت',enableFp:'Fingerprint فعالول',disableFp:'Fingerprint لرې کول',securityHelp:'Fingerprint یوازې هغه وخت غوښتل کېږي چې تاسې یې دلته فعال کړئ. د ایمیل Login نشته.',appearanceTitle:'بڼه، رڼا/تیاره او لیکنې',language:'ژبه',theme:'حالت',fontSize:'د لیکنې اندازه',fieldSize:'د فیلډونو اندازه',weight:'د لیکنې ضخامت',radius:'د خانو ګردوالی',colorsTitle:'رنګونه',accentColor:'اصلي رنګ',fieldColor:'د خانو/فیلډ رنګ',textColor:'د لیکنو رنګ',numberColor:'د شمیرو رنګ',backgroundColor:'د شالید رنګ',panelColor:'د کارت/پینل رنګ',headerColor:'د جدول سرلیک رنګ',presets:'چمتو رنګونه',helpTitle:'مرسته، جملې او ژباړه',helpText:'د ژبې له بدلولو سره د اپ اصلي سرلیکونه، د فورمو لارښوونې، د مالیې تشریح، د تنظیماتو متنونه، د تڼیو نومونه او مرستندویه جملې بدلول کېږي.',taxHelpHeading:'د مالیې مرسته:',taxHelp:'تر ۱۰٬۰۰۰ افغانۍ معاف؛ ۱۰٬۰۰۱–۱۰۰٬۰۰۰ = د ټول تابع معاش او امتیازاتو ۱۰٪؛ له ۱۰۰٬۰۰۰ پورته = د ټول تابع معاش او امتیازاتو ۱۵٪.',resetTitle:'اصلي حالت ته ستنول',resetAppearance:'یوازې د بڼې تنظیمات بېرته اصلي کول',resetColors:'یوازې رنګونه اصلي کول',resetAll:'ټول تنظیمات اصلي حالت ته راوستل',dataTitle:'د آفلاین معلوماتو اداره',dataHelp:'د معاش فورم او تنظیمات په دې موبایل کې ساتل کېږي. د اپ حذف کول یا د دې تڼۍ کارول کولی شي محلي معلومات له منځه یوسي.',clearData:'ټول محلي معلومات پاکول',navSalary:'معاشونو معلومات',navContact:'زموږ سره اړیکه',navSettings:'تنظیمات'},
+fa:{salaryTitle:'محاسبه آفلاین معاشات',salarySub:'محاسبه معاش، امتیازات، اعاشه، مالیات و غیرحاضری در همین موبایل.',name:'۱ ـ نام',sector:'۲ ـ نظامی / ملکی',institution:'۳ ـ وزارت / ریاست مربوط',year:'۴ ـ سال مالی',month:'۵ ـ ماه',startDay:'روز آغاز محاسبه',days:'روزهای محاسبه',rank:'۶ ـ بست / رتبه',base:'معاش مطابق بست',education:'۷ ـ سند تحصیلی',educationAmount:'امتیاز اتومات تحصیلی',professional:'۸ ـ امتیاز فوق‌العاده / مسلکی',status:'۹ ـ حالت',serviceYears:'مدت خدمت (سال)',serviceAmount:'امتیاز اتومات مدت خدمت',feedingDaily:'اعاشه یک روز',feedingTotal:'اعاشه مدت تعیین‌شده',taxSummary:'خلاصه مالیات',baseTotal:'مجموع معاش',allowTotal:'مجموع امتیازات و اعاشه',tax:'کسورات / مالیات',net:'خالص باقی‌مانده',taxRuleTitle:'نورم مالیات:',oneTable:'فقط یک جدول محاسباتی',oneTableSub:'در موبایل جدول به شکل عمودی نمایش می‌شود و اسکرول افقی ندارد.',contactTitle:'تماس با ما',contactSub:'اطلاعات تماس آفلاین نمایش داده می‌شود؛ لینک‌های خارجی به اینترنت نیاز دارند.',creator:'سازنده',shareContact:'اشتراک‌گذاری معلومات تماس',settingsTitle:'تنظیمات کامل و ضروری',settingsSub:'کنترول‌های ضروری کار، شکل، زبان، رنگ، اندازه فیلدها و Fingerprint.',securityTitle:'امنیت Fingerprint',enableFp:'فعال‌سازی Fingerprint',disableFp:'حذف Fingerprint',securityHelp:'Fingerprint فقط زمانی درخواست می‌شود که شما آن را در اینجا فعال کنید. ورود ایمیلی وجود ندارد.',appearanceTitle:'شکل، روشن/تیره و نوشته',language:'زبان',theme:'حالت',fontSize:'اندازه نوشته',fieldSize:'اندازه فیلدها',weight:'ضخامت نوشته',radius:'گوشه‌های خانه',colorsTitle:'رنگ‌ها',accentColor:'رنگ اصلی',fieldColor:'رنگ فیلدها',textColor:'رنگ نوشته',numberColor:'رنگ اعداد',backgroundColor:'رنگ پس‌زمینه',panelColor:'رنگ کارت/پنل',headerColor:'رنگ سرجدول',presets:'رنگ‌های آماده',helpTitle:'کمک، متن و ترجمه',helpText:'با تغییر زبان، عنوان‌ها، راهنماهای فرم، توضیح مالیات، تنظیمات و متن‌های کمک ترجمه می‌شوند.',taxHelpHeading:'کمک مالیات:',taxHelp:'تا ۱۰٬۰۰۰ افغانی معاف؛ ۱۰٬۰۰۱–۱۰۰٬۰۰۰ = ۱۰٪ از مجموع معاش و امتیازات؛ بالاتر از ۱۰۰٬۰۰۰ = ۱۵٪ از مجموع معاش و امتیازات.',resetTitle:'بازگشت به حالت اصلی',resetAppearance:'فقط تنظیمات شکل را اصلی کن',resetColors:'فقط رنگ‌ها را اصلی کن',resetAll:'همه تنظیمات را اصلی کن',dataTitle:'مدیریت اطلاعات آفلاین',dataHelp:'فورم معاش و تنظیمات در این موبایل ذخیره می‌شوند. حذف اپ یا این دکمه می‌تواند اطلاعات محلی را پاک کند.',clearData:'پاک کردن تمام اطلاعات محلی',navSalary:'معلومات معاشات',navContact:'تماس با ما',navSettings:'تنظیمات'},
+ar:{salaryTitle:'حساب الرواتب دون اتصال',salarySub:'حساب الراتب والبدلات والإعاشة والضريبة والغياب على هذا الهاتف.',name:'١ ـ الاسم',sector:'٢ ـ عسكري / مدني',institution:'٣ ـ الوزارة / الإدارة المختصة',year:'٤ ـ السنة المالية',month:'٥ ـ الشهر',startDay:'يوم بداية الحساب',days:'أيام الحساب',rank:'٦ ـ الرتبة / الدرجة',base:'الراتب حسب الرتبة',education:'٧ ـ المؤهل الدراسي',educationAmount:'بدل التعليم الآلي',professional:'٨ ـ بدل استثنائي / مهني',status:'٩ ـ الحالة',serviceYears:'مدة الخدمة (سنوات)',serviceAmount:'بدل مدة الخدمة الآلي',feedingDaily:'إعاشة يوم واحد',feedingTotal:'إعاشة المدة المحددة',taxSummary:'ملخص الضريبة',baseTotal:'مجموع الراتب',allowTotal:'مجموع البدلات والإعاشة',tax:'الخصومات / الضريبة',net:'الصافي المتبقي',taxRuleTitle:'قاعدة الضريبة:',oneTable:'جدول حسابي واحد فقط',oneTableSub:'يظهر الجدول على الهاتف بشكل عمودي دون تمرير أفقي.',contactTitle:'اتصل بنا',contactSub:'تظهر معلومات الاتصال دون اتصال؛ الروابط الخارجية تحتاج إلى الإنترنت.',creator:'المنشئ',shareContact:'مشاركة معلومات الاتصال',settingsTitle:'الإعدادات الكاملة والضرورية',settingsSub:'تحكم كامل في التشغيل واللغة والألوان والأحجام وFingerprint.',securityTitle:'أمان Fingerprint',enableFp:'تفعيل Fingerprint',disableFp:'إزالة Fingerprint',securityHelp:'لا يُطلب Fingerprint إلا بعد تفعيله هنا. لا يوجد تسجيل بالبريد الإلكتروني.',appearanceTitle:'المظهر والسطوع والكتابة',language:'اللغة',theme:'الوضع',fontSize:'حجم الخط',fieldSize:'حجم الحقول',weight:'سماكة الخط',radius:'استدارة الحقول',colorsTitle:'الألوان',accentColor:'اللون الأساسي',fieldColor:'لون الحقول',textColor:'لون النص',numberColor:'لون الأرقام',backgroundColor:'لون الخلفية',panelColor:'لون البطاقة/اللوحة',headerColor:'لون رأس الجدول',presets:'ألوان جاهزة',helpTitle:'المساعدة والجمل والترجمة',helpText:'عند تغيير اللغة يتم ترجمة العناوين وتعليمات النماذج وشرح الضريبة والإعدادات ونصوص المساعدة.',taxHelpHeading:'مساعدة الضريبة:',taxHelp:'حتى ١٠٬٠٠٠ معفاة؛ ١٠٬٠٠١–١٠٠٬٠٠٠ = ١٠٪ من مجموع الراتب والبدلات؛ فوق ١٠٠٬٠٠٠ = ١٥٪ من المجموع.',resetTitle:'العودة للوضع الأصلي',resetAppearance:'إعادة المظهر فقط',resetColors:'إعادة الألوان فقط',resetAll:'إعادة جميع الإعدادات',dataTitle:'إدارة البيانات دون اتصال',dataHelp:'يتم حفظ نموذج الراتب والإعدادات على هذا الهاتف. حذف التطبيق أو هذا الزر قد يمسح البيانات المحلية.',clearData:'حذف جميع البيانات المحلية',navSalary:'معلومات الرواتب',navContact:'اتصل بنا',navSettings:'الإعدادات'},
+ur:{salaryTitle:'آف لائن تنخواہ حساب',salarySub:'اسی موبائل پر تنخواہ، الاؤنس، اعاشہ، ٹیکس اور غیرحاضری کا حساب.',name:'۱ ـ نام',sector:'۲ ـ فوجی / سول',institution:'۳ ـ متعلقہ وزارت / ریاست',year:'۴ ـ مالی سال',month:'۵ ـ مہینہ',startDay:'حساب شروع ہونے کا دن',days:'حساب کے دن',rank:'۶ ـ عہدہ / رینک',base:'عہدے کے مطابق تنخواہ',education:'۷ ـ تعلیمی سند',educationAmount:'خودکار تعلیمی الاؤنس',professional:'۸ ـ غیر معمولی / پیشہ ورانہ الاؤنس',status:'۹ ـ حالت',serviceYears:'سروس کی مدت (سال)',serviceAmount:'خودکار سروس الاؤنس',feedingDaily:'ایک دن کا اعاشہ',feedingTotal:'منتخب مدت کا اعاشہ',taxSummary:'ٹیکس خلاصہ',baseTotal:'کل تنخواہ',allowTotal:'کل الاؤنس اور اعاشہ',tax:'کٹوتی / ٹیکس',net:'باقی خالص رقم',taxRuleTitle:'ٹیکس اصول:',oneTable:'صرف ایک حسابی جدول',oneTableSub:'موبائل پر جدول عمودی شکل میں نظر آتا ہے اور افقی اسکرول نہیں ہوگا.',contactTitle:'ہم سے رابطہ',contactSub:'رابطہ معلومات آف لائن دکھائی جاتی ہیں؛ بیرونی لنکس کو انٹرنیٹ درکار ہے.',creator:'مصنف',shareContact:'رابطہ معلومات شیئر کریں',settingsTitle:'مکمل ضروری ترتیبات',settingsSub:'کام، زبان، رنگ، فیلڈ سائز، تحریر اور Fingerprint کے تمام ضروری کنٹرول.',securityTitle:'Fingerprint سیکیورٹی',enableFp:'Fingerprint فعال کریں',disableFp:'Fingerprint ہٹائیں',securityHelp:'Fingerprint صرف اس وقت مانگا جائے گا جب آپ اسے یہاں فعال کریں. ای میل لاگ ان نہیں ہے.',appearanceTitle:'ظاہری شکل، روشن/تاریک اور تحریر',language:'زبان',theme:'موڈ',fontSize:'تحریر کا سائز',fieldSize:'فیلڈ کا سائز',weight:'تحریر کی موٹائی',radius:'فیلڈ کے کونے',colorsTitle:'رنگ',accentColor:'بنیادی رنگ',fieldColor:'فیلڈ رنگ',textColor:'تحریر کا رنگ',numberColor:'اعداد کا رنگ',backgroundColor:'پس منظر رنگ',panelColor:'کارڈ/پینل رنگ',headerColor:'جدول ہیڈر رنگ',presets:'تیار رنگ',helpTitle:'مدد اور ترجمہ',helpText:'زبان بدلنے سے بنیادی عنوانات، فارم ہدایات، ٹیکس کی وضاحت، ترتیبات اور مدد کے متن ترجمہ ہوتے ہیں.',taxHelpHeading:'ٹیکس مدد:',taxHelp:'۱۰٬۰۰۰ تک معاف؛ ۱۰٬۰۰۱–۱۰۰٬۰۰۰ = کل تنخواہ اور الاؤنس کا ۱۰٪؛ ۱۰۰٬۰۰۰ سے زیادہ = کل کا ۱۵٪.',resetTitle:'اصل حالت میں واپسی',resetAppearance:'صرف ظاہری ترتیبات بحال کریں',resetColors:'صرف رنگ بحال کریں',resetAll:'تمام ترتیبات بحال کریں',dataTitle:'آف لائن ڈیٹا انتظام',dataHelp:'تنخواہ فارم اور ترتیبات اسی موبائل میں محفوظ ہیں. ایپ حذف کرنے یا اس بٹن سے مقامی معلومات مٹ سکتی ہیں.',clearData:'تمام مقامی معلومات حذف کریں',navSalary:'تنخواہ معلومات',navContact:'ہم سے رابطہ',navSettings:'ترتیبات'},
+en:{salaryTitle:'Offline Salary Calculation',salarySub:'Calculate salary, allowances, food allowance, tax and absence on this phone.',name:'1 — Name',sector:'2 — Military / Civilian',institution:'3 — Ministry / Directorate',year:'4 — Fiscal Year',month:'5 — Month',startDay:'Calculation start day',days:'Total calculation days',rank:'6 — Rank / Post',base:'Salary by rank/post',education:'7 — Education certificate',educationAmount:'Automatic education allowance',professional:'8 — Extraordinary / professional allowance',status:'9 — Status',serviceYears:'Service years',serviceAmount:'Automatic service allowance',feedingDaily:'Food allowance per day',feedingTotal:'Food allowance for selected period',taxSummary:'Tax summary',baseTotal:'Salary total',allowTotal:'Allowances + food total',tax:'Deductions / tax',net:'Net remaining',taxRuleTitle:'Tax rule:',oneTable:'One calculation table only',oneTableSub:'On mobile the table becomes a vertical card; no horizontal scrolling is required.',contactTitle:'Contact us',contactSub:'Contact information is available offline; external links require the internet.',creator:'Creator',shareContact:'Share contact information',settingsTitle:'Complete essential settings',settingsSub:'Full controls for operation, language, colors, field sizes, text and Fingerprint.',securityTitle:'Fingerprint security',enableFp:'Enable Fingerprint',disableFp:'Remove Fingerprint',securityHelp:'Fingerprint is requested only after you enable it here. No email login is used.',appearanceTitle:'Appearance, light/dark and text',language:'Language',theme:'Mode',fontSize:'Text size',fieldSize:'Field size',weight:'Text weight',radius:'Field corner radius',colorsTitle:'Colors',accentColor:'Primary color',fieldColor:'Field color',textColor:'Text color',numberColor:'Number color',backgroundColor:'Background color',panelColor:'Card/panel color',headerColor:'Table header color',presets:'Ready colors',helpTitle:'Help, text and translation',helpText:'Changing language translates the main headings, form guidance, tax explanation, settings and help text.',taxHelpHeading:'Tax help:',taxHelp:'Up to 10,000 is exempt; 10,001–100,000 = 10% of the total salary and allowances; above 100,000 = 15% of the total.',resetTitle:'Return to defaults',resetAppearance:'Reset appearance only',resetColors:'Reset colors only',resetAll:'Reset all settings',dataTitle:'Offline data management',dataHelp:'Salary form data and settings are stored on this phone. Uninstalling the app or using this button may erase local data.',clearData:'Clear all local data',navSalary:'Salary information',navContact:'Contact us',navSettings:'Settings'}
+};
+let data=Object.assign({personName:'',sector:'security',institution:'د ملي دفاع وزارت',year:'1405',month:'01',startDay:'1',calcDays:'',rank:MILITARY[0][0],education:'',professional:'0',status:'حاضر',attendanceDays:'0',serviceYears:'0'},load(STORE));
+let settings=Object.assign({lang:'ps',theme:'dark',fontSize:16,fieldSize:52,weight:'400',radius:16,accent:'#1d8fd1',field:'#061326',textColor:'#f4f8ff',numberColor:'#ffd466',bg:'#071631',panel:'#0d2442',header:'#164b7d'},load(SET));
+function load(k){try{return JSON.parse(localStorage.getItem(k)||'{}')}catch{return{}}}
+function save(){localStorage.setItem(STORE,JSON.stringify(data))}
+function saveSet(){localStorage.setItem(SET,JSON.stringify(settings))}
+function fa(v){return String(v).replace(/\d/g,d=>'۰۱۲۳۴۵۶۷۸۹'[+d])}
+function fmt(v){return new Intl.NumberFormat('en-US',{maximumFractionDigits:2}).format(round(v))}
+function round(v){return Math.round((Number(v)||0)*100)/100}
+function solarDays(m){m=Number(m);return m<=6?31:m<=11?30:29}
+function serviceAllowance(y){y=Math.max(0,Number(y)||0);if(y>=18)return 1700;if(y>=15)return 1400;if(y>=12)return 1100;if(y>=9)return 800;if(y>=6)return 500;if(y>=3)return 200;return 0}
+function tax(amount){const x=Math.max(0,round(amount));if(x<=10000)return 0;if(x<=100000)return round(x*0.10);return round(x*0.15)}
+function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function periods(y,m,start,total){
+  const out=[];let yy=+y,mm=+m,day=Math.max(1,+start||1),rem=Math.max(1,Math.floor(total));
+  const firstMax=solarDays(mm);day=Math.min(day,firstMax);
+  while(rem>0&&out.length<120){
+    const md=solarDays(mm),available=md-day+1,d=Math.min(rem,available);
+    out.push({year:yy,month:mm,name:MONTHS[mm-1][1],monthDays:md,startDay:day,days:d});
+    rem-=d;mm++;day=1;if(mm>12){mm=1;yy++}
+  }
+  return out;
+}
+function fillSelects(){
+  $('year').innerHTML=Array.from({length:201},(_,i)=>{const y=1300+i;return '<option value="'+y+'">'+fa(y)+' هـ.ش</option>'}).join('');
+  $('month').innerHTML=MONTHS.map(x=>'<option value="'+x[0]+'">'+x[1]+' — '+fa(x[0])+' — '+fa(solarDays(+x[0]))+' ورځې</option>').join('');
+  const arr=data.sector==='security'?MILITARY:CIVILIAN;
+  $('rank').innerHTML=arr.map(x=>'<option value="'+esc(x[0])+'">'+esc(x[0])+'</option>').join('');
+}
+function bindData(id){$(id).value=data[id]??'';$(id).addEventListener('input',()=>{data[id]=$(id).value;if(['sector','year','month'].includes(id))fillSelects();render()});$(id).addEventListener('change',()=>{data[id]=$(id).value;if(['sector','year','month'].includes(id))fillSelects();render()})}
+function applySettings(){
+  document.documentElement.style.setProperty('--accent',settings.accent);document.documentElement.style.setProperty('--field',settings.field);document.documentElement.style.setProperty('--text',settings.textColor);document.documentElement.style.setProperty('--num',settings.numberColor);document.documentElement.style.setProperty('--bg',settings.bg);document.documentElement.style.setProperty('--panel',settings.panel);document.documentElement.style.setProperty('--tableHead',settings.header);
+  document.documentElement.style.setProperty('--fontSize',settings.fontSize+'px');document.documentElement.style.setProperty('--fieldH',settings.fieldSize+'px');document.documentElement.style.setProperty('--radius',settings.radius+'px');document.documentElement.style.setProperty('--weight',settings.weight);
+  document.body.classList.toggle('light-ui',settings.theme==='light');
+  $('lang').value=settings.lang;$('theme').value=settings.theme;$('fontSize').value=settings.fontSize;$('fieldSize').value=settings.fieldSize;$('weight').value=settings.weight;$('radius').value=settings.radius;
+  $('accent').value=settings.accent;$('field').value=settings.field;$('textColor').value=settings.textColor;$('numberColor').value=settings.numberColor;$('bgColor').value=settings.bg;$('panelColor').value=settings.panel;$('headerColor').value=settings.header;
+  $('fontSizeOut').textContent=settings.fontSize;$('fieldSizeOut').textContent=settings.fieldSize;$('radiusOut').textContent=settings.radius;
+  saveSet();
+}
+function applyLang(){
+  const L=TXT[settings.lang]||TXT.ps;
+  document.documentElement.lang=settings.lang;document.documentElement.dir=settings.lang==='en'?'ltr':'rtl';
+  document.querySelectorAll('[data-t]').forEach(el=>{const k=el.getAttribute('data-t');if(L[k])el.textContent=L[k]});
+}
+function renderFp(){
+  const enabled=!!(window.NativeApp&&NativeApp.isBiometricEnabled&&NativeApp.isBiometricEnabled());
+  $('securityStatus').textContent=enabled?'Fingerprint فعال دی':'Fingerprint غیر فعال دی';
+  $('enableFp').classList.toggle('hidden',enabled);$('disableFp').classList.toggle('hidden',!enabled);
+}
+window.nativeSecurityChanged=function(){renderFp()};
+window.onNativeUnlocked=function(){};
+function render(){
+  const y=Number(data.year)||1405,m=Number(data.month)||1,md=solarDays(m),sd=Math.min(Math.max(1,Number(data.startDay)||1),md);
+  const raw=String(data.calcDays||'').trim();const maxFirst=md-sd+1;const totalDays=raw===''?maxFirst:Math.max(1,Math.floor(Number(raw)||maxFirst));
+  if(Number(data.startDay)!==sd){data.startDay=String(sd);$('startDay').value=sd}
+  const service=serviceAllowance(data.serviceYears),edu=EDU[data.education]||0,prof=Math.max(0,Number(data.professional)||0);
+  const ex=data.status==='حاضر'?0:Math.min(totalDays,Math.max(0,Math.floor(Number(data.attendanceDays)||0)));
+  const ps=periods(y,m,sd,totalDays);let remEx=ex;
+  const selected=(data.sector==='security'?MILITARY:CIVILIAN).find(x=>x[0]===data.rank)||(data.sector==='security'?MILITARY:CIVILIAN)[0];
+  const selectedBase=selected[1];
+  let totals={base:0,service:0,education:0,professional:0,feeding:0,gross:0,tax:0};
+  const detail=[];
+  ps.forEach(p=>{
+    const pEx=data.status==='حاضر'?0:Math.min(remEx,p.days);remEx=Math.max(0,remEx-pEx);
+    const paidDays=data.status==='غیرحاضر'?Math.max(0,p.days-pEx):p.days;
+    const ratio=paidDays/p.monthDays;
+    const base=round(selectedBase*ratio),svc=round(service*ratio),ed=round(edu*ratio),pr=round(prof*ratio);
+    const feedDays=data.status==='حاضر'?p.days:Math.max(0,p.days-pEx);
+    const feed=round(feedDays*150);
+    const gross=round(base+svc+ed+pr+feed),tx=tax(gross),net=round(gross-tx);
+    totals.base+=base;totals.service+=svc;totals.education+=ed;totals.professional+=pr;totals.feeding+=feed;totals.gross+=gross;totals.tax+=tx;
+    detail.push({p,base,svc,ed,pr,feed,gross,tx,net,pEx,feedDays});
+  });
+  Object.keys(totals).forEach(k=>totals[k]=round(totals[k]));
+  const bank=150,finalNet=round(Math.max(0,totals.gross-totals.tax-bank));
+  $('baseSalary').value=fmt(selectedBase);$('educationAmount').value=fmt(edu);$('serviceAmount').value=fmt(service);$('feedingDaily').value=fmt(150);$('feedingTotal').value=fmt(totals.feeding);
+  $('attendanceDays').disabled=data.status==='حاضر';if(data.status==='حاضر')$('attendanceDays').value='0';
+  $('daysLabel').textContent=data.status==='غیرحاضر'?'د غیرحاضرۍ ورځې':'د استثنا/غیابت ورځې';
+  $('periodNote').innerHTML='<b>د محاسبې موده:</b> '+fa(totalDays)+' ورځې — '+detail.map(r=>'<span class="period"><b>'+esc(r.p.name)+'</b>: '+fa(r.p.startDay)+' تر '+fa(r.p.startDay+r.p.days-1)+' ورځو؛ '+fa(r.p.days)+' ورځې د '+fa(r.p.monthDays)+' څخه</span>').join('');
+  const detailText=detail.map(r=>esc(r.p.name)+' '+fa(r.p.days)+' ورځې').join('، ');
+  $('resultRow').innerHTML=[
+    '<td class="num-cell" data-label="نوم">'+esc(data.personName||'—')+'</td>',
+    '<td data-label="بست / رتبه">'+esc(data.rank||'—')+'</td>',
+    '<td class="num-cell" data-label="د بست معاش">'+fmt(totals.base)+'</td>',
+    '<td class="num-cell" data-label="اعاشه">'+fmt(totals.feeding)+'</td>',
+    '<td class="num-cell" data-label="خدمت">'+fmt(totals.service)+'</td>',
+    '<td class="num-cell" data-label="تحصیل">'+fmt(totals.education)+'</td>',
+    '<td class="num-cell" data-label="فوق العاده/مسلک">'+fmt(totals.professional)+'</td>',
+    '<td class="num-cell" data-label="مکمل مجموعه">'+fmt(totals.gross)+'</td>',
+    '<td class="num-cell" data-label="مالیه">'+fmt(totals.tax)+'</td>',
+    '<td class="num-cell" data-label="بانک کسر">'+fmt(bank)+'</td>',
+    '<td class="num-cell" data-label="صافي">'+fmt(finalNet)+'</td>',
+    '<td class="detail" data-label="د محاسبې تفصیل">'+detailText+'</td>'
+  ].join('');
+  $('kpiBase').textContent=fmt(totals.base);$('kpiAllow').textContent=fmt(totals.feeding+totals.service+totals.education+totals.professional);$('kpiTax').textContent=fmt(totals.tax);$('kpiNet').textContent=fmt(finalNet);
+  save();
+}
+function showSection(id,btn){
+  ['salarySection','contactSection','settingsSection'].forEach(x=>$(x).classList.toggle('hidden',x!==id));
+  document.querySelectorAll('.nav-btn').forEach(x=>x.classList.toggle('active',x===btn));
+}
+function contactText(){return ['د مالي مدیریت سیستم - اړیکې','حافظ محیب الله ایوب','ولایت: ارزګان | ولسوالۍ: چوره | قریه: خواجه خدیر','تلیفون: 0705965475','WhatsApp: https://wa.me/93705965475','YouTube: https://youtube.com/channel/UCgilh9KTiPaLGCsDELLNcjw','Facebook: https://www.facebook.com/share/19eC9AWWRF/'].join('\n')}
+async function copyContact(){const txt=contactText();try{await navigator.clipboard.writeText(txt);alert('د اړیکو معلومات کاپي شول.')}catch{alert(txt)}}
+async function shareContact(){const txt=contactText();try{if(window.NativeApp&&NativeApp.shareText){NativeApp.shareText(txt);return}if(navigator.share){await navigator.share({title:'زموږ سره اړیکه',text:txt});return}await copyContact()}catch{}}
+function resetAppearance(){settings.theme='dark';settings.fontSize=16;settings.fieldSize=52;settings.weight='400';settings.radius=16;applySettings()}
+function resetColors(){settings.accent='#1d8fd1';settings.field='#061326';settings.textColor='#f4f8ff';settings.numberColor='#ffd466';settings.bg='#071631';settings.panel='#0d2442';settings.header='#164b7d';applySettings()}
+document.querySelectorAll('.nav-btn').forEach(b=>b.addEventListener('click',()=>showSection(b.dataset.section,b)));
+['personName','sector','institution','year','month','startDay','calcDays','rank','education','professional','status','attendanceDays','serviceYears'].forEach(bindData);
+fillSelects();
+Object.assign($('year'),{value:data.year});Object.assign($('month'),{value:data.month});Object.assign($('rank'),{value:data.rank});
+applySettings();applyLang();
+['lang'].forEach(id=>$(id).addEventListener('change',()=>{settings.lang=$(id).value;applyLang();saveSet()}));
+$('theme').addEventListener('change',()=>{settings.theme=$('theme').value;applySettings()});
+$('fontSize').addEventListener('input',()=>{settings.fontSize=+$('fontSize').value;applySettings()});
+$('fieldSize').addEventListener('input',()=>{settings.fieldSize=+$('fieldSize').value;applySettings()});
+$('weight').addEventListener('change',()=>{settings.weight=$('weight').value;applySettings()});
+$('radius').addEventListener('input',()=>{settings.radius=+$('radius').value;applySettings()});
+[['accent','accent'],['field','field'],['textColor','textColor'],['numberColor','numberColor'],['bgColor','bg'],['panelColor','panel'],['headerColor','header']].forEach(([el,key])=>$(el).addEventListener('input',()=>{settings[key]=$(el).value;applySettings()}));
+COLORS.forEach(c=>{const b=document.createElement('button');b.className='swatch';b.type='button';b.innerHTML='<i style="background:'+c[1]+'"></i>'+c[0];b.onclick=()=>{settings.accent=c[1];settings.bg=c[2];settings.panel=c[3];settings.field=c[4];applySettings()};$('swatches').appendChild(b)});
+$('resetAppearance').onclick=resetAppearance;$('resetColors').onclick=resetColors;
+$('resetAll').onclick=()=>{if(confirm('ایا ټول تنظیمات خپل اصلي حالت ته راوګرځوو؟')){settings={lang:'ps',theme:'dark',fontSize:16,fieldSize:52,weight:'400',radius:16,accent:'#1d8fd1',field:'#061326',textColor:'#f4f8ff',numberColor:'#ffd466',bg:'#071631',panel:'#0d2442',header:'#164b7d'};applySettings();applyLang()}};
+$('clearData').onclick=()=>{if(confirm('ایا د معاشاتو ټول آفلاین معلومات او تنظیمات پاک شي؟')){localStorage.removeItem(STORE);localStorage.removeItem(SET);location.reload()}};
+$('shareContact').onclick=shareContact;$('copyContact').onclick=copyContact;
+$('enableFp').onclick=()=>{if(window.NativeApp&&NativeApp.enableBiometric){NativeApp.enableBiometric()}else{alert('Fingerprint یوازې په APK کې فعالېږي.')}};
+$('disableFp').onclick=()=>{if(window.NativeApp&&NativeApp.disableBiometric){NativeApp.disableBiometric()}};
+renderFp();render();
+})();
+</script>
+</body>
+</html>
