@@ -23,6 +23,7 @@ import androidx.fragment.app.FragmentActivity;
 
 import java.util.concurrent.Executor;
 
+// Fingerprint mandatory security fix: once enabled, every app return requires biometric verification.
 public class MainActivity extends FragmentActivity {
     private static final String PREFS = "offline_finance_security";
     private static final String BIOMETRIC_ENABLED = "biometric_enabled";
