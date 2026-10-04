@@ -4,7 +4,7 @@ on:
   push:
     branches: [offline-three-sections-v2]
   pull_request:
-    branches: [main]
+    branches: [main, offline-three-sections-v2]
   workflow_dispatch:
 
 permissions:
