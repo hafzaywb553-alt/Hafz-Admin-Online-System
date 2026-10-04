@@ -23,6 +23,7 @@ import androidx.fragment.app.FragmentActivity;
 
 import java.util.concurrent.Executor;
 
+// Fingerprint mandatory security fix: once enabled, every app return requires biometric verification.
 public class MainActivity extends FragmentActivity {
     private static final String PREFS = "offline_finance_security";
     private static final String BIOMETRIC_ENABLED = "biometric_enabled";
@@ -36,6 +37,7 @@ public class MainActivity extends FragmentActivity {
     private boolean enabling = false;
     private boolean pageLoaded = false;
     private boolean enrollmentPending = false;
+    private boolean disabling = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,9 +105,14 @@ public class MainActivity extends FragmentActivity {
                         enabling = false;
                         enrollmentPending = false;
                         prefs.edit().putBoolean(BIOMETRIC_ENABLED, true).apply();
-                        toast("د Fingerprint امنیت فعال شو.");
+                        toast("د Fingerprint امنیت فعال شو؛ له دې وروسته هر ځل تصدیق اجباري دی.");
                         evaluate("window.nativeSecurityChanged && window.nativeSecurityChanged(true);");
                         evaluate("window.nativeBiometricEnrollmentNeeded && window.nativeBiometricEnrollmentNeeded(false);");
+                    } else if (disabling) {
+                        disabling = false;
+                        prefs.edit().putBoolean(BIOMETRIC_ENABLED, false).apply();
+                        toast("د Fingerprint امنیت د تصدیق وروسته لرې شو.");
+                        evaluate("window.nativeSecurityChanged && window.nativeSecurityChanged(false);");
                     }
                     unlocked = true;
                     hideLock();
@@ -116,6 +123,13 @@ public class MainActivity extends FragmentActivity {
                 public void onAuthenticationError(int errorCode, CharSequence errString) {
                     super.onAuthenticationError(errorCode, errString);
                     authInProgress = false;
+                    if (disabling) {
+                        disabling = false;
+                        unlocked = false;
+                        showLock();
+                        toast("Fingerprint تصدیق ونه شو؛ امنیت فعال پاتې شو.");
+                        return;
+                    }
                     if (enabling && !enrollmentPending) {
                         enabling = false;
                         hideLock();
@@ -238,14 +252,15 @@ public class MainActivity extends FragmentActivity {
                 }
             });
             else if (path.contains("disable")) {
-                prefs.edit().putBoolean(BIOMETRIC_ENABLED, false).apply();
-                enabling = false;
-                enrollmentPending = false;
-                authInProgress = false;
-                unlocked = true;
-                hideLock();
-                evaluate("window.nativeSecurityChanged && window.nativeSecurityChanged(false);");
-                toast("Fingerprint امنیت لرې شو.");
+                runOnUiThread(() -> {
+                    if (!pageLoaded || !prefs.getBoolean(BIOMETRIC_ENABLED, false)) {
+                        toast("Fingerprint لا دمخه بند دی.");
+                        return;
+                    }
+                    disabling = true;
+                    showLock();
+                    authenticate(false);
+                });
             } else if (path.contains("settings")) {
                 openBiometricSettings();
             }
@@ -262,12 +277,14 @@ public class MainActivity extends FragmentActivity {
             } else if (path.contains("resetall")) {
                 prefs.edit().putBoolean(BIOMETRIC_ENABLED, false).apply();
                 enrollmentPending = false;
+                disabling = false;
                 unlocked = true;
                 evaluate("window.resetAllNative && window.resetAllNative();");
                 toast("ټول تنظیمات اصلي حالت ته راوګرځول شول.");
             } else if (path.contains("cleardata")) {
                 prefs.edit().putBoolean(BIOMETRIC_ENABLED, false).apply();
                 enrollmentPending = false;
+                disabling = false;
                 unlocked = true;
                 evaluate("window.clearAllNative && window.clearAllNative();");
                 toast("ټول محلي معلومات پاکېږي.");
@@ -398,6 +415,14 @@ public class MainActivity extends FragmentActivity {
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+        if (prefs.getBoolean(BIOMETRIC_ENABLED, false) && !isChangingConfigurations()) {
+            unlocked = false;
+        }
+    }
+
+    @Override
     protected void onUserLeaveHint() {
         super.onUserLeaveHint();
         if (prefs.getBoolean(BIOMETRIC_ENABLED, false)) {
@@ -440,13 +465,13 @@ public class MainActivity extends FragmentActivity {
         @JavascriptInterface
         public void disableBiometric() {
             runOnUiThread(() -> {
-                prefs.edit().putBoolean(BIOMETRIC_ENABLED, false).apply();
-                enabling = false;
-                authInProgress = false;
-                unlocked = true;
-                hideLock();
-                evaluate("window.nativeSecurityChanged && window.nativeSecurityChanged(false);");
-                toast("Fingerprint امنیت لرې شو.");
+                if (!prefs.getBoolean(BIOMETRIC_ENABLED, false)) {
+                    toast("Fingerprint لا دمخه بند دی.");
+                    return;
+                }
+                disabling = true;
+                showLock();
+                authenticate(false);
             });
         }
 
