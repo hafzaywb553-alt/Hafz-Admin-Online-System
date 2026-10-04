@@ -164,9 +164,9 @@ td.num-cell{font-weight:900}.salary-c{color:#55a8ff}.feed-c{color:#48cf91}.servi
 
 <section id="contactSection" class="hidden">
   <div class="card">
-    <div class="card-head"><div class="grow"><h2><svg class="section-icon contact-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11.5A8 8 0 0 1 8.2 18L4 20l1.8-4.2A8 8 0 1 1 20 11.5Z"/><path d="M8 10c1.4 3 3 4.5 6 6l1.6-1.6-2-2-1.4 1.1c-1-.6-1.8-1.4-2.4-2.4l1.1-1.4-2-2L8 10Z"/></svg><span data-t="contactTitle">زموږ سره اړیکه</span></h2><p class="muted" data-t="contactSub">د اړیکو معلومات په آفلاین ډول ښکاري؛ بهرني لینکونه د اړوند اپ/انټرنېټ له لارې پرانیستل کېږي.</p></div></div>
+    <div class="card-head"><div class="grow"><h2><svg class="section-icon contact-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11.5A8 8 0 0 1 8.2 18L4 20l1.8-4.2A8 8 0 1 1 20 11.5Z"/><path d="M8 10c1.4 3 3 4.5 6 6l1.6-1.6-2-2-1.4 1.1c-1-.6-1.8-1.4-2.4-2.4l1.1-1.4-2-2L8 10Z"/></svg><span data-t="contactTitle">زموږ سره اړیکه</span></h2><p class="muted" data-t="contactSub">د اړیکو معلومات، تلیفون، WhatsApp، YouTube، Facebook او شریکول د Android له اصلي امکاناتو سره تړلي دي.</p></div></div>
     <div class="contact-grid">
-      <div class="contact-card"><span>👤</span><span class="contact-label" data-t="creator">جوړونکی</span><b class="contact-value contact-name">حافظ محیب الله ایوب</b><small>د مالي مدیریت سیستم جوړونکی</small></div>
+      <div class="contact-card"><span>👤</span><span class="contact-label" data-t="creator">جوړونکی</span><b class="contact-value contact-name">حافظ محیب الله ایوب</b><small>د مالي مدیریت جوړونکی</small></div>
       <div class="contact-card"><span>📍</span><span class="contact-label">ولایت / ولسوالۍ</span><b class="contact-value contact-location">ارزګان / چوره</b><small>قریه: خواجه خدیر</small></div>
       <a class="contact-card contact-action" href="tel:+93705965475"><span>☎</span><span class="contact-label">تلیفون</span><b class="contact-value contact-phone">0705965475</b><small>د زنګ وهلو لپاره کلیک وکړئ</small></a>
       <a class="contact-card contact-action" href="https://wa.me/93705965475"><span>💬</span><span class="contact-label">WhatsApp</span><b class="contact-value contact-whatsapp">مستقیم پیغام</b><small>WhatsApp پرانیزي</small></a>
@@ -235,16 +235,16 @@ td.num-cell{font-weight:900}.salary-c{color:#55a8ff}.feed-c{color:#48cf91}.servi
       <h3 data-t="resetTitle">اصلي حالت ته ستنول</h3>
       <div class="grid" style="margin-bottom:10px"><label><span>د یوه تنظیم انتخاب</span><select id="resetOne"><option value="">انتخاب کړئ</option><option value="lang">ژبه</option><option value="theme">روښانه/تیاره حالت</option><option value="fontSize">د لیکنې اندازه</option><option value="fieldSize">د فیلډونو اندازه</option><option value="weight">د لیکنې ضخامت</option><option value="radius">د خانو ګردوالی</option><option value="accent">اصلي رنګ</option><option value="field">د فیلډ رنګ</option><option value="textColor">د لیکنو رنګ</option><option value="numberColor">د شمیرو رنګ</option><option value="bg">د شالید رنګ</option><option value="panel">د کارت رنګ</option><option value="header">د جدول سرلیک رنګ</option></select></label><button type="button" class="btn primary" id="resetOneBtn">یوازې همدا تنظیم اصلي کول</button></div>
       <div class="actions">
-        <button class="btn ghost" id="resetAppearance" data-t="resetAppearance">یوازې د بڼې تنظیمات بېرته اصلي کول</button>
-        <button class="btn ghost" id="resetColors" data-t="resetColors">یوازې رنګونه اصلي کول</button>
-        <button class="btn danger" id="resetAll" data-t="resetAll">ټول تنظیمات اصلي حالت ته راوستل</button>
+        <a class="btn ghost" href="hafz://settings/resetAppearance" id="resetAppearance" data-t="resetAppearance">یوازې د بڼې تنظیمات بېرته اصلي کول</a>
+        <a class="btn ghost" href="hafz://settings/resetColors" id="resetColors" data-t="resetColors">یوازې رنګونه اصلي کول</a>
+        <a class="btn danger" href="hafz://settings/resetAll" id="resetAll" data-t="resetAll">ټول تنظیمات اصلي حالت ته راوستل</a>
       </div>
     </div>
 
     <div class="settings-group">
       <h3 data-t="dataTitle">د آفلاین معلوماتو اداره</h3>
       <p class="muted" data-t="dataHelp">د معاش فورم او تنظیمات په دې موبایل کې ساتل کېږي. د اپ حذف کول یا د دې تڼۍ کارول کولی شي محلي معلومات له منځه یوسي.</p>
-      <button class="btn danger" id="clearData" data-t="clearData">ټول محلي معلومات پاکول</button>
+      <a class="btn danger" href="hafz://settings/clearData" id="clearData" data-t="clearData">ټول محلي معلومات پاکول</a>
     </div>
   </div>
 </section>
@@ -398,7 +398,7 @@ function showSection(id,btn){
   ['salarySection','contactSection','settingsSection'].forEach(x=>$(x).classList.toggle('hidden',x!==id));
   document.querySelectorAll('.nav-btn').forEach(x=>x.classList.toggle('active',x===btn));
 }
-function contactText(){return ['د مالي مدیریت - اړیکې','حافظ محیب الله ایوب','ولایت: ارزګان | ولسوالۍ: چوره | قریه: خواجه خدیر','تلیفون: 0705965475','WhatsApp: https://wa.me/93705965475','YouTube: https://youtube.com/channel/UCgilh9KTiPaLGCsDELLNcjw?si=zypPIMpBe6sVpUIm','Facebook: https://www.facebook.com/share/193AP34ZUS/'].join('\n')}
+function contactText(){return ['د مالي مدیریت - اړیکې','حافظ محیب الله ایوب','ولایت: ارزګان | ولسوالۍ: چوره | قریه: خواجه خدیر','تلیفون: 0705965475','WhatsApp: Message مجاهد on WhatsApp. https://wa.me/93705965475','YouTube: https://youtube.com/channel/UCgilh9KTiPaLGCsDELLNcjw?si=zypPIMpBe6sVpUIm','Facebook: https://www.facebook.com/share/193AP34ZUS/'].join('\n')}
 function openContact(action){const urls={whatsapp:'https://wa.me/93705965475',youtube:'https://youtube.com/channel/UCgilh9KTiPaLGCsDELLNcjw?si=zypPIMpBe6sVpUIm',facebook:'https://www.facebook.com/share/193AP34ZUS/'};try{if(action==='dial'&&window.NativeApp&&NativeApp.dial){NativeApp.dial('0705965475');return}if(urls[action]&&window.NativeApp&&NativeApp.openUrl){NativeApp.openUrl(urls[action]);return}if(urls[action]){const w=window.open(urls[action],'_blank');if(!w)alert('د لینک خلاصول بند شو.')}}catch(e){alert('د لینک خلاصول ممکن نه شول.')}}
 async function copyContact(){const txt=contactText();try{if(window.NativeApp&&NativeApp.copyText){NativeApp.copyText(txt);return}if(navigator.clipboard){await navigator.clipboard.writeText(txt);alert('د اړیکو معلومات کاپي شول.');return}alert(txt)}catch{alert(txt)}}
 async function shareContact(){const txt=contactText();try{if(window.NativeApp&&NativeApp.shareText){NativeApp.shareText(txt);return}if(navigator.share){await navigator.share({title:'زموږ سره اړیکه',text:txt});return}await copyContact()}catch{}}
