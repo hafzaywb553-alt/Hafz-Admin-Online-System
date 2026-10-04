@@ -336,12 +336,7 @@ public class MainActivity extends FragmentActivity {
                 } catch (Exception ignored) {}
             }
         }
-        try {
-            Intent browser = new Intent(Intent.ACTION_VIEW, uri);
-            startActivity(browser);
-        } catch (Exception ignored) {
-            toast("د دې لینک لپاره مناسب اپ/براوزر موجود نه دی.");
-        }
+        toast("اړوند اپ نصب شوی نه دی؛ دا آفلاین APK هېڅ Browser نه پرانیزي.");
     }
 
     private void dial(String number) {
