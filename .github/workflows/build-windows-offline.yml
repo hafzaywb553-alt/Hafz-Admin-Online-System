@@ -1,0 +1,42 @@
+name: Build Windows Offline App
+
+on:
+  push:
+    branches: [offline-three-sections-v2]
+    paths:
+      - 'windows-offline/**'
+      - '.github/workflows/build-windows-offline.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-2019
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build
+        shell: powershell
+        run: |
+          $msbuild = Get-ChildItem 'C:\Program Files (x86)\Microsoft Visual Studio\2019' -Filter MSBuild.exe -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+          if (-not $msbuild) { throw 'MSBuild.exe not found.' }
+          & $msbuild.FullName windows-offline\HafzMaliOffline.csproj /p:Configuration=Release /p:Platform=AnyCPU /m
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Package
+        shell: powershell
+        run: |
+          $out='windows-offline\package'
+          New-Item -ItemType Directory -Force $out | Out-Null
+          Copy-Item 'windows-offline\bin\Release\Hafz-Mali-Offline-Windows.exe' "$out\Hafz-Mali-Offline-Windows.exe"
+          Copy-Item 'windows-offline\README.txt' "$out\README.txt"
+          @'
+          @echo off
+          start "" "%~dp0Hafz-Mali-Offline-Windows.exe"
+          '@ | Set-Content "$out\Run-Hafz-Mali-Offline.cmd" -Encoding ASCII
+          Compress-Archive -Path "$out\*" -DestinationPath 'Hafz-Mali-Offline-Windows.zip' -Force
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Hafz-Mali-Offline-Windows
+          path: Hafz-Mali-Offline-Windows.zip
+          if-no-files-found: error
