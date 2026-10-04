@@ -60,6 +60,10 @@ td.num-cell{font-weight:900}.salary-c{color:#55a8ff}.feed-c{color:#48cf91}.servi
 .bottom{position:fixed;left:0;right:0;bottom:0;z-index:40;background:rgba(7,22,49,.98);border-top:1px solid var(--border);padding:8px 8px max(8px,env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
 .nav-btn{min-height:60px;border:1px solid transparent;border-radius:12px;background:transparent;color:var(--muted);font-weight:900;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
 .nav-btn.active{color:var(--text);background:rgba(29,143,209,.13);border-color:rgba(29,143,209,.35)}
+.nav-icon{width:27px;height:27px;display:block;stroke-width:2;fill:none}.salary-icon{color:#55a8ff}.contact-icon{color:#2dd884}.settings-icon{color:#ffd466}
+.contact-card{position:relative}.contact-card .contact-label{font-weight:800;color:var(--muted)}.contact-value{font-size:1.05rem;font-weight:900}.contact-name{color:#6bb6ff}.contact-location{color:#d8b36a}.contact-phone{color:#4ee09a}.contact-whatsapp{color:#39df8a}.contact-youtube{color:#ff5b6b}.contact-facebook{color:#66a9ff}.contact-card small{line-height:1.55}
+.contact-action{width:100%;text-align:inherit}.contact-action:active,.btn:active,.nav-btn:active{transform:translateY(1px)}
+.lock-screen{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px;background:radial-gradient(circle at 50% 38%,rgba(29,143,209,.20),transparent 35%),linear-gradient(160deg,#030b19 0%,#071a35 52%,#03101f 100%);overflow:hidden}.lock-screen.hidden{display:none!important}.lock-orb{position:absolute;width:420px;height:420px;border:1px solid rgba(83,173,255,.16);border-radius:50%;box-shadow:0 0 80px rgba(29,143,209,.10),inset 0 0 80px rgba(29,143,209,.05)}.lock-panel{position:relative;z-index:2;width:min(420px,100%);padding:28px 22px;text-align:center;border:1px solid rgba(122,197,255,.22);border-radius:28px;background:rgba(5,18,38,.82);backdrop-filter:blur(12px);box-shadow:0 18px 55px rgba(0,0,0,.45)}.fingerprint{width:132px;height:132px;margin:0 auto 12px;color:#62c4ff;filter:drop-shadow(0 0 16px rgba(98,196,255,.36));animation:fpPulse 2.4s ease-in-out infinite}.fingerprint path,.fingerprint circle{fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round}.lock-title{margin:4px 0 6px;font-size:1.45rem;color:#fff;font-weight:900}.lock-sub{margin:0;color:#b7cbe2;line-height:1.8}.lock-security{margin:16px 0;padding:11px 13px;border:1px solid rgba(98,196,255,.20);border-radius:14px;background:rgba(98,196,255,.07);color:#dcecff;font-weight:800;line-height:1.7}.lock-actions{display:flex;gap:9px;margin-top:14px}.lock-actions .btn{flex:1}@keyframes fpPulse{0%,100%{transform:scale(1);opacity:.86}50%{transform:scale(1.05);opacity:1}}
 .light-ui{--bg:#f3f7fb;--panel:#fff;--field:#fff;--text:#102238;--muted:#587087;--border:#c7d7e8;--tableHead:#cfe1f3}
 .light-ui .header,.light-ui .bottom{background:rgba(243,247,251,.97)}
 @media(max-width:780px){
@@ -74,10 +78,25 @@ td.num-cell{font-weight:900}.salary-c{color:#55a8ff}.feed-c{color:#48cf91}.servi
  td::before{content:attr(data-label);font-weight:900;color:var(--muted)}
  td:last-child{border-bottom:0}
 }
-@media(max-width:420px){.kpis{grid-template-columns:1fr}.header-badge{display:none}.nav-btn{font-size:.88rem}}
+@media(max-width:420px){.kpis{grid-template-columns:1fr}.header-badge{display:none}.nav-btn{font-size:.88rem}.lock-panel{padding:24px 16px}.lock-actions{flex-direction:column}.fingerprint{width:116px;height:116px}}
 </style>
 </head>
 <body>
+<div id="lockScreen" class="lock-screen hidden" aria-modal="true" role="dialog">
+  <div class="lock-orb"></div>
+  <div class="lock-panel">
+    <svg class="fingerprint" viewBox="0 0 120 120" aria-hidden="true">
+      <path d="M60 14c-24 0-40 17-40 40 0 8 2 16 5 23"/><path d="M60 24c-18 0-30 13-30 30 0 6 1 12 3 18"/><path d="M60 34c-12 0-20 9-20 20 0 8 2 14 2 22"/><path d="M60 44c-7 0-11 5-11 12 0 9 5 18 4 28"/><path d="M60 14c24 0 40 17 40 40 0 18-10 29-14 44"/><path d="M60 24c18 0 30 13 30 30 0 14-7 24-10 34"/><path d="M60 34c12 0 20 9 20 20 0 11-5 19-6 29"/><path d="M60 44c7 0 11 5 11 12 0 11-5 22-7 32"/><path d="M43 52c0-9 7-17 17-17s17 8 17 17"/><path d="M36 54c0-13 10-24 24-24"/><circle cx="60" cy="55" r="6"/>
+    </svg>
+    <h1 class="lock-title" id="lockTitle">سخت امنیت</h1>
+    <p class="lock-sub" id="lockSub">د اپ د خلاصولو لپاره ثبت شوی Fingerprint وکاروئ.</p>
+    <div class="lock-security" id="lockSecurity">ستاسې معاشاتي معلومات یوازې د ستاسې د موبایل د Fingerprint تر امنیت لاندې ساتل کېږي.</div>
+    <div class="lock-actions">
+      <button type="button" class="btn primary" id="retryFp">بیا د ګوتې نښه</button>
+      <button type="button" class="btn ghost" id="closeLocked">وتل</button>
+    </div>
+  </div>
+</div>
 <div class="app">
 <header class="header">
   <div class="header-row">
@@ -131,7 +150,7 @@ td.num-cell{font-weight:900}.salary-c{color:#55a8ff}.feed-c{color:#48cf91}.servi
       <div class="kpi"><span data-t="tax">کسرات / مالیه</span><b id="kpiTax" class="number">0</b></div>
       <div class="kpi"><span data-t="net">صافي پاتې رقم</span><b id="kpiNet" class="number">0</b></div>
     </div>
-    <div class="notice"><b data-t="taxRuleTitle">د مالیې نورم:</b> <span id="taxRuleText">تر ۱۰٬۰۰۰ افغانۍ معاف؛ ۱۰٬۰۰۱ تر ۱۰۰٬۰۰۰ = ۱۰٪؛ له ۱۰۰٬۰۰۰ پورته = ۱۵٪.</span></div>
+    <div class="notice"><b data-t="taxRuleTitle">د مالیې نورم:</b> <span id="taxRuleText">تر ۱۰٬۰۰۰ افغانۍ معاف؛ له ۱۰٬۰۰۰ څخه تر ۱۰۰٬۰۰۰ پورې یوازې د ۱۰٬۰۰۰ څخه پورته برخه ۱۰٪؛ له ۱۰۰٬۰۰۰ پورته ۹٬۰۰۰ + د ۱۰۰٬۰۰۰ څخه پورته برخه ۱۵٪.</span></div>
   </div>
 
   <div class="card">
@@ -152,17 +171,17 @@ td.num-cell{font-weight:900}.salary-c{color:#55a8ff}.feed-c{color:#48cf91}.servi
   <div class="card">
     <div class="card-head"><div class="grow"><h2 data-t="contactTitle">زموږ سره اړیکه</h2><p class="muted" data-t="contactSub">د اړیکو معلومات په آفلاین ډول ښکاري؛ بهرني لینکونه د اړوند اپ/انټرنېټ له لارې پرانیستل کېږي.</p></div></div>
     <div class="contact-grid">
-      <div class="contact-card"><span>👤</span><span data-t="creator">جوړونکی</span><b>حافظ محیب الله ایوب</b><small>د مالي مدیریت سیستم جوړونکی</small></div>
-      <div class="contact-card"><span>📍</span><span>ولایت / ولسوالۍ</span><b>ارزګان / چوره</b><small>قریه: خواجه خدیر</small></div>
-      <a class="contact-card" href="tel:+93705965475"><span>☎</span><span>تلیفون</span><b>0705965475</b><small>مستقیم زنګ</small></a>
-      <a class="contact-card" href="https://wa.me/93705965475" target="_blank" rel="noreferrer"><span>💬</span><span>WhatsApp</span><b>مستقیم پیغام</b><small>WhatsApp پرانیزي</small></a>
-      <a class="contact-card" href="https://youtube.com/channel/UCgilh9KTiPaLGCsDELLNcjw" target="_blank" rel="noreferrer"><span>▶</span><span>YouTube</span><b>زما چینل</b><small>چینل پرانیزي</small></a>
-      <a class="contact-card" href="https://www.facebook.com/share/19eC9AWWRF/" target="_blank" rel="noreferrer"><span>f</span><span>Facebook</span><b>زما فیسبوک پاڼه</b><small>پاڼه پرانیزي</small></a>
+      <div class="contact-card"><span>👤</span><span class="contact-label" data-t="creator">جوړونکی</span><b class="contact-value contact-name">حافظ محیب الله ایوب</b><small>د مالي مدیریت سیستم جوړونکی</small></div>
+      <div class="contact-card"><span>📍</span><span class="contact-label">ولایت / ولسوالۍ</span><b class="contact-value contact-location">ارزګان / چوره</b><small>قریه: خواجه خدیر</small></div>
+      <button type="button" class="contact-card contact-action" data-action="dial"><span>☎</span><span class="contact-label">تلیفون</span><b class="contact-value contact-phone">0705965475</b><small>د زنګ وهلو لپاره کلیک وکړئ</small></button>
+      <button type="button" class="contact-card contact-action" data-action="whatsapp"><span>💬</span><span class="contact-label">WhatsApp</span><b class="contact-value contact-whatsapp">مستقیم پیغام</b><small>WhatsApp پرانیزي</small></button>
+      <button type="button" class="contact-card contact-action" data-action="youtube"><span>▶</span><span class="contact-label">YouTube</span><b class="contact-value contact-youtube">زما چینل</b><small>زما چینل پرانیزي</small></button>
+      <button type="button" class="contact-card contact-action" data-action="facebook"><span>f</span><span class="contact-label">Facebook</span><b class="contact-value contact-facebook">زما فیسبوک پاڼه</b><small>زما فیسبوک پاڼه پرانیزي</small></button>
     </div>
   </div>
   <div class="card">
     <h3 data-t="shareContact">د اړیکو معلومات شریکول</h3>
-    <div class="actions"><button class="btn primary" id="shareContact">شریکول</button><button class="btn ghost" id="copyContact">کاپي کول</button></div>
+    <div class="actions"><button type="button" class="btn primary" id="shareContact">شریکول</button><button type="button" class="btn ok" id="sendContact">نورو ته لېږل</button><button type="button" class="btn ghost" id="copyContact">کاپي کول</button></div>
   </div>
 </section>
 
@@ -218,6 +237,7 @@ td.num-cell{font-weight:900}.salary-c{color:#55a8ff}.feed-c{color:#48cf91}.servi
 
     <div class="settings-group">
       <h3 data-t="resetTitle">اصلي حالت ته ستنول</h3>
+      <div class="grid" style="margin-bottom:10px"><label><span>د یوه تنظیم انتخاب</span><select id="resetOne"><option value="">انتخاب کړئ</option><option value="lang">ژبه</option><option value="theme">روښانه/تیاره حالت</option><option value="fontSize">د لیکنې اندازه</option><option value="fieldSize">د فیلډونو اندازه</option><option value="weight">د لیکنې ضخامت</option><option value="radius">د خانو ګردوالی</option><option value="accent">اصلي رنګ</option><option value="field">د فیلډ رنګ</option><option value="textColor">د لیکنو رنګ</option><option value="numberColor">د شمیرو رنګ</option><option value="bg">د شالید رنګ</option><option value="panel">د کارت رنګ</option><option value="header">د جدول سرلیک رنګ</option></select></label><button type="button" class="btn primary" id="resetOneBtn">یوازې همدا تنظیم اصلي کول</button></div>
       <div class="actions">
         <button class="btn ghost" id="resetAppearance" data-t="resetAppearance">یوازې د بڼې تنظیمات بېرته اصلي کول</button>
         <button class="btn ghost" id="resetColors" data-t="resetColors">یوازې رنګونه اصلي کول</button>
@@ -235,9 +255,18 @@ td.num-cell{font-weight:900}.salary-c{color:#55a8ff}.feed-c{color:#48cf91}.servi
 </main>
 
 <nav class="bottom">
-  <button class="nav-btn active" data-section="salarySection">🧮<span data-t="navSalary">معاشونو معلومات</span></button>
-  <button class="nav-btn" data-section="contactSection">☎<span data-t="navContact">زموږ سره اړیکه</span></button>
-  <button class="nav-btn" data-section="settingsSection">⚙<span data-t="navSettings">تنظیمات</span></button>
+  <button class="nav-btn active" data-section="salarySection">
+    <svg class="nav-icon salary-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16M4 19h16M6 5v14M18 5v14M9 8h6v8H9z"/><path d="M12 8v8"/></svg>
+    <span data-t="navSalary">معاشونو معلومات</span>
+  </button>
+  <button class="nav-btn" data-section="contactSection">
+    <svg class="nav-icon contact-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11.5A8 8 0 0 1 8.2 18L4 20l1.8-4.2A8 8 0 1 1 20 11.5Z"/><path d="M8 10c1.4 3 3 4.5 6 6l1.6-1.6-2-2-1.4 1.1c-1-.6-1.8-1.4-2.4-2.4l1.1-1.4-2-2L8 10Z"/></svg>
+    <span data-t="navContact">زموږ سره اړیکه</span>
+  </button>
+  <button class="nav-btn" data-section="settingsSection">
+    <svg class="nav-icon settings-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1l2-1.5-2-3.4-2.3.9a7 7 0 0 0-1.7-1L14.6 3h-4l-.3 2.9a7 7 0 0 0-1.7 1l-2.3-.9-2 3.4 2 1.5a7 7 0 0 0 0 2L4.3 14l2 3.4 2.3-.9a7 7 0 0 0 1.7 1l.3 2.9h4l.3-2.9a7 7 0 0 0 1.7-1l2.3.9 2-3.4-2-1.5c.1-.3.1-.6.1-1Z"/></svg>
+    <span data-t="navSettings">تنظیمات</span>
+  </button>
 </nav>
 </div>
 
@@ -278,8 +307,8 @@ function fa(v){return String(v).replace(/\d/g,d=>'۰۱۲۳۴۵۶۷۸۹'[+d])}
 function fmt(v){return new Intl.NumberFormat('en-US',{maximumFractionDigits:2}).format(round(v))}
 function round(v){return Math.round((Number(v)||0)*100)/100}
 function solarDays(m){m=Number(m);return m<=6?31:m<=11?30:29}
-function serviceAllowance(y){y=Math.max(0,Number(y)||0);if(y>=18)return 1700;if(y>=15)return 1400;if(y>=12)return 1000;if(y>=9)return 800;if(y>=6)return 500;if(y>=3)return 200;return 0}
-function tax(amount){const x=Math.max(0,round(amount));if(x<=10000)return 0;if(x<=100000)return round(x*0.10);return round(x*0.15)}
+function serviceAllowance(y){y=Math.max(0,Number(y)||0);if(y>=18)return 1700;if(y>=15)return 1400;if(y>=12)return 1100;if(y>=9)return 800;if(y>=6)return 500;if(y>=3)return 200;return 0}
+function tax(amount){const x=Math.max(0,round(amount));if(x<=10000)return 0;if(x<=100000)return round((x-10000)*0.10);return round(9000+(x-100000)*0.15)}
 function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function periods(y,m,start,total){
   const out=[];let yy=+y,mm=+m,day=Math.max(1,+start||1),rem=Math.max(1,Math.floor(total));
@@ -374,8 +403,12 @@ function showSection(id,btn){
   document.querySelectorAll('.nav-btn').forEach(x=>x.classList.toggle('active',x===btn));
 }
 function contactText(){return ['د مالي مدیریت سیستم - اړیکې','حافظ محیب الله ایوب','ولایت: ارزګان | ولسوالۍ: چوره | قریه: خواجه خدیر','تلیفون: 0705965475','WhatsApp: https://wa.me/93705965475','YouTube: https://youtube.com/channel/UCgilh9KTiPaLGCsDELLNcjw','Facebook: https://www.facebook.com/share/19eC9AWWRF/'].join('\n')}
-async function copyContact(){const txt=contactText();try{await navigator.clipboard.writeText(txt);alert('د اړیکو معلومات کاپي شول.')}catch{alert(txt)}}
+function openContact(action){const urls={whatsapp:'https://wa.me/93705965475',youtube:'https://youtube.com/channel/UCgilh9KTiPaLGCsDELLNcjw',facebook:'https://www.facebook.com/share/19eC9AWWRF/'};try{if(action==='dial'&&window.NativeApp&&NativeApp.dial){NativeApp.dial('0705965475');return}if(urls[action]&&window.NativeApp&&NativeApp.openUrl){NativeApp.openUrl(urls[action]);return}if(urls[action])window.open(urls[action],'_blank','noopener')}catch(e){alert('د لینک خلاصول ممکن نه شول.')}}
+async function copyContact(){const txt=contactText();try{if(window.NativeApp&&NativeApp.copyText){NativeApp.copyText(txt);return}if(navigator.clipboard){await navigator.clipboard.writeText(txt);alert('د اړیکو معلومات کاپي شول.');return}alert(txt)}catch{alert(txt)}}
 async function shareContact(){const txt=contactText();try{if(window.NativeApp&&NativeApp.shareText){NativeApp.shareText(txt);return}if(navigator.share){await navigator.share({title:'زموږ سره اړیکه',text:txt});return}await copyContact()}catch{}}
+function resetAppearance(){settings.theme='dark';settings.fontSize=16;settings.fieldSize=52;settings.weight='400';settings.radius=16;applySettings()}
+function resetColors(){settings.accent='#1d8fd1';settings.field='#061326';settings.textColor='#f4f8ff';settings.numberColor='#ffd466';settings.bg='#071631';settings.panel='#0d2442';settings.header='#164b7d';applySettings()}
+function resetOneSetting(){const k=$('resetOne').value;if(!k){alert('لومړی یو تنظیم انتخاب کړئ.');return}const d={lang:'ps',theme:'dark',fontSize:16,fieldSize:52,weight:'400',radius:16,accent:'#1d8fd1',field:'#061326',textColor:'#f4f8ff',numberColor:'#ffd466',bg:'#071631',panel:'#0d2442',header:'#164b7d'};settings[k]=d[k];applySettings();if(k==='lang')applyLang();if(k!=='lang')applyLang();alert('ټاکل شوی تنظیم خپل اصلي حالت ته راوګرځول شو.')}
 function resetAppearance(){settings.theme='dark';settings.fontSize=16;settings.fieldSize=52;settings.weight='400';settings.radius=16;applySettings()}
 function resetColors(){settings.accent='#1d8fd1';settings.field='#061326';settings.textColor='#f4f8ff';settings.numberColor='#ffd466';settings.bg='#071631';settings.panel='#0d2442';settings.header='#164b7d';applySettings()}
 document.querySelectorAll('.nav-btn').forEach(b=>b.addEventListener('click',()=>showSection(b.dataset.section,b)));
@@ -391,12 +424,17 @@ $('weight').addEventListener('change',()=>{settings.weight=$('weight').value;app
 $('radius').addEventListener('input',()=>{settings.radius=+$('radius').value;applySettings()});
 [['accent','accent'],['field','field'],['textColor','textColor'],['numberColor','numberColor'],['bgColor','bg'],['panelColor','panel'],['headerColor','header']].forEach(([el,key])=>$(el).addEventListener('input',()=>{settings[key]=$(el).value;applySettings()}));
 COLORS.forEach(c=>{const b=document.createElement('button');b.className='swatch';b.type='button';b.innerHTML='<i style="background:'+c[1]+'"></i>'+c[0];b.onclick=()=>{settings.accent=c[1];settings.bg=c[2];settings.panel=c[3];settings.field=c[4];applySettings()};$('swatches').appendChild(b)});
-$('resetAppearance').onclick=resetAppearance;$('resetColors').onclick=resetColors;
-$('resetAll').onclick=()=>{if(confirm('ایا ټول تنظیمات خپل اصلي حالت ته راوګرځوو؟')){settings={lang:'ps',theme:'dark',fontSize:16,fieldSize:52,weight:'400',radius:16,accent:'#1d8fd1',field:'#061326',textColor:'#f4f8ff',numberColor:'#ffd466',bg:'#071631',panel:'#0d2442',header:'#164b7d'};applySettings();applyLang()}};
+$('resetAppearance').onclick=resetAppearance;$('resetColors').onclick=resetColors;$('resetOneBtn').onclick=resetOneSetting;
+$('resetAll').onclick=()=>{if(confirm('ایا ټول تنظیمات خپل اصلي حالت ته راوګرځوو؟')){settings={lang:'ps',theme:'dark',fontSize:16,fieldSize:52,weight:'400',radius:16,accent:'#1d8fd1',field:'#061326',textColor:'#f4f8ff',numberColor:'#ffd466',bg:'#071631',panel:'#0d2442',header:'#164b7d'};if(window.NativeApp&&NativeApp.disableBiometric)NativeApp.disableBiometric();applySettings();applyLang()}};
 $('clearData').onclick=()=>{if(confirm('ایا د معاشاتو ټول آفلاین معلومات او تنظیمات پاک شي؟')){localStorage.removeItem(STORE);localStorage.removeItem(SET);location.reload()}};
-$('shareContact').onclick=shareContact;$('copyContact').onclick=copyContact;
-$('enableFp').onclick=()=>{if(window.NativeApp&&NativeApp.enableBiometric){NativeApp.enableBiometric()}else{alert('Fingerprint یوازې په APK کې فعالېږي.')}};
+$('shareContact').onclick=shareContact;$('sendContact').onclick=shareContact;$('copyContact').onclick=copyContact;
+document.querySelectorAll('[data-action]').forEach(b=>b.addEventListener('click',()=>openContact(b.dataset.action)));
+$('enableFp').onclick=()=>{if(window.NativeApp&&NativeApp.enableBiometric){NativeApp.enableBiometric()}else{alert('Fingerprint یوازې په اصلي APK کې فعالېږي.')}};
 $('disableFp').onclick=()=>{if(window.NativeApp&&NativeApp.disableBiometric){NativeApp.disableBiometric()}};
+$('retryFp').onclick=()=>{if(window.NativeApp&&NativeApp.retryBiometric){NativeApp.retryBiometric()}};
+$('closeLocked').onclick=()=>{if(window.NativeApp&&NativeApp.closeLocked){NativeApp.closeLocked()}else{location.reload()}};
+window.showNativeLock=function(){ $('lockScreen').classList.remove('hidden'); };
+window.hideNativeLock=function(){ $('lockScreen').classList.add('hidden'); };
 renderFp();render();
 })();
 </script>
