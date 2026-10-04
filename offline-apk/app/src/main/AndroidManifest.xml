@@ -7,7 +7,7 @@
         android:icon="@drawable/mof_logo"
         android:roundIcon="@drawable/mof_logo"
         android:theme="@style/AppTheme"
-        android:label="د مالي مدیریت">
+        android:label="حافظ مالي آفلاین — نسخه ۷">
         <activity
             android:name=".MainActivity"
             android:exported="true"
