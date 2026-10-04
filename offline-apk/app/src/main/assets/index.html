@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-<title>د مالي مدیریت سیستم — آفلاین — نسخه ۷</title>
+<title>د مالي مدیریت — آفلاین — نسخه ۸</title>
 <style>
 :root{
  --accent:#1d8fd1;--bg:#071631;--panel:#0d2442;--field:#061326;--text:#f4f8ff;--muted:#adbed2;
@@ -101,8 +101,8 @@ td.num-cell{font-weight:900}.salary-c{color:#55a8ff}.feed-c{color:#48cf91}.servi
 <header class="header">
   <div class="header-row">
     <img class="logo logo-img" src="mof-logo.png" alt="د افغانستان اسلامي امارت د مالیې وزارت رسمي لوګو">
-    <div class="header-title"><h1 id="uiAppTitle">د مالي مدیریت سیستم</h1><p id="uiSub">آفلاین معاشاتي محاسبه • بې ایمیله ننوتل</p></div>
-    <span class="header-badge">۱۴۰۵ هـ.ش • نسخه ۷ — نوی APK</span>
+    <div class="header-title"><h1 id="uiAppTitle">د مالي مدیریت</h1><p id="uiSub">آفلاین معاشاتي محاسبه • بې ایمیله ننوتل</p></div>
+    <span class="header-badge">۱۴۰۵ هـ.ش • نسخه ۸</span>
   </div>
 </header>
 
@@ -168,15 +168,15 @@ td.num-cell{font-weight:900}.salary-c{color:#55a8ff}.feed-c{color:#48cf91}.servi
     <div class="contact-grid">
       <div class="contact-card"><span>👤</span><span class="contact-label" data-t="creator">جوړونکی</span><b class="contact-value contact-name">حافظ محیب الله ایوب</b><small>د مالي مدیریت سیستم جوړونکی</small></div>
       <div class="contact-card"><span>📍</span><span class="contact-label">ولایت / ولسوالۍ</span><b class="contact-value contact-location">ارزګان / چوره</b><small>قریه: خواجه خدیر</small></div>
-      <button type="button" class="contact-card contact-action" data-action="dial"><span>☎</span><span class="contact-label">تلیفون</span><b class="contact-value contact-phone">0705965475</b><small>د زنګ وهلو لپاره کلیک وکړئ</small></button>
-      <button type="button" class="contact-card contact-action" data-action="whatsapp"><span>💬</span><span class="contact-label">WhatsApp</span><b class="contact-value contact-whatsapp">مستقیم پیغام</b><small>WhatsApp پرانیزي</small></button>
-      <button type="button" class="contact-card contact-action" data-action="youtube"><span>▶</span><span class="contact-label">YouTube</span><b class="contact-value contact-youtube">زما چینل</b><small>زما چینل پرانیزي</small></button>
-      <button type="button" class="contact-card contact-action" data-action="facebook"><span>f</span><span class="contact-label">Facebook</span><b class="contact-value contact-facebook">زما فیسبوک پاڼه</b><small>زما فیسبوک پاڼه پرانیزي</small></button>
+      <a class="contact-card contact-action" href="tel:+93705965475"><span>☎</span><span class="contact-label">تلیفون</span><b class="contact-value contact-phone">0705965475</b><small>د زنګ وهلو لپاره کلیک وکړئ</small></a>
+      <a class="contact-card contact-action" href="https://wa.me/93705965475"><span>💬</span><span class="contact-label">WhatsApp</span><b class="contact-value contact-whatsapp">مستقیم پیغام</b><small>WhatsApp پرانیزي</small></a>
+      <a class="contact-card contact-action" href="https://youtube.com/channel/UCgilh9KTiPaLGCsDELLNcjw?si=zypPIMpBe6sVpUIm"><span>▶</span><span class="contact-label">YouTube</span><b class="contact-value contact-youtube">زما چینل</b><small>زما چینل پرانیزي</small></a>
+      <a class="contact-card contact-action" href="https://www.facebook.com/share/193AP34ZUS/"><span>f</span><span class="contact-label">Facebook</span><b class="contact-value contact-facebook">زما فیسبوک پاڼه</b><small>زما فیسبوک پاڼه پرانیزي</small></a>
     </div>
   </div>
   <div class="card">
     <h3 data-t="shareContact">د اړیکو معلومات شریکول</h3>
-    <div class="actions"><button type="button" class="btn primary" id="shareContact">شریکول</button><button type="button" class="btn ok" id="sendContact">نورو ته لېږل</button><button type="button" class="btn ghost" id="copyContact">کاپي کول</button></div>
+    <div class="actions"><a class="btn primary" href="hafz://share/contact">شریکول</a><a class="btn ok" href="hafz://share/contact">نورو ته لېږل</a><a class="btn ghost" href="hafz://copy/contact">کاپي کول</a></div>
   </div>
 </section>
 
@@ -189,9 +189,9 @@ td.num-cell{font-weight:900}.salary-c{color:#55a8ff}.feed-c{color:#48cf91}.servi
       <h3 data-t="securityTitle">Fingerprint امنیت</h3>
       <div class="security-status"><span id="securityStatus">Fingerprint غیر فعال دی</span><span id="securityAction"></span></div>
       <div class="actions" style="margin-top:9px">
-        <button type="button" class="btn primary" id="enableFp" data-t="enableFp">Fingerprint فعالول</button>
-        <button type="button" class="btn danger hidden" id="disableFp" data-t="disableFp">Fingerprint لرې کول</button>
-        <button type="button" class="btn ghost hidden" id="openBioSettings" data-t="openBioSettings">د موبایل Fingerprint ثبتولو تنظیمات</button>
+        <a class="btn primary" href="hafz://fingerprint/enable" id="enableFp" data-t="enableFp">Fingerprint فعالول</a>
+        <a class="btn danger hidden" href="hafz://fingerprint/disable" id="disableFp" data-t="disableFp">Fingerprint لرې کول</a>
+        <a class="btn ghost hidden" href="hafz://fingerprint/settings" id="openBioSettings" data-t="openBioSettings">د موبایل Fingerprint ثبتولو تنظیمات</a>
       </div>
       <div class="notice" data-t="securityHelp">Fingerprint یوازې هغه وخت غوښتل کېږي چې تاسې یې دلته فعال کړئ. د فعالولو پر مهال د موبایل اصلي biometric پرده راځي؛ که Fingerprint ثبت نه وي، د موبایل د Security/Fingerprint تنظیمات خلاصیږي. د ایمیل Login نشته.</div>
     </div>
@@ -251,18 +251,18 @@ td.num-cell{font-weight:900}.salary-c{color:#55a8ff}.feed-c{color:#48cf91}.servi
 </main>
 
 <nav class="bottom">
-  <button class="nav-btn active" data-section="salarySection">
+  <a class="nav-btn active" href="hafz://nav/salary" data-section="salarySection">
     <svg class="nav-icon salary-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16M4 19h16M6 5v14M18 5v14M9 8h6v8H9z"/><path d="M12 8v8"/></svg>
     <span data-t="navSalary">معاشونو معلومات</span>
-  </button>
-  <button class="nav-btn" data-section="contactSection">
+  </a>
+  <a class="nav-btn" href="hafz://nav/contact" data-section="contactSection">
     <svg class="nav-icon contact-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11.5A8 8 0 0 1 8.2 18L4 20l1.8-4.2A8 8 0 1 1 20 11.5Z"/><path d="M8 10c1.4 3 3 4.5 6 6l1.6-1.6-2-2-1.4 1.1c-1-.6-1.8-1.4-2.4-2.4l1.1-1.4-2-2L8 10Z"/></svg>
     <span data-t="navContact">زموږ سره اړیکه</span>
-  </button>
-  <button class="nav-btn" data-section="settingsSection">
+  </a>
+  <a class="nav-btn" href="hafz://nav/settings" data-section="settingsSection">
     <svg class="nav-icon settings-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1l2-1.5-2-3.4-2.3.9a7 7 0 0 0-1.7-1L14.6 3h-4l-.3 2.9a7 7 0 0 0-1.7 1l-2.3-.9-2 3.4 2 1.5a7 7 0 0 0 0 2L4.3 14l2 3.4 2.3-.9a7 7 0 0 0 1.7 1l.3 2.9h4l.3-2.9a7 7 0 0 0 1.7-1l2.3.9 2-3.4-2-1.5c.1-.3.1-.6.1-1Z"/></svg>
     <span data-t="navSettings">تنظیمات</span>
-  </button>
+  </a>
 </nav>
 </div>
 
@@ -398,8 +398,8 @@ function showSection(id,btn){
   ['salarySection','contactSection','settingsSection'].forEach(x=>$(x).classList.toggle('hidden',x!==id));
   document.querySelectorAll('.nav-btn').forEach(x=>x.classList.toggle('active',x===btn));
 }
-function contactText(){return ['د مالي مدیریت سیستم - اړیکې','حافظ محیب الله ایوب','ولایت: ارزګان | ولسوالۍ: چوره | قریه: خواجه خدیر','تلیفون: 0705965475','WhatsApp: https://wa.me/93705965475','YouTube: https://youtube.com/channel/UCgilh9KTiPaLGCsDELLNcjw','Facebook: https://www.facebook.com/share/19eC9AWWRF/'].join('\n')}
-function openContact(action){const urls={whatsapp:'https://wa.me/93705965475',youtube:'https://youtube.com/channel/UCgilh9KTiPaLGCsDELLNcjw',facebook:'https://www.facebook.com/share/19eC9AWWRF/'};try{if(action==='dial'&&window.NativeApp&&NativeApp.dial){NativeApp.dial('0705965475');return}if(urls[action]&&window.NativeApp&&NativeApp.openUrl){NativeApp.openUrl(urls[action]);return}if(urls[action]){const w=window.open(urls[action],'_blank');if(!w)alert('د لینک خلاصول بند شو.')}}catch(e){alert('د لینک خلاصول ممکن نه شول.')}}
+function contactText(){return ['د مالي مدیریت - اړیکې','حافظ محیب الله ایوب','ولایت: ارزګان | ولسوالۍ: چوره | قریه: خواجه خدیر','تلیفون: 0705965475','WhatsApp: https://wa.me/93705965475','YouTube: https://youtube.com/channel/UCgilh9KTiPaLGCsDELLNcjw?si=zypPIMpBe6sVpUIm','Facebook: https://www.facebook.com/share/193AP34ZUS/'].join('\n')}
+function openContact(action){const urls={whatsapp:'https://wa.me/93705965475',youtube:'https://youtube.com/channel/UCgilh9KTiPaLGCsDELLNcjw?si=zypPIMpBe6sVpUIm',facebook:'https://www.facebook.com/share/193AP34ZUS/'};try{if(action==='dial'&&window.NativeApp&&NativeApp.dial){NativeApp.dial('0705965475');return}if(urls[action]&&window.NativeApp&&NativeApp.openUrl){NativeApp.openUrl(urls[action]);return}if(urls[action]){const w=window.open(urls[action],'_blank');if(!w)alert('د لینک خلاصول بند شو.')}}catch(e){alert('د لینک خلاصول ممکن نه شول.')}}
 async function copyContact(){const txt=contactText();try{if(window.NativeApp&&NativeApp.copyText){NativeApp.copyText(txt);return}if(navigator.clipboard){await navigator.clipboard.writeText(txt);alert('د اړیکو معلومات کاپي شول.');return}alert(txt)}catch{alert(txt)}}
 async function shareContact(){const txt=contactText();try{if(window.NativeApp&&NativeApp.shareText){NativeApp.shareText(txt);return}if(navigator.share){await navigator.share({title:'زموږ سره اړیکه',text:txt});return}await copyContact()}catch{}}
 function resetAppearance(){settings.theme='dark';settings.fontSize=16;settings.fieldSize=52;settings.weight='400';settings.radius=16;applySettings()}
