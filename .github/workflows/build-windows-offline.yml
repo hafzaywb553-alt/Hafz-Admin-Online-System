@@ -6,6 +6,11 @@ on:
     paths:
       - 'windows-offline/**'
       - '.github/workflows/build-windows-offline.yml'
+  pull_request:
+    branches: [offline-three-sections-v2]
+    paths:
+      - 'windows-offline/**'
+      - '.github/workflows/build-windows-offline.yml'
   workflow_dispatch:
 
 jobs:
