@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.View;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebResourceRequest;
@@ -104,6 +105,7 @@ public class MainActivity extends FragmentActivity {
                         prefs.edit().putBoolean(BIOMETRIC_ENABLED, true).apply();
                         toast("د Fingerprint امنیت فعال شو.");
                         evaluate("window.nativeSecurityChanged && window.nativeSecurityChanged(true);");
+                        evaluate("window.nativeBiometricEnrollmentNeeded && window.nativeBiometricEnrollmentNeeded(false);");
                     }
                     unlocked = true;
                     hideLock();
@@ -118,6 +120,7 @@ public class MainActivity extends FragmentActivity {
                         enabling = false;
                         hideLock();
                         evaluate("window.nativeSecurityChanged && window.nativeSecurityChanged(false);");
+                        evaluate("window.nativeBiometricEnrollmentNeeded && window.nativeBiometricEnrollmentNeeded(false);");
                         toast("د Fingerprint فعالول لغوه شول.");
                         return;
                     }
@@ -154,7 +157,14 @@ public class MainActivity extends FragmentActivity {
             if (forEnable) {
                 enabling = false;
                 evaluate("window.nativeSecurityChanged && window.nativeSecurityChanged(false);");
-                toast("په دې موبایل کې د Strong Fingerprint/biometric ثبت شوی سیستم نشته.");
+                boolean noneEnrolled = can == BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED;
+                evaluate("window.nativeBiometricEnrollmentNeeded && window.nativeBiometricEnrollmentNeeded(" + noneEnrolled + ");");
+                if (noneEnrolled) {
+                    toast("په موبایل کې Fingerprint ثبت شوی نه دی. د ثبتولو تنظیمات پرانستل کېږي.");
+                    openBiometricSettings();
+                } else {
+                    toast("په دې موبایل کې مناسب Strong biometric موجود نه دی.");
+                }
             } else if (prefs.getBoolean(BIOMETRIC_ENABLED, false)) {
                 unlocked = false;
                 showLock();
@@ -200,6 +210,26 @@ public class MainActivity extends FragmentActivity {
             startActivity(intent);
         } catch (Exception ignored) {
             toast("د زنګ اپراتور/اپ پرانیستل نه شول.");
+        }
+    }
+
+    private void openBiometricSettings() {
+        try {
+            Intent intent;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                intent = new Intent(Settings.ACTION_BIOMETRIC_ENROLL);
+                intent.putExtra(Settings.EXTRA_BIOMETRIC_AUTHENTICATORS_ALLOWED,
+                    BiometricManager.Authenticators.BIOMETRIC_STRONG);
+            } else {
+                intent = new Intent(Settings.ACTION_SECURITY_SETTINGS);
+            }
+            startActivity(intent);
+        } catch (Exception ignored) {
+            try {
+                startActivity(new Intent(Settings.ACTION_SECURITY_SETTINGS));
+            } catch (Exception ignoredAgain) {
+                toast("د موبایل د امنیتي تنظیماتو پاڼه نه پرانیستل شوه.");
+            }
         }
     }
 
@@ -296,6 +326,11 @@ public class MainActivity extends FragmentActivity {
         @JavascriptInterface
         public void openUrl(String url) {
             runOnUiThread(() -> openExternal(url));
+        }
+
+        @JavascriptInterface
+        public void openBiometricSettings() {
+            runOnUiThread(() -> openBiometricSettings());
         }
 
         @JavascriptInterface
