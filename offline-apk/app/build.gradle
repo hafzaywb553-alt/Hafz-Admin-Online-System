@@ -4,11 +4,11 @@ android {
     namespace 'com.hafz.offlinefinance'
     compileSdk 35
     defaultConfig {
-        applicationId 'com.hafz.offlinefinance'
+        applicationId 'com.hafz.offlinefinance.v6'
         minSdk 23
         targetSdk 35
-        versionCode 20
-        versionName '2.0'
+        versionCode 30
+        versionName '6.0'
     }
     buildTypes {
         release {
