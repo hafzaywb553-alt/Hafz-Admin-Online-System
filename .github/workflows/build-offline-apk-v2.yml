@@ -22,6 +22,14 @@ jobs:
           distribution: temurin
           java-version: '17'
 
+      - name: Fetch official Ministry of Finance logo
+        run: |
+          mkdir -p offline-apk/app/src/main/assets offline-apk/app/src/main/res/drawable-nodpi
+          curl -fL --retry 3 --retry-delay 2 "https://asset.brandfetch.io/idlPl1eH_L/id7y_FVBYZ.png?updated=1711333942835" -o offline-apk/app/src/main/assets/mof-logo.png
+          cp offline-apk/app/src/main/assets/mof-logo.png offline-apk/app/src/main/res/drawable-nodpi/mof_logo.png
+          test -s offline-apk/app/src/main/assets/mof-logo.png
+          test -s offline-apk/app/src/main/res/drawable-nodpi/mof_logo.png
+
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
         with:
@@ -42,6 +50,8 @@ jobs:
 
       - name: Verify APK
         run: |
+          test -s offline-apk/app/src/main/assets/mof-logo.png
+          test -s offline-apk/app/src/main/res/drawable-nodpi/mof_logo.png
           test -s offline-apk/app/build/outputs/apk/debug/app-debug.apk
           sha256sum offline-apk/app/build/outputs/apk/debug/app-debug.apk
 
