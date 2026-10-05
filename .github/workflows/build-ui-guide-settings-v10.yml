@@ -1,4 +1,5 @@
 name: Build UI Guide Settings Fingerprint APK
+# Build definition for the v10 offline UI update.
 
 on:
   pull_request:
