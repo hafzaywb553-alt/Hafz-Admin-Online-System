@@ -501,7 +501,7 @@ function resetColors(){settings.accent='#1d8fd1';settings.field='#061326';settin
 function resetOneSetting(){const k=$('resetOne').value;if(!k){alert('لومړی یو تنظیم انتخاب کړئ.');return}const d={lang:'ps',theme:'dark',fontSize:16,fieldSize:52,weight:'400',radius:16,accent:'#1d8fd1',field:'#061326',textColor:'#f4f8ff',numberColor:'#ffd466',bg:'#071631',panel:'#0d2442',header:'#164b7d',sectionSalary:'#55a8ff',sectionContact:'#2dd884',sectionSettings:'#ffd466',sectionGuide:'#b98cff'};settings[k]=d[k];applySettings();applyLang();$('resetOne').value='';alert('ټاکل شوی تنظیم خپل اصلي حالت ته راوګرځول شو.')}
 function resetAppearance(){settings.theme='dark';settings.fontSize=16;settings.fieldSize=52;settings.weight='400';settings.radius=16;applySettings()}
 function resetColors(){settings.accent='#1d8fd1';settings.field='#061326';settings.textColor='#f4f8ff';settings.numberColor='#ffd466';settings.bg='#071631';settings.panel='#0d2442';settings.header='#164b7d';applySettings()}
-document.querySelectorAll('.nav-btn').forEach(b=>b.addEventListener('click',()=>showSection(b.dataset.section,b)));
+document.querySelectorAll('.nav-btn').forEach(b=>b.addEventListener('click',(e)=>{e.preventDefault();showSection(b.dataset.section,b)}));
 ['personName','sector','institution','year','month','startDay','calcDays','rank','education','professional','status','attendanceDays','serviceYears'].forEach(bindData);
 fillSelects();
 Object.assign($('year'),{value:data.year});Object.assign($('month'),{value:data.month});Object.assign($('rank'),{value:data.rank});
