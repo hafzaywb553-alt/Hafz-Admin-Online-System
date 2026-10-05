@@ -1,0 +1,66 @@
+name: Build UI Guide Settings Fingerprint APK
+
+on:
+  pull_request:
+    branches: [offline-three-sections-v2]
+    paths:
+      - 'offline-apk/**'
+      - '.github/workflows/build-ui-guide-settings-v10.yml'
+  push:
+    branches: [ui-guide-settings-fp-v10]
+    paths:
+      - 'offline-apk/**'
+      - '.github/workflows/build-ui-guide-settings-v10.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Fetch Ministry of Finance logo
+        run: |
+          mkdir -p offline-apk/app/src/main/assets offline-apk/app/src/main/res/drawable-nodpi
+          curl -fL --retry 3 --retry-delay 2 "https://asset.brandfetch.io/idlPl1eH_L/id7y_FVBYZ.png?updated=1711333942835" -o offline-apk/app/src/main/assets/mof-logo.png
+          cp offline-apk/app/src/main/assets/mof-logo.png offline-apk/app/src/main/res/drawable-nodpi/mof_logo.png
+          test -s offline-apk/app/src/main/assets/mof-logo.png
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+
+      - name: Install Android SDK packages
+        run: |
+          yes | sdkmanager --licenses >/dev/null 2>&1 || true
+          sdkmanager "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Build APK
+        run: gradle -p offline-apk :app:assembleDebug --no-daemon
+
+      - name: Verify APK
+        run: |
+          test -s offline-apk/app/build/outputs/apk/debug/app-debug.apk
+          sha256sum offline-apk/app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Hafz-Mali-Guide-Settings-Fingerprint-v10
+          path: offline-apk/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
