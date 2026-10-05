@@ -7,8 +7,8 @@ android {
         applicationId 'com.hafz.offlinefinance.v8'
         minSdk 23
         targetSdk 35
-        versionCode 50
-        versionName '8.0'
+        versionCode 60
+        versionName '10.0'
     }
     buildTypes {
         release {
