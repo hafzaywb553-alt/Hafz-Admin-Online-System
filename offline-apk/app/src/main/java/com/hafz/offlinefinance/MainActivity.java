@@ -2,12 +2,14 @@ package com.hafz.offlinefinance;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;
+import android.app.DownloadManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.Settings;
 import android.view.View;
 import android.webkit.JavascriptInterface;
@@ -19,13 +21,20 @@ import android.widget.Toast;
 import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.FragmentActivity;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.concurrent.Executor;
 
 public class MainActivity extends FragmentActivity {
     private static final String PREFS = "offline_finance_security";
     private static final String BIOMETRIC_ENABLED = "biometric_enabled";
+    private static final String COMMISSION_APK_URL =
+        "https://raw.githubusercontent.com/hafzaywb553-alt/Hafz-Admin-Online-System/offline-three-sections-v2/karah-commission.apk";
 
     private WebView webView;
     private SharedPreferences prefs;
@@ -237,6 +246,16 @@ public class MainActivity extends FragmentActivity {
             return true;
         }
 
+        if ("share".equals(host) && path.contains("app")) {
+            shareCurrentApk();
+            return true;
+        }
+
+        if ("download".equals(host) && path.contains("commission")) {
+            downloadCommissionApk();
+            return true;
+        }
+
         if ("copy".equals(host) && path.contains("contact")) {
             copyText(contactShareText());
             return true;
@@ -301,6 +320,93 @@ public class MainActivity extends FragmentActivity {
             + "WhatsApp: Message مجاهد on WhatsApp. https://wa.me/93705965475\n"
             + "YouTube: https://youtube.com/channel/UCgilh9KTiPaLGCsDELLNcjw?si=zypPIMpBe6sVpUIm\n"
             + "Facebook: https://www.facebook.com/share/193AP34ZUS/";
+    }
+
+    /**
+     * Shares the APK that is currently installed on this device.
+     * Copying it into app cache lets FileProvider expose a safe content:// URI.
+     */
+    private void shareCurrentApk() {
+        try {
+            File shareDir = new File(getCacheDir(), "share");
+            if (!shareDir.exists() && !shareDir.mkdirs()) {
+                throw new IOException("Could not create APK share cache.");
+            }
+
+            File sourceApk = new File(getApplicationInfo().sourceDir);
+            if (!sourceApk.isFile() || sourceApk.length() <= 0) {
+                throw new IOException("Installed APK file is not available.");
+            }
+
+            File sharedApk = new File(shareDir, "Finance-App-V18.apk");
+            try (FileInputStream input = new FileInputStream(sourceApk);
+                 FileOutputStream output = new FileOutputStream(sharedApk, false)) {
+                byte[] buffer = new byte[16 * 1024];
+                int count;
+                while ((count = input.read(buffer)) != -1) {
+                    output.write(buffer, 0, count);
+                }
+                output.flush();
+            }
+
+            if (sharedApk.length() != sourceApk.length()) {
+                throw new IOException("The shared APK copy is incomplete.");
+            }
+
+            Uri apkUri = FileProvider.getUriForFile(
+                this,
+                getPackageName() + ".fileprovider",
+                sharedApk
+            );
+
+            Intent send = new Intent(Intent.ACTION_SEND);
+            send.setType("application/vnd.android.package-archive");
+            send.putExtra(Intent.EXTRA_STREAM, apkUri);
+            send.putExtra(Intent.EXTRA_SUBJECT, "د مالي مدیریت اصلي APK");
+            send.setClipData(ClipData.newUri(
+                getContentResolver(), "Finance-App-V18.apk", apkUri
+            ));
+            send.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+            Intent chooser = Intent.createChooser(send, "د مالي مدیریت اصلي APK شریکول");
+            chooser.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            startActivity(chooser);
+        } catch (Exception error) {
+            toast("د اصلي APK شریکول ممکن نه شول: " + error.getMessage());
+        }
+    }
+
+    /**
+     * Starts a direct system-managed download of the Karah Commission APK.
+     */
+    private void downloadCommissionApk() {
+        try {
+            DownloadManager manager =
+                (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+            if (manager == null) {
+                toast("د Android ډاونلوډ خدمت په دې موبایل کې موجود نه دی.");
+                return;
+            }
+
+            DownloadManager.Request request =
+                new DownloadManager.Request(Uri.parse(COMMISSION_APK_URL));
+            request.setTitle("د کره کمیسیون د فورمو د ثبت او مدیریت سیستم");
+            request.setDescription("د APK فایل ښکته کېږي؛ له بشپړېدو وروسته یې له Downloads څخه نصب کړئ.");
+            request.setMimeType("application/vnd.android.package-archive");
+            request.setNotificationVisibility(
+                DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED
+            );
+            request.setDestinationInExternalPublicDir(
+                Environment.DIRECTORY_DOWNLOADS, "Karah-Commission.apk"
+            );
+            request.setAllowedOverMetered(true);
+            request.setAllowedOverRoaming(false);
+
+            long downloadId = manager.enqueue(request);
+            toast("د کره کمیسیون اپ ډاونلوډ پیل شو. د ډاونلوډ پېژند: " + downloadId);
+        } catch (Exception error) {
+            toast("ډاونلوډ پیل نه شو: " + error.getMessage());
+        }
     }
 
     private void shareTextNative(String text) {
@@ -480,17 +586,27 @@ public class MainActivity extends FragmentActivity {
 
         @JavascriptInterface
         public void openBiometricSettings() {
-            runOnUiThread(() -> openBiometricSettings());
+            runOnUiThread(() -> MainActivity.this.openBiometricSettings());
         }
 
         @JavascriptInterface
         public void dial(String number) {
-            runOnUiThread(() -> dial(number));
+            runOnUiThread(() -> MainActivity.this.dial(number));
         }
 
         @JavascriptInterface
         public void copyText(String text) {
-            runOnUiThread(() -> copyText(text));
+            runOnUiThread(() -> MainActivity.this.copyText(text));
+        }
+
+        @JavascriptInterface
+        public void shareCurrentApk() {
+            runOnUiThread(() -> MainActivity.this.shareCurrentApk());
+        }
+
+        @JavascriptInterface
+        public void downloadCommissionApk() {
+            runOnUiThread(() -> MainActivity.this.downloadCommissionApk());
         }
 
         @JavascriptInterface
