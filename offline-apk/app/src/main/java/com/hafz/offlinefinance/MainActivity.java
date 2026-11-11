@@ -1,13 +1,16 @@
 package com.hafz.offlinefinance;
 
+import android.Manifest;
 import android.content.ClipData;
 import android.content.ClipboardManager;
+import android.content.pm.PackageManager;
 import android.app.DownloadManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.Settings;
@@ -20,6 +23,7 @@ import android.widget.Toast;
 
 import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.FragmentActivity;
@@ -33,6 +37,7 @@ import java.util.concurrent.Executor;
 public class MainActivity extends FragmentActivity {
     private static final String PREFS = "offline_finance_security";
     private static final String BIOMETRIC_ENABLED = "biometric_enabled";
+    private static final int COMMISSION_STORAGE_PERMISSION_REQUEST = 4182;
     private static final String COMMISSION_APK_URL =
         "https://raw.githubusercontent.com/hafzaywb553-alt/Hafz-Admin-Online-System/offline-three-sections-v2/karah-commission.apk";
 
@@ -380,6 +385,16 @@ public class MainActivity extends FragmentActivity {
      * Starts a direct system-managed download of the Karah Commission APK.
      */
     private void downloadCommissionApk() {
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P
+                && ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(
+                this,
+                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                COMMISSION_STORAGE_PERMISSION_REQUEST
+            );
+            return;
+        }
         try {
             DownloadManager manager =
                 (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
@@ -406,6 +421,19 @@ public class MainActivity extends FragmentActivity {
             toast("د کره کمیسیون اپ ډاونلوډ پیل شو. د ډاونلوډ پېژند: " + downloadId);
         } catch (Exception error) {
             toast("ډاونلوډ پیل نه شو: " + error.getMessage());
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(
+            int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == COMMISSION_STORAGE_PERMISSION_REQUEST) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                downloadCommissionApk();
+            } else {
+                toast("د ډاونلوډ لپاره د Downloads فولډر د لیکلو اجازه اړینه ده.");
+            }
         }
     }
 
