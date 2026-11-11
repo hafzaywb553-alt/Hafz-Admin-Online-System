@@ -4429,7 +4429,161 @@
 
         }
 
-    </style>
+    
+        /* ============================================================
+           OFFICIAL APK DOWNLOAD + SHARE — LOGIN PAGE ONLY
+        ============================================================ */
+
+        .official-apk-panel {
+            width: 100%;
+            margin: 18px auto 4px;
+            padding: 14px;
+            border: 1px solid rgba(111,212,255,.22);
+            border-radius: 16px;
+            background: linear-gradient(145deg, rgba(9,34,49,.94), rgba(4,18,30,.96));
+            box-shadow: 0 12px 26px rgba(0,0,0,.18);
+            direction: rtl;
+        }
+
+        html.light-mode .official-apk-panel {
+            border-color: rgba(31,115,88,.18);
+            background: linear-gradient(145deg, rgba(255,255,255,.96), rgba(235,246,240,.98));
+            box-shadow: 0 10px 24px rgba(24,70,57,.08);
+        }
+
+        .official-apk-heading {
+            margin: 0 0 10px;
+            color: var(--text);
+            font-size: 16px;
+            line-height: 1.7;
+            font-weight: 900;
+            text-align: center;
+        }
+
+        .official-apk-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .official-apk-card {
+            min-width: 0;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 13px;
+            background: rgba(255,255,255,.035);
+        }
+
+        html.light-mode .official-apk-card {
+            background: rgba(255,255,255,.72);
+        }
+
+        .official-apk-name {
+            min-height: 46px;
+            color: var(--text);
+            font-size: 14px;
+            line-height: 1.7;
+            font-weight: 900;
+            text-align: center;
+        }
+
+        .official-apk-description {
+            margin-top: 2px;
+            color: var(--muted);
+            font-size: 11px;
+            line-height: 1.7;
+            text-align: center;
+        }
+
+        .official-apk-actions {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 7px;
+            margin-top: 11px;
+        }
+
+        .official-apk-action {
+            display: flex;
+            min-width: 0;
+            min-height: 43px;
+            align-items: center;
+            justify-content: center;
+            padding: 7px 6px;
+            border: 1px solid transparent;
+            border-radius: 10px;
+            color: #fff;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 900;
+            line-height: 1.5;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            transition: transform .16s ease, filter .16s ease;
+        }
+
+        .official-apk-action:hover {
+            filter: brightness(1.1);
+            transform: translateY(-1px);
+        }
+
+        .official-apk-action:focus-visible {
+            outline: 3px solid var(--cyan);
+            outline-offset: 2px;
+        }
+
+        .official-apk-action:disabled {
+            opacity: .65;
+            cursor: wait;
+            transform: none;
+        }
+
+        .official-apk-download {
+            border-color: rgba(35,239,162,.28);
+            background: linear-gradient(135deg, #16875F, #0B6B4B);
+        }
+
+        .official-apk-share {
+            border-color: rgba(37,223,255,.28);
+            background: linear-gradient(135deg, #176CA8, #174B80);
+        }
+
+        .official-apk-status {
+            min-height: 20px;
+            margin: 9px 2px 0;
+            color: var(--muted);
+            font-size: 11px;
+            line-height: 1.7;
+            text-align: center;
+            overflow-wrap: anywhere;
+        }
+
+        @media (max-width: 520px) {
+            .official-apk-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .official-apk-card {
+                padding: 11px;
+            }
+
+            .official-apk-name {
+                min-height: 0;
+            }
+
+            .official-apk-action {
+                min-height: 45px;
+                font-size: 13px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .official-apk-action {
+                transition: none;
+            }
+        }
+
+</style>
 
 </head>
 
@@ -5166,6 +5320,98 @@
 
 
                 </footer>
+
+
+                <!-- ====================================================
+                     OFFICIAL APK DOWNLOAD AND SHARE
+                     یوازې د ننوتلو پاڼه؛ نور سیستم نه دی بدل شوی
+                ==================================================== -->
+
+                <section
+                    class="official-apk-panel"
+                    aria-labelledby="officialApkHeading"
+                >
+                    <h2
+                        class="official-apk-heading"
+                        id="officialApkHeading"
+                    >
+                        📥 د رسمي APK اپلیکیشنونو ډاونلوډ او شریکول
+                    </h2>
+
+                    <div class="official-apk-grid">
+
+                        <article class="official-apk-card">
+                            <div class="official-apk-name">
+                                د کره کمیسیون اپلیکیشن
+                            </div>
+                            <div class="official-apk-description">
+                                د فورمو د ثبت او مدیریت اصلي APK
+                            </div>
+                            <div class="official-apk-actions">
+                                <a
+                                    class="official-apk-action official-apk-download"
+                                    href="https://hafzaywb553-alt.github.io/Hafz-Admin-Online-System/karah-commission.apk"
+                                    download="Karah-Commission.apk"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    aria-label="د کره کمیسیون اصلي APK ډاونلوډ"
+                                >
+                                    ⬇ APK ډاونلوډ
+                                </a>
+                                <button
+                                    type="button"
+                                    class="official-apk-action official-apk-share"
+                                    data-apk-share
+                                    data-apk-title="د کره کمیسیون اپلیکیشن"
+                                    data-apk-url="https://hafzaywb553-alt.github.io/Hafz-Admin-Online-System/karah-commission.apk"
+                                    aria-label="د کره کمیسیون APK ډاونلوډ لینک شریکول"
+                                >
+                                    ↗ لینک شریکول
+                                </button>
+                            </div>
+                        </article>
+
+                        <article class="official-apk-card">
+                            <div class="official-apk-name">
+                                د مالي مدیریت V18 اپلیکیشن
+                            </div>
+                            <div class="official-apk-description">
+                                د مالي مدیریت اصلي V18 APK
+                            </div>
+                            <div class="official-apk-actions">
+                                <a
+                                    class="official-apk-action official-apk-download"
+                                    href="https://github.com/hafzaywb553-alt/Hafz-Admin-Online-System/releases/download/finance-share-v18-20261111-final/Finance-App-V18.apk"
+                                    download="Finance-App-V18.apk"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    aria-label="د مالي مدیریت V18 اصلي APK ډاونلوډ"
+                                >
+                                    ⬇ APK ډاونلوډ
+                                </a>
+                                <button
+                                    type="button"
+                                    class="official-apk-action official-apk-share"
+                                    data-apk-share
+                                    data-apk-title="د مالي مدیریت V18 اپلیکیشن"
+                                    data-apk-url="https://github.com/hafzaywb553-alt/Hafz-Admin-Online-System/releases/download/finance-share-v18-20261111-final/Finance-App-V18.apk"
+                                    aria-label="د مالي مدیریت V18 APK ډاونلوډ لینک شریکول"
+                                >
+                                    ↗ لینک شریکول
+                                </button>
+                            </div>
+                        </article>
+
+                    </div>
+
+                    <p
+                        class="official-apk-status"
+                        id="officialApkShareStatus"
+                        role="status"
+                        aria-live="polite"
+                    ></p>
+                </section>
+
 
 
             </div>
@@ -6890,6 +7136,106 @@
         }
     );
 
+
+
+    /* ========================================================
+       OFFICIAL APK LINK SHARING — LOGIN PAGE ONLY
+       Shares verified download links; no authentication or
+       database logic is changed.
+    ======================================================== */
+
+    const officialApkShareStatus =
+        document.getElementById("officialApkShareStatus");
+
+    async function copyOfficialApkLink(url) {
+        try {
+            if (navigator.clipboard && window.isSecureContext) {
+                await navigator.clipboard.writeText(url);
+                return true;
+            }
+        } catch (error) {
+            console.warn("Clipboard API unavailable:", error);
+        }
+
+        try {
+            const field = document.createElement("textarea");
+            field.value = url;
+            field.setAttribute("readonly", "");
+            field.style.position = "fixed";
+            field.style.opacity = "0";
+            field.style.pointerEvents = "none";
+            document.body.appendChild(field);
+            field.select();
+            field.setSelectionRange(0, field.value.length);
+            const copied = document.execCommand("copy");
+            field.remove();
+            return copied;
+        } catch (error) {
+            console.warn("Fallback copy failed:", error);
+            return false;
+        }
+    }
+
+    document.querySelectorAll("[data-apk-share]").forEach(button => {
+        button.addEventListener("click", async () => {
+            const title = button.dataset.apkTitle || "اصلي APK اپلیکیشن";
+            const url = button.dataset.apkUrl;
+
+            if (!url || !/^https:\/\//i.test(url)) {
+                if (officialApkShareStatus) {
+                    officialApkShareStatus.textContent =
+                        "د ډاونلوډ لینک ناسم دی؛ مهرباني وکړئ له مسؤل سره اړیکه ونیسئ.";
+                }
+                return;
+            }
+
+            const originalLabel = button.textContent;
+            button.disabled = true;
+            button.textContent = "⏳ چمتو کېږي...";
+
+            try {
+                if (navigator.share) {
+                    try {
+                        await navigator.share({
+                            title,
+                            text: title + " — د اصلي APK مستقیم ډاونلوډ لینک:",
+                            url
+                        });
+
+                        if (officialApkShareStatus) {
+                            officialApkShareStatus.textContent =
+                                "د " + title + " رسمي ډاونلوډ لینک د شریکولو کړکۍ ته ولېږل شو.";
+                        }
+                        return;
+                    } catch (shareError) {
+                        if (shareError && shareError.name === "AbortError") {
+                            return;
+                        }
+                        console.warn("Native share unavailable:", shareError);
+                    }
+                }
+
+                const copied = await copyOfficialApkLink(url);
+                if (officialApkShareStatus) {
+                    officialApkShareStatus.textContent = copied
+                        ? "د " + title + " مستقیم ډاونلوډ لینک کاپي شو؛ اوس یې نورو ته ولېږئ."
+                        : "دا رسمي ډاونلوډ لینک په لاسي ډول کاپي کړئ: " + url;
+                }
+                if (!copied) {
+                    window.prompt("د " + title + " رسمي APK ډاونلوډ لینک کاپي کړئ:", url);
+                }
+            } catch (error) {
+                console.error("APK sharing error:", error);
+                if (officialApkShareStatus) {
+                    officialApkShareStatus.textContent =
+                        "شریکول ممکن نه شول. مستقیم ډاونلوډ لینک: " + url;
+                }
+            } finally {
+                button.disabled = false;
+                button.textContent = originalLabel;
+            }
+        });
+    });
 
 </script>
 
