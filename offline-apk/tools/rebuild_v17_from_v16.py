@@ -123,6 +123,8 @@ function partsFromFormatter(date,formatter){
   const parts=formatter.formatToParts(date);
   return {year:Number(parts.find(p=>p.type==='year').value),month:Number(parts.find(p=>p.type==='month').value),day:Number(parts.find(p=>p.type==='day').value)};
 }
+// Arithmetic Islamic civil calendar fallback. It is deterministic and works without ICU
+// calendar data; it can differ from local moon sighting/Umm al-Qura by a day or two.
 const ISLAMIC_EPOCH_JD=1948439.5, UNIX_EPOCH_JD=2440587.5, MS_PER_DAY=86400000;
 function islamicCivilToJD(year,month,day){
   return day+Math.ceil(29.5*(month-1))+(year-1)*354+Math.floor((3+11*year)/30)+ISLAMIC_EPOCH_JD-1;
