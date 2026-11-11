@@ -39,7 +39,7 @@ public class MainActivity extends FragmentActivity {
     private static final String BIOMETRIC_ENABLED = "biometric_enabled";
     private static final int COMMISSION_STORAGE_PERMISSION_REQUEST = 4182;
     private static final String COMMISSION_APK_URL =
-        "https://raw.githubusercontent.com/hafzaywb553-alt/Hafz-Admin-Online-System/offline-three-sections-v2/karah-commission.apk";
+        "https://hafzaywb553-alt.github.io/Hafz-Admin-Online-System/karah-commission.apk";
 
     private WebView webView;
     private SharedPreferences prefs;

@@ -29,23 +29,23 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Download and verify the exact V16 base APK
-        shell: bash
-        run: |
-          set -euo pipefail
-          curl -fL --retry 3 --retry-delay 2 \
-            "https://raw.githubusercontent.com/hafzaywb553-alt/GhazBadloon/main/Finance-App-V16.apk" \
-            -o /tmp/Finance-App-V16.apk
-          echo "13d7b60f123b42b1dc32b7f48c5f2b5bf6e71db627d9951d2c29d9d997fb2c43  /tmp/Finance-App-V16.apk" | sha256sum --check
-
-      - name: Rebuild exact V17 HTML and patch only Contacts for V18
+      - name: Restore the verified V18 HTML asset
         shell: bash
         run: |
           set -euo pipefail
           asset="offline-apk/app/src/main/assets"
-          python offline-apk/tools/rebuild_v17_from_v16.py \
-            /tmp/Finance-App-V16.apk "$asset/index.html"
-          python offline-apk/tools/apply_v18_contacts.py "$asset/index.html"
+          cat \
+            "$asset/index.html.gz.b64" \
+            "$asset/index.html.gz.part01" \
+            "$asset/index.html.gz.part02" \
+            "$asset/index.html.gz.part03" \
+            "$asset/index.html.gz.part04" \
+            "$asset/index.html.gz.part05" \
+            "$asset/index.html.gz.part06" \
+            "$asset/index.html.gz.part07" \
+            | base64 --decode | gzip --decompress --stdout > "$asset/index.html"
+          echo "a698e9f156e5826108b3a11653e70c594172d1d10f8498e029c9bfb21f5a08ed  $asset/index.html" | sha256sum --check
+          test "$(wc -c < "$asset/index.html")" -eq 149876
           grep -q 'id="shareApp"' "$asset/index.html"
           grep -q 'id="downloadCommission"' "$asset/index.html"
           grep -q 'NativeApp.shareCurrentApk' "$asset/index.html"
@@ -54,6 +54,7 @@ jobs:
             echo "The old Contacts copy button remains."
             exit 1
           fi
+          rm -f "$asset"/index.html.gz.b64 "$asset"/index.html.gz.part*
           python - <<'PY'
           from pathlib import Path
           source = Path("offline-apk/app/src/main/assets/index.html").read_text(encoding="utf-8")
@@ -127,7 +128,7 @@ jobs:
             Package: com.hafz.offlinefinance.v18
             The Contacts section shares the installed Finance APK using Android's native Sharesheet.
             The Contacts section downloads the Karah Commission Forms app APK directly.
-            V17 HTML is reconstructed from the exact V16 source and SHA-256 checked before patching Contacts.
+            Contacts-only V18 HTML is restored from a verified payload and SHA-256 checked before packaging.
             New package ID is required because the original private signing key is unavailable. V17 stays installed separately; local data is not migrated.
           files: dist-apk/Finance-App-V18.apk
           make_latest: false
