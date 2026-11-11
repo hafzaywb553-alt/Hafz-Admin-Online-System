@@ -1,0 +1,45 @@
+name: Publish Finance V18 APK for File Sharing
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "index.html"
+      - "login.html"
+      - ".github/workflows/publish-finance-apk.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Download and verify official Finance V18 APK
+        run: |
+          curl -fL --retry 3 --retry-delay 2 \
+            "https://github.com/hafzaywb553-alt/Hafz-Admin-Online-System/releases/download/finance-share-v18-20261111-final/Finance-App-V18.apk" \
+            -o /tmp/Finance-App-V18.apk
+          test -s /tmp/Finance-App-V18.apk
+          unzip -tq /tmp/Finance-App-V18.apk
+
+      - name: Publish APK to repository
+        run: |
+          install -m 644 /tmp/Finance-App-V18.apk Finance-App-V18.apk
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Finance-App-V18.apk
+          if git diff --cached --quiet; then
+            echo "Finance V18 APK is already up to date."
+          else
+            git commit -m "Publish Finance V18 APK for file sharing"
+            git push origin HEAD:main
+          fi
