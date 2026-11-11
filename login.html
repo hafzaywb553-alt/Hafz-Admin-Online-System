@@ -5363,10 +5363,11 @@
                                     class="official-apk-action official-apk-share"
                                     data-apk-share
                                     data-apk-title="د کره کمیسیون اپلیکیشن"
-                                    data-apk-url="https://hafzaywb553-alt.github.io/Hafz-Admin-Online-System/karah-commission.apk"
-                                    aria-label="د کره کمیسیون APK ډاونلوډ لینک شریکول"
+                                    data-apk-url="./karah-commission.apk"
+                                    data-apk-filename="Karah-Commission.apk"
+                                    aria-label="د کره کمیسیون اصلي APK فایل شریکول"
                                 >
-                                    ↗ لینک شریکول
+                                    ↗ اصلي APK فایل شریکول
                                 </button>
                             </div>
                         </article>
@@ -5394,10 +5395,11 @@
                                     class="official-apk-action official-apk-share"
                                     data-apk-share
                                     data-apk-title="د مالي مدیریت V18 اپلیکیشن"
-                                    data-apk-url="https://github.com/hafzaywb553-alt/Hafz-Admin-Online-System/releases/download/finance-share-v18-20261111-final/Finance-App-V18.apk"
-                                    aria-label="د مالي مدیریت V18 APK ډاونلوډ لینک شریکول"
+                                    data-apk-url="./Finance-App-V18.apk"
+                                    data-apk-filename="Finance-App-V18.apk"
+                                    aria-label="د مالي مدیریت V18 اصلي APK فایل شریکول"
                                 >
-                                    ↗ لینک شریکول
+                                    ↗ اصلي APK فایل شریکول
                                 </button>
                             </div>
                         </article>
@@ -7139,96 +7141,162 @@
 
 
     /* ========================================================
-       OFFICIAL APK LINK SHARING — LOGIN PAGE ONLY
-       Shares verified download links; no authentication or
-       database logic is changed.
+       OFFICIAL APK FILE SHARING — LOGIN PAGE ONLY
+       Shares the real APK file through the Android share sheet.
+       No authentication, database, form, or calculation logic is changed.
     ======================================================== */
 
     const officialApkShareStatus =
         document.getElementById("officialApkShareStatus");
 
-    async function copyOfficialApkLink(url) {
-        try {
-            if (navigator.clipboard && window.isSecureContext) {
-                await navigator.clipboard.writeText(url);
-                return true;
-            }
-        } catch (error) {
-            console.warn("Clipboard API unavailable:", error);
+    const officialApkFileCache = new Map();
+
+    async function loadOfficialApkFile(button) {
+        const url = button.dataset.apkUrl;
+        const filename = button.dataset.apkFilename || "Official-App.apk";
+
+        if (!url) {
+            throw new Error("APK URL is missing");
         }
 
-        try {
-            const field = document.createElement("textarea");
-            field.value = url;
-            field.setAttribute("readonly", "");
-            field.style.position = "fixed";
-            field.style.opacity = "0";
-            field.style.pointerEvents = "none";
-            document.body.appendChild(field);
-            field.select();
-            field.setSelectionRange(0, field.value.length);
-            const copied = document.execCommand("copy");
-            field.remove();
-            return copied;
-        } catch (error) {
-            console.warn("Fallback copy failed:", error);
-            return false;
+        const absoluteUrl = new URL(url, window.location.href).href;
+
+        if (!/^https:\/\//i.test(absoluteUrl)) {
+            throw new Error("Invalid APK URL");
         }
+
+        if (!officialApkFileCache.has(absoluteUrl)) {
+            const pendingFile = (async () => {
+                const response = await fetch(absoluteUrl, {
+                    method: "GET",
+                    cache: "no-store",
+                    credentials: "same-origin"
+                });
+
+                if (!response.ok) {
+                    throw new Error("APK download failed: HTTP " + response.status);
+                }
+
+                const blob = await response.blob();
+
+                if (!blob || blob.size < 100000) {
+                    throw new Error("APK file is empty or incomplete");
+                }
+
+                const signature = new Uint8Array(
+                    await blob.slice(0, 4).arrayBuffer()
+                );
+
+                if (
+                    signature.length < 4 ||
+                    signature[0] !== 0x50 ||
+                    signature[1] !== 0x4B
+                ) {
+                    throw new Error("The downloaded file is not a valid APK archive");
+                }
+
+                return new File(
+                    [blob],
+                    filename,
+                    { type: "application/vnd.android.package-archive" }
+                );
+            })();
+
+            officialApkFileCache.set(absoluteUrl, pendingFile);
+
+            try {
+                return await pendingFile;
+            } catch (error) {
+                officialApkFileCache.delete(absoluteUrl);
+                throw error;
+            }
+        }
+
+        return await officialApkFileCache.get(absoluteUrl);
+    }
+
+    function downloadOfficialApkFallback(file) {
+        const objectUrl = URL.createObjectURL(file);
+        const link = document.createElement("a");
+
+        link.href = objectUrl;
+        link.download = file.name;
+        link.style.display = "none";
+
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+
+        window.setTimeout(() => URL.revokeObjectURL(objectUrl), 60000);
     }
 
     document.querySelectorAll("[data-apk-share]").forEach(button => {
+        const primeApkFile = () => {
+            const url = button.dataset.apkUrl;
+            if (!url) return;
+
+            const absoluteUrl = new URL(url, window.location.href).href;
+
+            if (!officialApkFileCache.has(absoluteUrl)) {
+                loadOfficialApkFile(button).catch(error => {
+                    console.warn("APK preloading failed:", error);
+                });
+            }
+        };
+
+        button.addEventListener("pointerdown", primeApkFile, { passive: true });
+        button.addEventListener("mouseenter", primeApkFile, { passive: true });
+
         button.addEventListener("click", async () => {
             const title = button.dataset.apkTitle || "اصلي APK اپلیکیشن";
-            const url = button.dataset.apkUrl;
+            const originalLabel = button.textContent;
 
-            if (!url || !/^https:\/\//i.test(url)) {
-                if (officialApkShareStatus) {
-                    officialApkShareStatus.textContent =
-                        "د ډاونلوډ لینک ناسم دی؛ مهرباني وکړئ له مسؤل سره اړیکه ونیسئ.";
-                }
-                return;
+            button.disabled = true;
+            button.textContent = "⏳ اصلي فایل چمتو کېږي...";
+
+            if (officialApkShareStatus) {
+                officialApkShareStatus.textContent =
+                    "اصلي APK فایل ترلاسه کېږي؛ مهرباني وکړئ لږ شېبه انتظار وکړئ.";
             }
 
-            const originalLabel = button.textContent;
-            button.disabled = true;
-            button.textContent = "⏳ چمتو کېږي...";
-
             try {
-                if (navigator.share) {
-                    try {
-                        await navigator.share({
-                            title,
-                            text: title + " — د اصلي APK مستقیم ډاونلوډ لینک:",
-                            url
-                        });
+                const file = await loadOfficialApkFile(button);
 
-                        if (officialApkShareStatus) {
-                            officialApkShareStatus.textContent =
-                                "د " + title + " رسمي ډاونلوډ لینک د شریکولو کړکۍ ته ولېږل شو.";
-                        }
-                        return;
-                    } catch (shareError) {
-                        if (shareError && shareError.name === "AbortError") {
-                            return;
-                        }
-                        console.warn("Native share unavailable:", shareError);
+                if (
+                    typeof navigator.share === "function" &&
+                    typeof navigator.canShare === "function" &&
+                    navigator.canShare({ files: [file] })
+                ) {
+                    await navigator.share({
+                        title,
+                        text: title + " — اصلي APK فایل",
+                        files: [file]
+                    });
+
+                    if (officialApkShareStatus) {
+                        officialApkShareStatus.textContent =
+                            "اصلي APK فایل د شریکولو کړکۍ ته واستول شو.";
+                    }
+                } else {
+                    downloadOfficialApkFallback(file);
+
+                    if (officialApkShareStatus) {
+                        officialApkShareStatus.textContent =
+                            "دا براوزر د فایل مستقیم شریکولو ملاتړ نه کوي؛ اصلي APK ښکته شو. د موبایل له Downloads/Files څخه یې د فایل په توګه شریک کړه.";
                     }
                 }
-
-                const copied = await copyOfficialApkLink(url);
-                if (officialApkShareStatus) {
-                    officialApkShareStatus.textContent = copied
-                        ? "د " + title + " مستقیم ډاونلوډ لینک کاپي شو؛ اوس یې نورو ته ولېږئ."
-                        : "دا رسمي ډاونلوډ لینک په لاسي ډول کاپي کړئ: " + url;
-                }
-                if (!copied) {
-                    window.prompt("د " + title + " رسمي APK ډاونلوډ لینک کاپي کړئ:", url);
-                }
             } catch (error) {
-                console.error("APK sharing error:", error);
-                if (officialApkShareStatus) {
-                    officialApkShareStatus.textContent =
-                        "شریکول ممکن نه شول. مستقیم ډاونلوډ لینک: " + url;
+                if (error && error.name === "AbortError") {
+                    if (officialApkShareStatus) {
+                        officialApkShareStatus.textContent = "د APK فایل شریکول لغوه شول.";
+                    }
+                } else {
+                    console.error("Official APK file sharing failed:", error);
+
+                    if (officialApkShareStatus) {
+                        officialApkShareStatus.textContent =
+                            "اصلي APK فایل له سروره ترلاسه یا شریک نه شو. انټرنېټ وګوره او بیا هڅه وکړه.";
+                    }
                 }
             } finally {
                 button.disabled = false;
@@ -7236,6 +7304,7 @@
             }
         });
     });
+
 
 </script>
 

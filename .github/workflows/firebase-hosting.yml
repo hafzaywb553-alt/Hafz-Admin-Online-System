@@ -19,6 +19,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
+      - name: Prepare official APK files for Hosting
+        run: |
+          test -s karah-commission.apk
+          curl -fL --retry 3 --retry-delay 2 \
+            "https://github.com/hafzaywb553-alt/Hafz-Admin-Online-System/releases/download/finance-share-v18-20261111-final/Finance-App-V18.apk" \
+            -o Finance-App-V18.apk
+          test -s Finance-App-V18.apk
+          file karah-commission.apk Finance-App-V18.apk
+
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v3
         with:
