@@ -29,34 +29,39 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Reconstruct the exact V17 app HTML with V18 contact actions
+      - name: Download and verify the exact V16 base APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fL --retry 3 --retry-delay 2 \
+            "https://raw.githubusercontent.com/hafzaywb553-alt/GhazBadloon/main/Finance-App-V16.apk" \
+            -o /tmp/Finance-App-V16.apk
+          echo "13d7b60f123b42b1dc32b7f48c5f2b5bf6e71db627d9951d2c29d9d997fb2c43  /tmp/Finance-App-V16.apk" | sha256sum --check
+
+      - name: Rebuild exact V17 HTML and patch only Contacts for V18
         shell: bash
         run: |
           set -euo pipefail
           asset="offline-apk/app/src/main/assets"
-          {
-            cat "$asset/index.html.gz.b64"
-            for part in 01 02 03 04 05 06 07; do
-              cat "$asset/index.html.gz.part$part"
-            done
-          } | base64 --decode | gzip --decompress > "$asset/index.html"
-          echo "a698e9f156e5826108b3a11653e70c594172d1d10f8498e029c9bfb21f5a08ed  $asset/index.html" | sha256sum --check
+          python offline-apk/tools/rebuild_v17_from_v16.py \
+            /tmp/Finance-App-V16.apk "$asset/index.html"
+          python offline-apk/tools/apply_v18_contacts.py "$asset/index.html"
           grep -q 'id="shareApp"' "$asset/index.html"
           grep -q 'id="downloadCommission"' "$asset/index.html"
           grep -q 'NativeApp.shareCurrentApk' "$asset/index.html"
           grep -q 'NativeApp.downloadCommissionApk' "$asset/index.html"
           if grep -q 'id="copyContact"' "$asset/index.html"; then
-            echo "The frozen copy button is still present."
+            echo "The old Contacts copy button remains."
             exit 1
           fi
           python - <<'PY'
           from pathlib import Path
-          source = Path("offline-apk/app/src/main/assets/index.html").read_text()
+          source = Path("offline-apk/app/src/main/assets/index.html").read_text(encoding="utf-8")
           marker = "<script>"
-          if marker not in source:
-              raise SystemExit("Inline app script missing.")
+          if marker not in source or "</script>" not in source:
+              raise SystemExit("Inline app JavaScript is missing.")
           script = source.split(marker, 1)[1].split("</script>", 1)[0]
-          Path("/tmp/finance-v18-inline.js").write_text(script)
+          Path("/tmp/finance-v18-inline.js").write_text(script, encoding="utf-8")
           PY
           node --check /tmp/finance-v18-inline.js
 
@@ -95,7 +100,9 @@ jobs:
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose "$apk"
           "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$apk" | grep "package: name='com.hafz.offlinefinance.v18'"
           "$ANDROID_HOME/build-tools/35.0.0/aapt" dump xmltree "$apk" AndroidManifest.xml | grep -q 'androidx.core.content.FileProvider'
-          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump permissions "$apk" | grep -q 'android.permission.INTERNET'
+          permissions="$("$ANDROID_HOME/build-tools/35.0.0/aapt" dump permissions "$apk")"
+          printf '%s\n' "$permissions" | grep -q 'android.permission.INTERNET'
+          printf '%s\n' "$permissions" | grep -q 'android.permission.WRITE_EXTERNAL_STORAGE'
           mkdir -p dist-apk
           cp "$apk" dist-apk/Finance-App-V18.apk
           sha256sum dist-apk/Finance-App-V18.apk
@@ -113,16 +120,16 @@ jobs:
         if: github.event_name == 'push' && github.ref == 'refs/heads/finance-share-v18-20261111'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: finance-share-v18-${{ github.run_number }}
+          tag_name: finance-share-v18-\${{ github.run_number }}
           name: Finance App V18 - Native APK Sharing
           body: |
             Finance App V18.
             Package: com.hafz.offlinefinance.v18
-            The Contacts section shares the currently installed Finance APK using Android's native Sharesheet.
-            The Contacts section also downloads the Karah Commission Forms app APK directly.
-            The V17 HTML source was reconstructed and SHA-256 checked before compilation.
-            This is a new package ID because the previous private signing key is unavailable. V17 remains separate and its local data is not migrated.
+            The Contacts section shares the installed Finance APK using Android's native Sharesheet.
+            The Contacts section downloads the Karah Commission Forms app APK directly.
+            V17 HTML is reconstructed from the exact V16 source and SHA-256 checked before patching Contacts.
+            New package ID is required because the original private signing key is unavailable. V17 stays installed separately; local data is not migrated.
           files: dist-apk/Finance-App-V18.apk
           make_latest: false
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}
