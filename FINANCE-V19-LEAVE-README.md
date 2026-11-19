@@ -36,6 +36,10 @@ The new package ID allows this fresh installation to coexist with the prior V18 
 
 No APK can be guaranteed to install on every phone. This build targets Android 6.0 and newer. It cannot install on iPhones or Android versions below API 23, and device security policies or damaged installer services may still block sideloading. The CI checks verify package structure and signing; they do not replace testing on physical devices from different manufacturers.
 
+## Signing for future updates
+
+The published APK is signed by the GitHub Actions runner's debug certificate. This is valid for a fresh sideload installation, but a later build from a different runner may use a different debug certificate. To update V19 in place without uninstalling it, configure one persistent private release keystore through GitHub Actions encrypted secrets and reuse it for every release. Never commit the keystore or its passwords to this public repository. Until that is configured, a future APK signed with a different certificate may require uninstalling the previous V19 first.
+
 ## Rebuild
 
 Push changes to this branch or run the GitHub Actions workflow named **Build Finance V19 Leave Calculator APK**. The workflow publishes the APK as both an Actions artifact and a GitHub Release asset.
