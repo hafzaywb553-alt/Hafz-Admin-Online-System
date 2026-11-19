@@ -158,3 +158,31 @@ function updateLeaveCalculator(){
 if js_anchor not in s:
     raise SystemExit("V18 calendar JavaScript insertion anchor was not found.")
 s = s.replace(js_anchor, leave_js + js_anchor, 1)
+
+old_lang = """  document.querySelectorAll('[data-t]').forEach(el=>{const k=el.getAttribute('data-t');if(L[k])el.textContent=L[k]});
+  if($('calcDays')&&L.daysPlaceholder)$('calcDays').placeholder=L.daysPlaceholder;"""
+new_lang = """  document.querySelectorAll('[data-t]').forEach(el=>{const k=el.getAttribute('data-t');if(L[k])el.textContent=L[k]});
+  applyLeaveLang();
+  if($('calcDays')&&L.daysPlaceholder)$('calcDays').placeholder=L.daysPlaceholder;"""
+if old_lang not in s:
+    raise SystemExit("V18 language-switch insertion anchor was not found.")
+s = s.replace(old_lang, new_lang, 1)
+
+old_events = """$('calendarConvert').addEventListener('click',runCalendarConversion);
+$('calendarInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();runCalendarConversion()}});
+runCalendarConversion();
+['lang'].forEach(id=>$(id).addEventListener('change',()=>{settings.lang=$(id).value;applyLang();buildServiceYears();if(!$('calendarError').classList.contains('hidden'))runCalendarConversion();saveSet()}));"""
+new_events = """$('calendarConvert').addEventListener('click',runCalendarConversion);
+$('calendarInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();runCalendarConversion()}});
+runCalendarConversion();
+['leaveCalendarSource','leaveStartDate','leaveDays'].forEach(id=>{
+ $(id).addEventListener('input',updateLeaveCalculator);
+ $(id).addEventListener('change',updateLeaveCalculator);
+});
+['lang'].forEach(id=>$(id).addEventListener('change',()=>{settings.lang=$(id).value;applyLang();buildServiceYears();if(!$('calendarError').classList.contains('hidden'))runCalendarConversion();updateLeaveCalculator();saveSet()}));"""
+if old_events not in s:
+    raise SystemExit("V18 event-binding insertion anchor was not found.")
+s = s.replace(old_events, new_events, 1)
+
+html_path.write_text(s, encoding="utf-8")
+print("Leave calculator added to " + str(html_path) + " (" + str(len(s.encode("utf-8"))) + " bytes).")
