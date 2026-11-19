@@ -65,12 +65,15 @@ for language, values in translations.items():
     if end < 0:
         raise SystemExit(f"Language block {language!r} is not a single line.")
     line = html[start:end]
+    # Update keys that already exist in the V19 translation object.
     for key, value in values.items():
+        if key in ("leaveCountedDay", "leaveSkippedFriday"):
+            continue
         pattern = re.compile(rf"({re.escape(key)}:')[^']*(')")
         line, count = pattern.subn(lambda m: m.group(1) + value + m.group(2), line, count=1)
         if count != 1:
             raise SystemExit(f"Could not update {key!r} in {language!r}.")
-    # Add two translated status labels to the existing language object.
+    # Add two new translated status labels after the existing Friday legend.
     friday_pattern = re.compile(r"(leaveFridayLegend:'[^']*',)")
     line, count = friday_pattern.subn(
         lambda m: m.group(1)
