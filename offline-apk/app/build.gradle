@@ -4,11 +4,11 @@ android {
     namespace 'com.hafz.offlinefinance'
     compileSdk 35
     defaultConfig {
-        applicationId 'com.hafz.offlinefinance.v18'
+        applicationId 'com.hafz.offlinefinance.v19'
         minSdk 23
         targetSdk 35
-        versionCode 18
-        versionName '1.8'
+        versionCode 19
+        versionName '1.9'
     }
     buildTypes {
         release {
@@ -20,7 +20,6 @@ android {
 }
 dependencies {
     implementation('androidx.biometric:biometric:1.1.0') {
-        // Modern kotlin-stdlib already contains the JDK7/JDK8 APIs; exclude stale 1.6.21 split jars.
         exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk7'
         exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk8'
     }
