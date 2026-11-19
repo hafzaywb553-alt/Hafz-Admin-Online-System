@@ -46,3 +46,54 @@ css_insert = r"""
 if css_anchor not in s:
     raise SystemExit("V18 CSS insertion anchor was not found.")
 s = s.replace(css_anchor, "\n" + css_insert + css_anchor, 1)
+
+html_anchor = """    <div class="notice" data-t="dateNote">قمري نتیجه د ام القری تقویم له مخې ده؛ د ځايي سپوږمۍ لیدلو له مخې یوه ورځ توپیر ممکن دی.</div>
+  </div>
+</section>"""
+html_insert = """    <div class="notice" data-t="dateNote">قمري نتیجه د ام القری تقویم له مخې ده؛ د ځايي سپوږمۍ لیدلو له مخې یوه ورځ توپیر ممکن دی.</div>
+
+    <div class="calendar-example leave-box" id="leaveCalculator">
+      <h3 data-leave-t="leaveTitle">د رخصتۍ د مودې محاسبه</h3>
+      <div class="small" data-leave-t="leaveIntro">د پیل تقویم وټاکئ، د رخصتۍ د پیل نېټه او د ورځو شمېر ولیکئ. پایله په اتومات ډول ښکاري.</div>
+      <div class="calendar-fields leave-fields">
+        <label><span data-leave-t="leaveCalendarLabel">د پیل د نېټې تقویم</span>
+          <select id="leaveCalendarSource">
+            <option value="solar" data-leave-t="sourceSolar">هجري شمسي (لمریز)</option>
+            <option value="lunar" data-leave-t="sourceLunar">هجري قمري (ام القری)</option>
+            <option value="gregorian" data-leave-t="sourceGregorian">میلادي (عیسوي)</option>
+          </select>
+        </label>
+        <label><span data-leave-t="leaveStartLabel">د رخصتۍ د پیل نېټه (کال/میاشت/ورځ)</span>
+          <input id="leaveStartDate" type="text" value="" inputmode="numeric" dir="ltr" autocomplete="off" placeholder="1405/03/09">
+        </label>
+        <label><span data-leave-t="leaveDaysLabel">د رخصتۍ ورځې</span>
+          <input id="leaveDays" type="number" min="1" max="3660" step="1" inputmode="numeric" placeholder="17">
+        </label>
+      </div>
+      <div id="leaveError" class="notice warn hidden" role="status" aria-live="polite"></div>
+      <div id="leaveResults" class="hidden" aria-live="polite">
+        <div class="leave-stats">
+          <div class="leave-stat"><span data-leave-t="leaveTotalLabel">د رخصتۍ ټولې ورځې</span><b id="leaveTotalDays">—</b></div>
+          <div class="leave-stat"><span data-leave-t="leaveFridayCountLabel">د جمعو شمېر</span><b id="leaveFridayCount">—</b></div>
+        </div>
+        <div class="leave-end-result">
+          <span data-leave-t="leaveEndLabel">د رخصتۍ وروستۍ ورځ</span>
+          <div class="leave-end-grid">
+            <div class="leave-end-date"><small data-leave-t="sourceSolar">هجري شمسي (لمریز)</small><b id="leaveEndSolar">—</b></div>
+            <div class="leave-end-date"><small data-leave-t="sourceLunar">هجري قمري (ام القری)</small><b id="leaveEndLunar">—</b></div>
+            <div class="leave-end-date"><small data-leave-t="sourceGregorian">میلادي (عیسوي)</small><b id="leaveEndGregorian">—</b></div>
+          </div>
+        </div>
+        <div class="leave-inclusive-note" data-leave-t="leaveInclusiveNote">د پیل ورځ د رخصتۍ د ورځو په شمېر کې شامله ده.</div>
+        <div class="leave-schedule-head">
+          <h4 data-leave-t="leaveScheduleTitle">د رخصتۍ د هرې ورځې جدول</h4>
+          <span class="leave-friday-legend" data-leave-t="leaveFridayLegend">جمعه — په ځانګړي رنګ</span>
+        </div>
+        <div id="leaveSchedule" class="leave-schedule"></div>
+      </div>
+    </div>
+  </div>
+</section>"""
+if html_anchor not in s:
+    raise SystemExit("V18 date-conversion section insertion anchor was not found.")
+s = s.replace(html_anchor, html_insert, 1)
