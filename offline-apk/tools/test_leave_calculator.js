@@ -49,6 +49,6 @@ for (const sample of cases) {
   assert.equal(fridays, sample.fridays);
 }
 
-const trailingSlash = "2026/2/4/".replace(/[\\/\\s]+$/, "");
+const trailingSlash = "2026/2/4/".replace(/[\/\s]+$/, "");
 assert.ok(context.api.gregorianFromCalendar(trailingSlash, "gregorian"));
 console.log("Leave calculator tests passed: 3 calendars, inclusive day count, Friday count and trailing-slash input.");
