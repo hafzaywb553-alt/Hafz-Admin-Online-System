@@ -69,14 +69,14 @@ class ExampleBlockScanner(HTMLParser):
         self.ranges = {}
         self.matches = {phrase: [] for phrase in example_phrases}
 
-    def offset(self):
+    def current_offset(self):
         line, column = self.getpos()
         return line_offsets[line - 1] + column
 
     def handle_starttag(self, tag, attrs):
         if tag in self.VOID:
             return
-        start = self.offset()
+        start = self.current_offset()
         raw = self.get_starttag_text() or ""
         self.stack.append({"tag": tag, "start": start, "attrs": dict(attrs), "open_end": start + len(raw)})
 
@@ -84,7 +84,7 @@ class ExampleBlockScanner(HTMLParser):
         return
 
     def handle_endtag(self, tag):
-        start = self.offset()
+        start = self.current_offset()
         close = self.source.find(">", start)
         end = len(self.source) if close < 0 else close + 1
         for index in range(len(self.stack) - 1, -1, -1):
