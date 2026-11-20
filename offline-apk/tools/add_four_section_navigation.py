@@ -129,33 +129,30 @@ if not valid_blocks:
     raise SystemExit("The exact date-example text has no safe shared block; no converter content was removed.")
 # The same help strings are also stored in the five language dictionaries.
 # Remove only the obsolete example/note entries; keep all date-conversion labels.
-dictionary_help_pattern = re.compile(
-    r",\s*(?:dateExampleTitle|dateExampleText|dateNote):'(?:[^'\\]|\\.)*'(?=,|})"
-)
-html, removed_dictionary_entries = dictionary_help_pattern.subn("", html)
+removed_dictionary_entries = 0
+for obsolete_key in ("dateExampleTitle", "dateExampleText", "dateNote"):
+    property_pattern = re.compile(
+        r",?\s*" + re.escape(obsolete_key) + r"\s*:\s*'(?:[^'\\]|\\.)*'(?=\s*,|\s*})"
+    )
+    html, count = property_pattern.subn("", html)
+    removed_dictionary_entries += count
 if removed_dictionary_entries < 3:
-    raise SystemExit("Could not remove the obsolete date-example translations from the language dictionaries.")
+    raise SystemExit(
+        "Could not remove all obsolete date-example translations; removed "
+        + str(removed_dictionary_entries) + " of at least 3."
+    )
 for obsolete_key in ("dateExampleTitle", "dateExampleText", "dateNote"):
     if obsolete_key in html:
         raise SystemExit("Obsolete date-help translation key remains: " + obsolete_key)
+
 
 # The smallest common DIV is the example-only wrapper, not the whole converter section.
 block_start, block_end = min(valid_blocks.items(), key=lambda item: item[1] - item[0])
 html = html[:block_start] + html[block_end:]
 for phrase in example_phrases:
     if phrase in html:
-        positions = []
-        cursor = 0
-        while True:
-            found = html.find(phrase, cursor)
-            if found < 0:
-                break
-            positions.append(html[max(0, found - 180):min(len(html), found + len(phrase) + 220)])
-            cursor = found + len(phrase)
-        print("DEBUG remaining phrase:", repr(phrase), "occurrences:", len(positions))
-        for excerpt in positions:
-            print("DEBUG CONTEXT:", excerpt)
-        raise SystemExit("The date-example text remains after removing its exact block: " + phrase)
+        raise SystemExit("The date-example text remains after removal: " + phrase)
+
 
 # No V21 example/help panel is added in this build. Fail if one has slipped in.
 for forbidden in (
