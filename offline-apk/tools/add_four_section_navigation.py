@@ -132,6 +132,17 @@ block_start, block_end = min(valid_blocks.items(), key=lambda item: item[1] - it
 html = html[:block_start] + html[block_end:]
 for phrase in example_phrases:
     if phrase in html:
+        positions = []
+        cursor = 0
+        while True:
+            found = html.find(phrase, cursor)
+            if found < 0:
+                break
+            positions.append(html[max(0, found - 180):min(len(html), found + len(phrase) + 220)])
+            cursor = found + len(phrase)
+        print("DEBUG remaining phrase:", repr(phrase), "occurrences:", len(positions))
+        for excerpt in positions:
+            print("DEBUG CONTEXT:", excerpt)
         raise SystemExit("The date-example text remains after removing its exact block: " + phrase)
 
 # No V21 example/help panel is added in this build. Fail if one has slipped in.
