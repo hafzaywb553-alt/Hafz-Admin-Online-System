@@ -59,6 +59,7 @@ jobs:
 
       - name: Test leave calculations in all three calendars
         run: node offline-apk/tools/test_leave_calculator.js
+
       - name: Remove the date example and highlight active bottom tabs
         run: python offline-apk/tools/apply_v22_ui.py
 
@@ -139,7 +140,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: finance-v22-remove-example-highlight-tabs-20261120
-          name: Finance V22 - Date Conversion Help
+          name: Finance V22 - Date Example Removed and Navigation Highlighted
           body: |
             Finance V22 is built from the verified offline Android application and the previously tested leave calculator.
             The date-equivalence example and its explanatory text have been removed. The click-only lunar-calendar caution remains.
