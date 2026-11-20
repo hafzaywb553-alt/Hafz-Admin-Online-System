@@ -127,6 +127,18 @@ for stack_combo in product(*(scanner.matches[phrase] for phrase in example_phras
 
 if not valid_blocks:
     raise SystemExit("The exact date-example text has no safe shared block; no converter content was removed.")
+# The same help strings are also stored in the five language dictionaries.
+# Remove only the obsolete example/note entries; keep all date-conversion labels.
+dictionary_help_pattern = re.compile(
+    r",\s*(?:dateExampleTitle|dateExampleText|dateNote):'(?:[^'\\]|\\.)*'(?=,|})"
+)
+html, removed_dictionary_entries = dictionary_help_pattern.subn("", html)
+if removed_dictionary_entries < 3:
+    raise SystemExit("Could not remove the obsolete date-example translations from the language dictionaries.")
+for obsolete_key in ("dateExampleTitle", "dateExampleText", "dateNote"):
+    if obsolete_key in html:
+        raise SystemExit("Obsolete date-help translation key remains: " + obsolete_key)
+
 # The smallest common DIV is the example-only wrapper, not the whole converter section.
 block_start, block_end = min(valid_blocks.items(), key=lambda item: item[1] - item[0])
 html = html[:block_start] + html[block_end:]
