@@ -3,6 +3,10 @@
     <uses-permission android:name="android.permission.USE_BIOMETRIC"/>
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28"/>
+    <!-- Fingerprint/biometric hardware is optional; devices without it can still install and use the app. -->
+    <uses-feature android:name="android.hardware.fingerprint" android:required="false"/>
+    <!-- Explicitly include compact phones, regular phones, tablets and extra-large screens. -->
+    <supports-screens android:smallScreens="true" android:normalScreens="true" android:largeScreens="true" android:xlargeScreens="true" android:anyDensity="true"/>
     <application
         android:allowBackup="false"
         android:usesCleartextTraffic="false"
