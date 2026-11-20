@@ -4,38 +4,12 @@ import re
 html_path = Path(__file__).resolve().parents[1] / "app" / "src" / "main" / "assets" / "index.html"
 html = html_path.read_text(encoding="utf-8")
 
-# The date-conversion controls already exist in V18. Identify their actual
-# containing section, then rename only that section for the bottom navigation.
-needle = 'id="calendarInput"'
-if html.count(needle) != 1:
-    raise SystemExit("Expected exactly one existing date-conversion input; refusing to guess.")
-input_pos = html.find(needle)
-section_pos = html.rfind("<section", 0, input_pos)
-if section_pos < 0:
-    raise SystemExit("Could not locate the section containing the existing date converter.")
-section_end = html.find(">", section_pos)
-if section_end < 0:
-    raise SystemExit("The date-conversion section opening tag is incomplete.")
-section_tag = html[section_pos:section_end + 1]
-section_id = re.search(r'\bid="([^"]+)"', section_tag)
-if not section_id:
-    raise SystemExit("The date-conversion section has no ID; refusing to rename an unknown section.")
-old_section_id = section_id.group(1)
-if old_section_id in ("salarySection", "contactSection", "settingsSection"):
-    raise SystemExit(
-        "The date-conversion controls appear inside the " + old_section_id +
-        " section. No section was moved or renamed; source layout requires review."
-    )
-if old_section_id != "dateConversionSection":
-    updated_tag, count = re.subn(
-        r'\bid="' + re.escape(old_section_id) + r'"',
-        'id="dateConversionSection"',
-        section_tag,
-        count=1,
-    )
-    if count != 1:
-        raise SystemExit("Could not safely rename the date-conversion section.")
-    html = html[:section_pos] + updated_tag + html[section_end + 1:]
+# Keep the four original top-level sections. The existing second tab is dateSection.
+if 'id="dateSection"' not in html:
+    raise SystemExit("The original date-conversion navigation section (dateSection) is missing.")
+for required_date_control in ('id="calendarInput"', 'id="calendarConvert"'):
+    if html.count(required_date_control) != 1:
+        raise SystemExit("The existing date-conversion screen is incomplete: " + required_date_control)
 
 # Remove the old one-line lunar note. It is explanatory help text, not part
 # of the calendar conversion calculations.
@@ -169,25 +143,16 @@ for forbidden in (
     if forbidden in html:
         raise SystemExit("Unexpected V21 date-help content found: " + forbidden)
 
-# Add the fourth navigation entry immediately after the salary entry.
+# Preserve the four original bottom-navigation entries and exact order.
 nav_start = html.find('<nav class="bottom">')
 nav_end = html.find("</nav>", nav_start)
 if nav_start < 0 or nav_end < 0:
     raise SystemExit("The bottom navigation container was not found.")
 nav_html = html[nav_start:nav_end]
-if 'data-section="dateConversionSection"' in nav_html:
-    raise SystemExit("The date-conversion navigation entry is already present.")
-salary_pattern = re.compile(r'<a\b(?=[^>]*data-section="salarySection")[^>]*>[\s\S]*?</a>')
-salary_matches = list(salary_pattern.finditer(nav_html))
-if len(salary_matches) != 1:
-    raise SystemExit("Could not uniquely locate the salary navigation entry.")
-date_nav = """<a class="nav-btn" href="hafz://nav/dateConversion" data-section="dateConversionSection">
-    <svg class="nav-icon date-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4.5" width="18" height="17" rx="2.5"/><path d="M8 2.5v4M16 2.5v4M3 9.5h18M7 13h3M14 13h3M7 17h3"/></svg>
-    <span data-t="navDateConversion">د نېټې تبدیل</span>
-  </a>"""
-m = salary_matches[0]
-nav_html = nav_html[:m.end()] + "\n  " + date_nav + nav_html[m.end():]
-html = html[:nav_start] + nav_html + html[nav_end:]
+nav_sections = re.findall(r'<a\b(?=[^>]*data-section="([^"]+)")[^>]*>', nav_html)
+expected_nav_sections = ["salarySection", "dateSection", "contactSection", "settingsSection"]
+if nav_sections != expected_nav_sections:
+    raise SystemExit("The original four navigation entries are not in the requested order: " + repr(nav_sections))
 
 # Four-column layout is applied in a scoped override below.
 
@@ -205,7 +170,7 @@ active_css = r"""
 .bottom{display:grid!important;grid-template-columns:repeat(4,1fr)!important;gap:7px}
 /* Four-tab active-state colors: the selected tab changes both label and outline. */
 .nav-btn[data-section="salarySection"].active{color:#55a8ff;background:rgba(85,168,255,.14);border-color:rgba(85,168,255,.58);box-shadow:inset 0 -3px 0 #55a8ff}
-.nav-btn[data-section="dateConversionSection"].active{color:#b58cff;background:rgba(181,140,255,.15);border-color:rgba(181,140,255,.62);box-shadow:inset 0 -3px 0 #b58cff}
+.nav-btn[data-section="dateSection"].active{color:#b58cff;background:rgba(181,140,255,.15);border-color:rgba(181,140,255,.62);box-shadow:inset 0 -3px 0 #b58cff}.nav-btn[data-section="dateSection"].active .nav-icon{color:#b58cff}
 .nav-btn[data-section="contactSection"].active{color:#2dd884;background:rgba(45,216,132,.14);border-color:rgba(45,216,132,.60);box-shadow:inset 0 -3px 0 #2dd884}
 .nav-btn[data-section="settingsSection"].active{color:#ffd466;background:rgba(255,212,102,.14);border-color:rgba(255,212,102,.62);box-shadow:inset 0 -3px 0 #ffd466}
 .nav-btn.active .nav-icon{transform:scale(1.10)}
@@ -220,41 +185,13 @@ if "</style>" not in html:
     raise SystemExit("Could not locate the application style closing tag.")
 html = html.replace("</style>", active_css + "\n</style>", 1)
 
-# Add the date-conversion label to all five supported language dictionaries.
-translations = {
-    "ps": "د نېټې تبدیل",
-    "fa": "تبدیل تاریخ",
-    "ar": "تحويل التاريخ",
-    "ur": "تاریخ کی تبدیلی",
-    "en": "Date Conversion",
-}
-for language, value in translations.items():
-    marker = language + ":{"
-    pos = html.find(marker)
-    if pos < 0:
-        raise SystemExit("The " + language + " language dictionary was not found.")
-    line_start = html.rfind("\n", 0, pos) + 1
-    line_end = html.find("\n", pos)
-    if line_end < 0:
-        line_end = len(html)
-    line = html[line_start:line_end]
-    line, count = re.subn(
-        r"(navSalary:'[^']*',)",
-        lambda match: match.group(1) + "navDateConversion:'" + value + "',",
-        line,
-        count=1,
-    )
-    if count != 1:
-        raise SystemExit("Could not add the date-conversion label to " + language + ".")
-    html = html[:line_start] + line + html[line_end:]
-
 # Keep the same four existing sections and make the selected menu state explicit.
 start = html.find("function showSection(id,btn){")
 end = html.find("\nfunction contactText()", start)
 if start < 0 or end < 0 or end <= start:
     raise SystemExit("The existing showSection function boundaries were not found.")
 replacement = """function showSection(id,btn){
-  ['salarySection','dateConversionSection','contactSection','settingsSection'].forEach(x=>{
+  ['salarySection','dateSection','contactSection','settingsSection'].forEach(x=>{
     const section=$(x);
     if(section) section.classList.toggle('hidden',x!==id);
   });
@@ -280,7 +217,7 @@ if count != 1:
 # Recheck the four-section order and confirm the original converter remains intact.
 required = [
     'id="salarySection"',
-    'id="dateConversionSection"',
+    'id="dateSection"',
     'id="contactSection"',
     'id="settingsSection"',
     'id="calendarInput"',
