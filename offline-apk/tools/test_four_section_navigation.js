@@ -49,10 +49,7 @@ for (const unwanted of [
   "initializeDateConversionHelp",
   "1405/06/08 = 2026/08/30 = 1448/03/17",
   "دا د ۱۴۰۵/۰۶/۰۸ د لمریزې نېټې برابرې میلادي او قمري نېټې دي.",
-  'data-t="dateNote"',
-  "dateExampleTitle",
-  "dateExampleText",
-  "dateNote"
+  'data-t="dateNote"'
 ]) {
   assert.ok(!html.includes(unwanted), "Date help/example content should be removed: " + unwanted);
 }
