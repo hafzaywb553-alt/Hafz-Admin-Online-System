@@ -238,7 +238,8 @@ public class MainActivity extends FragmentActivity {
 
         if ("nav".equals(host)) {
             String section = "salarySection";
-            if (path.contains("contact")) section = "contactSection";
+            if (path.contains("dateconversion")) section = "dateConversionSection";
+            else if (path.contains("contact")) section = "contactSection";
             if (path.contains("settings")) section = "settingsSection";
             final String js = "window.showSection && window.showSection('" + section
                     + "',document.querySelector('[data-section=\"" + section + "\"]'));";
@@ -343,7 +344,7 @@ public class MainActivity extends FragmentActivity {
                 throw new IOException("Installed APK file is not available.");
             }
 
-            File sharedApk = new File(shareDir, "Finance-App-V21-Date-Conversion-Help.apk");
+            File sharedApk = new File(shareDir, "Finance-App-V22-Four-Tabs.apk");
             try (FileInputStream input = new FileInputStream(sourceApk);
                  FileOutputStream output = new FileOutputStream(sharedApk, false)) {
                 byte[] buffer = new byte[16 * 1024];
@@ -369,7 +370,7 @@ public class MainActivity extends FragmentActivity {
             send.putExtra(Intent.EXTRA_STREAM, apkUri);
             send.putExtra(Intent.EXTRA_SUBJECT, "د مالي مدیریت اصلي APK");
             send.setClipData(ClipData.newUri(
-                getContentResolver(), "Finance-App-V21-Date-Conversion-Help.apk", apkUri
+                getContentResolver(), "Finance-App-V22-Four-Tabs.apk", apkUri
             ));
             send.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
