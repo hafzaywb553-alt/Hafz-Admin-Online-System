@@ -238,7 +238,7 @@ public class MainActivity extends FragmentActivity {
 
         if ("nav".equals(host)) {
             String section = "salarySection";
-            if (path.contains("dateconversion")) section = "dateConversionSection";
+            if (path.contains("date")) section = "dateSection";
             else if (path.contains("contact")) section = "contactSection";
             if (path.contains("settings")) section = "settingsSection";
             final String js = "window.showSection && window.showSection('" + section
