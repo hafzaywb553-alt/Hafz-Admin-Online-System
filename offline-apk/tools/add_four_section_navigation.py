@@ -189,14 +189,7 @@ m = salary_matches[0]
 nav_html = nav_html[:m.end()] + "\n  " + date_nav + nav_html[m.end():]
 html = html[:nav_start] + nav_html + html[nav_end:]
 
-# Four equally sized navigation columns.
-bottom_pattern = re.compile(
-    r'(\.bottom\s*\{[^}]*?grid-template-columns\s*:\s*)repeat\(\s*3\s*,\s*1fr\s*\)',
-    re.DOTALL,
-)
-html, count = bottom_pattern.subn(r'\1repeat(4,1fr)', html, count=1)
-if count != 1:
-    raise SystemExit("Could not safely change the bottom menu to four columns.")
+# Four-column layout is applied in a scoped override below.
 
 # Give the new icon its own color, then make every active section unmistakable.
 icon_anchor = ".salary-icon{color:#55a8ff}.contact-icon{color:#2dd884}.settings-icon{color:#ffd466}"
@@ -208,6 +201,8 @@ html = html.replace(
     1,
 )
 active_css = r"""
+/* Force four equal bottom-nav columns even when the original CSS uses a different spacing style. */
+.bottom{display:grid!important;grid-template-columns:repeat(4,1fr)!important;gap:7px}
 /* Four-tab active-state colors: the selected tab changes both label and outline. */
 .nav-btn[data-section="salarySection"].active{color:#55a8ff;background:rgba(85,168,255,.14);border-color:rgba(85,168,255,.58);box-shadow:inset 0 -3px 0 #55a8ff}
 .nav-btn[data-section="dateConversionSection"].active{color:#b58cff;background:rgba(181,140,255,.15);border-color:rgba(181,140,255,.62);box-shadow:inset 0 -3px 0 #b58cff}
