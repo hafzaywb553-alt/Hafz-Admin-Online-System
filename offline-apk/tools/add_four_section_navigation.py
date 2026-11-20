@@ -44,6 +44,96 @@ html, note_count = note_pattern.subn("", html, count=1)
 if note_count != 1:
     raise SystemExit("Expected the old date-conversion note exactly once; refusing to leave mixed help text.")
 
+# Remove the exact example block from the original converter screen. The block
+# is located from its three exact text strings; its wrapper is removed only if
+# it does not contain the date converter's actual input or convert button.
+from html.parser import HTMLParser
+from itertools import product
+
+example_phrases = (
+    "د نېټې د تبدیل بېلګه",
+    "1405/06/08 = 2026/08/30 = 1448/03/17",
+    "دا د ۱۴۰۵/۰۶/۰۸ د لمریزې نېټې برابرې میلادي او قمري نېټې دي.",
+)
+line_offsets = [0]
+line_offsets.extend(match.end() for match in re.finditer("\n", html))
+
+class ExampleBlockScanner(HTMLParser):
+    VOID = {"area", "base", "br", "col", "embed", "hr", "img", "input",
+            "link", "meta", "param", "source", "track", "wbr"}
+
+    def __init__(self, source):
+        super().__init__(convert_charrefs=True)
+        self.source = source
+        self.stack = []
+        self.ranges = {}
+        self.matches = {phrase: [] for phrase in example_phrases}
+
+    def offset(self):
+        line, column = self.getpos()
+        return line_offsets[line - 1] + column
+
+    def handle_starttag(self, tag, attrs):
+        if tag in self.VOID:
+            return
+        start = self.offset()
+        raw = self.get_starttag_text() or ""
+        self.stack.append({"tag": tag, "start": start, "attrs": dict(attrs), "open_end": start + len(raw)})
+
+    def handle_startendtag(self, tag, attrs):
+        return
+
+    def handle_endtag(self, tag):
+        start = self.offset()
+        close = self.source.find(">", start)
+        end = len(self.source) if close < 0 else close + 1
+        for index in range(len(self.stack) - 1, -1, -1):
+            if self.stack[index]["tag"] == tag:
+                item = self.stack[index]
+                self.ranges[item["start"]] = end
+                del self.stack[index:]
+                break
+
+    def handle_data(self, data):
+        if any(item["tag"] in ("script", "style") for item in self.stack):
+            return
+        for phrase in example_phrases:
+            if phrase in data:
+                self.matches[phrase].append(list(self.stack))
+
+scanner = ExampleBlockScanner(html)
+scanner.feed(html)
+scanner.close()
+if any(not scanner.matches[phrase] for phrase in example_phrases):
+    missing = [phrase for phrase in example_phrases if not scanner.matches[phrase]]
+    raise SystemExit("Could not locate every exact date-example text fragment: " + " | ".join(missing))
+
+valid_blocks = {}
+for stack_combo in product(*(scanner.matches[phrase] for phrase in example_phrases)):
+    common_div_starts = None
+    for stack in stack_combo:
+        starts = {item["start"] for item in stack if item["tag"] == "div"}
+        common_div_starts = starts if common_div_starts is None else common_div_starts & starts
+    for block_start in common_div_starts or set():
+        block_end = scanner.ranges.get(block_start)
+        if block_end is None:
+            continue
+        block = html[block_start:block_end]
+        if not all(phrase in block for phrase in example_phrases):
+            continue
+        if 'id="calendarInput"' in block or 'id="calendarConvert"' in block:
+            continue
+        valid_blocks[block_start] = block_end
+
+if not valid_blocks:
+    raise SystemExit("The exact date-example text has no safe shared block; no converter content was removed.")
+# The smallest common DIV is the example-only wrapper, not the whole converter section.
+block_start, block_end = min(valid_blocks.items(), key=lambda item: item[1] - item[0])
+html = html[:block_start] + html[block_end:]
+for phrase in example_phrases:
+    if phrase in html:
+        raise SystemExit("The date-example text remains after removing its exact block: " + phrase)
+
 # No V21 example/help panel is added in this build. Fail if one has slipped in.
 for forbidden in (
     'id="dateConversionHelpWrap"',
