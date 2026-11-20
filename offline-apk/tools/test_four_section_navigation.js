@@ -43,6 +43,8 @@ for (const item of [
 }
 
 for (const unwanted of [
+  "قمري نتیجه د ام القری تقویم له مخې ده؛ د ځايي سپوږمۍ لیدلو له مخې یوه ورځ توپیر ممکن دی.",
+  "د نېټې د تبدیل بېلګه",
   'id="dateConversionHelpWrap"',
   'id="dateConversionHelpToggle"',
   'id="dateConversionHelpPanel"',
