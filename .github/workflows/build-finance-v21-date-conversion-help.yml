@@ -137,7 +137,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: finance-v21-date-conversion-help-20261120
-          name: Finance V21 - Fridays Excluded from Leave
+          name: Finance V21 - Date Conversion Help
           body: |
             Finance V21 is built from the verified Finance V18 offline Android project and the previously tested V19 leave calculator.
             Existing application sections and behavior are retained.
