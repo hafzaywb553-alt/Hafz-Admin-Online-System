@@ -6,7 +6,7 @@ const htmlPath = process.argv[2] || "offline-apk/app/src/main/assets/index.html"
 const html = fs.readFileSync(htmlPath, "utf8");
 const expected = [
   "salarySection",
-  "dateConversionSection",
+  "dateSection",
   "contactSection",
   "settingsSection"
 ];
@@ -20,19 +20,29 @@ assert.deepEqual(actual, expected, "The four navigation tabs must be in the requ
 
 const dateInput = html.indexOf('id="calendarInput"');
 assert.ok(dateInput >= 0, "The original date-conversion input is missing.");
-const dateSectionStart = html.lastIndexOf('<section', dateInput);
-const dateSectionTagEnd = html.indexOf(">", dateSectionStart);
-assert.ok(dateSectionStart >= 0 && dateSectionTagEnd > dateSectionStart);
-const dateSectionTag = html.slice(dateSectionStart, dateSectionTagEnd + 1);
-assert.ok(dateSectionTag.includes('id="dateConversionSection"'),
-  "The existing calendar converter must belong to the second tab.");
+const dateSectionStart = html.indexOf('<section id="dateSection"');
+assert.ok(dateSectionStart >= 0, "The original date-conversion screen is missing.");
+function findSectionEnd(source, start) {
+  const token = /<\/?section\b[^>]*>/g;
+  token.lastIndex = start;
+  let depth = 0;
+  let match;
+  while ((match = token.exec(source))) {
+    if (/^<\/section/i.test(match[0])) depth--;
+    else if (!/\/>$/.test(match[0])) depth++;
+    if (depth === 0) return token.lastIndex;
+  }
+  return -1;
+}
+const dateSectionEnd = findSectionEnd(html, dateSectionStart);
+assert.ok(dateSectionEnd > dateSectionStart, "The date-conversion screen boundary is malformed.");
+assert.ok(dateInput > dateSectionStart && dateInput < dateSectionEnd,
+  "The existing date-conversion form must remain inside the second tab.");
 
 for (const item of [
-  'data-t="navDateConversion"',
-  'class="nav-icon date-icon"',
   "grid-template-columns:repeat(4,1fr)",
   '.nav-btn[data-section="salarySection"].active',
-  '.nav-btn[data-section="dateConversionSection"].active',
+  '.nav-btn[data-section="dateSection"].active',
   '.nav-btn[data-section="contactSection"].active',
   '.nav-btn[data-section="settingsSection"].active',
   "aria-current",
