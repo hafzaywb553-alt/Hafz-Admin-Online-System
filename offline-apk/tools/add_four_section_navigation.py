@@ -151,6 +151,10 @@ for obsolete_phrase in example_phrases:
 # The smallest common DIV is the example-only wrapper, not the whole converter section.
 block_start, block_end = min(valid_blocks.items(), key=lambda item: item[1] - item[0])
 html = html[:block_start] + html[block_end:]
+# Remove any remaining literal copies of the user's example text from all source locations.
+# This is text-only cleanup and does not touch the date conversion functions.
+for phrase in example_phrases:
+    html = html.replace(phrase, "")
 for phrase in example_phrases:
     if phrase in html:
         raise SystemExit("The date-example text remains after removal: " + phrase)
