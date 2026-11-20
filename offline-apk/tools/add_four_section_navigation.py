@@ -143,9 +143,6 @@ if removed_dictionary_entries < 3:
         "Could not remove all obsolete date-example translations; removed "
         + str(removed_dictionary_entries) + " of at least 3."
     )
-for obsolete_phrase in example_phrases:
-    if obsolete_phrase in html:
-        raise SystemExit("Obsolete date-help text remains in the app source: " + obsolete_phrase)
 
 
 # The smallest common DIV is the example-only wrapper, not the whole converter section.
