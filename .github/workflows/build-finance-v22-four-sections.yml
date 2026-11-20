@@ -6,7 +6,7 @@ on:
       - finance-v22-four-tabs-remove-date-help-20261120
     paths:
       - "offline-apk/**"
-      - ".github/workflows/build-finance-v21-date-conversion-help.yml"
+      - ".github/workflows/build-finance-v22-four-sections.yml"
       - "FINANCE-V22-FOUR-SECTIONS-README.md"
   workflow_dispatch:
 
@@ -64,7 +64,6 @@ jobs:
 
       - name: Test four-section navigation and date-help removal
         run: node offline-apk/tools/test_four_section_navigation.js
-
 
       - name: Check application JavaScript syntax
         run: |
