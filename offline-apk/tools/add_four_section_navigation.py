@@ -190,7 +190,10 @@ nav_html = nav_html[:m.end()] + "\n  " + date_nav + nav_html[m.end():]
 html = html[:nav_start] + nav_html + html[nav_end:]
 
 # Four equally sized navigation columns.
-bottom_pattern = re.compile(r'(\.bottom\{[^}]*grid-template-columns:)repeat\(3,1fr\)')
+bottom_pattern = re.compile(
+    r'(\.bottom\s*\{[^}]*?grid-template-columns\s*:\s*)repeat\(\s*3\s*,\s*1fr\s*\)',
+    re.DOTALL,
+)
 html, count = bottom_pattern.subn(r'\1repeat(4,1fr)', html, count=1)
 if count != 1:
     raise SystemExit("Could not safely change the bottom menu to four columns.")
