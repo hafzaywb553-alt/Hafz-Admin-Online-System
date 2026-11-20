@@ -129,10 +129,12 @@ if not valid_blocks:
     raise SystemExit("The exact date-example text has no safe shared block; no converter content was removed.")
 # The same help strings are also stored in the five language dictionaries.
 # Remove only the obsolete example/note entries; keep all date-conversion labels.
+# Delete obsolete translation properties without touching live converter labels.
 removed_dictionary_entries = 0
 for obsolete_key in ("dateExampleTitle", "dateExampleText", "dateNote"):
     property_pattern = re.compile(
-        r",?\s*" + re.escape(obsolete_key) + r"\s*:\s*'(?:[^'\\]|\\.)*'(?=\s*,|\s*})"
+        r"['\"]?" + re.escape(obsolete_key) + r"['\"]?\s*:\s*(['\"])(.*?)\1\s*,?",
+        re.DOTALL,
     )
     html, count = property_pattern.subn("", html)
     removed_dictionary_entries += count
@@ -141,9 +143,9 @@ if removed_dictionary_entries < 3:
         "Could not remove all obsolete date-example translations; removed "
         + str(removed_dictionary_entries) + " of at least 3."
     )
-for obsolete_key in ("dateExampleTitle", "dateExampleText", "dateNote"):
-    if obsolete_key in html:
-        raise SystemExit("Obsolete date-help translation key remains: " + obsolete_key)
+for obsolete_phrase in example_phrases:
+    if obsolete_phrase in html:
+        raise SystemExit("Obsolete date-help text remains in the app source: " + obsolete_phrase)
 
 
 # The smallest common DIV is the example-only wrapper, not the whole converter section.
