@@ -1,6 +1,7 @@
 package com.hafz.offlinefinance;
 
 import android.Manifest;
+import android.app.KeyguardManager;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.pm.PackageManager;
@@ -26,6 +27,10 @@ import androidx.biometric.BiometricPrompt;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import java.io.File;
@@ -38,6 +43,7 @@ public class MainActivity extends FragmentActivity {
     private static final String PREFS = "offline_finance_security";
     private static final String BIOMETRIC_ENABLED = "biometric_enabled";
     private static final int COMMISSION_STORAGE_PERMISSION_REQUEST = 4182;
+    private static final int DEVICE_CREDENTIAL_REQUEST = 4183;
     private static final String COMMISSION_APK_URL =
         "https://hafzaywb553-alt.github.io/Hafz-Admin-Online-System/karah-commission.apk";
 
@@ -55,8 +61,9 @@ public class MainActivity extends FragmentActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getWindow().setStatusBarColor(Color.rgb(3, 11, 25));
-        getWindow().setNavigationBarColor(Color.rgb(3, 11, 25));
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+        getWindow().setStatusBarColor(Color.TRANSPARENT);
+        getWindow().setNavigationBarColor(Color.TRANSPARENT);
         prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
         setupWebView();
         setupBiometric();
@@ -65,12 +72,21 @@ public class MainActivity extends FragmentActivity {
     private void setupWebView() {
         webView = new WebView(this);
         webView.setBackgroundColor(Color.rgb(3, 11, 25));
+        ViewCompat.setOnApplyWindowInsetsListener(webView, (view, windowInsets) -> {
+            Insets safe = windowInsets.getInsets(
+                WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout()
+            );
+            view.setPadding(safe.left, safe.top, safe.right, safe.bottom);
+            return windowInsets;
+        });
         webView.setOverScrollMode(View.OVER_SCROLL_NEVER);
         webView.setVisibility(View.INVISIBLE);
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setDomStorageEnabled(true);
         webView.getSettings().setAllowFileAccess(true);
         webView.getSettings().setAllowContentAccess(false);
+        webView.getSettings().setAllowFileAccessFromFileURLs(false);
+        webView.getSettings().setAllowUniversalAccessFromFileURLs(false);
         webView.getSettings().setSupportZoom(false);
         webView.getSettings().setBuiltInZoomControls(false);
         webView.getSettings().setDisplayZoomControls(false);
@@ -229,7 +245,13 @@ public class MainActivity extends FragmentActivity {
         if (uri == null) return false;
         String scheme = uri.getScheme() == null ? "" : uri.getScheme().toLowerCase();
         if (!"hafz".equals(scheme)) {
-            openExternal(uri.toString());
+            if ("tel".equals(scheme)) {
+                dial(uri.getSchemeSpecificPart());
+                return true;
+            }
+            if ("http".equals(scheme) || "https".equals(scheme)) {
+                openExternal(uri.toString());
+            }
             return true;
         }
 
@@ -426,6 +448,24 @@ public class MainActivity extends FragmentActivity {
     }
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == DEVICE_CREDENTIAL_REQUEST) {
+            if (resultCode == RESULT_OK) {
+                unlocked = true;
+                authInProgress = false;
+                hideLock();
+                toast("د موبایل د قلف له لارې ننوتل تایید شول.");
+                evaluate("window.onNativeUnlocked && window.onNativeUnlocked();");
+            } else {
+                unlocked = false;
+                showLock();
+                toast("تایید لغوه شو؛ اپ لا هم قلف دی.");
+            }
+        }
+    }
+
+    @Override
     public void onRequestPermissionsResult(
             int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -471,7 +511,13 @@ public class MainActivity extends FragmentActivity {
                 } catch (Exception ignored) {}
             }
         }
-        toast("اړوند اپ نصب شوی نه دی؛ دا آفلاین APK هېڅ Browser نه پرانیزي.");
+        try {
+            Intent browser = new Intent(Intent.ACTION_VIEW, uri);
+            browser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(browser);
+            return;
+        } catch (Exception ignored) {}
+        toast("د دې لینک د پرانیستلو لپاره مناسب اپ یا Browser موجود نه دی.");
     }
 
     private void dial(String number) {
@@ -480,6 +526,26 @@ public class MainActivity extends FragmentActivity {
             startActivity(intent);
         } catch (Exception ignored) {
             toast("د زنګ اپراتور/اپ پرانیستل نه شول.");
+        }
+    }
+
+    private void confirmDeviceCredential() {
+        try {
+            KeyguardManager keyguard = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
+            if (keyguard == null || !keyguard.isDeviceSecure()) {
+                toast("لومړی د موبایل په تنظیماتو کې PIN، Pattern یا Password ثبت کړئ.");
+                return;
+            }
+            Intent intent = keyguard.createConfirmDeviceCredentialIntent(
+                "د مالي مدیریت", "د موبایل د PIN، Pattern یا Password له لارې تایید وکړئ."
+            );
+            if (intent == null) {
+                toast("د موبایل د قلف د تایید پاڼه پرانیستل نه شوه.");
+                return;
+            }
+            startActivityForResult(intent, DEVICE_CREDENTIAL_REQUEST);
+        } catch (Exception error) {
+            toast("د موبایل د قلف تایید ممکن نه شو: " + error.getMessage());
         }
     }
 
@@ -636,6 +702,11 @@ public class MainActivity extends FragmentActivity {
         @JavascriptInterface
         public void downloadCommissionApk() {
             runOnUiThread(() -> MainActivity.this.downloadCommissionApk());
+        }
+
+        @JavascriptInterface
+        public void confirmDeviceCredential() {
+            runOnUiThread(() -> MainActivity.this.confirmDeviceCredential());
         }
 
         @JavascriptInterface
