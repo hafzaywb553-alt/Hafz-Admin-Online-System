@@ -6,7 +6,7 @@ on:
       - finance-v23-verified-fixes-20261121
     paths:
       - "offline-apk/**"
-      - ".github/workflows/build-finance-v22-four-sections.yml"
+      - ".github/workflows/build-finance-v23-verified-fixes.yml"
       - "FINANCE-V22-FOUR-SECTIONS-README.md"
   workflow_dispatch:
 
@@ -15,7 +15,7 @@ permissions:
 
 jobs:
   build:
-    name: Build, test and publish Finance V22 APK
+    name: Build, test and publish Finance V23 APK
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -81,9 +81,9 @@ jobs:
           if marker not in source or "</script>" not in source:
               raise SystemExit("Inline application JavaScript is missing.")
           script = source.split(marker, 1)[1].split("</script>", 1)[0]
-          Path("/tmp/finance-v22-inline.js").write_text(script, encoding="utf-8")
+          Path("/tmp/finance-v23-inline.js").write_text(script, encoding="utf-8")
           PY
-          node --check /tmp/finance-v22-inline.js
+          node --check /tmp/finance-v23-inline.js
 
       - name: Fetch the official app logo
         run: |
@@ -144,15 +144,15 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: finance-v23-verified-fixes-20261121
-          name: Finance V22 - Four Sections
+          name: Finance V23 - Verified Fixes
           body: |
-            Finance V22 is built from the verified offline V18 source, the existing leave calculator and the tested Friday-exclusion rule.
+            Finance V23 is built from the verified offline V18 source, the existing leave calculator and the tested Friday-exclusion rule.
             Navigation has four sections in this exact order: salary information, date conversion, contact us, and settings.
             The existing date-conversion screen is the second tab. Each of the four tabs has its own icon and a distinct active color.
             The V21 date-help/example panel and its example text remain removed. The user-configured military, civilian, education and step allowance tables are unchanged. Jalali leap-year month lengths and calculation input validation are corrected.
             Android minimum: 6.0 (API 23). Universal APK: no ABI-specific native libraries.
             Package: com.hafz.offlinefinance.v23
-Version: 2.3 (23). This build uses a separate package ID so it can be installed alongside V22.
+            Version: 2.3 (23). This build uses a separate package ID so it can be installed alongside V22.
           files: dist-apk/Finance-App-V23-Verified-Fixes.apk
           make_latest: false
         env:
