@@ -108,7 +108,7 @@ jobs:
         with:
           gradle-version: "8.9"
 
-      - name: Check source whitespace
+      - name: Check source whitespace and patch integrity
         run: git diff --check
 
       - name: Build universal APK (debug-signed installable build)
