@@ -108,7 +108,10 @@ jobs:
         with:
           gradle-version: "8.9"
 
-      - name: Build universal APK
+      - name: Check source whitespace
+        run: git diff --check
+
+      - name: Build universal APK (debug-signed installable build)
         run: gradle -p offline-apk :app:assembleDebug --no-daemon
 
       - name: Verify package, signature and device compatibility metadata
@@ -152,7 +155,8 @@ jobs:
             The V21 date-help/example panel and its example text remain removed. The user-configured military, civilian, education and step allowance tables are unchanged. Jalali leap-year month lengths and calculation input validation are corrected.
             Android minimum: 6.0 (API 23). Universal APK: no ABI-specific native libraries.
             Package: com.hafz.offlinefinance.v23
-            Version: 2.3 (23). This build uses a separate package ID so it can be installed alongside V22.
+            Version: 2.3 (23). This build uses a separate package ID so it can be installed alongside V22; V22 app data is not automatically migrated.
+            Signing: this APK is debug-signed. A persistent private release signing key is required before future updates can replace this installation in place.
           files: dist-apk/Finance-App-V23-Verified-Fixes.apk
           make_latest: false
         env:
