@@ -42,6 +42,34 @@ assert.equal(context.api.solarDays(12, 1403), 30, "1403 must have 30 days in Hoo
 assert.equal(context.api.solarDays(12, 1404), 29, "1404 must have 29 days in Hoot.");
 assert.equal(context.api.solarDays(12, 1408), 30, "1408 must have 30 days in Hoot.");
 
+// Cross-check every Jalali year in the app's selectable range against the
+// platform Persian calendar implementation. The app's arithmetic fallback
+// must agree with ICU where ICU is available.
+const persian = new Intl.DateTimeFormat("en-US-u-ca-persian-nu-latn", {
+  timeZone: "UTC", year: "numeric", month: "numeric", day: "numeric"
+});
+function persianParts(date) {
+  const result = {};
+  for (const p of persian.formatToParts(date)) {
+    if (["year", "month", "day"].includes(p.type)) result[p.type] = Number(p.value);
+  }
+  return result;
+}
+function persianNewYearStart(year) {
+  const approx = Date.UTC(year + 621, 2, 18);
+  for (let i = 0; i < 10; i++) {
+    const d = new Date(approx + i * 86400000);
+    const p = persianParts(d);
+    if (p.year === year && p.month === 1 && p.day === 1) return d;
+  }
+  throw new Error("Could not find Persian new year " + year);
+}
+for (let y = 1300; y < 1500; y++) {
+  const length = (persianNewYearStart(y + 1) - persianNewYearStart(y)) / 86400000;
+  assert.equal(context.api.solarDays(12, y), length - 336,
+    "Jalali leap-year mismatch in year " + y);
+}
+
 for (const [year, month, day, expected] of [
   [1403, 12, 30, "2025-03-20"],
   [1404, 1, 1, "2025-03-21"],
@@ -79,6 +107,10 @@ assert.ok(longPeriod.length > 120,
 assert.ok(html.includes("max=\"3660\" step=\"1\""), "Calculation-day input needs a visible integer limit.");
 assert.ok(html.includes("id=\"calcDaysError\""), "Invalid calculation days need an error message.");
 assert.ok(html.includes("id=\"attendanceDaysError\""), "Invalid absence days need an error message.");
+assert.ok(html.includes("if(kind==='solar')return gregorianToJalali(date)"), "Solar date-to-Gregorian fallback is missing.");
+assert.ok(html.includes("if(!formatter)return jalaliToGregorian(wanted);"), "Solar Gregorian-to-date fallback is missing.");
+assert.ok(html.includes("const CALC_ERROR_TEXT="), "Localized validation messages are missing.");
+
 assert.ok(html.includes("if(id==='status'&&data.status==='حاضر'){data.attendanceDays='0';$('attendanceDays').value='0';}"),
   "Changing back to present must clear stale absence days.");
 assert.ok(html.includes("data.attendanceDays='0';}"), "Present status must persist the zero absence value.");
