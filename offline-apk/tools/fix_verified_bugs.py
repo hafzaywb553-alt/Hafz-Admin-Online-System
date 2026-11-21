@@ -87,6 +87,34 @@ replace_once("m=Number(data.month)||1,md=solarDays(m);",
               "m=Number(data.month)||1,md=solarDays(m,y);",
               "selected month leap-year day count")
 
+# Keep the date converter working even when Android WebView lacks ICU's Persian calendar.
+replace_once(
+    "if(kind==='lunar')return islamicCivilFromDate(date);\n  throw new Error('unsupported-calendar');",
+    "if(kind==='lunar')return islamicCivilFromDate(date);\n  if(kind==='solar')return gregorianToJalali(date);\n  throw new Error('unsupported-calendar');",
+    "Solar Hijri formatter fallback")
+replace_once(
+    "const formatter=calendarFormatter('solar');\n    if(!formatter)throw new Error('unsupported-calendar');",
+    "const formatter=calendarFormatter('solar');\n    if(!formatter)return jalaliToGregorian(wanted);",
+    "Solar Hijri input fallback")
+
+error_text = """const CALC_ERROR_TEXT={
+ ps:{calc:'د محاسبې ورځې باید له ۱ څخه تر ۳۶۶۰ پورې بشپړ عدد وي.',absence:'د غیرحاضرۍ ورځې باید له صفر څخه تر ټولو محاسبه کېدونکو ورځو پورې بشپړ عدد وي.'},
+ fa:{calc:'روزهای محاسبه باید عدد کامل از ۱ تا ۳۶۶۰ باشد.',absence:'روزهای غیرحاضری باید عدد کامل از صفر تا مجموع روزهای محاسبه باشد.'},
+ ar:{calc:'يجب أن تكون أيام الحساب عدداً صحيحاً من ١ إلى ٣٦٦٠.',absence:'يجب أن تكون أيام الغياب عدداً صحيحاً من صفر إلى مجموع أيام الحساب.'},
+ ur:{calc:'حساب کے دن ۱ سے ۳۶۶۰ تک مکمل عدد ہونے چاہییں۔',absence:'غیر حاضری کے دن صفر سے کل حسابی دنوں تک مکمل عدد ہونے چاہییں۔'},
+ en:{calc:'Calculation days must be a whole number from 1 to 3660.',absence:'Absence days must be a whole number from zero to the total calculation days.'}
+};
+"""
+replace_once("function render(){", error_text + "function render(){", "localized validation messages")
+replace_once(
+    "calcError.textContent='د محاسبې ورځې باید له ۱ څخه تر ۳۶۶۰ پورې بشپړ عدد وي.';",
+    "calcError.textContent=(CALC_ERROR_TEXT[settings.lang]||CALC_ERROR_TEXT.ps).calc;",
+    "localized calculation-days error")
+replace_once(
+    "attendanceError.textContent='د غیرحاضرۍ ورځې باید له صفر څخه تر ټولو محاسبه کېدونکو ورځو پورې بشپړ عدد وي.';",
+    "attendanceError.textContent=(CALC_ERROR_TEXT[settings.lang]||CALC_ERROR_TEXT.ps).absence;",
+    "localized absence-days error")
+
 # Add clear validation feedback instead of silently coercing invalid values.
 replace_once(
     '<label><span data-t="days">د محاسبې ټولې ورځې</span><input id="calcDays" type="number" min="1" inputmode="numeric" placeholder="خالي = د ټاکل شوې میاشتې بشپړې ورځې"></label>',
