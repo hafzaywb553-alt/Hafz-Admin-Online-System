@@ -6,8 +6,9 @@ on:
       - finance-v23-core-audit-fixes-20261121
     paths:
       - "offline-apk/**"
-      - ".github/workflows/build-finance-v22-four-sections.yml"
-      - "FINANCE-V22-FOUR-SECTIONS-README.md"
+      - ".github/workflows/build-finance-v23-audit.yml"
+      - "offline-apk/tools/patch_finance_v23_core_fixes.py"
+      - "offline-apk/tools/test_finance_v23_core_fixes.js"
   workflow_dispatch:
 
 permissions:
@@ -15,7 +16,7 @@ permissions:
 
 jobs:
   build:
-    name: Build, test and publish Finance V22 APK
+    name: Build, test and publish Finance V23 APK
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -65,7 +66,7 @@ jobs:
       - name: Test four-section navigation and date-help removal
         run: node offline-apk/tools/test_four_section_navigation.js
 
-      - name: Preserve V22 salary tables for byte-for-byte comparison
+      - name: Preserve V22 calculation output for table comparison
         run: cp offline-apk/app/src/main/assets/index.html /tmp/finance-v22-before-v23.html
 
       - name: Apply audited V23 core repairs (do not change salary/allowance tables)
@@ -96,7 +97,7 @@ jobs:
               raise SystemExit("Android integration checks failed.")
           PY
 
-      - name: Check application JavaScript syntax
+      - name: Check V23 application JavaScript syntax
         run: |
           python - <<'PY'
           from pathlib import Path
@@ -105,9 +106,9 @@ jobs:
           if marker not in source or "</script>" not in source:
               raise SystemExit("Inline application JavaScript is missing.")
           script = source.split(marker, 1)[1].split("</script>", 1)[0]
-          Path("/tmp/finance-v22-inline.js").write_text(script, encoding="utf-8")
+          Path("/tmp/finance-v23-inline.js").write_text(script, encoding="utf-8")
           PY
-          node --check /tmp/finance-v22-inline.js
+          node --check /tmp/finance-v23-inline.js
 
       - name: Fetch the official app logo
         run: |
@@ -158,7 +159,7 @@ jobs:
       - name: Upload installable APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Finance-App-V22-Four-Tabs
+          name: Finance-App-V23-Verified
           path: dist-apk/Finance-App-V23-Verified.apk
           if-no-files-found: error
           retention-days: 90
