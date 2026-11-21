@@ -14,6 +14,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.Settings;
+import android.app.KeyguardManager;
 import android.view.View;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebResourceRequest;
@@ -26,6 +27,9 @@ import androidx.biometric.BiometricPrompt;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import java.io.File;
@@ -57,6 +61,11 @@ public class MainActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         getWindow().setStatusBarColor(Color.rgb(3, 11, 25));
         getWindow().setNavigationBarColor(Color.rgb(3, 11, 25));
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            getWindow().setStatusBarContrastEnforced(false);
+            getWindow().setNavigationBarContrastEnforced(false);
+        }
         prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
         setupWebView();
         setupBiometric();
@@ -75,6 +84,13 @@ public class MainActivity extends FragmentActivity {
         webView.getSettings().setBuiltInZoomControls(false);
         webView.getSettings().setDisplayZoomControls(false);
         webView.addJavascriptInterface(new NativeBridge(), "NativeApp");
+        ViewCompat.setOnApplyWindowInsetsListener(webView, (view, insets) -> {
+            androidx.core.graphics.Insets systemBars = insets.getInsets(
+                WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout()
+            );
+            view.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
 
         webView.setWebViewClient(new WebViewClient() {
             @Override
@@ -104,6 +120,7 @@ public class MainActivity extends FragmentActivity {
 
         webView.loadUrl("file:///android_asset/index.html");
         setContentView(webView);
+        ViewCompat.requestApplyInsets(webView);
     }
 
     private void setupBiometric() {
@@ -165,19 +182,44 @@ public class MainActivity extends FragmentActivity {
                 }
             });
 
-        promptInfo = new BiometricPrompt.PromptInfo.Builder()
+        BiometricPrompt.PromptInfo.Builder promptBuilder = new BiometricPrompt.PromptInfo.Builder()
             .setTitle("د مالي مدیریت")
-            .setSubtitle("سخت امنیت • Fingerprint")
-            .setDescription("د اپ د خلاصولو لپاره خپله ثبت شوې ګوته وکاروئ.")
-            .setNegativeButtonText("بندول")
-            .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG)
-            .build();
+            .setSubtitle("Fingerprint یا د موبایل PIN / Pattern")
+            .setDescription("د اپ د خلاصولو لپاره خپله ګوته یا د موبایل خوندي PIN، Pattern یا Password وکاروئ.");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            promptBuilder.setAllowedAuthenticators(
+                BiometricManager.Authenticators.BIOMETRIC_STRONG
+                    | BiometricManager.Authenticators.DEVICE_CREDENTIAL
+            );
+        } else if (isDeviceCredentialSecure()) {
+            // Android 6–10: use the compatibility fallback. The combined bitmask is not
+            // supported on Android 9–10 (API 28–29).
+            promptBuilder.setDeviceCredentialAllowed(true);
+        } else {
+            promptBuilder.setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG);
+            promptBuilder.setNegativeButtonText("بندول");
+        }
+        promptInfo = promptBuilder.build();
+    }
+
+    private boolean isDeviceCredentialSecure() {
+        KeyguardManager keyguard = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
+        return keyguard != null && keyguard.isDeviceSecure();
     }
 
     private void authenticate(boolean forEnable) {
         if (!pageLoaded || authInProgress || biometricPrompt == null) return;
-        int can = BiometricManager.from(this)
-            .canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG);
+        int allowedAuthenticators = BiometricManager.Authenticators.BIOMETRIC_STRONG;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            allowedAuthenticators |= BiometricManager.Authenticators.DEVICE_CREDENTIAL;
+        }
+        int can = BiometricManager.from(this).canAuthenticate(allowedAuthenticators);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R
+                && isDeviceCredentialSecure()
+                && can != BiometricManager.BIOMETRIC_SUCCESS) {
+            // The legacy PromptInfo builder adds the device-credential fallback on API 23–29.
+            can = BiometricManager.BIOMETRIC_SUCCESS;
+        }
 
         if (can != BiometricManager.BIOMETRIC_SUCCESS) {
             if (forEnable) {
@@ -228,6 +270,10 @@ public class MainActivity extends FragmentActivity {
     private boolean handleUri(Uri uri) {
         if (uri == null) return false;
         String scheme = uri.getScheme() == null ? "" : uri.getScheme().toLowerCase();
+        if ("tel".equals(scheme)) {
+            dial(uri.getSchemeSpecificPart());
+            return true;
+        }
         if (!"hafz".equals(scheme)) {
             openExternal(uri.toString());
             return true;
