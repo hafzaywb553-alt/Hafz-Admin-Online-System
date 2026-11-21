@@ -57,6 +57,7 @@ public class MainActivity extends FragmentActivity {
     private boolean pageLoaded = false;
     private boolean enrollmentPending = false;
     private boolean disabling = false;
+    private boolean skipNextResumeAuthentication = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -459,6 +460,7 @@ public class MainActivity extends FragmentActivity {
                 evaluate("window.onNativeUnlocked && window.onNativeUnlocked();");
             } else {
                 unlocked = false;
+                skipNextResumeAuthentication = true;
                 showLock();
                 toast("تایید لغوه شو؛ اپ لا هم قلف دی.");
             }
@@ -588,6 +590,10 @@ public class MainActivity extends FragmentActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        if (skipNextResumeAuthentication) {
+            skipNextResumeAuthentication = false;
+            return;
+        }
         if (!pageLoaded) return;
         if (enrollmentPending) {
             int can = BiometricManager.from(this)
