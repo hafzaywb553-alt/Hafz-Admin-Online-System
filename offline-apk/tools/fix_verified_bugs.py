@@ -106,14 +106,6 @@ error_text = """const CALC_ERROR_TEXT={
 };
 """
 replace_once("function render(){", error_text + "function render(){", "localized validation messages")
-replace_once(
-    "calcError.textContent='د محاسبې ورځې باید له ۱ څخه تر ۳۶۶۰ پورې بشپړ عدد وي.';",
-    "calcError.textContent=(CALC_ERROR_TEXT[settings.lang]||CALC_ERROR_TEXT.ps).calc;",
-    "localized calculation-days error")
-replace_once(
-    "attendanceError.textContent='د غیرحاضرۍ ورځې باید له صفر څخه تر ټولو محاسبه کېدونکو ورځو پورې بشپړ عدد وي.';",
-    "attendanceError.textContent=(CALC_ERROR_TEXT[settings.lang]||CALC_ERROR_TEXT.ps).absence;",
-    "localized absence-days error")
 
 # Add clear validation feedback instead of silently coercing invalid values.
 replace_once(
@@ -146,6 +138,15 @@ replace_once(
     attendanceError.classList.remove('hidden');$('periodNote').textContent='';$('resultRow').innerHTML='';return;
   }""",
     "strict calculation and absence-day validation")
+
+replace_once(
+    "calcError.textContent='د محاسبې ورځې باید له ۱ څخه تر ۳۶۶۰ پورې بشپړ عدد وي.';",
+    "calcError.textContent=(CALC_ERROR_TEXT[settings.lang]||CALC_ERROR_TEXT.ps).calc;",
+    "localized calculation-days error")
+replace_once(
+    "attendanceError.textContent='د غیرحاضرۍ ورځې باید له صفر څخه تر ټولو محاسبه کېدونکو ورځو پورې بشپړ عدد وي.';",
+    "attendanceError.textContent=(CALC_ERROR_TEXT[settings.lang]||CALC_ERROR_TEXT.ps).absence;",
+    "localized absence-days error")
 
 replace_once(
     "const ex=data.status==='حاضر'?0:Math.min(totalDays,Math.max(0,Math.floor(Number(data.attendanceDays)||0)));",
