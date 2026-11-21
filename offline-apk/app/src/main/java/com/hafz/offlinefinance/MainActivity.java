@@ -366,7 +366,7 @@ public class MainActivity extends FragmentActivity {
                 throw new IOException("Installed APK file is not available.");
             }
 
-            File sharedApk = new File(shareDir, "Finance-App-V22-Four-Tabs.apk");
+            File sharedApk = new File(shareDir, "Finance-App-V23-Verified-Fixes.apk");
             try (FileInputStream input = new FileInputStream(sourceApk);
                  FileOutputStream output = new FileOutputStream(sharedApk, false)) {
                 byte[] buffer = new byte[16 * 1024];
@@ -392,7 +392,7 @@ public class MainActivity extends FragmentActivity {
             send.putExtra(Intent.EXTRA_STREAM, apkUri);
             send.putExtra(Intent.EXTRA_SUBJECT, "د مالي مدیریت اصلي APK");
             send.setClipData(ClipData.newUri(
-                getContentResolver(), "Finance-App-V22-Four-Tabs.apk", apkUri
+                getContentResolver(), "Finance-App-V23-Verified-Fixes.apk", apkUri
             ));
             send.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
