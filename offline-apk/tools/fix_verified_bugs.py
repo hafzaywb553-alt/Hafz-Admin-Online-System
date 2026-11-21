@@ -153,6 +153,16 @@ if duplicate in s:
 if s.count("function resetAppearance(){") != 1 or s.count("function resetColors(){") != 1:
     raise SystemExit("Settings reset functions are still duplicated or missing.")
 
+# Offer a real Android device-lock fallback when biometric hardware is unavailable.
+replace_once(
+    '<button type="button" class="btn primary" id="retryFp">بیا د ګوتې نښه</button>\n      <button type="button" class="btn ghost" id="closeLocked">وتل</button>',
+    '<button type="button" class="btn primary" id="retryFp">بیا د ګوتې نښه</button>\n      <button type="button" class="btn ghost" id="deviceCredential">د موبایل PIN / Pattern سره خلاصول</button>\n      <button type="button" class="btn ghost" id="closeLocked">وتل</button>',
+    "device credential fallback button")
+replace_once(
+    "$('retryFp').onclick=()=>{if(window.NativeApp&&NativeApp.retryBiometric){NativeApp.retryBiometric()}};",
+    "$('retryFp').onclick=()=>{if(window.NativeApp&&NativeApp.retryBiometric){NativeApp.retryBiometric()}};\n$('deviceCredential').onclick=()=>{if(window.NativeApp&&NativeApp.confirmDeviceCredential){NativeApp.confirmDeviceCredential()}else{alert('دا اختیار یوازې په اصلي APK کې کار کوي.')}};",
+    "device credential fallback action")
+
 # The existing Android app has a real dialer bridge; route tel: links to it.
 if "function openContact(action)" not in s:
     raise SystemExit("Contact action handler is missing.")
