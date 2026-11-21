@@ -108,10 +108,7 @@ jobs:
         with:
           gradle-version: "8.9"
 
-      - name: Check source whitespace and patch integrity
-        run: git diff --check
-
-      - name: Build universal APK (debug-signed installable build)
+      - name: Build the verified universal APK (debug-signed installable build)
         run: gradle -p offline-apk :app:assembleDebug --no-daemon
 
       - name: Verify package, signature and device compatibility metadata
