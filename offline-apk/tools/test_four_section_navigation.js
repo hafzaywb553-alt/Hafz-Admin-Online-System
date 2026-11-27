@@ -66,10 +66,9 @@ for (const unwanted of [
   assert.ok(!html.includes(unwanted), "Date help/example content should be removed: " + unwanted);
 }
 
-const start = html.indexOf("function showSection(id,btn){");
-const end = html.indexOf("\nfunction contactText()", start);
-assert.ok(start >= 0 && end > start, "The navigation controller was not found.");
-const controller = html.slice(start, end);
+const controllerMatch = html.match(/function showSection\\(id,btn\\)\\{[\\s\\S]*?\\n\\}/);
+assert.ok(controllerMatch, "The navigation controller was not found.");
+const controller = controllerMatch[0];
 
 class FakeClassList {
   constructor() { this.values = new Set(); }
