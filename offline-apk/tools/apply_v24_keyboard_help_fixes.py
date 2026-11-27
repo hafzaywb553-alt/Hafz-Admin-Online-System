@@ -82,7 +82,8 @@ keyboard_js = r"""
 """
 help_marker = "let activeHelpTrigger=null;"
 if html.count(help_marker) != 1:
-    raise SystemExit("Could not uniquely locate the original Settings Help controller.")
+    matches = [line for line in html.splitlines() if "activeHelpTrigger" in line or "function helpTriggers" in line]
+    raise SystemExit(f"Could not uniquely locate the original Settings Help controller: marker_count={html.count(help_marker)}; candidates={matches[:12]}")
 html = replace_once(html, help_marker, keyboard_js + "\n" + help_marker, "keyboard JS insertion")
 
 old_handler_start = "// Delegated click handling is lighter and more reliable in older Android WebView builds."
