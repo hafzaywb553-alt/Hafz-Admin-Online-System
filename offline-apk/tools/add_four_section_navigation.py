@@ -186,7 +186,7 @@ if "</style>" not in html:
 html = html.replace("</style>", active_css + "\n</style>", 1)
 
 # Keep the same four existing sections and make the selected menu state explicit.
-show_section_pattern = re.compile(r"function showSection\\(id,btn\\)\\{[\\s\\S]*?\\n\\}", re.MULTILINE)
+show_section_pattern = re.compile(r"function showSection\(id,btn\)\{[\s\S]*?\n\}", re.MULTILINE)
 show_section_match = show_section_pattern.search(html)
 if not show_section_match:
     raise SystemExit("The existing showSection function was not found.")
