@@ -66,7 +66,7 @@ for (const unwanted of [
   assert.ok(!html.includes(unwanted), "Date help/example content should be removed: " + unwanted);
 }
 
-const controllerMatch = html.match(/function showSection\\(id,btn\\)\\{[\\s\\S]*?\\n\\}/);
+const controllerMatch = html.match(/function showSection\(id,btn\)\{[\s\S]*?\n\}/);
 assert.ok(controllerMatch, "The navigation controller was not found.");
 const controller = controllerMatch[0];
 
