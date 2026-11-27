@@ -262,7 +262,7 @@ new_method = r'''    private void setupWebView() {
         }
     }
 '''
-java = java.slice(0, method_start) + new_method + java.slice(method_end)
+java = java[:method_start] + new_method + java[method_end:]
 java = java.replace("Finance-App-V23-Verified-Fixes.apk", "Finance-App-V25-Keyboard-Focus-Fix.apk")
 java_path.write_text(java, encoding="utf-8")
 
