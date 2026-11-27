@@ -15,7 +15,7 @@ permissions:
 
 jobs:
   build:
-    name: Build, test and publish Finance V24 APK
+    name: Build, test and publish Finance V25 APK
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
