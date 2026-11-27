@@ -1,0 +1,172 @@
+name: Build Finance V25 - Keyboard Focus Fix
+
+on:
+  push:
+    branches:
+      - finance-v25-keyboard-focus-fix-20261127
+    paths:
+      - "offline-apk/**"
+      - ".github/workflows/build-finance-v25-keyboard-focus-fix.yml"
+      - "FINANCE-V22-FOUR-SECTIONS-README.md"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build, test and publish Finance V24 APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Restore the verified original V18 HTML source
+        shell: bash
+        run: |
+          set -euo pipefail
+          asset="offline-apk/app/src/main/assets"
+          cat \
+            "$asset/index.html.gz.b64" \
+            "$asset/index.html.gz.part01" \
+            "$asset/index.html.gz.part02" \
+            "$asset/index.html.gz.part03" \
+            "$asset/index.html.gz.part04" \
+            "$asset/index.html.gz.part05" \
+            "$asset/index.html.gz.part06" \
+            "$asset/index.html.gz.part07" \
+            | base64 --decode | gzip --decompress --stdout > "$asset/index.html"
+          echo "a698e9f156e5826108b3a11653e70c594172d1d10f8498e029c9bfb21f5a08ed  $asset/index.html" | sha256sum --check
+          test "$(wc -c < "$asset/index.html")" -eq 149876
+
+      - name: Add the existing leave calculator
+        run: python offline-apk/tools/add_leave_calculator.py
+
+      - name: Exclude Fridays from leave-day count
+        run: python offline-apk/tools/exclude_fridays_from_leave.py
+
+      - name: Test leave calculations in all three calendars
+        run: node offline-apk/tools/test_leave_calculator.js
+      - name: Add four-section navigation and remove date help
+        run: python offline-apk/tools/add_four_section_navigation.py
+
+      - name: Test four-section navigation and date-help removal
+        run: node offline-apk/tools/test_four_section_navigation.js
+
+      - name: Apply verified calculator, settings and calendar fixes
+        run: python offline-apk/tools/fix_verified_bugs.py
+
+      - name: Test salary tables, Jalali leap years and Android regressions
+        run: node offline-apk/tools/test_finance_regressions.js
+
+      - name: Repair Android keyboard and Settings Help interactions
+        run: python offline-apk/tools/apply_v24_keyboard_help_fixes.py
+
+      - name: Test keyboard focus and every Help modal action
+        run: node offline-apk/tools/test_finance_v24_keyboard_help.js
+
+      - name: Apply native IME resize and robust field visibility fixes
+        run: python offline-apk/tools/apply_v25_keyboard_focus_fix.py
+
+      - name: Test keyboard resizing and focused fields across WebView modes
+        run: node offline-apk/tools/test_finance_v25_keyboard_focus_fix.js
+
+
+      - name: Check application JavaScript syntax
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          source = Path("offline-apk/app/src/main/assets/index.html").read_text(encoding="utf-8")
+          marker = "<script>"
+          if marker not in source or "</script>" not in source:
+              raise SystemExit("Inline application JavaScript is missing.")
+          script = source.split(marker, 1)[1].split("</script>", 1)[0]
+          Path("/tmp/finance-v25-inline.js").write_text(script, encoding="utf-8")
+          PY
+          node --check /tmp/finance-v25-inline.js
+
+      - name: Fetch the official app logo
+        run: |
+          mkdir -p offline-apk/app/src/main/assets offline-apk/app/src/main/res/drawable-nodpi
+          curl -fL --retry 3 --retry-delay 2 "https://asset.brandfetch.io/idlPl1eH_L/id7y_FVBYZ.png?updated=1711333942835" -o offline-apk/app/src/main/assets/mof-logo.png
+          cp offline-apk/app/src/main/assets/mof-logo.png offline-apk/app/src/main/res/drawable-nodpi/mof_logo.png
+          test -s offline-apk/app/src/main/assets/mof-logo.png
+          test -s offline-apk/app/src/main/res/drawable-nodpi/mof_logo.png
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+
+      - name: Install Android SDK packages
+        run: |
+          yes | sdkmanager --licenses >/dev/null 2>&1 || true
+          sdkmanager "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.9"
+
+      - name: Build the verified universal APK (debug-signed installable build)
+        run: gradle -p offline-apk :app:assembleDebug --no-daemon
+
+      - name: Verify package, signature and device compatibility metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          apk="offline-apk/app/build/outputs/apk/debug/app-debug.apk"
+          test -s "$apk"
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose "$apk"
+          badging="$("$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$apk")"
+          printf '%s\n' "$badging" | grep "package: name='com.hafz.offlinefinance.v25' versionCode='25' versionName='2.5'"
+          printf '%s\n' "$badging" | grep "sdkVersion:'23'"
+          printf '%s\n' "$badging" | grep "targetSdkVersion:'35'"
+          if unzip -Z1 "$apk" | grep -q '^lib/'; then
+            echo "Unexpected ABI-specific native library found; APK is not universal."
+            exit 1
+          fi
+          mkdir -p dist-apk
+          cp "$apk" dist-apk/Finance-App-V25-Keyboard-Focus-Fix.apk
+          sha256sum dist-apk/Finance-App-V25-Keyboard-Focus-Fix.apk
+          ls -lh dist-apk/Finance-App-V25-Keyboard-Focus-Fix.apk
+
+      - name: Upload installable APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Finance-App-V25-Keyboard-Focus-Fix
+          path: dist-apk/Finance-App-V25-Keyboard-Focus-Fix.apk
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Publish direct APK download
+        if: github.event_name == 'push' && github.ref == 'refs/heads/finance-v25-keyboard-focus-fix-20261127'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: finance-v25-keyboard-focus-fix-20261127
+          name: Finance V25 - Keyboard Focus Fix
+          body: |
+            Finance V25 is built from the verified V18 base plus the validated leave-calculator, Friday-exclusion, four-section, salary-table and settings repairs. It retains the original four-section finance system and calculations.
+            Android 6–14 uses the platform's actual adjustResize content window without subtracting IME height twice. Android 15+ resizes the WebView using system-bar and IME insets. Every editable field is scrolled into the visible viewport, with and without VisualViewport support. Existing Settings Help interactions remain in place.
+            The original four sections, military salary and allowance tables, Friday-excluded leave calculator, Solar/Lunar/Gregorian calendars, contacts, settings and local offline storage behavior are retained.
+            Automated checks verify the salary/allowance table hash, application regressions and the Help modal controller actions.
+            Android minimum: 6.0 (API 23). Universal APK: no ABI-specific native libraries.
+            Package: com.hafz.offlinefinance.v25
+            Version: 2.5 (25). A separate package ID is used because the previous V24 debug-signing private key is not available. Keep V24 installed as a data backup; its local records are not automatically transferred to V25.
+            Signing: this APK is debug-signed. A persistent private release signing key is required before future updates can replace this installation in place.
+          files: dist-apk/Finance-App-V25-Keyboard-Focus-Fix.apk
+          make_latest: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
