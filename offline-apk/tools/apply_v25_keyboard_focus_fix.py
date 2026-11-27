@@ -263,13 +263,13 @@ new_method = r'''    private void setupWebView() {
     }
 '''
 java = java.slice(0, method_start) + new_method + java.slice(method_end)
-java = java.replaceAll("Finance-App-V23-Verified-Fixes\\.apk", "Finance-App-V25-Keyboard-Focus-Fix.apk")
+java = java.replace("Finance-App-V23-Verified-Fixes.apk", "Finance-App-V25-Keyboard-Focus-Fix.apk")
 java_path.write_text(java, encoding="utf-8")
 
-let gradle = gradle_path.read_text(encoding="utf-8");
-gradle = replace_once(gradle, "applicationId 'com.hafz.offlinefinance.v24'", "applicationId 'com.hafz.offlinefinance.v25'", "V25 application ID");
-gradle = replace_once(gradle, "versionCode 24", "versionCode 25", "V25 version code");
-gradle = replace_once(gradle, "versionName '2.4'", "versionName '2.5'", "V25 version name");
+gradle = gradle_path.read_text(encoding="utf-8")
+gradle = replace_once(gradle, "applicationId 'com.hafz.offlinefinance.v24'", "applicationId 'com.hafz.offlinefinance.v25'", "V25 application ID")
+gradle = replace_once(gradle, "versionCode 24", "versionCode 25", "V25 version code")
+gradle = replace_once(gradle, "versionName '2.4'", "versionName '2.5'", "V25 version name")
 gradle_path.write_text(gradle, encoding="utf-8")
 
 print("PASS: V25 resized the native WebView viewport and replaced the V24 field-reveal logic.")
