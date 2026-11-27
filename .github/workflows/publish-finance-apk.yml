@@ -1,4 +1,4 @@
-name: Publish Finance V18 APK for File Sharing
+name: Publish Finance V25 APK for File Sharing
 
 on:
   push:
@@ -23,23 +23,24 @@ jobs:
           ref: main
           fetch-depth: 0
 
-      - name: Download and verify official Finance V18 APK
+      - name: Download and verify official Finance V25 APK
         run: |
           curl -fL --retry 3 --retry-delay 2 \
-            "https://github.com/hafzaywb553-alt/Hafz-Admin-Online-System/releases/download/finance-share-v18-20261111-final/Finance-App-V18.apk" \
-            -o /tmp/Finance-App-V18.apk
-          test -s /tmp/Finance-App-V18.apk
-          unzip -tq /tmp/Finance-App-V18.apk
+            "https://github.com/hafzaywb553-alt/Hafz-Admin-Online-System/releases/download/finance-v25-keyboard-focus-fix-20261127/Finance-App-V25-Keyboard-Focus-Fix.apk" \
+            -o /tmp/Finance-App-V25-Keyboard-Focus-Fix.apk
+          test -s /tmp/Finance-App-V25-Keyboard-Focus-Fix.apk
+          printf '%s  %s\n' "7ac6cf62799fe51616c721e08710360e00afbc389c737a1817d268dfa6c1340d" "/tmp/Finance-App-V25-Keyboard-Focus-Fix.apk" | sha256sum -c -
+          unzip -tq /tmp/Finance-App-V25-Keyboard-Focus-Fix.apk
 
-      - name: Publish APK to repository
+      - name: Publish APK to repository for direct file sharing
         run: |
-          install -m 644 /tmp/Finance-App-V18.apk Finance-App-V18.apk
+          install -m 644 /tmp/Finance-App-V25-Keyboard-Focus-Fix.apk Finance-App-V25-Keyboard-Focus-Fix.apk
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add Finance-App-V18.apk
+          git add Finance-App-V25-Keyboard-Focus-Fix.apk
           if git diff --cached --quiet; then
-            echo "Finance V18 APK is already up to date."
+            echo "Finance V25 APK is already up to date."
           else
-            git commit -m "Publish Finance V18 APK for file sharing"
+            git commit -m "Publish Finance V25 APK for direct file sharing"
             git push origin HEAD:main
           fi
