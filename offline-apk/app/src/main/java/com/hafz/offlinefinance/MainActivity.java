@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.Settings;
 import android.view.View;
+import android.view.WindowManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
@@ -58,10 +59,15 @@ public class MainActivity extends FragmentActivity {
     private boolean enrollmentPending = false;
     private boolean disabling = false;
     private boolean skipNextResumeAuthentication = false;
+    private boolean imeVisible = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().setSoftInputMode(
+            WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
+                | WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN
+        );
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
         getWindow().setStatusBarColor(Color.TRANSPARENT);
         getWindow().setNavigationBarColor(Color.TRANSPARENT);
@@ -77,7 +83,15 @@ public class MainActivity extends FragmentActivity {
             Insets safe = windowInsets.getInsets(
                 WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout()
             );
-            view.setPadding(safe.left, safe.top, safe.right, safe.bottom);
+            boolean keyboardNowVisible = windowInsets.isVisible(WindowInsetsCompat.Type.ime());
+            Insets keyboard = windowInsets.getInsets(WindowInsetsCompat.Type.ime());
+            int bottomInset = keyboardNowVisible ? Math.max(safe.bottom, keyboard.bottom) : safe.bottom;
+            view.setPadding(safe.left, safe.top, safe.right, bottomInset);
+
+            if (imeVisible != keyboardNowVisible) {
+                imeVisible = keyboardNowVisible;
+                view.post(() -> evaluate("window.setNativeKeyboardVisible && window.setNativeKeyboardVisible(" + imeVisible + ");"));
+            }
             return windowInsets;
         });
         webView.setOverScrollMode(View.OVER_SCROLL_NEVER);
@@ -99,6 +113,7 @@ public class MainActivity extends FragmentActivity {
                 super.onPageFinished(view, url);
                 pageLoaded = true;
                 webView.setVisibility(View.VISIBLE);
+                evaluate("window.setNativeKeyboardVisible && window.setNativeKeyboardVisible(" + imeVisible + ");");
                 if (prefs.getBoolean(BIOMETRIC_ENABLED, false)) {
                     showLock();
                     authenticate(false);
