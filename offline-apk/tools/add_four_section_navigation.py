@@ -186,10 +186,10 @@ if "</style>" not in html:
 html = html.replace("</style>", active_css + "\n</style>", 1)
 
 # Keep the same four existing sections and make the selected menu state explicit.
-start = html.find("function showSection(id,btn){")
-end = html.find("\nfunction contactText()", start)
-if start < 0 or end < 0 or end <= start:
-    raise SystemExit("The existing showSection function boundaries were not found.")
+show_section_pattern = re.compile(r"function showSection\\(id,btn\\)\\{[\\s\\S]*?\\n\\}", re.MULTILINE)
+show_section_match = show_section_pattern.search(html)
+if not show_section_match:
+    raise SystemExit("The existing showSection function was not found.")
 replacement = """function showSection(id,btn){
   ['salarySection','dateSection','contactSection','settingsSection'].forEach(x=>{
     const section=$(x);
@@ -202,7 +202,7 @@ replacement = """function showSection(id,btn){
     else x.removeAttribute('aria-current');
   });
 }"""
-html = html[:start] + replacement + html[end:]
+html = html[:show_section_match.start()] + replacement + html[show_section_match.end():]
 
 # Mark the default selected menu item for accessibility on first launch.
 html, count = re.subn(
