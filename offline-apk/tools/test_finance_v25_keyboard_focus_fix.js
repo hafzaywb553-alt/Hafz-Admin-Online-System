@@ -78,7 +78,7 @@ function runFocusCase(useVisualViewport, visibleHeight) {
     addEventListener(type, fn) { (this.listeners[type] ||= []).push(fn); },
   } : null;
   const window = {
-    innerHeight: 820,
+    innerHeight: useVisualViewport ? 820 : visibleHeight,
     visualViewport,
     getComputedStyle() { return { overflowY: "visible", overflow: "visible" }; },
     addEventListener(type, fn) { (events["window:" + type] ||= []).push(fn); },
